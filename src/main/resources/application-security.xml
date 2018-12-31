@@ -1,0 +1,51 @@
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
+    http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.2.xsd">
+
+    <http auto-config="true">
+        <headers>
+            <frame-options policy="SAMEORIGIN"/>
+        </headers>
+
+        <intercept-url pattern="/" access="permitAll"/>
+        <!-- <intercept-url pattern="/home" access="permitAll"/>-->
+        <!-- <intercept-url pattern="/admin/assets/**" access="permitAll" />-->
+        <intercept-url pattern="/rbac/getFunctionList.jspa" access="permitAll"/>
+       <!-- <intercept-url pattern="/admin/login.jspa" access="permitAll"/>
+        <intercept-url pattern="/admin/index.jspa" access="permitAll"/>-->
+        <intercept-url pattern="/admin/upload/*.jspa" access="hasRole('ADMIN')"/>
+        <intercept-url pattern="/admin/*.jspa" access="hasRole('ADMIN')"/>
+        <!--<intercept-url pattern="/remark/*.jspa" access="hasRole('ADMIN')"/>-->
+        <intercept-url pattern="/dba*" access="hasRole('ADMIN') and hasRole('DBA')"/>
+        <!-- authentication-success-forward-url="/ace/index.html"-->
+        <!--   default-target-url="/admin/index.jspa"-->
+        <!-- authentication-success-forward-url="/admin/index.jspa?forward" -->
+        <form-login login-page="/loginPage.jspa"
+                    username-parameter="loginName"
+                    password-parameter="password"
+                    login-processing-url="/login"
+                    authentication-success-handler-ref="customLoginHandler"
+                    authentication-failure-url="/loginPage.jspa?error"/>
+        <csrf disabled="true"/>
+
+        <remember-me remember-me-parameter="remember-me" remember-me-cookie="remember-me"
+                     token-repository-ref="jdbcTokenRepository"
+                     token-validity-seconds="86400"/>
+    </http>
+
+    <beans:bean id="customUserDetailsService" class="com.zcreate.security.auth.CustomUserDetailsService"/>
+
+    <beans:bean id="securityProvider" class="com.zcreate.security.auth.SecurityProvider"/>
+    <authentication-manager>
+        <authentication-provider ref="securityProvider"/>
+    </authentication-manager>
+    <beans:bean id="customLoginHandler" class="com.zcreate.security.auth.LoginSuccessHandler">
+        <beans:property name="defaultTargetUrl" value="/index.jspa"/>
+    </beans:bean>
+    <beans:bean id="jdbcTokenRepository" class="org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl">
+        <beans:property name="dataSource" ref="securityDS"/>
+    </beans:bean>
+
+</beans:beans>

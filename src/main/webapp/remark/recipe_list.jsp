@@ -60,8 +60,8 @@
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     },
-                    {"orderable": false, "targets": 1, title: '住院号'},
-                    {"orderable": false, "targets": 2, title: '病人'},
+                    {"orderable": false, "targets": 1, title: '住院号',width:60},
+                    {"orderable": false, "targets": 2, title: '病人',width:60},
                     {"orderable": false, "targets": 3, title: '年龄'},
                     {"orderable": false, "targets": 4, title: '入院日期', width: 130},
                     {"orderable": false, "targets": 5, title: '出院日期', width: 130},
@@ -70,7 +70,7 @@
                     {"orderable": false, "targets": 8, title: '总金额', defaultContent: ''},
                     {"orderable": false, "targets": 9, title: '药品金额'},
                     {"orderable": false, "targets": 10, title: '入院诊断', defaultContent: ''},
-                    {"orderable": false, "targets": 11, title: '主管医生', defaultContent: ''},
+                    {"orderable": false, "targets": 11, title: '主管医生', defaultContent: '',width:60},
                     {"orderable": false, "targets": 12, title: '合理', defaultContent: ''},
                     {"orderable": false, searchable: false, "targets": 13, title: '问题代码'},
                     {

@@ -65,6 +65,7 @@
 
     <%--<script src="../assets/js/x-editable/ace-editable.min.js"></script>--%>
     <script src="../js/string_func.js"></script>
+    <script src="../js/accounting.min.js"></script>
     <%--<script src="https://cdn.bootcss.com/moment.js/2.22.1/moment.min.js"></script>
     <script src="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>--%>
     <%--<script src="../components/moment/moment.min.js"></script>
@@ -81,9 +82,9 @@
                 paging: false, searching: false, ordering: false, "destroy": true,
                 'columnDefs': [
                     {
-                        "orderable": false, "data": 'recipeItemID', "targets": 0, width: 60, className: 'center', title: '预防<br/>治疗', render: function (data, type, row, meta) {
-                            return '<input type="radio" name="{0}" value="预防" {1}>预防<br/><input type="radio" name="{2}" value="治疗" {3}>治疗'
-                                .format(data, row["purpose"] === "预防" ? "checked" : "", data, row["purpose"] === "治疗" ? "checked" : "");
+                        "orderable": false, "data": 'recipeItemID', "targets": 0, width: 50, className: 'center', title: '治疗<br/>预防', render: function (data, type, row, meta) {
+                            return '<input type="radio" name="{0}" value="治疗" {1}>□<br/><input type="radio" name="{2}" value="预防" {3}>△'
+                                .format(data, row["purpose"] === "治疗" ? "checked" : "", data, row["purpose"] === "预防" ? "checked" : "");
                         }
                     },
                     {
@@ -108,65 +109,46 @@
                     },
                     {
                         "orderable": false, "data": "quantity", "targets": 5, width: 50, title: '总用量', className: 'center', render: function (data, type, row, meta) {
-                            return '<a href="#" data-value="{0}" data-type="text" >{1}</a>'.format(data, data);
+                            return '<a href="#" id="total_quantity" data-value="{0}" data-type="text" >{1}</a>'.format(data, data);
                         }
                     },
-                    {"orderable": false, "data": "recipeDate", "targets": 6, className: 'center', title: '起止时间<br/><span class="light-grey" style="font-size: 7px">月日时分</span>'}
+                    {
+                        "orderable": false, "data": "recipeDate", "targets": 6, className: 'center', title: '起止时间<br/><span class="light-grey" style="font-size: 7px">月日时分</span>',
+                        render: function (data, type, row, meta) {
+                            return '<a href="#" data-value="{0}" data-type="text" >{1}</a>'.format(data, data);
+                        }
+                    }
                 ]
 
             });
 
             drugTable.on('draw', function (e, setting) {
-                $('#antiNum').val(drugTable.data().length);
-                $("#drugTable tr").find("td a").editable({
-                    // emptytext: "(给药频次)",
+                $('#form-field-antiNum').val(drugTable.data().length);
+                $("#drugTable tr").find("td a[id!='total_quantity']").editable();
+                $("#drugTable tr").find("td a[id='total_quantity']").editable({
                     success: function (response, newValue) {
-                        /* var buyRecord = {buyID: $(this).attr("data-pk"), buyMemo: newValue};
-                        postBuyRecord(buyRecord);*/
+                        var reg = /^[0-9]*$/;
+                        if (reg.test(newValue)) {
+                            var row = drugTable.row($(this).parent().closest('tr')).data();
+                            row['quantity'] = parseInt(newValue);
+                            sumAntiMoney();
+                        }
                     }
                 });
-            });
-            var longTable = $('#long-table').DataTable({
-                bAutoWidth: false,
-                paging: false, searching: false, ordering: false, "destroy": true,
 
-                select: {style: 'multi', selector: 'td:first-child :checkbox'},
-                'columnDefs': [
-                    {
-                        targets: 0, data: "", defaultContent: '', orderable: false, width: 10, /*className: 'select-checkbox',*/ render: function (data, type, row, meta) {
-                            return row['antiClass'] > 0 ? '<input type="checkbox">' : "";
-                        }
-                    },
-                    {"orderable": false, "data": "recipeDate", "targets": 1, title: '开始时间', width: 90, className: 'center'},
-                    {"orderable": false, "data": "adviceType", "targets": 2, title: '&nbsp;'},
-                    {
-                        "orderable": false, "data": "advice", "targets": 3, title: '医嘱内容', defaultContent: '', width: 120, render: function (data, type, row, meta) {
-                            return row["antiClass"] > 0 ? "<span class='pink2'>" + data + "</span>" : data;
-                        }
-                    },
-                    {"orderable": false, "data": "quantity", "targets": 4, title: '数量', width: 40, className: 'center'},
-                    {"orderable": false, "data": "unit", "targets": 5, title: '单位', width: 40, className: 'center'},
-                    {"orderable": false, "data": "doctorName", "targets": 6, title: '医生', width: 60},
-                    {"orderable": false, "data": "nurseName", "targets": 7, title: '护士', width: 60},
-                    {"orderable": false, "data": "endDate", "targets": 8, title: '停止时间', width: 90, className: 'center'},
-                    {"orderable": false, "data": "endDoctorName", "targets": 9, title: '医生'},
-                    {"orderable": false, "data": "endNurseName", "targets": 10, title: '护士'}
-                ],
-                "aaSorting": [],
-                language: {
-                    url: '../js/datatables/datatables.chinese.json'
-                },
-                scrollY: '55vh',
-                "ajax": {
-                    url: "/remark/getRecipeItemList.jspa?longAdvice=1&serialNo=${recipe.serialNo}",
-                    "data": function (d) {//删除多余请求参数
-                        for (var key in d)
-                            if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
-                                delete d[key];
-                    }
-                }
+                sumAntiMoney();
             });
-            var shortTable = $('#short-table').DataTable({
+
+            function sumAntiMoney() {
+                var antiMoney = 0;
+                drugTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
+                    var rowData = this.data();
+                    antiMoney += rowData['price'] * rowData['quantity'];
+                });
+                $('#form-field-antiMoney').val(accounting.formatNumber(antiMoney, 2));
+            }
+
+            var longTable = $('#long-table').DataTable({
                 bAutoWidth: false,
                 paging: false, searching: false, ordering: false, "destroy": true,
                 select: {style: 'multi', selector: 'td:first-child :checkbox'},
@@ -174,10 +156,11 @@
                     {
                         targets: 0, data: "recipeItemID", defaultContent: '', orderable: false, width: 10, /*className: 'select-checkbox',*/ render: function (data, type, row, meta) {
                             if (row['antiClass'] > 0) {
-                                for (var i = 0; i < saveJson.用药情况.length; i++) {
-                                    if (saveJson.用药情况[i].recipeItemID === data)
-                                        return '<input type="checkbox" checked>';
-                                }
+                                if (typeof (saveJson.用药情况) !== 'undefined')
+                                    for (var i = 0; i < saveJson.用药情况.length; i++) {
+                                        if (saveJson.用药情况[i].recipeItemID === data)
+                                            return '<input type="checkbox" checked>';
+                                    }
                                 return '<input type="checkbox">';
                             }
                             return "";
@@ -203,7 +186,60 @@
                     url: '../js/datatables/datatables.chinese.json',
                     select: {
                         rows: {
-                            _: "已选择 %d 行", 0: "单击行可选择该行", 1: "仅选了 1 行"
+                            _: "已选择 %d 行", 0: "单击选行", 1: "仅选了 1 行"
+                        }
+                    }
+                },
+
+                scrollY: '60vh',
+                "ajax": {
+                    url: "/remark/getRecipeItemList.jspa?longAdvice=1&serialNo=${recipe.serialNo}",
+                    "data": function (d) {//删除多余请求参数
+                        for (var key in d)
+                            if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
+                                delete d[key];
+                    }
+                }
+            });
+            var shortTable = $('#short-table').DataTable({
+                bAutoWidth: false,
+                paging: false, searching: false, ordering: false, "destroy": true,
+                select: {style: 'multi', selector: 'td:first-child :checkbox'},
+                'columnDefs': [
+                    {
+                        targets: 0, data: "recipeItemID", defaultContent: '', orderable: false, width: 10, /*className: 'select-checkbox',*/ render: function (data, type, row, meta) {
+                            if (row['antiClass'] > 0) {
+                                if (typeof (saveJson.用药情况) !== 'undefined')
+                                    for (var i = 0; i < saveJson.用药情况.length; i++) {
+                                        if (saveJson.用药情况[i].recipeItemID === data)
+                                            return '<input type="checkbox" checked>';
+                                    }
+                                return '<input type="checkbox">';
+                            }
+                            return "";
+                        }
+                    },
+                    {"orderable": false, "data": "recipeDate", "targets": 1, title: '开始时间', width: 90, className: 'center'},
+                    {"orderable": false, "data": "adviceType", "targets": 2, title: '&nbsp;'},
+                    {
+                        "orderable": false, "data": "advice", "targets": 3, title: '医嘱内容', defaultContent: '', width: 120, render: function (data, type, row, meta) {
+                            return row["antiClass"] > 0 ? "<span class='pink2'>" + data + "</span>" : data;
+                        }
+                    },
+                    {"orderable": false, "data": "quantity", "targets": 4, title: '数量', width: 40, className: 'center'},
+                    {"orderable": false, "data": "unit", "targets": 5, title: '单位', width: 40, className: 'center'},
+                    {"orderable": false, "data": "doctorName", "targets": 6, title: '医生', width: 60},
+                    {"orderable": false, "data": "nurseName", "targets": 7, title: '护士', width: 60},
+                    {"orderable": false, "data": "endDate", "targets": 8, title: '停止时间', width: 90, className: 'center'},
+                    {"orderable": false, "data": "endDoctorName", "targets": 9, title: '医生'},
+                    {"orderable": false, "data": "endNurseName", "targets": 10, title: '护士'}
+                ],
+                "aaSorting": [],
+                language: {
+                    url: '../js/datatables/datatables.chinese.json',
+                    select: {
+                        rows: {
+                            _: "已选择 %d 行", 0: "单击选行", 1: "仅选了 1 行"
                         }
                     }
                 },
@@ -223,6 +259,14 @@
                 //加载时，通过render函数增加了checked，这里把整行选上
                 $('#short-table tr').find('input[type="checkbox"]:checked').parent().parent().each(function (index, element) {
                     shortTable.row(element).select();
+                });
+                shortTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
+                    if (typeof (this.data()) !== 'undefined' && this.data()['antiClass'] > 0) {
+                        var rowData = this.data();
+                        $.getJSON("/remark/getMedicine.jspa?medicineNo=" + this.data()['medicineNo'], function (result) {
+                            rowData['price'] = result.price;
+                        });
+                    }
                 });
             }).on('select', function (e, dt, type, indexes) {
                 chooseTab('#dropdown17');
@@ -262,7 +306,6 @@
                     }
                 }
                 //找 大输液
-                console.log("dateIndex:" + dateIndex);
                 if (dateIndex >= 0)
                     for (var cc = dateIndex; cc < index + 10; cc++) {/*增加表行数判断*/
                         //console.log("medicineNo:" + JSON.stringify(shortTable.row(cc).data()));
@@ -282,7 +325,7 @@
                         }
                     }
                 //console.log("recipeDate:" + rowData['recipeDate'].replace(/20\d\d-/g, ''));
-                if (rowData['recipeDate'] !== null || rowData['recipeDate'] !== '')
+                if (rowData['recipeDate'] !== null && rowData['recipeDate'] !== '')
                     rowData['recipeDate'] = rowData['recipeDate'].replace(/20\d\d-/g, '');
 
                 drugTable.row.add(rowData).draw(true);
@@ -295,16 +338,97 @@
                         drugTable.row(rowIdx).remove().draw();
                 });
             });
-            longTable.on('select', function (e, dt, type, indexes) {
-                var rowData = longTable.row(indexes).data();
-                // console.log("groupID:" + rowData["groupID"]);
-                $("#drugTable tr:last").after(Handlebars.compile("<tr data-id='{{recipeItemID}}'><td>{{type}}</td><td>{{disease}}</td></tr>")(rowData));
+            longTable.on('draw', function (e, settings) {
+                //加载时，通过render函数增加了checked，这里把整行选上
+                $('#long-table tr').find('input[type="checkbox"]:checked').parent().parent().each(function (index, element) {
+                    longTable.row(element).select();
+                });
+                longTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
+                    if (typeof (this.data()) !== 'undefined' && this.data()['antiClass'] > 0) {
+                        var rowData = this.data();
+                        $.getJSON("/remark/getMedicine.jspa?medicineNo=" + this.data()['medicineNo'], function (result) {
+                            rowData['price'] = result.price;
+                        });
+                    }
+                });
+            }).on('select', function (e, dt, type, indexes) {
+                chooseTab('#dropdown17');
 
+                var index = parseInt(indexes);
+                var rowData = jQuery.extend({}, longTable.row(index).data());//浅层复制（克隆）
+                var exists = false;
+                //先判断是否存在，如存在不添加
+                drugTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
+                    //console.log("item:" + JSON.stringify(this.data()));
+                    if (typeof (this.data()) !== 'undefined' && rowData["recipeItemID"] === this.data()["recipeItemID"])
+                        exists = true;
+                });
+                if (exists) return;
+                if (typeof (rowData['price']) === 'undefined' && typeof (rowData['medicineNo']) !== 'undefined')
+                    $.getJSON("/remark/getMedicine.jspa?medicineNo=" + rowData['medicineNo'], function (result) {
+                        console.log("price:" + result.price);
+                        rowData['price'] = result.price;
+                    });
+
+                rowData['singleQty'] = rowData['quantity'];//todo remove
+                rowData['frequency'] = rowData['quantity'];
+
+                //不是每一行都有日期，向前找日期
+                var dateIndex = -1;
+                if (rowData['recipeDate'] == null || rowData['recipeDate'] === '') {
+                    for (var aa = index - 1; aa >= 0; aa--)
+                        if (longTable.row(aa).data()['recipeDate'] !== '') {
+                            dateIndex = aa;
+                            rowData['recipeDate'] = longTable.row(aa).data()['recipeDate'];
+                            break;
+                        }
+                } else dateIndex = index;
+
+                //向后找 用法
+                for (var cc = index + 1; cc < index + 10; cc++) {//增加表行数判断
+                    // console.log("medicineNo:" +JSON.stringify( longTable.row(cc).data()));
+                    if (longTable.row(cc).data()['recipeDate'] > 0) break;
+                    if (typeof (longTable.row(cc).data()['adviceType']) !== 'undefined' && longTable.row(cc).data()['adviceType'] === 's') {
+                        rowData['adviceType'] = longTable.row(cc).data()['advice'].replace('Sig:', '').replace(/(^\s+)|(\s+$)/g, '');
+                        break;
+                    }
+                }
+                //找 大输液
+                if (dateIndex >= 0)
+                    for (var cc = dateIndex; cc < index + 10; cc++) {/*增加表行数判断*/
+                        //console.log("medicineNo:" + JSON.stringify(longTable.row(cc).data()));
+                        if (typeof (longTable.row(cc).data()['medicineNo']) !== 'undefined') {
+
+                            $.getJSON("/remark/getMedicine.jspa?medicineNo=" + longTable.row(cc).data()['medicineNo'], function (result) {
+                                //if (result.healthNo === '401801' || result.healthNo === '401802') {
+                                if (result.healthNo.startsWith('4018')) {
+                                    rowData['menstruum'] = longTable.row(cc).data()['advice'];
+                                    //drugTable.draw(false);
+                                    var tr = $("#drugTable tr:last");
+                                    tr.find("td:eq(1)").html(tr.find("td:eq(1)").text() + '<br/><span class="light-grey">溶剂：</span>' + rowData['menstruum']);//render无效，只能增加这句
+                                }
+                            });
+                            rowData['medicineNo'] = longTable.row(cc).data()['medicineNo'];
+                            break;
+                        }
+                    }
+                //console.log("recipeDate:" + rowData['recipeDate'].replace(/20\d\d-/g, ''));
+                //console.log("recipeDate:" + rowData['recipeDate'] );
+
+                if (rowData['endDate'] === null)
+                    rowData['endDate'] = '<fmt:formatDate value='${outDate}' pattern='MM-dd HH:mm'/>';
+                if (rowData['recipeDate'] !== null && rowData['recipeDate'] !== '')
+                    rowData['recipeDate'] = rowData['recipeDate'].replace(/20\d\d-/g, '');
+                rowData['recipeDate'] = rowData['recipeDate'] + "～" + rowData['endDate'];
+
+                drugTable.row.add(rowData).draw(true);
             }).on('deselect', function (e, dt, type, indexes) {
                 var rowData = longTable.row(indexes).data();
-                $("#drugTable tr").each(function (i, item) {
-                    if (rowData["recipeItemID"] === parseInt($(item).attr("data-id")))
-                        $(this).remove();
+
+                drugTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
+                    // console.log("item:" + JSON.stringify(this.data()));
+                    if (typeof (this.data()) !== 'undefined' && rowData["recipeItemID"] === this.data()["recipeItemID"])
+                        drugTable.row(rowIdx).remove().draw();
                 });
             });
             $('#surgery-table').DataTable({
@@ -361,10 +485,11 @@
                     {
                         targets: 0, data: "diagnosisNo", orderable: false, width: 10, //className: 'select-checkbox',
                         render: function (data, type, row, meta) {
-                            for (var i = 0; i < saveJson.诊断.length; i++) {
-                                if (saveJson.诊断[i].diagnosisNo === data)
-                                    return '<input type="checkbox" checked>';
-                            }
+                            if (typeof (saveJson.诊断) !== 'undefined')
+                                for (var i = 0; i < saveJson.诊断.length; i++) {
+                                    if (saveJson.诊断[i].diagnosisNo === data)
+                                        return '<input type="checkbox" checked>';
+                                }
                             return '<input type="checkbox">';
                         }
                     },
@@ -379,8 +504,8 @@
                 },
                 scrollY: '60vh',
                 "ajax": {
-                    //url: "/remark/getDiagnosis.jspa?serialNo=${recipe.serialNo}&archive=${recipe.archive}",
-                    url: "/remark/getDiagnosis.jspa?serialNo=0000593702&archive=${recipe.archive}",
+                    //url:"/remark/getDiagnosis.jspa?serialNo=${recipe.serialNo}&archive=${recipe.archive}",
+                    url: "/remark/getDiagnosis.jspa?serialNo=0000593702&archive=1",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -528,8 +653,13 @@
              console.log("hide");
             });
             }*/
+            //导出
+            $('.btn-info').on('click', function (e) {
+                window.location.href = "getRecipeExcel.jspa?recipeID=${recipe.recipeID}";
+            });
+            //保存
             $('.btn-success').on('click', function (e) {
-                var json = {recipeID:${recipe.recipeID}, serialNo: '${recipe.serialNo}', recipeReviewID:${recipe.review.recipeReviewID}};
+                var json = {recipeID:${recipe.recipeID}, serialNo: '${recipe.serialNo}', recipeReviewID:${recipe.review.recipeReviewID}, reviewUser: '${currentUser}'};
 
                 var baseInfo = {};
 
@@ -553,7 +683,7 @@
                 allergy.generalName = $('#form-field-generalName').val();
                 json.过敏史 = allergy;
 
-                var lab = {};
+                var lab = {micro: "", checkout: ""};
                 lab.temperature1 = $('#form-field-temperature1').val();
                 lab.temperature1_time = $('#temperature1_time').val();
                 lab.wbc1 = $('#form-field-wbc1').val();
@@ -610,6 +740,8 @@
                         drug.push({
                             "recipeItemID": this.data()["recipeItemID"],
                             "advice": this.data()["advice"],
+                            "price": this.data()["price"],
+                            "medicineNo": this.data()["medicineNo"],
                             "singleQty": trRow.find("td:eq(2)").text(),
                             "frequency": trRow.find("td:eq(3)").text(),
                             "adviceType": trRow.find("td:eq(4)").text(),
@@ -623,6 +755,7 @@
                 });
 
                 json.用药情况 = drug;
+                json.用药情况统计 = {antiNum: $('#form-field-antiNum').val(), antiDays: $('#form-field-antiDays').val()};
 
                 var money = {};
                 money.money = $('#form-field-money').val();
@@ -648,12 +781,7 @@
                 json.备注 = $('#form-field-memo').val();
 
                 console.log("json:" + JSON.stringify(json));
-                //Handlebars.compile(json)(rowData)
-                /* $.post("saveRecipe.jspa",
-                  JSON.stringify(json),
-                  function (data, status) {
-                   alert("Data: " + data + "\nStatus: " + status);
-                  }, "json");*/
+
                 $.ajax({
                     type: "POST",
                     url: 'saveRecipe.jspa',
@@ -666,6 +794,7 @@
                         //$("#dialog-edit").dialog("close");
                         // if (!response.succeed) {
                         showDialog(response.succeed ? "保存成功" : "保存失败", response.message);
+                        $('.btn-info').removeClass("hidden");
                         // }
                         /* else {
                          samleBatch = response;
@@ -677,6 +806,94 @@
                     },
                 });
             });
+
+
+            function fillout() {
+                if (typeof (saveJson.基本信息) === 'undefined')
+                    return;
+                $('.btn-info').removeClass("hidden");
+
+                //基本信息
+                $('input:radio[name="form-field-radio-sex"][value="' + saveJson.基本信息.sex + '"]').prop("checked", "checked");
+                $('#form-field-age').val(saveJson.基本信息.age);
+                $('#form-field-weight').val(saveJson.基本信息.weight);
+                $('#id-date-picker-inHospital').val(saveJson.基本信息.inHospital);
+                $('#id-date-picker-outHospital').val(saveJson.基本信息.outHospital);
+
+                for (var i = 0; i < saveJson.诊断.length; i++)
+                    $("#chooseDiagnosis tr:last").after(Handlebars.compile("<tr data-id='{{diagnosisNo}}'><td>{{type}}</td><td>{{disease}}</td></tr>")(saveJson.诊断[i]));
+
+                //过敏史
+                $('input:radio[name="form-field-allergy"][value="' + saveJson.过敏史.is + '"]').prop("checked", "checked");
+                $('#form-field-generalName').val(saveJson.过敏史.generalName);
+
+                $('#form-field-temperature1').val(saveJson.实验室检查.temperature1);
+                $('#temperature1_time').val(saveJson.实验室检查.temperature1_time);
+                $('#form-field-wbc1').val(saveJson.实验室检查.wbc1);
+                $('#wbc1_time').val(saveJson.实验室检查.wbc1_time);
+                $('#form-field-neut1').val(saveJson.实验室检查.neut1);
+                $('#neut1_time').val(saveJson.实验室检查.neut1_time);
+                $('#form-field-alt1').val(saveJson.实验室检查.alt1);
+                $('#alt1_time').val(saveJson.实验室检查.alt1_time);
+                $('#form-field-cr1').val(saveJson.实验室检查.cr1);
+                $('#cr1_time').val(saveJson.实验室检查.cr1_time);
+
+                $('#form-field-temperature2').val(saveJson.实验室检查.temperature2);
+                $('#temperature2_time').val(saveJson.实验室检查.temperature2_time);
+                $('#form-field-wbc2').val(saveJson.实验室检查.wbc2);
+                $('#wbc2_time').val(saveJson.实验室检查.wbc2_time);
+                $('#form-field-neut2').val(saveJson.实验室检查.neut2);
+                $('#neut2_time').val(saveJson.实验室检查.neut2_time);
+                $('#form-field-alt2').val(saveJson.实验室检查.alt2);
+                $('#alt2_time').val(saveJson.实验室检查.alt2_time);
+                $('#form-field-cr2').val(saveJson.实验室检查.cr2);
+                $('#cr2_time').val(saveJson.实验室检查.cr2_time);
+                $('input:radio[name="form-field-micro"][value="' + saveJson.实验室检查.micro + '"]').prop("checked", "checked");
+                $('#micro_time').val(saveJson.实验室检查.micro_time);
+                $('#form-field-sample').val(saveJson.实验室检查.sample);
+                $('input:radio[name="form-field-checkout"][value="' + saveJson.实验室检查.checkout + '"]').prop("checked", "checked");
+                $('#form-field-germName').val(saveJson.实验室检查.germName);
+                $('input:radio[name="form-field-sensitive"][value="' + saveJson.实验室检查.sensitive + '"]').prop("checked", "checked");
+                $('#sensitive_time').val(saveJson.实验室检查.sensitive_time);
+                $('input:radio[name="form-field-match"][value="' + saveJson.实验室检查.match + '"]').prop("checked", "checked");
+
+                $('#form-field-part').val(saveJson.影像学检查.part);
+                $('#form-field-conclusion').val(saveJson.影像学检查.conclusion);
+                $("input:checkbox[name='form-field-imaging']").each(function () {
+                    $(this).attr("checked", (saveJson.影像学检查.imaging & $(this).val()) === parseInt($(this).val()));
+                });
+
+                $('#form-field-symptom').val(saveJson.临床症状);
+
+                $('#form-field-infection').val(saveJson.用药目的.infection);
+                $('input:radio[name="form-field-purpose"][value="' + saveJson.用药目的.purpose + '"]').prop("checked", "checked");
+
+                for (i = 0; i < saveJson.用药情况.length; i++)
+                    drugTable.row.add(saveJson.用药情况[i]).draw(false);
+
+                $('#form-field-antiNum').val(saveJson.用药情况统计.antiNum);
+                $('#form-field-antiDays').val(saveJson.用药情况统计.antiDays);
+
+                $('#form-field-money').val(saveJson.费用.money);
+                $('#form-field-antiMoney').val(saveJson.费用.antiMoney);
+                $('#form-field-medicineMoney').val(saveJson.费用.medicineMoney);
+
+                $('input:radio[name="form-field-result"][value="' + saveJson.治疗结果.result + '"]').prop("checked", "checked");
+                $('input:radio[name="form-field-secondary"][value="' + saveJson.治疗结果.secondary + '"]').prop("checked", "checked");
+                $('input:radio[name="form-field-antimycotic"][value="' + saveJson.治疗结果.antimycotic + '"]').prop("checked", "checked");
+
+                $("input:checkbox[name='form-field-me']").each(function () {
+                    $(this).attr("checked", (saveJson.用药合理性评价.me & $(this).val()) === parseInt($(this).val()));
+                });
+                $("input:checkbox[name='form-field-central']").each(function () {
+                    $(this).attr("checked", (saveJson.用药合理性评价.central & $(this).val()) === parseInt($(this).val()));
+                });
+
+                $('#form-field-memo').val(saveJson.备注);
+
+            }
+
+            fillout();
 
             //todo 统一到一个对话框
             function showDialog(title, content) {
@@ -692,16 +909,6 @@
                     }]
                 });
             }
-
-            function fillout() {
-                for (var i = 0; i < saveJson.诊断.length; i++)
-                    $("#chooseDiagnosis tr:last").after(Handlebars.compile("<tr data-id='{{diagnosisNo}}'><td>{{type}}</td><td>{{disease}}</td></tr>")(saveJson.诊断[i]));
-                for (i = 0; i < saveJson.用药情况.length; i++)
-                    drugTable.row.add(saveJson.用药情况[i]).draw(false);
-                //基本信息
-            }
-
-            fillout();
         })
     </script>
 </head>
@@ -726,7 +933,12 @@
                     <div class="col-sm-6">
                         <%--<h3 class="header smaller lighter red">点评</h3>--%>
                         <h4 class="header smaller lighter blue">点评
+                            <span class="light-grey smaller-50">点评人：${currentUser}</span>
                             <div class="pull-right">
+                                <button type="button" class="btn btn-sm btn-info hidden">
+                                    导出
+                                    <i class="ace-icon fa fa-file-excel-o icon-on-right bigger-110"></i>
+                                </button>&nbsp;
                                 <button type="button" class="btn btn-sm btn-success">
                                     保存
                                     <i class="ace-icon fa fa-save icon-on-right bigger-110"></i>
@@ -738,14 +950,14 @@
                             <!-- #section:elements.tab.position -->
                             <div class="tabbable tabs-left">
                                 <ul class="nav nav-tabs" id="myTab3">
-                                    <li><a data-toggle="tab" href="#dropdown23">基本情况</a></li>
+                                    <li class="active"><a data-toggle="tab" href="#dropdown23">基本情况</a></li>
                                     <li><a data-toggle="tab" href="#home3">诊断</a></li>
                                     <li><a data-toggle="tab" href="#profile3">过敏史</a></li>
                                     <li><a data-toggle="tab" href="#dropdown13">实验室检查</a></li>
                                     <li><a data-toggle="tab" href="#dropdown14">影像学诊断</a></li>
                                     <li><a data-toggle="tab" href="#dropdown15">临床症状</a></li>
                                     <li><a data-toggle="tab" href="#dropdown16">用药目的</a></li>
-                                    <li class="active"><a data-toggle="tab" href="#dropdown17">用药情况</a></li>
+                                    <li><a data-toggle="tab" href="#dropdown17">用药情况</a></li>
                                     <li><a data-toggle="tab" href="#dropdown18">费用</a></li>
                                     <li><a data-toggle="tab" href="#dropdown19">治疗结果</a></li>
                                     <li><a data-toggle="tab" href="#dropdown20">用药合理<br/>性评价</a></li>
@@ -754,7 +966,7 @@
                                 </ul>
 
                                 <div class="tab-content" id="divTab1">
-                                    <div id="dropdown23" class="tab-pane">
+                                    <div id="dropdown23" class="tab-pane in active">
                                         <div class="well well-sm" style="height: 170px">
                                             <div class="control-group col-xs-12">
                                                 <span class="lbl">性别：</span>
@@ -766,25 +978,25 @@
                                             </div>
                                             <div class="form-inline col-xs-12" style="margin-top: 10px;">
                                                 <label class="control-label" for="form-field-age" style="text-overflow:ellipsis; white-space:nowrap;">年龄</label>
-                                                <input type="text" id="form-field-age" placeholder="年龄" class="no-padding" style="width: 60px" value="${recipe.age.trim()}"/>
+                                                <input type="text" id="form-field-age" placeholder="年龄" class="no-padding" style="width: 60px;text-align: center" value="${recipe.age.trim()}"/>
                                                 <span class="lbl light-grey">年龄的单位分别为：天、周、月或岁</span>
                                             </div>
                                             <div class="form-inline col-xs-12" style="margin-top: 10px;">
                                                 <label class="control-label" for="form-field-weight" style="text-overflow:ellipsis; white-space:nowrap;">体重</label>
-                                                <input type="text" id="form-field-weight" placeholder="kg" class="no-padding" style="width: 60px"/>
+                                                <input type="text" id="form-field-weight" placeholder="kg" class="no-padding" style="width: 60px;text-align: center"/>
                                                 <label class="control-label" for="form-field-weight" style="text-overflow:ellipsis; white-space:nowrap;">kg</label>
                                             </div>
                                             <div class="form-inline col-xs-12" style="margin-top: 10px;">
                                                 <label class="control-label no-padding" for="id-date-picker-inHospital" style="text-overflow:ellipsis; white-space:nowrap;">入院日期</label>
                                                 <div class="input-group">
-                                                    <input class="date-picker no-padding" style="width: 100px" id="id-date-picker-inHospital" type="text" data-date-format="YYYY-MM-DD"
-                                                           value="<fmt:formatDate value='${inDate}' pattern='yyyy-MM-dd'/>"/>
+                                                    <input class="date-picker no-padding" style="width: 110px" id="id-date-picker-inHospital" type="text" data-date-format="YYYY年MM月DD日"
+                                                           value="<fmt:formatDate value='${inDate}' pattern='yyyy年MM月dd日'/>"/>
                                                     <span class="input-group-addon no-padding"><i class="fa fa-calendar bigger-110"></i></span>
                                                 </div>
                                                 <label class="control-label no-padding" for="id-date-picker-outHospital" style="text-overflow:ellipsis; white-space:nowrap;">出院日期</label>
                                                 <div class="input-group">
-                                                    <input class="date-picker no-padding" style="width: 100px" id="id-date-picker-outHospital" type="text" data-date-format="YYYY-MM-DD"
-                                                           value="<fmt:formatDate value='${outDate}' pattern='yyyy-MM-dd'/>"/>
+                                                    <input class="date-picker no-padding" style="width: 110px" id="id-date-picker-outHospital" type="text" data-date-format="YYYY年MM月DD日"
+                                                           value="<fmt:formatDate value='${outDate}' pattern='yyyy年MM月dd日'/>"/>
                                                     <span class="input-group-addon no-padding"><i class="fa fa-calendar bigger-110"></i></span>
                                                 </div>
                                             </div>
@@ -806,11 +1018,11 @@
 
                                     <div id="profile3" class="tab-pane">
                                         <div class="well well-sm" style="height: 80px">
-                                            <div class="control-group form-inline col-xs-12 ">
-                                                <input name="form-field-allergy" type="radio" class="ace" value="无"/>
-                                                <span class="lbl ">无</span>
+                                            <div class="control-group form-inline col-xs-12">
+                                                <input name="form-field-allergy" type="radio" class="ace" value="无" checked/><%--默认：checked，否则空错误--%>
+                                                <span class="lbl">无</span>
                                                 <input name="form-field-allergy" type="radio" class="ace" value="有"/>
-                                                <span class="lbl ">有</span>
+                                                <span class="lbl">有</span>
                                             </div>
                                             <div class="form-inline col-xs-12" style="margin-top: 10px;">
                                                 <label class="control-label col-xs-4" for="form-field-generalName" style="text-overflow:ellipsis; white-space:nowrap;">抗菌药品通用名</label><%--style="text-overflow:ellipsis; white-space:nowrap;"--%>
@@ -838,26 +1050,26 @@
                                                 </div>
                                             </div>
                                             <div class=" form-inline no-padding">
-                                                <label class="col-xs-4 control-label " for="form-field-wbc1" style="text-overflow:ellipsis; white-space:nowrap;">
+                                                <label class="col-xs-4 control-label" for="form-field-wbc1" style="text-overflow:ellipsis; white-space:nowrap;">
                                                     白细胞计数（WBC）</label>
                                                 <div class="col-xs-3">
-                                                    <div class="input-group ">
+                                                    <div class="input-group">
                                                         <input type="text" id="form-field-wbc1" placeholder="白细胞" class="no-padding"/>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-xs-5">
                                                     <div class="input-group">
-                                                        <input class="date-picker no-padding " style="width: 100px" id="wbc1_time" type="text" data-date-format="yyyy-mm-dd"/>
-                                                        <span class="input-group-addon no-padding "><i class="fa fa-calendar bigger-110"></i></span>
+                                                        <input class="date-picker no-padding" style="width: 100px" id="wbc1_time" type="text" data-date-format="yyyy-mm-dd"/>
+                                                        <span class="input-group-addon no-padding"><i class="fa fa-calendar bigger-110"></i></span>
                                                     </div>
                                                 </div>
                                             </div><!--row-->
                                             <div class="form-inline no-padding">
-                                                <label class="col-xs-4 control-label " for="form-field-neut1" style="text-overflow:ellipsis; white-space:nowrap;">
+                                                <label class="col-xs-4 control-label" for="form-field-neut1" style="text-overflow:ellipsis; white-space:nowrap;">
                                                     中性粒细胞（NEUT%）</label>
                                                 <div class="col-xs-3">
-                                                    <div class="input-group ">
+                                                    <div class="input-group">
                                                         <input type="text" id="form-field-neut1" placeholder="中性粒细胞" class="no-padding"/>
                                                     </div>
                                                 </div>
@@ -870,10 +1082,10 @@
                                                 </div>
                                             </div>
                                             <div class="form-inline no-padding">
-                                                <label class="col-xs-4 control-label " for="form-field-alt1" style="text-overflow:ellipsis; white-space:nowrap;">
+                                                <label class="col-xs-4 control-label" for="form-field-alt1" style="text-overflow:ellipsis; white-space:nowrap;">
                                                     谷丙转氨酶（ALT）</label>
                                                 <div class="col-xs-3">
-                                                    <div class="input-group ">
+                                                    <div class="input-group">
                                                         <input type="text" id="form-field-alt1" placeholder="谷丙转氨酶" class="no-padding"/>
                                                     </div>
                                                 </div>
@@ -886,10 +1098,10 @@
                                                 </div>
                                             </div>
                                             <div class="form-inline no-padding">
-                                                <label class="col-xs-4 control-label " for="form-field-cr1" style="text-overflow:ellipsis; white-space:nowrap;">
+                                                <label class="col-xs-4 control-label" for="form-field-cr1" style="text-overflow:ellipsis; white-space:nowrap;">
                                                     肌酐（Cr）</label>
                                                 <div class="col-xs-3">
-                                                    <div class="input-group ">
+                                                    <div class="input-group">
                                                         <input type="text" id="form-field-cr1" placeholder="肌酐" class="no-padding"/>
                                                     </div>
                                                 </div>
@@ -921,23 +1133,23 @@
                                                 </div>
                                             </div>
                                             <div class=" form-inline no-padding">
-                                                <label class="col-xs-4 control-label " for="form-field-wbc2" style="text-overflow:ellipsis; white-space:nowrap;">
+                                                <label class="col-xs-4 control-label" for="form-field-wbc2" style="text-overflow:ellipsis; white-space:nowrap;">
                                                     白细胞计数（WBC）</label>
                                                 <div class="col-xs-3">
-                                                    <div class="input-group ">
+                                                    <div class="input-group">
                                                         <input type="text" id="form-field-wbc2" placeholder="白细胞" class="no-padding"/>
                                                     </div>
                                                 </div>
 
                                                 <div class="col-xs-5">
                                                     <div class="input-group">
-                                                        <input class="date-picker no-padding " style="width: 100px" id="wbc2_time" type="text" data-date-format="yyyy-mm-dd"/>
-                                                        <span class="input-group-addon no-padding "><i class="fa fa-calendar bigger-110"></i></span>
+                                                        <input class="date-picker no-padding" style="width: 100px" id="wbc2_time" type="text" data-date-format="yyyy-mm-dd"/>
+                                                        <span class="input-group-addon no-padding"><i class="fa fa-calendar bigger-110"></i></span>
                                                     </div>
                                                 </div>
                                             </div><!--row-->
                                             <div class="form-inline no-padding">
-                                                <label class="col-xs-4 control-label " for="form-field-neut2" style="text-overflow:ellipsis; white-space:nowrap;">
+                                                <label class="col-xs-4 control-label" for="form-field-neut2" style="text-overflow:ellipsis; white-space:nowrap;">
                                                     中性粒细胞（NEUT%）</label>
                                                 <div class="col-xs-3">
                                                     <input type="text" id="form-field-neut2" placeholder="中性粒细胞" class="no-padding"/>
@@ -951,7 +1163,7 @@
                                                 </div>
                                             </div>
                                             <div class="form-inline no-padding">
-                                                <label class="col-xs-4 control-label " for="form-field-alt2" style="text-overflow:ellipsis; white-space:nowrap;">
+                                                <label class="col-xs-4 control-label" for="form-field-alt2" style="text-overflow:ellipsis; white-space:nowrap;">
                                                     谷丙转氨酶（ALT）</label>
                                                 <div class="col-xs-3">
                                                     <input type="text" id="form-field-alt2" placeholder="谷丙转氨酶" class="no-padding"/>
@@ -965,7 +1177,7 @@
                                                 </div>
                                             </div>
                                             <div class="form-inline no-padding col-xs-12" style="margin-top: 5px;">
-                                                <label class="col-xs-4 control-label " for="form-field-cr2" style="text-overflow:ellipsis; white-space:nowrap;">
+                                                <label class="col-xs-4 control-label" for="form-field-cr2" style="text-overflow:ellipsis; white-space:nowrap;">
                                                     肌酐（Cr）</label>
                                                 <div class="col-xs-3">
                                                     <input type="text" id="form-field-cr2" placeholder="肌酐" class="no-padding"/>
@@ -1003,18 +1215,18 @@
                                                 </div>
                                             </div>
                                             <div class="form-inline no-padding col-xs-12" style="margin-top: 5px;">
-                                                <label class="col-xs-1 control-label " for="form-field-sample" style="text-overflow:ellipsis; white-space:nowrap;">标本</label>
+                                                <label class="col-xs-1 control-label" for="form-field-sample" style="text-overflow:ellipsis; white-space:nowrap;">标本</label>
                                                 <div class="col-xs-3">
                                                     <input type="text" id="form-field-sample" style="width: 90px" placeholder="标本" class="no-padding"/>
                                                 </div>
-                                                <div class="control-group col-xs-8 ">
+                                                <div class="control-group col-xs-8">
                                                     <label>
-                                                        <input name="form-field-checkout" type="radio" class="ace" value="0"/>
+                                                        <input name="form-field-checkout" type="radio" class="ace" value="未检出"/>
                                                         <span class="lbl">未检出</span>
                                                     </label>
 
                                                     <label>
-                                                        <input name="form-field-checkout" type="radio" class="ace" value="1"/>
+                                                        <input name="form-field-checkout" type="radio" class="ace" value="检出"/>
                                                         <span class="lbl">检出</span>
                                                     </label>
                                                     <input type="text" id="form-field-germName" style="width: 90px" placeholder="检出菌名" class="no-padding"/>
@@ -1040,7 +1252,7 @@
                                                         <input class=" date-picker no-padding" style="width: 100px" id="sensitive_time" type="text" data-date-format="yyyy-mm-dd"/>
                                                         <span class="input-group-addon no-padding"><i class="fa fa-calendar bigger-110"></i></span>
                                                     </div>
-                                                    <div class="control-group form-line ">
+                                                    <div class="control-group form-line">
                                                         <label>
                                                             <input name="form-field-match" type="radio" class="ace" value="相符"/>
                                                             <span class="lbl">相符</span>
@@ -1097,17 +1309,17 @@
                                         <div class="well well-sm" style="height: 120px">
                                             <div class="control-group">
                                                 <div class="col-xs-12" style="margin-top: 10px">
-                                                    <input name="form-field-purpose" type="radio" class="ace" value="未用药"/>
+                                                    <input name="form-field-purpose" type="radio" class="ace" value="未用药" checked/>
                                                     <span class="lbl">未用药</span>
                                                 </div>
 
                                                 <div class="col-xs-12" style="margin-top: 10px">
-                                                    <input name="form-field-purpose" type="radio" class="ace" value="预防（△）"/>
+                                                    <input name="form-field-purpose" type="radio" class="ace" value="预防"/>
                                                     <span class="lbl">预防（△）</span>
                                                 </div>
 
                                                 <div class="col-xs-12 no-padding" style="margin-top: 10px">
-                                                    <input name="form-field-purpose" type="radio" class="ace col-xs-1" value="治疗（□）"/>
+                                                    <input name="form-field-purpose" type="radio" class="ace col-xs-1" value="治疗"/>
                                                     <span class="lbl col-xs-4">治疗（□）</span>
                                                     <div class="col-xs-7">
                                                         <label class="control-label col-xs-6" for="form-field-infection" style="text-overflow:ellipsis; white-space:nowrap;">感染诊断</label>
@@ -1117,7 +1329,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div id="dropdown17" class="tab-pane in active">
+                                    <div id="dropdown17" class="tab-pane">
                                         <div class="well well-sm" style="height: 600px">
                                             <table id="drugTable" class="table table-striped table-bordered table-hover">
                                                 <thead class="thin-border-bottom">
@@ -1134,10 +1346,10 @@
                                                 <tbody></tbody>
                                             </table>
                                             <div class="input-group col-xs-12" style="margin-top: 10px">
-                                                <label class="control-label " for="form-field-antiNum" style="text-overflow:ellipsis; white-space:nowrap; width:110px;">累计使用抗菌药</label>
-                                                <input type="text" id="form-field-antiNum" placeholder="元" class="no-padding" style="width: 50px"/>
+                                                <label class="control-label" for="form-field-antiNum" style="text-overflow:ellipsis; white-space:nowrap; width:110px;">累计使用抗菌药</label>
+                                                <input type="text" id="form-field-antiNum" placeholder="元" class="no-padding" style="width: 50px;text-align: center"/>
                                                 <label class="control-label" for="form-field-antiNum" style="text-overflow:ellipsis; white-space:nowrap;">种</label>
-                                                <input type="text" id="form-field-antiDays" placeholder="元" class="no-padding " style="width: 50px"/>
+                                                <input type="text" id="form-field-antiDays" placeholder="元" class="no-padding" style="width: 50px;text-align: center"/>
                                                 <label class="control-label" for="form-field-antiDays" style="text-overflow:ellipsis; white-space:nowrap;">天</label>
                                             </div>
                                             <label style="margin-top: 10px">（注射用药请同时写清溶剂名称及用量） （治疗在□上划√预防在△上划√）</label>
@@ -1146,45 +1358,45 @@
                                     <div id="dropdown18" class="tab-pane">
                                         <div class="well well-sm" style="height: 150px">
                                             <div class="input-group col-xs-12">
-                                                <label class="control-label " for="form-field-money" style="text-overflow:ellipsis; white-space:nowrap; width:130px;">住院总费用</label>
+                                                <label class="control-label" for="form-field-money" style="text-overflow:ellipsis; white-space:nowrap; width:130px;">住院总费用</label>
                                                 <input type="text" id="form-field-money" placeholder="元" class="no-padding" value="${recipe.money}"/>
                                                 <label class="control-label" for="form-field-money" style="text-overflow:ellipsis; white-space:nowrap;">元</label>
                                             </div>
                                             <div class="input-group col-xs-12" style="margin-top: 10px">
-                                                <label class="control-label " for="form-field-medicineMoney" style="text-overflow:ellipsis; white-space:nowrap; width:130px;">住院药品总费用</label>
+                                                <label class="control-label" for="form-field-medicineMoney" style="text-overflow:ellipsis; white-space:nowrap; width:130px;">住院药品总费用</label>
                                                 <input type="text" id="form-field-medicineMoney" placeholder="元" class="no-padding" value="${recipe.medicineMoney}"/>
                                                 <label class="control-label" for="form-field-medicineMoney" style="text-overflow:ellipsis; white-space:nowrap;">元</label>
                                             </div>
                                             <div class="input-group col-xs-12" style="margin-top: 10px">
-                                                <label class="control-label " for="form-field-antiMoney" style="text-overflow:ellipsis; white-space:nowrap; width:130px;">住院抗菌药物总费用</label>
-                                                <input type="text" id="form-field-antiMoney" placeholder="元" class="no-padding "/>
+                                                <label class="control-label" for="form-field-antiMoney" style="text-overflow:ellipsis; white-space:nowrap; width:130px;">住院抗菌药物总费用</label>
+                                                <input type="text" id="form-field-antiMoney" placeholder="元" value="0" class="no-padding"/>
                                                 <label class="control-label" for="form-field-antiMoney" style="text-overflow:ellipsis; white-space:nowrap;">元</label>
                                             </div>
                                         </div>
                                     </div>
-                                    <div id="dropdown19" class="tab-pane ">
-                                        <div class="well well-sm" style="height: 130px">
-                                            <div class="control-group form-inline col-xs-12 ">
+                                    <div id="dropdown19" class="tab-pane">
+                                        <div class="well well-sm" style="height: 150px">
+                                            <div class="control-group form-inline col-xs-12">
                                                 <input name="form-field-result" type="radio" class="ace" value="治愈"/>
-                                                <span class="lbl col-xs-3">治愈</span>
+                                                <span class="lbl">治愈</span>
                                                 <input name="form-field-result" type="radio" class="ace" value="好转"/>
-                                                <span class="lbl col-xs-3">好转</span>
+                                                <span class="lbl">好转</span>
                                                 <input name="form-field-result" type="radio" class="ace" value="无效"/>
-                                                <span class="lbl col-xs-3">无效</span>
+                                                <span class="lbl">无效</span>
                                             </div>
-                                            <div class="control-group form-inline col-xs-12 " style="margin-top: 10px">
+                                            <div class="control-group form-inline col-xs-12" style="margin-top: 20px">
                                                 <input name="form-field-secondary" type="radio" class="ace" value="有"/>
-                                                <span class="lbl ">有</span>
+                                                <span class="lbl">有</span>
                                                 <input name="form-field-secondary" type="radio" class="ace" value="无"/>
-                                                <span class="lbl ">无</span>
-                                                <span class="lbl ">&nbsp;&nbsp;&nbsp;继发（医院）感染</span>
+                                                <span class="lbl">无</span>
+                                                <span class="lbl">&nbsp;&nbsp;&nbsp;继发（医院）感染</span>
                                             </div>
-                                            <div class="control-group form-inline col-xs-12 " style="margin-top: 10px">
+                                            <div class="control-group form-inline col-xs-12" style="margin-top: 20px">
                                                 <input name="form-field-antimycotic" type="radio" class="ace" value="有"/>
-                                                <span class="lbl ">有</span>
+                                                <span class="lbl">有</span>
                                                 <input name="form-field-antimycotic" type="radio" class="ace" value="无"/>
-                                                <span class="lbl ">无</span>
-                                                <span class="lbl ">&nbsp;&nbsp;&nbsp;使用抗真菌药</span>
+                                                <span class="lbl">无</span>
+                                                <span class="lbl">&nbsp;&nbsp;&nbsp;使用抗真菌药</span>
                                             </div>
                                         </div>
                                         <label class="light-grey">继发感染的诊断及发病时间请在备注中说明</label>
@@ -1256,12 +1468,12 @@
                                         </div>
                                         <h6 class="light-grey">“用药合理性评价项”只在3、7月份做，其它月份不做；<br/>合理划√，不合理不选。</h6>
                                     </div>
-                                    <div id="dropdown21" class="tab-pane ">
+                                    <div id="dropdown21" class="tab-pane">
                                         <div class="well well-sm" style="height: 160px">
                                             <textarea class="autosize-transition form-control" rows="6" id="form-field-memo" placeholder="备注"></textarea>
                                         </div>
                                     </div>
-                                    <div id="dropdown22" class="tab-pane ">
+                                    <div id="dropdown22" class="tab-pane">
                                         <div class="well well-sm" style="height: 190px">
                                             <p>具体细项请以“序号”形式填写在表3-3⑴的相应项目中。</p>
                                         </div>
@@ -1280,10 +1492,10 @@
 
                                 <div class="widget-toolbar no-border" id="tabDiv">
                                     <ul class="nav nav-tabs" id="myTab2">
-                                        <li><a data-toggle="tab" href="#home1">病人</a></li>
+                                        <li class="active"><a data-toggle="tab" href="#home1">病人</a></li>
                                         <li><a data-toggle="tab" href="#home2">诊断</a></li>
                                         <li><a data-toggle="tab" href="#longTab">长嘱</a></li>
-                                        <li class="active"><a data-toggle="tab" href="#shortTab">临嘱</a></li>
+                                        <li><a data-toggle="tab" href="#shortTab">临嘱</a></li>
                                         <li><a data-toggle="tab" href="#surgeryTab">手术</a></li>
                                         <li><a data-toggle="tab" href="#courseTab" id="courseTabIndex">病程记录</a></li>
                                         <li><a data-toggle="tab" href="#historyTab" id="historyTabIndex">住院病历</a></li>
@@ -1294,7 +1506,7 @@
                             <div class="widget-body">
                                 <div class="widget-main padding-12 no-padding-left no-padding-right">
                                     <div class="tab-content padding-4">
-                                        <div id="home1" class="tab-pane">
+                                        <div id="home1" class="tab-pane in active">
 
                                             <table border="0" cellspacing="1" cellpadding="0" class="col-sm-5 table table-striped table-bordered table-hover">
                                                 <tbody>
@@ -1372,13 +1584,11 @@
                                         </div>
 
                                         <div id="longTab" class="tab-pane">
-                                            <div class="scrollable" data-size="600" data-position="left">
-                                                <table id="long-table" class="table table-striped table-bordered table-hover ">
-                                                </table>
-                                            </div>
+                                            <table id="long-table" class="table table-striped table-bordered table-hover">
+                                            </table>
                                         </div>
 
-                                        <div id="shortTab" class="tab-pane in active">
+                                        <div id="shortTab" class="tab-pane">
                                             <table id="short-table" class="table table-striped table-bordered table-hover">
                                             </table>
                                         </div>
@@ -1394,7 +1604,7 @@
                                                         <div class="col-xs-3 purple">{{writeTime}}</div>
                                                         <div class="col-xs-9 brown">{{doctorName}}</div>
                                                     </div>
-                                                    <p class="col-xs-12 profile-info-value ">{{{content}}}</p>
+                                                    <p class="col-xs-12 profile-info-value">{{{content}}}</p>
 
                                                 </div>
                                             </div>
