@@ -55,31 +55,36 @@
                     {"data": "name", "sClass": "center"},
                     {"data": "year", "sClass": "center"},
                     {"data": "month", "sClass": "center"},
-                    {"data": "doctor", "sClass": "center"},
                     {"data": "num", "sClass": "center"},
                     {"data": "type", "sClass": "center"},
+                    {"data": "surgery", "sClass": "center"},
+                    {"data": "doctor", "sClass": "center"},
                     {"data": "createDate", "sClass": "center"},
                     {"data": "sampleBatchID"}
                 ],
                 'columnDefs': [
                     {
-                        "orderable": false, "targets": 0, width: 20,  render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 0, width: 20, render: function (data, type, row, meta) {
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     },
                     {"orderable": false, "targets": 1, title: '批次名称'},
                     {"orderable": false, "targets": 2, title: '年份'},
                     {"orderable": false, "targets": 3, title: '月份'},
-                    {"orderable": false, "targets": 4, title: '医生'},
-                    {"orderable": false, "targets": 5, title: '样本数量'},
+                    {"orderable": false, "targets": 4, title: '样本数量'},
                     {
-                        "orderable": false, "targets": 6, title: '类型', render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 5, title: '类型', render: function (data, type, row, meta) {
                             return data === 1 ? "门诊" : "住院";
                         }
+                    },  {
+                        "orderable": false, "targets": 6, title: '手术', render: function (data, type, row, meta) {
+                            return data === 1 ? "手术" : "非手术";
+                        }
                     },
-                    {"orderable": false, "targets": 7, title: '抽样日期', width: 130},
+                    {"orderable": false, "targets": 7, title: '医生'},
+                    {"orderable": false, "targets": 8, title: '抽样日期', width: 130},
                     {
-                        'targets': 8, 'searchable': false, 'orderable': false, width: 80, title: '点评/删除',
+                        'targets': 9, 'searchable': false, 'orderable': false, width: 80, title: '点评/删除',
                         render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 '<a class="hasDetail" href="#" data-Url="/index.jspa?content=/remark/recipe_list.jsp&sampleBatchID={0}">'.format(data) +
@@ -200,6 +205,7 @@
             },
 
             submitHandler: function (form) {
+                var surgery = sampleForm.find("input[name='form-field-surgery']").is(':checked');//=1
                 //console.log(sampleForm.serialize());
                 //console.log(form);//整个form的html
                 var incision = 0;
@@ -212,9 +218,9 @@
                 });
 
                 var dates = $('#form-dateRange').val().split("～");
-                //var fromDay = moment(dates[0]);
+                var fromDay = moment(dates[0]);
                 var toDay = moment(dates[1]);
-                toDay.add(1, 'd');
+                //toDay.add(1, 'd');
                 //console.log("$('#form-field-algorithm').children('option:selected').val():" + $("input[name='form-field-algorithm']:checked").val());
 
                 var sampleBatch = {
@@ -224,10 +230,13 @@
                     doctor: $('#form-doctor').val(),//存数据库
                     medicineNo: $('#form-medicineNo').val(),//存数据库
                     medicine: $('#form-medicine').val(),//显示
+                    surgery: surgery ? 1 : 0,
+                    outPatientNum:$('#form-outPatientNum').val(),
+                    total:$('#form-total').val(),
                     incision: incision,
                     clinicType: clinicType,
-                    fromDate: dates[0],
-                    toDate: toDay.format("YYYY-MM-DD"),
+                    fromDate: fromDay.format("YYYY年MM月DD日"),
+                    toDate: toDay.format("YYYY年MM月DD日"),
                     year: toDay.year(),
                     month: toDay.month(),
                     department: departmentE.get(0).selectedIndex > 0 ? departmentE.children('option:selected').val() : "",
@@ -422,12 +431,6 @@
         });
         $('#form-dateRange').val(moment().subtract(30, 'd').format("YYYY-MM-DD") + " ～ " + moment().format("YYYY-MM-DD"));
 
-        $('#form-type').change(function () {
-            var p1 = $(this).children('option:selected').val();//这就是selected的值
-            $("input[name='form-field-clinicType']").prop('disabled', p1 === "1");
-            $("input[name='form-field-incision']").prop('disabled', p1 !== "1");
-        });
-
 
         function showSampleDialog() {
             loadDepartment();
@@ -435,7 +438,7 @@
             $("#dialog-edit").removeClass('hide').dialog({
                 resizable: false,
                 width: 760,
-                height: 450,
+                height: 500,
                 modal: true,
                 title: "新的抽样",
                 title_html: true,
@@ -610,11 +613,50 @@
                 batchName += (batchName === "" ? "" : "-") + $('#form-medicine').val();
             //console.log("medicine:" + $('#form-medicine').val());
 
-            $('#form-name').val(batchName);
+            $('#form-name').val(batchName+'：'+$('#form-dateRange').val());
         });
 
         //计算符合条件的数量
-        sampleForm.find("#form-type,#form-department,#form-doctor,#form-western,#form-medicine,input[type=checkbox],#form-dateRange").change(function () {
+        sampleForm.find("input[type=checkbox][name='form-field-surgery'],#form-dateRange").change(function () {
+            var p1 = sampleForm.find('#form-type').children('option:selected').val();//这就是selected的值 门诊为1,住院未2
+           // console.log("p1:" + p1);
+            if (p1 === '2') {
+                var surgery = sampleForm.find("input[name='form-field-surgery']").is(':checked');//=1
+                var params = {
+                    type: 2,
+                    surgery: surgery ? 1 : 0,
+                    dateRange: $('#form-dateRange').val(),
+                    draw: Math.random()
+                };
+
+                $('.icon_total2').addClass("ace-icon fa fa-spinner fa-spin fa-3x fa-fw");//动画
+                $('#form-outPatientNum').val("");
+                $.getJSON("/remark/getObjectCount.jspa", params, function (result) {
+                    $('#form-outPatientNum').val(result.count);
+                    $('.icon_total2').removeClass("ace-icon fa fa-spinner fa-spin fa-3x fa-fw");//动画
+                });
+            }
+        });
+        sampleForm.find("#form-type,#form-department,#form-doctor,#form-western,#form-medicine,input[type=checkbox],#form-dateRange").change(function () {//[name!='form-field-surgery']
+            var p1 = sampleForm.find('#form-type').children('option:selected').val();//这就是selected的值 门诊为1,住院未2
+            console.log("p2:" + p1);
+            if (p1 === '1') {
+                $(".clinicType").removeClass("light-grey");
+                $(".surgeryTypeLbl").addClass("light-grey");
+            } else {
+                $(".clinicType").addClass("light-grey");
+                $(".surgeryTypeLbl").removeClass("light-grey");
+            }
+            $("input[name='form-field-clinicType']").attr('disabled', p1 === "2");
+            $("input[name='form-field-surgery']").attr('disabled', p1 === "1");
+            var surgery = p1 === '2' && sampleForm.find("input[name='form-field-surgery']").is(':checked');
+            if (surgery) {
+                $(".surgeryItem").removeClass("light-grey");
+            } else {
+                $(".surgeryItem").addClass("light-grey");
+            }
+            sampleForm.find("input[name='form-field-incision']").attr("disabled", !surgery);
+
             var incision = 0;
             sampleForm.find("input[name='form-field-incision']:checked").each(function () {
                 incision += parseInt($(this).val());
@@ -625,9 +667,10 @@
             });
 
             var params = {
-                type: $('#form-type').children('option:selected').val(),
+                type: p1,
                 doctorNo: $('#form-doctorNo').val(),
                 medicineNo: $('#form-medicineNo').val(),
+                surgery: surgery ? 1 : 0,
                 incision: incision,
                 clinicType: clinicType,
                 dateRange: $('#form-dateRange').val(),
@@ -638,11 +681,11 @@
 
             if (currentAjax) currentAjax.abort();
 
-            $('#icon_total').addClass("ace-icon fa fa-spinner fa-spin fa-3x fa-fw");//动画
+            $('.icon_total').addClass("ace-icon fa fa-spinner fa-spin fa-3x fa-fw");//动画
             $('#form-total').val("");
             currentAjax = $.getJSON("/remark/getObjectCount.jspa", params, function (result) {
                 $('#form-total').val(result.count);
-                $('#icon_total').removeClass("ace-icon fa fa-spinner fa-spin fa-3x fa-fw");
+                $('.icon_total').removeClass("ace-icon fa fa-spinner fa-spin fa-3x fa-fw");
             });
         });
 
@@ -782,6 +825,17 @@
                         </div>
                     </div>
                     <div class="form-group">
+                        <div class="control-group">
+                            <label class="col-sm-3 control-label no-padding-right surgeryTypeLbl">手术</label>
+                            <div class="checkbox col-sm-4">
+                                <label>
+                                    <input name="form-field-surgery" checked type="checkbox" class="ace" value="1"/>
+                                    <span class="lbl surgeryTypeLbl">是</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label class="col-sm-3 control-label no-padding-right" for="form-department">科室 </label>
 
                         <div class="col-sm-9">
@@ -801,18 +855,18 @@
                     </div>
                     <div class="form-group">
                         <div class="control-group">
-                            <label class="col-sm-3 control-label no-padding-right">处方类型 </label>
+                            <label class="col-sm-3 control-label no-padding-right light-grey clinicType">处方类型 </label>
                             <div class="checkbox col-sm-4">
                                 <label>
-                                    <input name="form-field-clinicType" checked id="aaa111" type="checkbox" class="ace" value="1"/>
-                                    <span class="lbl">普通</span>
+                                    <input name="form-field-clinicType" checked disabled type="checkbox" class="ace" value="1"/>
+                                    <span class="lbl light-grey clinicType">普通</span>
                                 </label>
                             </div>
 
                             <div class="checkbox col-sm-4">
                                 <label>
-                                    <input name="form-field-clinicType" checked type="checkbox" class="ace" value="2"/>
-                                    <span class="lbl">急诊</span>
+                                    <input name="form-field-clinicType" checked disabled type="checkbox" class="ace" value="2"/>
+                                    <span class="lbl light-grey clinicType">急诊</span>
                                 </label>
                             </div>
                         </div>
@@ -829,6 +883,15 @@
                                 <option value="1">西药</option>
                                 <option value="2">中草药</option>
                             </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-right" id="outPatient">出院人数</label>
+                        <div class="col-sm-5">
+                            <span class="input-icon input-icon-right">
+                                <input type="text" id="form-outPatientNum" readonly autocomplete="off" class="col-sm-10"/>
+                                <i class="icon_total2"></i>
+                            </span>
                         </div>
                     </div>
                     <div class="form-group">
@@ -853,25 +916,25 @@
 
                     <div class="form-group">
                         <div class="control-group">
-                            <label class="col-sm-3 control-label no-padding-right">手术类型 </label>
+                            <label class="col-sm-3 control-label no-padding-right surgeryItem">手术类型</label>
                             <div class="checkbox col-sm-3">
                                 <label>
                                     <input name="form-field-incision" type="checkbox" class="ace" value="1"/>
-                                    <span class="lbl no-padding-right">Ⅰ类</span>
+                                    <span class="lbl no-padding-right surgeryItem">Ⅰ类</span>
                                 </label>
                             </div>
 
                             <div class="checkbox col-sm-3">
                                 <label>
                                     <input name="form-field-incision" type="checkbox" class="ace" value="2"/>
-                                    <span class="lbl no-padding-right">Ⅱ类</span>
+                                    <span class="lbl no-padding-right surgeryItem">Ⅱ类</span>
                                 </label>
                             </div>
 
                             <div class="checkbox col-sm-3">
                                 <label>
                                     <input name="form-field-incision" type="checkbox" class="ace" value="4"/>
-                                    <span class="lbl no-padding-right">Ⅲ类</span>
+                                    <span class="lbl no-padding-right surgeryItem">Ⅲ类</span>
                                 </label>
                             </div>
                         </div>
@@ -886,7 +949,7 @@
                         <div class="col-sm-5">
                             <span class="input-icon input-icon-right">
                                 <input type="text" id="form-total" readonly name="form-total" autocomplete="off" class="col-sm-10"/>
-                                <i id="icon_total"></i>
+                                <i class="icon_total"></i>
                             </span>
                         </div>
                     </div>

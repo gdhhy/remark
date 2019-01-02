@@ -84,21 +84,24 @@ public class SampleController {
                                  @RequestParam(value = "clinicType", required = false, defaultValue = "1") int clinicType,
                                  @RequestParam(value = "western", required = false, defaultValue = "1") int western,
                                  @RequestParam(value = "special", required = false, defaultValue = "1") int special,
-                                 @RequestParam(value = "incision", required = false, defaultValue = "1") int incision,
+                                 @RequestParam(value = "surgery", required = false, defaultValue = "0") int surgery,
+                                 @RequestParam(value = "incision", required = false, defaultValue = "0") int incision,
                                  @RequestParam(value = "dateRange", required = false) String dateRange,
                                  @RequestParam(value = "department", required = false) String department,
                                  @RequestParam(value = "doctorNo", required = false) String doctorNo,
                                  @RequestParam(value = "medicineNo", required = false) String medicineNo,
                                  @RequestParam(value = "draw", required = false) Float draw) {
         Map<String, Object> param = new HashMap<String, Object>();
+        param.put("antiClass", -1);//额外增加
         param.put("type", type);
         param.put("doctor", doctorNo);
         /*if (western >= 0) *///取值：西药1， 中药，0，-1不限
         param.put("western", western);
         param.put("clinicType", clinicType);
         param.put("medicine1", medicineNo);
-        //if (incision)
-        param.put("incision", incision);
+        param.put("surgery", surgery);
+        if (surgery == 1)
+            param.put("incision", incision);
         param.put("special", special);
 
         if (!"全部".equals(department))
@@ -232,7 +235,6 @@ public class SampleController {
 
         return gson.toJson(map);
     }
-
 
 
     @ResponseBody //带这个返回json，不带返回jsp视图

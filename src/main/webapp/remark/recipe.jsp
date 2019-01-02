@@ -655,7 +655,7 @@
             }*/
             //导出
             $('.btn-info').on('click', function (e) {
-                window.location.href = "getRecipeExcel.jspa?recipeID=${recipe.recipeID}";
+                window.location.href = "getRecipeExcel.jspa?recipeID=${recipe.recipeID}&batchID=${batchID}";
             });
             //保存
             $('.btn-success').on('click', function (e) {

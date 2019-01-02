@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Recipe">
+    <cache eviction="LRU" readOnly="false" flushInterval="600000" size="1000"/>
+    <resultMap id="RecipeResult" type="com.zcreate.review.model.Recipe">
+        <result column="recipeID" jdbcType="INTEGER" property="recipeID"/>
+        <result column="serialNo" jdbcType="VARCHAR" property="serialNo"/>
+
+        <result column="patientNo" jdbcType="VARCHAR" property="patientNo"/>
+        <result column="patientName" jdbcType="VARCHAR" property="patientName"/>
+        <result column="sex" jdbcType="BOOLEAN" property="sex"/>
+        <result column="age" jdbcType="VARCHAR" property="age"/>
+
+        <result column="inDate" jdbcType="TIMESTAMP" property="inDate"/>
+        <result column="outDate" jdbcType="TIMESTAMP" property="outDate"/>
+        <result column="department" jdbcType="VARCHAR" property="department"/>
+
+        <result column="diagnosis" jdbcType="VARCHAR" property="diagnosis"/>
+        <result column="diagnosis2" jdbcType="VARCHAR" property="diagnosis2"/>
+        <result column="money" jdbcType="DOUBLE" property="money"/>
+        <result column="medicineMoney" jdbcType="DOUBLE" property="medicineMoney"/>
+        <result column="drugNum" jdbcType="DOUBLE" property="drugNum"/>
+        <result column="masterDoctorNo" jdbcType="VARCHAR" property="masterDoctorNo"/>
+        <result column="masterDoctorName" jdbcType="VARCHAR" property="masterDoctorName"/>
+
+        <result column="reviewDate" jdbcType="TIMESTAMP" property="reviewDate"/>
+        <result column="reviewUser" jdbcType="VARCHAR" property="reviewUser"/>
+        <!--<result column="result" jdbcType="VARCHAR" property="result"/>-->
+        <result column="disItem" jdbcType="VARCHAR" property="disItem"/>
+        <result column="rational" jdbcType="INTEGER" property="rational"/>
+        <result column="publish" jdbcType="INTEGER" property="publish"/>
+        <result column="antiNum" jdbcType="INTEGER" property="antiNum"/>
+        <result column="concurAntiNum" jdbcType="INTEGER" property="concurAntiNum"/>
+        <!--  <result column="shortItemNum" jdbcType="INTEGER" property="shortItemNum"/>-->
+        <result column="courseNum" jdbcType="INTEGER" property="courseNum"/>
+        <result column="incompatNum" jdbcType="INTEGER" property="incompatNum"/>
+        <result column="microbeCheck" jdbcType="INTEGER" property="microbeCheck"/>
+        <result column="archive" jdbcType="INTEGER" property="archive"/>
+        <result column="appealState" jdbcType="INTEGER" property="appealState"/>
+    </resultMap>
+    <resultMap id="RecipeReviewResult" type="com.zcreate.review.model.RecipeReview">
+        <result column="recipeReviewID" jdbcType="INTEGER" property="recipeReviewID"/>
+        <result column="serialNo" jdbcType="INTEGER" property="serialNo"/>
+        <result column="germCheck" jdbcType="INTEGER" property="germCheck"/>
+        <result column="sample" jdbcType="VARCHAR" property="sample"/>
+        <result column="checkDate" jdbcType="VARCHAR" property="checkDate"/>
+        <result column="germName" jdbcType="VARCHAR" property="germName"/>
+        <result column="sensitiveDrugs" jdbcType="VARCHAR" property="sensitiveDrugs"/>
+        <result column="surgeryName" jdbcType="VARCHAR" property="surgeryName"/>
+        <result column="surgeryDate" jdbcType="VARCHAR" property="surgeryDate"/>
+        <result column="incision" jdbcType="VARCHAR" property="incision"/>
+        <result column="beforeDrug" jdbcType="VARCHAR" property="beforeDrug"/>
+        <result column="appendDrug" jdbcType="INTEGER" property="appendDrug"/>
+        <result column="surgeryConsumingTime" jdbcType="VARCHAR" property="surgeryConsumingTime"/>
+        <result column="afterStopDrug" jdbcType="VARCHAR" property="afterStopDrug"/>
+        <result column="symptom" jdbcType="VARCHAR" property="symptom"/>
+        <result column="symptom2" jdbcType="VARCHAR" property="symptom2"/>
+        <result column="review" jdbcType="VARCHAR" property="review"/>
+        <result column="reviewUser" jdbcType="VARCHAR" property="reviewUser"/>
+        <result column="reviewTime" jdbcType="TIMESTAMP" property="reviewTime"/>
+        <result column="interDepart" jdbcType="INTEGER" property="interDepart"/>
+        <result column="reviewJson" jdbcType="VARCHAR" property="reviewJson"/>
+    </resultMap>
+
+    <resultMap id="RecipeWithDetail" type="com.zcreate.review.model.Recipe" extends="RecipeResult">
+        <association property="review" select="selectRecipeReview" column="serialNo"/>
+        <association property="appeal" select="Appeal.selectAppeal_Recipe" column="{objectID=recipeID}"/>
+        <!--<collection property="surgerys" select="RecipeItem.selectSurgery" column="serialNo"/>-->
+    </resultMap>
+
+    <resultMap id="RecipeReviewWithDetail" type="com.zcreate.review.model.RecipeReview" extends="RecipeReviewResult">
+        <collection property="diagnosis" select="RecipeItem.selectDiagnosis" column="serialNo"/>
+        <collection property="longAdvice" select="RecipeItem.selectLongRecipeItemReview" column="serialNo"/>
+        <collection property="shortAdvice" select="RecipeItem.selectShortRecipeItemReview" column="serialNo"/>
+    </resultMap>
+    <sql id="queryWhere">
+        <where>
+            <if test="recipeID > 0">AND recipeID=#{recipeID}</if>
+            <if test="@Ognl@isNotEmpty(serialNo)">AND serialNo=#{serialNo}</if>
+            <!--  <if test="@Ognl@isNotEmpty(recipeDateFrom)">
+                AND ((inDate >= #{recipeDateFrom:TIMESTAMP} )
+                <if test="@Ognl@isEmpty(recipeDateTo)">AND (outDate is null OR outDate &lt; #{recipeDateFrom:TIMESTAMP}) )</if>
+                <if test="@Ognl@isNotEmpty(recipeDateTo)">AND (outDate is null OR outDate &lt; #{recipeDateTo:TIMESTAMP}) )</if>
+            </if>-->
+            <if test="@Ognl@isNotEmpty(reviewDateFrom)">AND reviewDate >= #{reviewDateFrom:VARCHAR}</if>
+            <if test="@Ognl@isNotEmpty(reviewDateTo)">AND reviewDate &lt; #{reviewDateTo:TIMESTAMP}</if>
+            <if test="@Ognl@isNotEmpty(outDateFrom)">AND outDate >= #{outDateFrom:VARCHAR}</if>
+            <if test="@Ognl@isNotEmpty(outDateTo)">AND outDate &lt; #{outDateTo:TIMESTAMP}</if>
+            <if test="@Ognl@isNotEmpty(reviewDateNotNull)">AND reviewDate IS NOT NULL
+                <if test="rational>=0">AND rational = #{rational:INTEGER}</if>
+            </if>
+            <if test="@Ognl@isNotEmpty(department)">AND department = #{department:VARCHAR}</if>
+            <if test="@Ognl@isNotEmpty(hasResearch)">AND serialNo in (select serialNo from AntiResearch)</if>
+            <if test="@Ognl@isNotEmpty(doctor)">AND substring(masterDoctorNo,3,5) = #{doctor:VARCHAR}</if>
+            <if test="@Ognl@isNotEmpty(doctorName)">AND masterDoctorName = #{doctorName:VARCHAR}</if>
+            <if test="@Ognl@isNotEmpty(patientNo)">AND patientNo = #{patientNo:VARCHAR}</if>
+            <if test="@Ognl@isNotEmpty(patientName)">AND patientName = #{patientName:VARCHAR}</if>
+            <if test="@Ognl@isNotEmpty(likePatientName)">AND patientName like '%${likePatientName}%'</if>
+            <if test="@Ognl@isNotEmpty(outHospital)">AND inHospitalDay >0</if>
+            <!--不可能有中药住院-->
+            <if test="western==2">AND recipeID=0</if>
+            <if test="appeal>0">AND appealState >0</if>
+
+            <if test="atLeastMoney>0">AND medicineMoney>#{atLeastMoney:DOUBLE}</if>
+            <if test="atLeastDrugNum>0">AND drugNum>#{atLeastDrugNum:INTEGER}</if>
+            <choose>   <!--抗菌药专项点评，不同时出现-->
+                <when test="@Ognl@isNotEmpty(antiDrugNum)">AND concurAntiNum=#{antiDrugNum:INTEGER}</when>
+                <when test="@Ognl@isNotEmpty(atLeastAntiDrugNum)">AND concurAntiNum>#{atLeastAntiDrugNum:INTEGER}</when>
+            </choose>
+            <if test="medicine1>0">AND serialNo IN(SELECT DISTINCT serialNo FROM RecipeItem R WHERE R.medicineNo=#{medicine1:VARCHAR})</if>
+            <if test="medicine2>0">AND serialNo IN(SELECT DISTINCT serialNo FROM RecipeItem R WHERE R.medicineNo=#{medicine2:VARCHAR})</if>
+
+            <if test="@Ognl@isNotEmpty(oldFolks)">AND dAge > 60</if>
+            <if test="@Ognl@isNotEmpty(children)">AND dAge &lt;= 14</if>
+            <if test="incompatibilityID>0">AND serialNo IN (SELECT objectID FROM RxIncompatibility WHERE incompatibilityID=#{incompatibilityID} AND TYPE=2)</if>
+            <choose>
+                <when test="@Ognl@isNotEmpty(healthNo)">
+                    AND serialNo IN (SELECT DISTINCT R.serialNo FROM RecipeItem R JOIN medicine M ON R.medicineNo = M.medicineNo WHERE M.healthNo LIKE '${healthNo}%' )
+                </when>
+                <when test="antiClass>=0">
+                    AND serialNo IN (SELECT DISTINCT R.serialNo FROM RecipeItem R JOIN medicine M ON R.medicineNo = M.medicineNo
+                    <where>
+                        <if test="antiClass==0">AND M.antiClass >= 0</if>
+                        <if test="antiClass >0">AND M.antiClass = #{antiClass:INTEGER}</if>
+                    </where>
+                    )
+                </when>
+            </choose>
+            <if test="publish>2">AND publish>0</if>
+            <if test="publish==1 or publish==2">AND publish &amp; #{publish:INTEGER} = #{publish:INTEGER}</if>
+            <if test="surgery > 0">AND serialNo in (select serialNo from surgery
+                <where>
+                    <if test="incision ==1 or incision==3 or incision==5 or incision==7">OR incision='Ⅰ'</if>
+                    <if test="incision == 2 or incision == 3 or incision==6  or incision==7 ">OR incision='Ⅱ'</if>
+                    <if test="incision >= 4">OR incision='Ⅲ'</if>
+                </where>
+                )
+            </if>
+            <if test="surgery == 0">AND serialNo not in (select serialNo from surgery)</if>
+            <!-- <if test="year>0">AND serialNo in (select distinct serialNo from RecipeItem where datepart(year,recipeDate)=#{year:INTEGER} )</if>-->
+            <if test="@Ognl@isNotEmpty(recipeDateFrom)">
+                AND serialNo IN (SELECT DISTINCT serialNo FROM RecipeItem
+                <where>
+                    <if test="@Ognl@isNotEmpty(recipeDateFrom)">AND recipeDate >= #{recipeDateFrom:TIMESTAMP}</if>
+                    <if test="@Ognl@isNotEmpty(recipeDateTo)">AND recipeDate &lt; #{recipeDateTo:TIMESTAMP}</if>
+                </where>
+                )
+            </if>
+        </where>
+    </sql>
+    <!--产生随机抽样-->
+    <select id="selectRandomRecipeID" parameterType="java.util.Map" resultType="int">
+        SELECT TOP ${limit} recipeID FROM Recipe
+        <include refid="queryWhere"/>
+        ORDER BY newid() DESC
+    </select>
+    <!--产生等差抽样-->
+    <!--取全部recipeID，作为数列，然后等差抽样-->
+    <select id="selectRecipeIDForLinear" parameterType="java.util.HashMap" resultType="int">
+        SELECT recipeID FROM Recipe
+        <include refid="queryWhere"/>
+        ORDER BY inDate
+    </select>
+    <select id="selectRecipeInIDs" parameterType="java.util.Collection" resultMap="RecipeResult">
+        SELECT DISTINCT recipeID,serialNo,patientNo,patientName,sex,age,inDate,outDate,inHospitalDay,department,diagnosis,diagnosis2,money,medicineMoney,drugNum,masterDoctorNo,
+        masterDoctorName,reviewDate,reviewUser,disItem,rational,publish,antiNum,concurAntiNum,archive,appealState FROM Recipe
+        <foreach separator="," item="item" index="index" open=" WHERE recipeID in (" close=")" collection="list">
+            #{item}
+        </foreach>
+    </select>
+    <!--todo count（*） moto ajax-->
+    <select id="selectRecipe" parameterType="java.util.Map" resultMap="RecipeWithDetail">
+        SELECT TOP 1 recipeID,serialNo,patientNo,patientName,sex,age,inDate,outDate,inHospitalDay,department,diagnosis,diagnosis2,money,medicineMoney,drugNum,masterDoctorNo,
+        masterDoctorName,reviewDate,reviewUser,disItem,rational,publish,antiNum,concurAntiNum,archive,appealState,
+        (SELECT count(*) FROM RxIncompatibility WHERE objectID=Recipe.serialNo) incompatNum,
+        (SELECT count(*) FROM RecipeItem WHERE serialNo= Recipe.serialNo AND longAdvice=2 AND (advice LIKE '%涂片%' or advice like '%细菌培养%')) microbeCheck
+        FROM Recipe
+        <include refid="queryWhere"/>
+    </select>
+    <update id="updateRecipe" parameterType="com.zcreate.review.model.Recipe" flushCache="true">
+        UPDATE Recipe
+        <set>
+            <if test="publish>0">publish = publish | #{publish:INTEGER},</if>
+            <!--<if test="result != null">result = #{result:VARCHAR},</if>-->
+            <if test="reviewDate != null">reviewDate = #{reviewDate:TIMESTAMP},</if>
+            <if test="reviewUser != null">reviewUser = #{reviewUser:TIMESTAMP},</if>
+            <if test="disItem != null">disItem = #{disItem:VARCHAR},</if>
+            <if test="rational != null">rational = #{rational:INTEGER},</if>
+            <if test="appealState != null">appealState = #{appealState:INTEGER},</if>
+        </set>
+        WHERE recipeID = #{recipeID:INTEGER}
+    </update>
+    <select id="selectRecipeCount" parameterType="java.util.Map" resultType="int">
+        SELECT count(*) FROM Recipe
+        <include refid="queryWhere"/>
+    </select>
+    <select id="selectRecipeList" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT TOP ${limit}
+        A.recipeID,A.serialNo,A.patientNo,A.patientName,A.sex,A.age,A.inDate,A.outDate,A.inHospitalDay,A.department,A.diagnosis,A.diagnosis2,A.drugNum,A.money,A.medicineMoney,
+        A.masterDoctorNo,A.masterDoctorName,A.reviewDate,A.reviewUser,A.disItem,A.rational,A.publish,A.antiNum,A.concurAntiNum,A.archive,A.appealState,B.review result
+        FROM (SELECT * FROM Recipe<include refid="queryWhere"/>)A left join RecipeReview B on A.serialNo=B.serialNo
+        <if test="start!=null and start > 0">
+            WHERE A.recipeID &lt; ( SELECT min(recipeID) FROM (SELECT TOP ${start} recipeID FROM recipe
+            <include refid="queryWhere"/>
+            ORDER BY ${orderField} DESC ) A )
+        </if>
+        ORDER BY ${orderField} DESC
+    </select>
+
+
+    <!--RecipeReview-->
+    <insert id="insertRecipeReview" parameterType="com.zcreate.review.model.RecipeReview">
+        INSERT INTO RecipeReview (serialNo,germCheck,sample,checkDate,germName,sensitiveDrugs,surgeryName,
+        surgeryDate, incision, beforeDrug,appendDrug, surgeryConsumingTime,afterStopDrug,
+        symptom,symptom2,review,reviewUser,reviewTime,interDepart,reviewJson)
+        VALUES (#{serialNo:INTEGER},#{germCheck:INTEGER},#{sample:VARCHAR},#{checkDate:VARCHAR},#{germName:VARCHAR},#{sensitiveDrugs:VARCHAR},#{surgeryName:VARCHAR},
+        #{surgeryDate:VARCHAR}, #{incision:VARCHAR}, #{beforeDrug:VARCHAR},#{appendDrug:INTEGER},#{surgeryConsumingTime:VARCHAR},#{afterStopDrug:VARCHAR},
+        #{symptom:VARCHAR},#{symptom2:VARCHAR},#{review:VARCHAR},#{reviewUser:VARCHAR},getdate(),#{interDepart:INTEGER},#{reviewJson:VARCHAR})
+        <selectKey resultType="int" order="AFTER" keyProperty="recipeReviewID">
+            select @@IDENTITY as recipeReviewID
+        </selectKey>
+    </insert>
+    <select id="selectRecipeReview" parameterType="java.lang.String" resultMap="RecipeReviewWithDetail">
+        SELECT recipeReviewID, serialNo, germCheck, sample, checkDate, germName, sensitiveDrugs, surgeryName, surgeryDate, incision, beforeDrug, appendDrug, surgeryConsumingTime,
+        afterStopDrug, symptom, symptom2, review, reviewUser, reviewTime, interDepart,reviewJson FROM RecipeReview WHERE serialNo = #{serialNo:VARCHAR}
+    </select>
+    <update id="updateRecipeReview" parameterType="com.zcreate.review.model.RecipeReview" flushCache="true">
+        UPDATE RecipeReview
+        <set>
+            <if test="serialNo != null">serialNo = #{serialNo:INTEGER},</if>
+            <if test="germCheck != null">germCheck = #{germCheck:INTEGER},</if>
+            <if test="sample != null">sample = #{sample:VARCHAR},</if>
+            <if test="checkDate != null">checkDate = #{checkDate:VARCHAR},</if>
+            <if test="germName != null">germName = #{germName:VARCHAR},</if>
+            <if test="sensitiveDrugs != null">sensitiveDrugs = #{sensitiveDrugs:VARCHAR},</if>
+            <if test="surgeryName != null">surgeryName = #{surgeryName:VARCHAR},</if>
+            <if test="surgeryDate != null">surgeryDate = #{surgeryDate:VARCHAR},</if>
+            <if test="incision != null">incision = #{incision:VARCHAR},</if>
+            <if test="beforeDrug != null">beforeDrug = #{beforeDrug:VARCHAR},</if>
+            <if test="appendDrug != null">appendDrug = #{appendDrug:INTEGER},</if>
+            <if test="surgeryConsumingTime != null">surgeryConsumingTime = #{surgeryConsumingTime:VARCHAR},</if>
+            <if test="afterStopDrug != null">afterStopDrug = #{afterStopDrug:VARCHAR},</if>
+            <if test="symptom != null">symptom = #{symptom:VARCHAR},</if>
+            <if test="symptom2 != null">symptom2 = #{symptom2:VARCHAR},</if>
+            <if test="review != null">review = #{review:VARCHAR},</if>
+            <if test="reviewUser != null">reviewUser = #{reviewUser:VARCHAR},</if>
+            <if test="reviewTime != null">reviewTime = getDate(),</if>
+            <if test="interDepart != null">interDepart = #{interDepart:INTEGER},</if>
+            <if test="reviewJson != null">reviewJson = #{reviewJson:VARCHAR}</if>
+        </set>
+        WHERE recipeReviewID = #{recipeReviewID:INTEGER}
+    </update>
+    <delete id="deleteRecipeReview" parameterType="int">
+        DELETE RecipeReview WHERE recipeReviewID = #{recipeReviewID:INTEGER}
+    </delete>
+
+    <!--越级使用抗菌药-->
+    <select id="bypass" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        P.recipeID,P.patientNo,P.patientName,P.age,P.department,P.inDate,P.inHospitalDay,P.diagnosis,diagnosis2,P.drugNum,P.antiNum,P.concurAntiNum,P.money,P.medicineMoney,M.antiClass
+        mAntiClass,D.antiClass dAntiClass,P.masterDoctorName,R.doctorName,P.archive, P.appealState
+        FROM Recipe P
+        LEFT JOIN RecipeItem R ON P.serialNo = R.serialNo
+        LEFT JOIN Medicine M ON R.medicineNo=M.medicineNo
+        LEFT JOIN doctor D ON R.doctorName = D.name
+        WHERE M.antiClass>=1 AND M.antiClass>D.antiClass
+        <if test="@Ognl@isNotEmpty(fromDate)">AND R.recipeDate >= #{fromDate:TIMESTAMP}</if>
+        <if test="@Ognl@isNotEmpty(toDate)">AND R.recipeDate &lt; #{toDate:TIMESTAMP}</if>
+        <if test="antiClass==0">AND M.antiClass >0</if>
+        <if test="antiClass>0">AND M.antiClass = #{antiClass:INTEGER}</if>
+    </select>
+    <!-- etonehis.hospital.william.  -->
+    <!-- eyserver.hospital.william.  -->
+    <select id="selectDepartCode" parameterType="java.util.Map" resultType="java.lang.String">
+        SELECT rtrim(p042_004) departCode
+        FROM ${prefix}.P042 WHERE p042_002=#{departmentName:VARCHAR}
+    </select>
+    <select id="selectRecipeListForExcel" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT R.serialNo,R.department,R.patientNo,R.patientName,R.masterDoctorName, (select distinct disease+',' from Diagnosis where serialNo=R.serialNo for XML PATH(''))
+        diagnosis ,
+        R.inHospitalDay,R.rational ,R.concurAntiNum,RR.surgeryName,RR.incision,RR.afterStopDrug,RR.beforeDrug,R.antiNum,
+        (SELECT count(*) FROM medicine M,RecipeItem I where R.serialNo=I.serialNo and western>1 and M.route=2 and M.medicineNo=I.medicineNo) chineseInjectNum
+        FROM RecipeReview RR , Recipe R where R.serialNo=RR.serialNo
+        <if test="@Ognl@isNotEmpty(sampleBatchID)">AND R.recipeID in (SELECT objectID FROM SampleList WHERE sampleBatchID = #{sampleBatchID:INTEGER})</if>
+        <if test="@Ognl@isNotEmpty(sampleBatchIDs)">AND R.recipeID in (SELECT objectID FROM SampleList
+            <foreach separator="," item="item" index="index" open=" WHERE sampleBatchID in (" close=")" collection="sampleBatchIDs">
+                #{item}
+            </foreach>)
+        </if>
+        <if test="@Ognl@isNotEmpty(department)">AND R.department = #{department:VARCHAR}</if>
+        <if test="@Ognl@isNotEmpty(reviewDateFrom)">AND RR.reviewTime >= #{reviewDateFrom:VARCHAR}</if>
+        <if test="@Ognl@isNotEmpty(reviewDateTo)">AND RR.reviewTime &lt; #{reviewDateTo:TIMESTAMP}</if>
+        <if test="@Ognl@isNotEmpty(rational)">AND R.rational &lt; #{rational:INTEGER}</if>
+    </select>
+
+    <update id="clearCache" flushCache="true" parameterType="string">
+        UPDATE Recipe SET serialNo = #{serialNo:VARCHAR} WHERE serialNo = #{serialNo:VARCHAR}
+    </update>
+    <select id="selectRecipeAntiStat" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT A.*, D.skipRank, D.AUD, D.DDDs,  D.first3,D.hospitalDay,D.amount,D.antiAmount,D.insuranceRatio,D.baseRatio,E.medicineRatio,E.amount2,E.medicineAmount,
+        CASE WHEN D.amount > 0 THEN D.antiAmount / D.amount  ELSE 0 END antiAmountRatio
+        FROM (SELECT
+             R.department,
+             count(DISTINCT R.recipeID)                                                                     recipeNum,
+             COUNT(DISTINCT CASE WHEN R.incision &amp; 1 = 1 THEN R.serialNo ELSE NULL END)                     incisionNum,
+             COUNT(DISTINCT CASE WHEN R.incision &amp; 9 = 9 AND R.antiMoney > 0 THEN R.serialNo ELSE NULL END) incisionAntiNum,
+             COUNT(DISTINCT CASE WHEN R.antiMoney > 0 THEN R.serialNo ELSE NULL END)                        antiNum,
+             COUNT(DISTINCT CASE WHEN R.checkItem &amp; 1 = 1 THEN R.serialNo ELSE NULL END)                    germiCulture,
+             COUNT(DISTINCT CASE WHEN R.checkItem &amp; 2 = 2 THEN R.serialNo ELSE NULL END)                    drugSen
+        FROM Recipe R WHERE R.outDate > #{fromDate:VARCHAR} AND R.outDate &lt; #{toDate:VARCHAR} GROUP BY R.department) A
+        LEFT JOIN
+        (SELECT
+            department,
+            sum(skipRank)                                                                                         skipRank,
+            CASE WHEN sum(hospitalDay) > 0 THEN sum(DDDs) * 100.0 / sum(hospitalday) ELSE 0 END                   AUD,
+            sum(DDDs)                                                                                             DDDs,
+            sum(hospitalDay)                                                                                      hospitalDay,
+            sum(clinicAmount + hospitalAmount)                                                                    amount,
+            sum(clinicAntiAmount + hospitalAntiAmount)                                                            antiAmount,
+             sum(clinicInsuranceAmount+hospitalInsuranceAmount)*1.0/sum(clinicAmount+hospitalAmount) insuranceRatio ,
+             sum(clinicBaseAmount+hospitalBaseAmount)*1.0/sum(clinicAmount+hospitalAmount) baseRatio,
+            (SELECT top 3 M.chnName + '；' FROM dailydepartmedicine D LEFT JOIN Medicine M ON M.medicineNo = D.medicineNo
+            WHERE D.department = DailyDepart.department AND date > #{fromDate:VARCHAR} AND date &lt; #{toDate:VARCHAR} AND M.antiClass > 0 AND isStat > 0
+            GROUP BY M.medicineNo, M.chnName  order by sum(hospitalAmount+clinicAmount) desc FOR XML PATH (''))   first3
+        FROM DailyDepart WHERE date > #{fromDate:VARCHAR} AND date &lt; #{toDate:VARCHAR} GROUP BY department) D
+         ON A.department = D.department
+         left join (SELECT month, department,medicineAmount / amount  medicineRatio,amount amount2,medicineAmount FROM MonthDepartIncome WHERE month=#{month:VARCHAR} and departType=1 and amount > 0 )E ON A.department=E.department
+        order by A.recipeNum
+    </select>
+    <select id="selectRecipeWithSurgery" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT
+        R.serialNo,
+        R.patientName,
+        R.outDate,
+        R.department,
+        R.masterDoctorNo,
+        R.masterDoctorName,
+        S.incision,
+        S.surgeryName,
+        S.surgeryDate,
+        B.advice,
+        CASE WHEN a.serialNo IS NOT NULL THEN '是' ELSE '' END antiDrug
+        FROM Recipe R JOIN Surgery S ON S.serialNo = R.serialNo
+        <if test="@Ognl@isNotEmpty(incisionType)">AND S.incision = #{incisionType:VARCHAR}</if>
+        LEFT JOIN
+        (SELECT S.serialNo FROM Surgery S JOIN RecipeItem R ON S.serialNo = R.serialNo
+        WHERE S.incision = 'Ⅰ' AND datediff(DAY, S.surgeryDate, R.recipeDate) = 0
+        AND (R.advice LIKE '%术前半小时%' OR R.advice LIKE '%术前30分%' OR R.advice LIKE '%带入手术室%')) A
+        ON a.serialNo = R.serialNo
+        LEFT JOIN
+        (SELECT DISTINCT S.serialNo, R.advice
+        FROM Surgery S JOIN RecipeItem R ON S.serialNo = R.serialNo
+        WHERE S.incision = 'Ⅰ' AND datediff(DAY, S.surgeryDate, R.recipeDate) = 0
+        AND R.medicineNo IN (SELECT medicineNo FROM Medicine WHERE antiClass > 0)
+        AND S.serialNo IN (SELECT serialNo FROM Recipe WHERE outDate >= #{fromDate:VARCHAR} AND outDate &lt; #{toDate:VARCHAR}) ) B
+        ON B.serialNo = R.serialNo
+    </select>
+</mapper>

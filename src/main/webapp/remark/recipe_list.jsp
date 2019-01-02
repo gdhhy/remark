@@ -77,7 +77,7 @@
                         "orderable": false, "targets": 14,title:'点评', render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 /*'<a class="hasDetail" href="#" data-Url="/index.jspa?content=/remark/viewRecipe.jspa&recipeID={0}">'.format(data) +*/
-                                '<a class="hasDetail" href="#" data-Url="/remark/viewRecipe.jspa?recipeID={0}">'.format(data) +
+                                '<a class="hasDetail" href="#" data-Url="/remark/viewRecipe.jspa?recipeID={0}&batchID={1}">'.format(data,sampleBatchID) +
                                 '<i class="ace-icon glyphicon glyphicon-pencil  bigger-130"></i>' +
                                 '</a>' +
                                 '</div>';
