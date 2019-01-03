@@ -79,7 +79,7 @@ public class RemarkController {
         boolean succeed;
         try {
             succeed = reviewService.saveRecipeReview(review);
-            log.debug("review.getRecipeReviewID():"+review.getRecipeReviewID());
+            log.debug("review.getRecipeReviewID():" + review.getRecipeReviewID());
             result.put("succeed", succeed);
             result.put("message", "已保存！");
             result.put("recipeReviewID", review.getRecipeReviewID());
@@ -186,6 +186,7 @@ public class RemarkController {
                     "手术开始时间：{2} 手术结束时间：{3}\n" +
                     "术前初次预防用药时间：{4}1.＞1h；{5}2.切皮前0.5-1h ；{6}3.＜0.5hr；{7}4.术前未用术后用；{8}5.未夹脐带后用药；{9}6.夹住脐带后用药；{10}7.眼科滴眼＜24hr；{11}8. 眼科滴眼＞24hr；\n" +
                     "术中给药情况：{12}1.已追加；{13}2.未追加");
+            //log.debug("string:" + string);
             int incision = surgery.get("incision").getAsInt();
             int drugItem = surgery.get("drugItem").getAsInt();
             sheet.getRow(startRow++).getCell(cellIndex).setCellValue(MessageFormat.format(string,
@@ -241,7 +242,7 @@ public class RemarkController {
             sheet.getRow(startRow + i).getCell(cellIndex + 5).setCellValue(drug.get("quantity").getAsString());
             sheet.getRow(startRow + i).getCell(cellIndex + 6).setCellValue(drug.get("recipeDate").getAsString());
 
-            sheet.getRow(startRow + i + 1).getCell(cellIndex).setCellValue(drug.get("menstruum").getAsString());
+            sheet.getRow(startRow + i + 1).getCell(cellIndex).setCellValue(Optional.ofNullable(drug.get("menstruum")).map(JsonElement::getAsString).orElse(""));
         }
         if (drugs.size() > 0)
             sheet.shiftRows(startRow + drugs.size() * 2 + 2, sheet.getLastRowNum(), -2, true, false);//删除两行，这行是占位设置单元格样式的

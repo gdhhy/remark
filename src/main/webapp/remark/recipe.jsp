@@ -28,7 +28,7 @@
     <link rel="stylesheet" href="../components/bootstrap-timepicker/css/bootstrap-timepicker.css"/>
     <link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>
     <link rel="stylesheet" href="../components/bootstrap-datetimepicker/bootstrap-datetimepicker.css"/>
-    <link href="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.css" rel="stylesheet">
+    <link href="../components/bootstrap-datetimepicker/bootstrap-datetimepicker.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/bootstrap-editable.css"/>
 
     <!-- basic scripts -->
@@ -58,7 +58,7 @@
 
     <script src="../components/bootstrap-datepicker/dist/js/bootstrap-datepicker.js"></script>
     <script src="../components/moment/moment.min.js"></script>
-    <script src="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="../components/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
     <script src="../js/datatables/jquery.dataTables.bootstrap.min.js"></script>
     <script src="../js/datatables/dataTables.select.min.js"></script>
     <script src="../js/jquery-ui/jquery-ui.min.js"></script>
@@ -743,12 +743,9 @@
                 json.用药目的 = purpose;
 
                 var drug = [];
-                //var nullRow = 0;
                 drugTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
                     if (typeof (this.data()) !== 'undefined') {
                         var trRow = $("#drugTable tbody tr").eq(rowIdx);
-                        /* var check = trRow.find('input:radio:checked').val();
-                         console.log("check:" + check);*/
                         drug.push({
                             "recipeItemID": this.data()["recipeItemID"],
                             "advice": this.data()["advice"],
@@ -759,10 +756,9 @@
                             "adviceType": trRow.find("td:eq(4)").text(),
                             "quantity": trRow.find("td:eq(5)").text(),
                             "menstruum": this.data()["menstruum"],
-                            "purpose": trRow.find('input:radio:checked').val(),//todo valid not null
+                            "purpose": trRow.find('input:radio:checked').val() ? trRow.find('input:radio:checked').val() : "",
                             "recipeDate": this.data()["recipeDate"]
                         });
-                        //if (this.data()["menstruum"] !== null) nullRow++;
                     }
                 });
 
@@ -1333,7 +1329,7 @@
                                         </div>
                                     </c:if>
                                     <c:if test="${batch.surgery==1}">
-                                        <div id="dropdown88" class="tab-pane in active">
+                                        <div id="dropdown88" class="tab-pane">
                                             <div class="well well-sm" style="height: 400px" id="kkk">
                                                 <div class="form-inline no-padding col-xs-12" style="margin-top: 5px;">
                                                     <label class="col-xs-2 control-label" for="form-field-sample" style="text-overflow:ellipsis; white-space:nowrap;">手术名称</label>
