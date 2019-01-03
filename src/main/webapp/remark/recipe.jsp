@@ -28,6 +28,7 @@
     <link rel="stylesheet" href="../components/bootstrap-timepicker/css/bootstrap-timepicker.css"/>
     <link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>
     <link rel="stylesheet" href="../components/bootstrap-datetimepicker/bootstrap-datetimepicker.css"/>
+    <link href="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/bootstrap-editable.css"/>
 
     <!-- basic scripts -->
@@ -54,9 +55,11 @@
     <%--<script src="../components/jquery-ui.custom/jquery-ui.custom.js"></script>--%>
     <script src="../js/datatables/jquery.dataTables.min.js"></script>
     <%--<link rel="stylesheet" href="../components/chosen/chosen.css" />--%>
+
     <script src="../components/bootstrap-datepicker/dist/js/bootstrap-datepicker.js"></script>
+    <script src="../components/moment/moment.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="../js/datatables/jquery.dataTables.bootstrap.min.js"></script>
-    <%--<script src="../js/datatables.net-buttons/dataTables.buttons.min.js"></script>--%>
     <script src="../js/datatables/dataTables.select.min.js"></script>
     <script src="../js/jquery-ui/jquery-ui.min.js"></script>
     <script src="../js/jquery-ui/ui/i18n/datepicker-zh-CN.js"></script>
@@ -66,10 +69,6 @@
     <%--<script src="../assets/js/x-editable/ace-editable.min.js"></script>--%>
     <script src="../js/string_func.js"></script>
     <script src="../js/accounting.min.js"></script>
-    <%--<script src="https://cdn.bootcss.com/moment.js/2.22.1/moment.min.js"></script>
-    <script src="https://cdn.bootcss.com/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>--%>
-    <%--<script src="../components/moment/moment.min.js"></script>
-    <script src="../components/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>--%>
 
     <script type="text/javascript">
         jQuery(function ($) {
@@ -625,34 +624,28 @@
                 $(this).prev().focus();
             });
 
-            /*if (!ace.vars['old_ie']) {
-            console.log("!old_ie");
-            $('#id-date-picker-1').datetimepicker({
-             //format: 'MM/DD/YYYY h:mm:ss A',//use this option to display seconds
-             // format: 'YYYY-MM-DD',
-             /!* month: true,*!/
-             format: 'yyyy-mm-dd',
-             //minView:'month',
-             //language: 'zh-CN',
-             icons: {
-             time: 'fa fa-clock-o',
-             date: 'fa fa-calendar',
-             up: 'fa fa-chevron-up',
-             down: 'fa fa-chevron-down',
-             previous: 'fa fa-chevron-left',
-             next: 'fa fa-chevron-right',
-             today: 'fa fa-arrows ',
-             clear: 'fa fa-trash',
-             close: 'fa fa-times'
-             }
+            if (!ace.vars['old_ie']) $('#id-surgeryTime1,#id-surgeryTime2').datetimepicker({
+                //format: 'MM/DD/YYYY h:mm:ss A',//use this option to display seconds
+                //language: 'zh-CN',
+                icons: {
+                    time: 'fa fa-clock-o',
+                    date: 'fa fa-calendar',
+                    up: 'fa fa-chevron-up',
+                    down: 'fa fa-chevron-down',
+                    previous: 'fa fa-chevron-left',
+                    next: 'fa fa-chevron-right',
+                    today: 'fa fa-arrows ',
+                    clear: 'fa fa-trash',
+                    close: 'fa fa-times'
+                }
             }).next().on(ace.click_event, function () {
-             $(this).prev().focus();
+                $(this).prev().focus();
             }).on('show', function () {
-             $(".datetimepicker").css("z-index", $("#dialog-edit").zIndex() + 1);
+                console.log("zIndex:" + $("#kkk").zIndex());
+                $(".datetimepicker").css("z-index", $("#kkk").zIndex() + 1);
             }).on('hide', function () {
-             console.log("hide");
+                console.log("hide");
             });
-            }*/
             //导出
             $('.btn-info').on('click', function (e) {
                 window.location.href = "getRecipeExcel.jspa?recipeID=${recipe.recipeID}&batchID=${batchID}";
@@ -715,6 +708,7 @@
                 lab.match = $('input:radio[name="form-field-match"]:checked').val();
                 json.实验室检查 = lab;
 
+                <c:if test="${batch.surgery==0}">
                 var imaging = {imaging: 0};
                 imaging.part = $('#form-field-part').val();
                 imaging.conclusion = $('#form-field-conclusion').val();
@@ -724,6 +718,24 @@
                 json.影像学检查 = imaging;
 
                 json.临床症状 = $('#form-field-symptom').val();
+                </c:if>
+                <c:if test="${batch.surgery==1}">
+                var surgery = {incision: 0, drugItem: 0};
+                surgery.name = $('#form-field-surgeryName').val();
+                $("input:checkbox[name='form-field-incision']:checked").each(function () {
+                    surgery.incision += parseInt($(this).val());
+                });
+                surgery.startTime = $('#id-surgeryTime1').val();
+                surgery.endTime = $('#id-surgeryTime2').val();
+
+                $("input:checkbox[name='form-field-drugItem']:checked").each(function () {
+                    surgery.drugItem += parseInt($(this).val());
+                });
+
+                surgery.surgeryDrug = $('input:radio[name="form-field-surgeryDrug"]:checked').val();
+
+                json.手术情况 = surgery;
+                </c:if>
 
                 var purpose = {};
                 purpose.purpose = $('input:radio[name="form-field-purpose"]:checked').val();
@@ -856,7 +868,7 @@
                 $('input:radio[name="form-field-sensitive"][value="' + saveJson.实验室检查.sensitive + '"]').prop("checked", "checked");
                 $('#sensitive_time').val(saveJson.实验室检查.sensitive_time);
                 $('input:radio[name="form-field-match"][value="' + saveJson.实验室检查.match + '"]').prop("checked", "checked");
-
+                <c:if test="${batch.surgery==0}">
                 $('#form-field-part').val(saveJson.影像学检查.part);
                 $('#form-field-conclusion').val(saveJson.影像学检查.conclusion);
                 $("input:checkbox[name='form-field-imaging']").each(function () {
@@ -864,6 +876,20 @@
                 });
 
                 $('#form-field-symptom').val(saveJson.临床症状);
+                </c:if>
+                <c:if test="${batch.surgery==1}">
+                $('#form-field-surgeryName').val(saveJson.手术情况.name);
+                $("input:checkbox[name='form-field-incision']").each(function () {
+                    $(this).attr("checked", (saveJson.手术情况.incision & $(this).val()) === parseInt($(this).val()));
+                });
+                $('#id-surgeryTime1').val(saveJson.手术情况.startTime);
+                $('#id-surgeryTime2').val(saveJson.手术情况.endTime);
+                $("input:checkbox[name='form-field-drugItem']").each(function () {
+                    $(this).attr("checked", (saveJson.手术情况.drugItem & $(this).val()) === parseInt($(this).val()));
+                });
+
+                $('input:radio[name="form-field-surgeryDrug"][value="' + saveJson.手术情况.surgeryDrug + '"]').prop("checked", "checked");
+                </c:if>
 
                 $('#form-field-infection').val(saveJson.用药目的.infection);
                 $('input:radio[name="form-field-purpose"][value="' + saveJson.用药目的.purpose + '"]').prop("checked", "checked");
@@ -954,8 +980,13 @@
                                     <li><a data-toggle="tab" href="#home3">诊断</a></li>
                                     <li><a data-toggle="tab" href="#profile3">过敏史</a></li>
                                     <li><a data-toggle="tab" href="#dropdown13">实验室检查</a></li>
-                                    <li><a data-toggle="tab" href="#dropdown14">影像学诊断</a></li>
-                                    <li><a data-toggle="tab" href="#dropdown15">临床症状</a></li>
+                                    <c:if test="${batch.surgery==0}">
+                                        <li><a data-toggle="tab" href="#dropdown14">影像学诊断</a></li>
+                                        <li><a data-toggle="tab" href="#dropdown15">临床症状</a></li>
+                                    </c:if>
+                                    <c:if test="${batch.surgery==1}">
+                                        <li><a data-toggle="tab" href="#dropdown88">手术情况</a></li>
+                                    </c:if>
                                     <li><a data-toggle="tab" href="#dropdown16">用药目的</a></li>
                                     <li><a data-toggle="tab" href="#dropdown17">用药情况</a></li>
                                     <li><a data-toggle="tab" href="#dropdown18">费用</a></li>
@@ -966,7 +997,7 @@
                                 </ul>
 
                                 <div class="tab-content" id="divTab1">
-                                    <div id="dropdown23" class="tab-pane in active">
+                                    <div id="dropdown23" class="tab-pane  in active">
                                         <div class="well well-sm" style="height: 170px">
                                             <div class="control-group col-xs-12">
                                                 <span class="lbl">性别：</span>
@@ -1267,44 +1298,114 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div id="dropdown14" class="tab-pane">
-                                        <div class="well well-sm" style="height: 120px">
-                                            <div class="form-inline no-padding col-xs-12">
-                                                <div class="control-group col-xs-12 no-padding">
-                                                    <div class="col-xs-3">
-                                                        <input name="form-field-imaging" type="checkbox" class="ace" value="1"/>
-                                                        <span class="lbl">X线</span>
-                                                    </div>
+                                    <c:if test="${batch.surgery==0}">
+                                        <div id="dropdown14" class="tab-pane">
+                                            <div class="well well-sm" style="height: 120px">
+                                                <div class="form-inline no-padding col-xs-12">
+                                                    <div class="control-group col-xs-12 no-padding">
+                                                        <div class="col-xs-3">
+                                                            <input name="form-field-imaging" type="checkbox" class="ace" value="1"/>
+                                                            <span class="lbl">X线</span>
+                                                        </div>
 
-                                                    <div class="col-xs-3">
-                                                        <input name="form-field-imaging" type="checkbox" class="ace" value="2"/>
-                                                        <span class="lbl">CT</span>
-                                                    </div>
+                                                        <div class="col-xs-3">
+                                                            <input name="form-field-imaging" type="checkbox" class="ace" value="2"/>
+                                                            <span class="lbl">CT</span>
+                                                        </div>
 
-                                                    <div class="col-xs-3">
-                                                        <input name="form-field-imaging" type="checkbox" class="ace" value="4"/>
-                                                        <span class="lbl">磁共振</span>
+                                                        <div class="col-xs-3">
+                                                            <input name="form-field-imaging" type="checkbox" class="ace" value="4"/>
+                                                            <span class="lbl">磁共振</span>
+                                                        </div>
                                                     </div>
                                                 </div>
+                                                <div class="form-inline input-group col-xs-12" style="margin-top: 10px">
+                                                    <label class="control-label col-xs-2" for="form-field-part" style="text-overflow:ellipsis; white-space:nowrap;">部位</label>
+                                                    <input type="text" id="form-field-part" placeholder="部位" class="no-padding col-xs-10"/>
+                                                </div>
+                                                <div class="form-inline input-group col-xs-12" style="margin-top: 10px">
+                                                    <label class="control-label col-xs-2" for="form-field-conclusion" style="text-overflow:ellipsis; white-space:nowrap;">结论</label>
+                                                    <input type="text" id="form-field-conclusion" placeholder="结论" class="no-padding col-xs-10"/>
+                                                </div>
                                             </div>
-                                            <div class="form-inline input-group col-xs-12" style="margin-top: 10px">
-                                                <label class="control-label col-xs-2" for="form-field-part" style="text-overflow:ellipsis; white-space:nowrap;">部位</label>
-                                                <input type="text" id="form-field-part" placeholder="部位" class="no-padding col-xs-10"/>
+                                            <h6 class="light-grey">只填写与感染有关的影像学诊断</h6>
+                                        </div>
+                                        <div id="dropdown15" class="tab-pane">
+                                            <div class="well well-sm" style="height: 180px;">
+                                                <label for="form-field-symptom">与感染有关的主要症状</label>
+                                                <textarea class="autosize-transition form-control" rows="6" id="form-field-symptom" placeholder="与感染有关的主要症状"></textarea>
                                             </div>
-                                            <div class="form-inline input-group col-xs-12" style="margin-top: 10px">
-                                                <label class="control-label col-xs-2" for="form-field-conclusion" style="text-overflow:ellipsis; white-space:nowrap;">结论</label>
-                                                <input type="text" id="form-field-conclusion" placeholder="结论" class="no-padding col-xs-10"/>
+                                            <h6 class="light-grey">只填写与感染有关的主要临床症状</h6>
+                                        </div>
+                                    </c:if>
+                                    <c:if test="${batch.surgery==1}">
+                                        <div id="dropdown88" class="tab-pane in active">
+                                            <div class="well well-sm" style="height: 400px" id="kkk">
+                                                <div class="form-inline no-padding col-xs-12" style="margin-top: 5px;">
+                                                    <label class="col-xs-2 control-label" for="form-field-sample" style="text-overflow:ellipsis; white-space:nowrap;">手术名称</label>
+                                                    <div class="col-xs-3">
+                                                        <input type="text" id="form-field-surgeryName" style="width: 120px" placeholder="手术名称" class="no-padding"/>
+                                                    </div>
+                                                    <div class="control-group col-xs-7">
+                                                        <label class="col-xs-1 control-label" style="text-overflow:ellipsis; white-space:nowrap;width: 80px">切口类型</label>
+                                                        <label>
+                                                            <input name="form-field-incision" type="checkbox" class="ace" value="1"/>
+                                                            <span class="lbl">Ⅰ</span>
+                                                        </label>
+                                                        <label>
+                                                            <input name="form-field-incision" type="checkbox" class="ace" value="2"/>
+                                                            <span class="lbl">Ⅱ</span>
+                                                        </label> <label>
+                                                        <input name="form-field-incision" type="checkbox" class="ace" value="4"/>
+                                                        <span class="lbl">Ⅲ</span>
+                                                    </label>
+                                                    </div>
+                                                </div>
+                                                <div class="form-inline col-xs-12" style="margin-top: 10px;">
+                                                    <label class="control-label no-padding" for="id-surgeryTime1" style="text-overflow:ellipsis; white-space:nowrap;;width:100px;">手术开始时间</label>
+                                                    <div class="input-group">
+                                                        <input class="no-padding" style="width: 110px" id="id-surgeryTime1" type="text" data-date-format="MM月DD日 HH:mm"
+                                                               value="<fmt:formatDate value='${inDate}' pattern='MM月dd日 HH:mm'/>"/>
+                                                        <span class="input-group-addon no-padding"><i class="fa fa-calendar bigger-110"></i></span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-inline col-xs-12" style="margin-top: 10px;">
+                                                    <label class="control-label no-padding" for="id-surgeryTime2" style="text-overflow:ellipsis; white-space:nowrap;width:100px;">手术结束时间</label>
+                                                    <div class="input-group">
+                                                        <input class="no-padding" style="width: 110px" id="id-surgeryTime2" type="text" data-date-format="MM月DD日 HH:mm"
+                                                               value="<fmt:formatDate value='${outDate}' pattern='MM月dd日 HH:mm'/>"/>
+                                                        <span class="input-group-addon no-padding"><i class="fa fa-calendar bigger-110"></i></span>
+                                                    </div>
+                                                </div>
+                                                <div class="control-group col-xs-12 no-padding" style="margin-top: 10px">
+                                                    <span class="lbl">术前初次预防用药时间：</span>
+                                                    <input name="form-field-drugItem" type="checkbox" class="ace" value="1"/>
+                                                    <span class="lbl">1.＞1h</span>
+                                                    <input name="form-field-drugItem" type="checkbox" class="ace" value="2"/>
+                                                    <span class="lbl">2.切皮前0.5-1h</span>
+                                                    <input name="form-field-drugItem" type="checkbox" class="ace" value="4"/>
+                                                    <span class="lbl">3.＜0.5hr</span>
+                                                    <input name="form-field-drugItem" type="checkbox" class="ace" value="8"/>
+                                                    <span class="lbl">4.术前未用术后用</span>
+                                                    <input name="form-field-drugItem" type="checkbox" class="ace" value="16"/>
+                                                    <span class="lbl">5.未夹脐带后用药</span>
+                                                    <input name="form-field-drugItem" type="checkbox" class="ace" value="32"/>
+                                                    <span class="lbl">6.夹住脐带后用药</span>
+                                                    <input name="form-field-drugItem" type="checkbox" class="ace" value="64"/>
+                                                    <span class="lbl">7.眼科滴眼＜24hr</span>
+                                                    <input name="form-field-drugItem" type="checkbox" class="ace" value="128"/>
+                                                    <span class="lbl">8. 眼科滴眼＞24hr</span>
+                                                </div>
+                                                <div class="control-group col-xs-12 no-padding" style="margin-top: 10px">
+                                                    <span class="lbl">术中给药情况：</span>
+                                                    <input name="form-field-surgeryDrug" type="radio" class="ace" value="已追加"/>
+                                                    <span class="lbl">已追加</span>
+                                                    <input name="form-field-surgeryDrug" type="radio" class="ace" value="未追加"/>
+                                                    <span class="lbl">未追加</span>
+                                                </div>
                                             </div>
                                         </div>
-                                        <h6 class="light-grey">只填写与感染有关的影像学诊断</h6>
-                                    </div>
-                                    <div id="dropdown15" class="tab-pane">
-                                        <div class="well well-sm" style="height: 180px;">
-                                            <label for="form-field-symptom">与感染有关的主要症状</label>
-                                            <textarea class="autosize-transition form-control" rows="6" id="form-field-symptom" placeholder="与感染有关的主要症状"></textarea>
-                                        </div>
-                                        <h6 class="light-grey">只填写与感染有关的主要临床症状</h6>
-                                    </div>
+                                    </c:if>
                                     <div id="dropdown16" class="tab-pane">
                                         <div class="well well-sm" style="height: 120px">
                                             <div class="control-group">
@@ -1355,6 +1456,7 @@
                                             <label style="margin-top: 10px">（注射用药请同时写清溶剂名称及用量） （治疗在□上划√预防在△上划√）</label>
                                         </div>
                                     </div>
+
                                     <div id="dropdown18" class="tab-pane">
                                         <div class="well well-sm" style="height: 150px">
                                             <div class="input-group col-xs-12">
@@ -1424,15 +1526,17 @@
                                                 <input name="form-field-me" type="checkbox" class="ace" value="256"/>
                                                 <span class="lbl">联合用药</span>
                                             </div>
-                                            <div class="control-group col-xs-12 no-padding" style="margin-top: 10px">
-                                                <span class="lbl">围手术期用药时间：</span>
-                                                <input name="form-field-me" type="checkbox" class="ace" value="512"/>
-                                                <span class="lbl">术前</span>
-                                                <input name="form-field-me" type="checkbox" class="ace" value="1024"/>
-                                                <span class="lbl">术中</span>
-                                                <input name="form-field-me" type="checkbox" class="ace" value="2048"/>
-                                                <span class="lbl">术后</span>
-                                            </div>
+                                            <c:if test="${batch.surgery==1}">
+                                                <div class="control-group col-xs-12 no-padding" style="margin-top: 10px">
+                                                    <span class="lbl">围手术期用药时间：</span>
+                                                    <input name="form-field-me" type="checkbox" class="ace" value="512"/>
+                                                    <span class="lbl">术前</span>
+                                                    <input name="form-field-me" type="checkbox" class="ace" value="1024"/>
+                                                    <span class="lbl">术中</span>
+                                                    <input name="form-field-me" type="checkbox" class="ace" value="2048"/>
+                                                    <span class="lbl">术后</span>
+                                                </div>
+                                            </c:if>
                                         </div>
                                         <div class="well well-sm" style="height: 150px">
                                             <h6 class="green lighter">中心或分网</h6>
@@ -1456,15 +1560,17 @@
                                                 <input name="form-field-central" type="checkbox" class="ace" value="256"/>
                                                 <span class="lbl">联合用药</span>
                                             </div>
-                                            <div class="control-group col-xs-12 no-padding" style="margin-top: 10px">
-                                                <span class="lbl">围手术期用药时间：</span>
-                                                <input name="form-field-central" type="checkbox" class="ace" value="512"/>
-                                                <span class="lbl">术前</span>
-                                                <input name="form-field-central" type="checkbox" class="ace" value="1024"/>
-                                                <span class="lbl">术中</span>
-                                                <input name="form-field-central" type="checkbox" class="ace" value="2048"/>
-                                                <span class="lbl">术后</span>
-                                            </div>
+                                            <c:if test="${batch.surgery==1}">
+                                                <div class="control-group col-xs-12 no-padding" style="margin-top: 10px">
+                                                    <span class="lbl">围手术期用药时间：</span>
+                                                    <input name="form-field-central" type="checkbox" class="ace" value="512"/>
+                                                    <span class="lbl">术前</span>
+                                                    <input name="form-field-central" type="checkbox" class="ace" value="1024"/>
+                                                    <span class="lbl">术中</span>
+                                                    <input name="form-field-central" type="checkbox" class="ace" value="2048"/>
+                                                    <span class="lbl">术后</span>
+                                                </div>
+                                            </c:if>
                                         </div>
                                         <h6 class="light-grey">“用药合理性评价项”只在3、7月份做，其它月份不做；<br/>合理划√，不合理不选。</h6>
                                     </div>
@@ -1506,7 +1612,7 @@
                             <div class="widget-body">
                                 <div class="widget-main padding-12 no-padding-left no-padding-right">
                                     <div class="tab-content padding-4">
-                                        <div id="home1" class="tab-pane in active">
+                                        <div id="home1" class="tab-pane">
 
                                             <table border="0" cellspacing="1" cellpadding="0" class="col-sm-5 table table-striped table-bordered table-hover">
                                                 <tbody>

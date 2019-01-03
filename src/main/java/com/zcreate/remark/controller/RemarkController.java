@@ -93,26 +93,27 @@ public class RemarkController {
     public void getRecipeExcel(HttpServletResponse response, @RequestParam(value = "recipeID") int recipeID, @RequestParam(value = "batchID") int batchID) throws IOException {
         Recipe recipe = reviewService.getRecipe(recipeID);
         RecipeReview review = recipe.getReview();
+        SampleBatch batch = sampleDao.getSampleBatch(batchID);
         JsonObject json = (JsonObject) parser.parse(review.getReviewJson());
-        HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "hospital_1.xls"));
+        HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "hospital_" + batch.getSurgery() + ".xls"));//getSurgery 0 or 1
         // String downFileName = "非手术病人抗菌药物使用情况调查表" + recipeID + ".xls";
         HSSFSheet sheet = wb.getSheet("Sheet1");
         int startRow = 1, cellIndex = 3;
 //抽样
         String string = Optional.ofNullable(sheet.getRow(startRow).getCell(0).getStringCellValue()).orElse(" {0}医院　抽样时间：{1}至{2}　非手术病人出院人数：{3}");
-        SampleBatch batch = sampleDao.getSampleBatch(batchID);
+
         sheet.getRow(startRow++).getCell(0).setCellValue(MessageFormat.format(string, reviewConfig.getHospitalName(),
                 batch.getFromDate(), batch.getToDate(), batch.getOutPatientNum()));
 //病人资料
         string = Optional.ofNullable(sheet.getRow(startRow).getCell(0).getStringCellValue())
                 .orElse("病人所属科室：%s   病历号：%s       序号：%s");
 
-        sheet.getRow(startRow++).getCell(0).setCellValue(String.format(string , recipe.getDepartment(), recipe.getPatientNo(), "1"));
+        sheet.getRow(startRow++).getCell(0).setCellValue(String.format(string, recipe.getDepartment(), recipe.getPatientNo(), "1"));
 //基本情况
         string = Optional.ofNullable(sheet.getRow(startRow).getCell(cellIndex).getStringCellValue())
                 .orElse("性别 %s  年龄 %s  体重 %s kg   入院时间： %s 出院时间： %s");
         JsonObject baseInfo = json.getAsJsonObject("基本信息");
-        sheet.getRow(startRow++).getCell(cellIndex).setCellValue(String.format(string , baseInfo.get("sex").getAsString(), baseInfo.get("age").getAsString(),
+        sheet.getRow(startRow++).getCell(cellIndex).setCellValue(String.format(string, baseInfo.get("sex").getAsString(), baseInfo.get("age").getAsString(),
                 baseInfo.get("weight").getAsString(), baseInfo.get("inHospital").getAsString(), baseInfo.get("outHospital").getAsString()));
 //诊断
         JsonArray diagnosisArray = json.getAsJsonArray("诊断");
@@ -159,21 +160,39 @@ public class RemarkController {
                 getCorrect(lab.get("sensitive"), "未做"), getCorrect(lab.get("sensitive"), "做"), formatDate(lab.get("sensitive_time").getAsString()),
                 getCorrect(lab.get("match"), "相符"), getCorrect(lab.get("match"), "不相符")
         ));
+        if (batch.getSurgery() == 0) {
 //影像学诊断
-        JsonObject imaging = json.getAsJsonObject("影像学检查");
-        string = Optional.ofNullable(sheet.getRow(startRow).getCell(cellIndex).getStringCellValue())
-                .orElse("1.X线{0}　　CT{1}　　磁共振{2} 　2.部位：{3} 3.结论：{4}");
-        sheet.getRow(startRow++).getCell(cellIndex).setCellValue(MessageFormat.format(string,
-                getBox(imaging.getAsJsonPrimitive("imaging").getAsInt(), 1),
-                getBox(imaging.getAsJsonPrimitive("imaging").getAsInt(), 2),
-                getBox(imaging.getAsJsonPrimitive("imaging").getAsInt(), 4),
-                replace2Space(imaging.get("part").getAsString()),
-                replace2Space(imaging.get("conclusion").getAsString())
-        ));
+            JsonObject imaging = json.getAsJsonObject("影像学检查");
+            string = Optional.ofNullable(sheet.getRow(startRow).getCell(cellIndex).getStringCellValue())
+                    .orElse("1.X线{0}　　CT{1}　　磁共振{2} 　2.部位：{3} 3.结论：{4}");
+            sheet.getRow(startRow++).getCell(cellIndex).setCellValue(MessageFormat.format(string,
+                    getBox(imaging.getAsJsonPrimitive("imaging").getAsInt(), 1),
+                    getBox(imaging.getAsJsonPrimitive("imaging").getAsInt(), 2),
+                    getBox(imaging.getAsJsonPrimitive("imaging").getAsInt(), 4),
+                    replace2Space(imaging.get("part").getAsString()),
+                    replace2Space(imaging.get("conclusion").getAsString())
+            ));
 //临床症状
-        string = Optional.ofNullable(sheet.getRow(startRow).getCell(cellIndex).getStringCellValue()).orElse("与感染有关的主要症状：%s");
-        sheet.getRow(startRow++).getCell(cellIndex).setCellValue(String.format(string, json.get("临床症状").getAsString()));
-        //用药目的
+            string = Optional.ofNullable(sheet.getRow(startRow).getCell(cellIndex).getStringCellValue()).orElse("与感染有关的主要症状：%s");
+            sheet.getRow(startRow++).getCell(cellIndex).setCellValue(String.format(string, json.get("临床症状").getAsString()));
+        }
+//手术情况
+        if (batch.getSurgery() == 1) {
+            JsonObject surgery = json.getAsJsonObject("手术情况");
+            string = Optional.ofNullable(sheet.getRow(startRow).getCell(cellIndex).getStringCellValue()).orElse(" 手术名称：{0}　　　切口类别：{1}\n" +
+                    "手术开始时间：{2} 手术结束时间：{3}\n" +
+                    "术前初次预防用药时间：{4}1.＞1h；{5}2.切皮前0.5-1h ；{6}3.＜0.5hr；{7}4.术前未用术后用；{8}5.未夹脐带后用药；{9}6.夹住脐带后用药；{10}7.眼科滴眼＜24hr；{11}8. 眼科滴眼＞24hr；\n" +
+                    "术中给药情况：{12}1.已追加；{13}2.未追加");
+            int incision = surgery.get("incision").getAsInt();
+            int drugItem = surgery.get("drugItem").getAsInt();
+            sheet.getRow(startRow++).getCell(cellIndex).setCellValue(MessageFormat.format(string,
+                    surgery.get("name").getAsString(), ((incision & 1) == 1 ? "Ⅰ " : "") + ((incision & 2) == 2 ? "Ⅱ " : "") + ((incision & 4) == 4 ? "Ⅲ" : ""),
+                    surgery.get("startTime").getAsString(), surgery.get("endTime").getAsString(),
+                    getBox(drugItem, 1), getBox(drugItem, 2), getBox(drugItem, 4), getBox(drugItem, 8),
+                    getBox(drugItem, 16), getBox(drugItem, 32), getBox(drugItem, 64), getBox(drugItem, 128),
+                    getBox(surgery.get("surgeryDrug"), "已追加"), getBox(surgery.get("surgeryDrug"), "未追加")));
+        }
+//用药目的
         JsonObject purpose = json.getAsJsonObject("用药目的");
         string = Optional.ofNullable(sheet.getRow(startRow).getCell(cellIndex).getStringCellValue())
                 .orElse("1．未用药{0}　2.预防（{1}）　3.治疗（{2}）（感染诊断{3} ）");
@@ -260,7 +279,7 @@ public class RemarkController {
         //startRow = 17;
         String checkbox = sheet.getRow(startRow).getCell(cellIndex).getStringCellValue();
         JsonObject rational = json.getAsJsonObject("用药合理性评价");
-        String[] boxResult = new String[9];
+        String[] boxResult = new String[batch.getSurgery() == 0 ? 9 : 12];
         for (int i = 0; i < boxResult.length; i++)
             boxResult[i] = getBox(rational.getAsJsonPrimitive("me").getAsInt(), (int) Math.pow(2, i));
         sheet.getRow(startRow++).getCell(cellIndex).setCellValue(MessageFormat.format(checkbox, (Object[]) boxResult));
@@ -295,7 +314,7 @@ public class RemarkController {
         log.debug("viewRecipe");
         Recipe recipe = reviewService.getRecipe(recipeID);
         recipe.setDepartCode(reviewService.getDepartCode(recipe.getDepartment()));
-
+        SampleBatch batch = sampleDao.getSampleBatch(batchID);
         recipe.setMasterDoctorName(PinyinUtil.replaceName(recipe.getMasterDoctorName()));
         if (recipe.getReview().getRecipeReviewID() == null) recipe.getReview().setGermCheck(recipe.getMicrobeCheck() > 0 ? 1 : 0);
 
@@ -306,6 +325,7 @@ public class RemarkController {
         model.addAttribute("inDate", new Date(recipe.getInDate().getTime()));
         model.addAttribute("outDate", new java.util.Date(recipe.getOutDate().getTime()));
         model.addAttribute("batchID", batchID);
+        model.addAttribute("batch", batch);
         model.addAttribute("currentUser", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         return "/remark/recipe";
     }
@@ -330,6 +350,10 @@ public class RemarkController {
 
     public static String getBox(Long num, int k) {
         return num != null && ((num & k) == k) ? "☑" : "□";
+    }
+
+    public static String getBox(JsonElement element, String compare) {
+        return element != null && element.getAsString().equals(compare) ? "☑" : "□";
     }
 
     public static String getTriangle(Integer triangle, int k) {
