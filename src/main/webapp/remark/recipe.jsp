@@ -73,7 +73,7 @@
     <script type="text/javascript">
         jQuery(function ($) {
             var saveJson =${recipe.review.reviewJson};
-            console.log("saveJson:" + JSON.stringify(saveJson));
+            //console.log("saveJson:" + JSON.stringify(saveJson));
 
             var drugTable = $('#drugTable').DataTable({
                 bAutoWidth: false,
@@ -650,10 +650,10 @@
             $('.btn-info').on('click', function (e) {
                 window.location.href = "getRecipeExcel.jspa?recipeID=${recipe.recipeID}&batchID=${batchID}";
             });
+
+            var json = {recipeID:${recipe.recipeID}, serialNo: '${recipe.serialNo}', recipeReviewID:${recipe.review.recipeReviewID}, reviewUser: '${currentUser}'};
             //保存
             $('.btn-success').on('click', function (e) {
-                var json = {recipeID:${recipe.recipeID}, serialNo: '${recipe.serialNo}', recipeReviewID:${recipe.review.recipeReviewID}, reviewUser: '${currentUser}'};
-
                 var baseInfo = {};
 
                 baseInfo.sex = $('input:radio[name="form-field-radio-sex"]:checked').val();
@@ -801,17 +801,11 @@
                     contentType: "application/json; charset=utf-8",
                     cache: false,
                     success: function (response, textStatus) {
-                        console.log(textStatus);//内容是success
-                        console.log(response);
-                        //$("#dialog-edit").dialog("close");
-                        // if (!response.succeed) {
                         showDialog(response.succeed ? "保存成功" : "保存失败", response.message);
-                        $('.btn-info').removeClass("hidden");
-                        // }
-                        /* else {
-                         samleBatch = response;
-                         showSampleResult(response);
-                        }*/
+                        if (response.succeed) {
+                            $('.btn-info').removeClass("hidden");
+                            json.recipeReviewID = response.recipeReviewID;
+                        }
                     },
                     error: function (response, textStatus) {/*能够接收404,500等错误*/
                         showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));

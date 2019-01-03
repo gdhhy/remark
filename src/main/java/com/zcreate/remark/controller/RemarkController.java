@@ -9,9 +9,10 @@ import com.zcreate.review.logic.ReviewService;
 import com.zcreate.review.model.Recipe;
 import com.zcreate.review.model.RecipeReview;
 import com.zcreate.review.model.SampleBatch;
-import com.zcreate.util.DateUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +22,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.Date;
@@ -78,8 +79,10 @@ public class RemarkController {
         boolean succeed;
         try {
             succeed = reviewService.saveRecipeReview(review);
+            log.debug("review.getRecipeReviewID():"+review.getRecipeReviewID());
             result.put("succeed", succeed);
             result.put("message", "已保存！");
+            result.put("recipeReviewID", review.getRecipeReviewID());
         } catch (Exception e) {
             e.printStackTrace();
             result.put("succeed", false);
