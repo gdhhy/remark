@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8"/>
-    <title>点评处方</title>
+    <title>抗菌药调查</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 
     <!-- basic styles -->
@@ -21,10 +21,10 @@
     <link rel="stylesheet" href="../assets/css/ace-skins.min.css"/>
 
 
-    <link rel="stylesheet" href="../css/jqueryui/jquery-ui.min.css"/>
+    <link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
     <link rel="stylesheet" href="../components/jquery-ui.custom/jquery-ui.custom.css"/>
     <link rel="stylesheet" href="../js/datatables/select.dataTables.min.css"/>
-    <link rel="stylesheet" href="../components/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css"/>
+    <link rel="stylesheet" href="../components/bootstrap-datepicker/css/bootstrap-datepicker3.css"/>
     <link rel="stylesheet" href="../components/bootstrap-timepicker/css/bootstrap-timepicker.css"/>
     <link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>
     <link rel="stylesheet" href="../components/bootstrap-datetimepicker/bootstrap-datetimepicker.css"/>
@@ -56,13 +56,14 @@
     <script src="../js/datatables/jquery.dataTables.min.js"></script>
     <%--<link rel="stylesheet" href="../components/chosen/chosen.css" />--%>
 
-    <script src="../components/bootstrap-datepicker/dist/js/bootstrap-datepicker.js"></script>
+    <script src="../components/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
     <script src="../components/moment/moment.min.js"></script>
     <script src="../components/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
     <script src="../js/datatables/jquery.dataTables.bootstrap.min.js"></script>
     <script src="../js/datatables/dataTables.select.min.js"></script>
-    <script src="../js/jquery-ui/jquery-ui.min.js"></script>
-    <script src="../js/jquery-ui/ui/i18n/datepicker-zh-CN.js"></script>
+    <script src="../components/jquery-ui/jquery-ui.min.js"></script>
+    <%--<script src="../js/jquery-ui/ui/i18n/datepicker-zh-CN.js"></script>--%>
+    <%--<script src="../components/bootstrap-datepicker/js/locales/bootstrap-datepicker.zh-CN.js"></script>--%>
     <script src="../components/typeahead.js/handlebars.js"></script>
     <script src="../assets/js/x-editable/bootstrap-editable.min.js"></script>
 
@@ -72,7 +73,12 @@
 
     <script type="text/javascript">
         jQuery(function ($) {
-            var saveJson =${recipe.review.reviewJson};
+            var recipeID = '${recipe.recipeID}';
+            if (recipeID === '') {
+                showDialog("加载失败", "请检查数据或联系系统开发！");
+                return;
+            }
+            var saveJson = JSON.parse('${recipe.review.reviewJson}');
             //console.log("saveJson:" + JSON.stringify(saveJson));
 
             var drugTable = $('#drugTable').DataTable({
@@ -192,7 +198,7 @@
 
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getRecipeItemList.jspa?longAdvice=1&serialNo=${recipe.serialNo}",
+                    url: "/remark/getRecipeItemList.jspx?longAdvice=1&serialNo=${recipe.serialNo}",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -245,7 +251,7 @@
 
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getRecipeItemList.jspa?longAdvice=2&serialNo=${recipe.serialNo}",
+                    url: "/remark/getRecipeItemList.jspx?longAdvice=2&serialNo=${recipe.serialNo}",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -262,7 +268,7 @@
                 shortTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
                     if (typeof (this.data()) !== 'undefined' && this.data()['antiClass'] > 0) {
                         var rowData = this.data();
-                        $.getJSON("/remark/getMedicine.jspa?medicineNo=" + this.data()['medicineNo'], function (result) {
+                        $.getJSON("/remark/getMedicine.jspx?medicineNo=" + this.data()['medicineNo'], function (result) {
                             rowData['price'] = result.price;
                         });
                     }
@@ -310,7 +316,7 @@
                         //console.log("medicineNo:" + JSON.stringify(shortTable.row(cc).data()));
                         if (typeof (shortTable.row(cc).data()['medicineNo']) !== 'undefined') {
 
-                            $.getJSON("/remark/getMedicine.jspa?medicineNo=" + shortTable.row(cc).data()['medicineNo'], function (result) {
+                            $.getJSON("/remark/getMedicine.jspx?medicineNo=" + shortTable.row(cc).data()['medicineNo'], function (result) {
                                 //if (result.healthNo === '401801' || result.healthNo === '401802') {
                                 if (result.healthNo.startsWith('4018')) {
                                     rowData['menstruum'] = shortTable.row(cc).data()['advice'];
@@ -345,7 +351,7 @@
                 longTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
                     if (typeof (this.data()) !== 'undefined' && this.data()['antiClass'] > 0) {
                         var rowData = this.data();
-                        $.getJSON("/remark/getMedicine.jspa?medicineNo=" + this.data()['medicineNo'], function (result) {
+                        $.getJSON("/remark/getMedicine.jspx?medicineNo=" + this.data()['medicineNo'], function (result) {
                             rowData['price'] = result.price;
                         });
                     }
@@ -364,7 +370,7 @@
                 });
                 if (exists) return;
                 if (typeof (rowData['price']) === 'undefined' && typeof (rowData['medicineNo']) !== 'undefined')
-                    $.getJSON("/remark/getMedicine.jspa?medicineNo=" + rowData['medicineNo'], function (result) {
+                    $.getJSON("/remark/getMedicine.jspx?medicineNo=" + rowData['medicineNo'], function (result) {
                         console.log("price:" + result.price);
                         rowData['price'] = result.price;
                     });
@@ -398,7 +404,7 @@
                         //console.log("medicineNo:" + JSON.stringify(longTable.row(cc).data()));
                         if (typeof (longTable.row(cc).data()['medicineNo']) !== 'undefined') {
 
-                            $.getJSON("/remark/getMedicine.jspa?medicineNo=" + longTable.row(cc).data()['medicineNo'], function (result) {
+                            $.getJSON("/remark/getMedicine.jspx?medicineNo=" + longTable.row(cc).data()['medicineNo'], function (result) {
                                 //if (result.healthNo === '401801' || result.healthNo === '401802') {
                                 if (result.healthNo.startsWith('4018')) {
                                     rowData['menstruum'] = longTable.row(cc).data()['advice'];
@@ -430,10 +436,10 @@
                         drugTable.row(rowIdx).remove().draw();
                 });
             });
-            $('#surgery-table').DataTable({
+          var surgeryTable=$('#surgery-table').DataTable({
                 bAutoWidth: true,
                 paging: false, searching: false, ordering: false, "destroy": true,
-
+              select: {style: 'single', selector: 'td:first-child :radio'},
                 "columns": [
                     {"data": "surgeryID"},
                     {"data": "surgeryDate", "sClass": "center"},
@@ -445,7 +451,8 @@
                 'columnDefs': [
                     {
                         "orderable": false, "targets": 0, width: 15, render: function (data, type, row, meta) {
-                            return meta.row + 1 + meta.settings._iDisplayStart;
+                            return '<input name="a12asdf3" type="radio">';
+                            //return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     },
                     {"orderable": false, "targets": 1, title: '手术时间', width: 130},
@@ -459,7 +466,7 @@
                 },
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getSurgerys.jspa?serialNo=${recipe.serialNo}",
+                    url: "/remark/getSurgerys.jspx?serialNo=0017527401",//${recipe.serialNo}
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -467,7 +474,16 @@
                     }
                 }
             });
+            surgeryTable.on('select', function (e, dt, type, indexes) {
+                var rowData = jQuery.extend({}, surgeryTable.row(parseInt(indexes)).data());//浅层复制（克隆）
+                console.log("indexes" + rowData['incision']);
+                $('#form-field-surgeryName').val(rowData['surgeryName']);
+                $('#id-surgeryTime1').val(rowData['surgeryDate']);
 
+                $("input:checkbox[name='form-field-incision']").eq(0).attr("checked", rowData['incision'].trim() === 'Ⅰ');
+                $("input:checkbox[name='form-field-incision']").eq(1).attr("checked", rowData['incision'].trim() === 'Ⅱ');
+                $("input:checkbox[name='form-field-incision']").eq(2).attr("checked", rowData['incision'].trim() === 'Ⅲ');
+            });
             function chooseTab(tabId) {
                 //$('#myTab3 a[href="' + tabId + '"]').parent().tab('show');
                 /* $('#myTab3 li').removeClass("active");
@@ -503,8 +519,8 @@
                 },
                 scrollY: '60vh',
                 "ajax": {
-                    //url:"/remark/getDiagnosis.jspa?serialNo=${recipe.serialNo}&archive=${recipe.archive}",
-                    url: "/remark/getDiagnosis.jspa?serialNo=0000593702&archive=1",
+                    //url:"/remark/getDiagnosis.jspx?serialNo=${recipe.serialNo}&archive=${recipe.archive}",
+                    url: "/remark/getDiagnosis.jspx?serialNo=0000593702&archive=1",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -561,8 +577,8 @@
             var loadData = 0;
             $('#courseTabIndex').click(function () {
                 if ((loadData & 1) === 0)
-                    $.getJSON("/remark/getCourse.jspa?serialNo=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
-                        //$.getJSON("/remark/getCourse.jspa?serialNo=${recipe.serialNo}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                    $.getJSON("/remark/getCourse.jspx?serialNo=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                        //$.getJSON("/remark/getCourse.jspx?serialNo=${recipe.serialNo}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
                         var template = Handlebars.compile($('#courseContent').html());
                         var htmlArray = [];
                         $.each(result.data, function (index, value) {
@@ -577,8 +593,8 @@
             });
             $('#historyTabIndex').click(function () {
                 if ((loadData & 2) === 0)
-                    $.getJSON("/remark/showHistory.jspa?serialNo=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
-                        //$.getJSON("/remark/getCourse.jspa?serialNo=${recipe.serialNo}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                    $.getJSON("/remark/showHistory.jspx?serialNo=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                        //$.getJSON("/remark/getCourse.jspx?serialNo=${recipe.serialNo}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
                         var template = Handlebars.compile($('#historyContent').html());
 
                         $('#historyContent').html(template(result));
@@ -648,10 +664,10 @@
             });
             //导出
             $('.btn-info').on('click', function (e) {
-                window.location.href = "getRecipeExcel.jspa?recipeID=${recipe.recipeID}&batchID=${batchID}";
+                window.location.href = "getRecipeExcel.jspx?recipeID=${recipe.recipeID}&batchID=${batchID}";
             });
 
-            var json = {recipeID:${recipe.recipeID}, serialNo: '${recipe.serialNo}', recipeReviewID:${recipe.review.recipeReviewID}, reviewUser: '${currentUser}'};
+            var json = {recipeID: '${recipe.recipeID}', serialNo: '${recipe.serialNo}', recipeReviewID: '${recipe.review.recipeReviewID}', reviewUser: '${currentUser.name}'};
             //保存
             $('.btn-success').on('click', function (e) {
                 var baseInfo = {};
@@ -661,7 +677,7 @@
                 baseInfo.weight = $('#form-field-weight').val();
                 baseInfo.inHospital = $('#id-date-picker-inHospital').val();
                 baseInfo.outHospital = $('#id-date-picker-outHospital').val();
-                json.基本信息 = baseInfo;
+                json.基本情况 = baseInfo;
 
                 var diagnosis = [];
                 $("#chooseDiagnosis tr:gt(0)").each(function (i, item) {
@@ -788,11 +804,11 @@
 
                 json.备注 = $('#form-field-memo').val();
 
-                console.log("json:" + JSON.stringify(json));
+                // console.log("json:" + JSON.stringify(json));
 
                 $.ajax({
                     type: "POST",
-                    url: 'saveRecipe.jspa',
+                    url: 'saveRecipe.jspx',
                     data: JSON.stringify(json),
                     contentType: "application/json; charset=utf-8",
                     cache: false,
@@ -811,16 +827,16 @@
 
 
             function fillout() {
-                if (typeof (saveJson.基本信息) === 'undefined')
+                if (typeof (saveJson.基本情况) === 'undefined')
                     return;
                 $('.btn-info').removeClass("hidden");
 
-                //基本信息
-                $('input:radio[name="form-field-radio-sex"][value="' + saveJson.基本信息.sex + '"]').prop("checked", "checked");
-                $('#form-field-age').val(saveJson.基本信息.age);
-                $('#form-field-weight').val(saveJson.基本信息.weight);
-                $('#id-date-picker-inHospital').val(saveJson.基本信息.inHospital);
-                $('#id-date-picker-outHospital').val(saveJson.基本信息.outHospital);
+                //基本情况
+                $('input:radio[name="form-field-radio-sex"][value="' + saveJson.基本情况.sex + '"]').prop("checked", "checked");
+                $('#form-field-age').val(saveJson.基本情况.age);
+                $('#form-field-weight').val(saveJson.基本情况.weight);
+                $('#id-date-picker-inHospital').val(saveJson.基本情况.inHospital);
+                $('#id-date-picker-outHospital').val(saveJson.基本情况.outHospital);
 
                 for (var i = 0; i < saveJson.诊断.length; i++)
                     $("#chooseDiagnosis tr:last").after(Handlebars.compile("<tr data-id='{{diagnosisNo}}'><td>{{type}}</td><td>{{disease}}</td></tr>")(saveJson.诊断[i]));
@@ -949,7 +965,7 @@
                     <div class="col-sm-6">
                         <%--<h3 class="header smaller lighter red">点评</h3>--%>
                         <h4 class="header smaller lighter blue">点评
-                            <span class="light-grey smaller-50">点评人：${currentUser}</span>
+                            <span class="light-grey smaller-50">点评人：${currentUser.name}</span>
                             <div class="pull-right">
                                 <button type="button" class="btn btn-sm btn-info hidden">
                                     导出
@@ -1354,16 +1370,16 @@
                                                 <div class="form-inline col-xs-12" style="margin-top: 10px;">
                                                     <label class="control-label no-padding" for="id-surgeryTime1" style="text-overflow:ellipsis; white-space:nowrap;;width:100px;">手术开始时间</label>
                                                     <div class="input-group">
-                                                        <input class="no-padding" style="width: 110px" id="id-surgeryTime1" type="text" data-date-format="MM月DD日 HH:mm"
-                                                               value="<fmt:formatDate value='${inDate}' pattern='MM月dd日 HH:mm'/>"/>
+                                                        <input class="no-padding" style="width: 130px" id="id-surgeryTime1" type="text" data-date-format="YYYY-MM-DD HH:mm"
+                                                               value="<fmt:formatDate value='${inDate}' pattern='YYYY-MM-dd HH:mm'/>"/>
                                                         <span class="input-group-addon no-padding"><i class="fa fa-calendar bigger-110"></i></span>
                                                     </div>
                                                 </div>
                                                 <div class="form-inline col-xs-12" style="margin-top: 10px;">
                                                     <label class="control-label no-padding" for="id-surgeryTime2" style="text-overflow:ellipsis; white-space:nowrap;width:100px;">手术结束时间</label>
                                                     <div class="input-group">
-                                                        <input class="no-padding" style="width: 110px" id="id-surgeryTime2" type="text" data-date-format="MM月DD日 HH:mm"
-                                                               value="<fmt:formatDate value='${outDate}' pattern='MM月dd日 HH:mm'/>"/>
+                                                        <input class="no-padding" style="width: 130px" id="id-surgeryTime2" type="text" data-date-format="YYYY-MM-DD HH:mm"
+                                                               value="<fmt:formatDate value='${outDate}' pattern='YYYY-MM-dd HH:mm'/>"/>
                                                         <span class="input-group-addon no-padding"><i class="fa fa-calendar bigger-110"></i></span>
                                                     </div>
                                                 </div>
@@ -1737,7 +1753,6 @@
         </div>
     </div>
 </div><!-- /.main-container -->
-
 <div class="detail-row hidden" id="rowDetail">
     <div class="table-detail no-padding">
         溶剂：{{menstruum}}

@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="../assets/css/ace-skins.min.css"/>
 
 
-    <link rel="stylesheet" href="../css/jqueryui/jquery-ui.min.css"/>
+    <link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
     <link rel="stylesheet" href="../components/jquery-ui.custom/jquery-ui.custom.css"/>
     <link rel="stylesheet" href="../js/datatables/select.dataTables.min.css"/>
     <%--<link rel="stylesheet" href="../components/jquery-ui.custom/dataTables.bootstrap.min.css"/>--%>
@@ -51,7 +51,7 @@
     <script src="../js/datatables/jquery.dataTables.bootstrap.min.js"></script>
     <%--<script src="js/datatables.net-buttons/dataTables.buttons.min.js"></script>--%>
     <script src="../js/datatables/dataTables.select.min.js"></script>
-    <script src="../js/jquery-ui/jquery-ui.min.js"></script>
+    <script src="../components/jquery-ui/jquery-ui.min.js"></script>
     <script src="../components/typeahead.js/handlebars.js"></script>
     <%--<script src="../js/string_func.js"></script>--%>
 
@@ -83,7 +83,7 @@
                 },
                 scrollY: '55vh',
                 "ajax": {
-                    url: "/remark/getRecipeItemList.jspa?longAdvice=1&serialNo=${recipe.serialNo}",
+                    url: "/remark/getRecipeItemList.jspx?longAdvice=1&serialNo=${recipe.serialNo}",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -114,7 +114,7 @@
                 },
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getRecipeItemList.jspa?longAdvice=2&serialNo=${recipe.serialNo}",
+                    url: "/remark/getRecipeItemList.jspx?longAdvice=2&serialNo=${recipe.serialNo}",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -151,7 +151,7 @@
                 },
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getSurgerys.jspa?serialNo=${recipe.serialNo}",
+                    url: "/remark/getSurgerys.jspx?serialNo=${recipe.serialNo}",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -189,7 +189,7 @@
                 },
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getDiagnosis.jspa?serialNo=${recipe.serialNo}&archive=${recipe.archive}",
+                    url: "/remark/getDiagnosis.jspx?serialNo=${recipe.serialNo}&archive=${recipe.archive}",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -233,8 +233,8 @@
             var loadData = 0;
             $('#courseTabIndex').click(function () {
                 if ((loadData & 1) === 0)
-                    $.getJSON("/remark/getCourse.jspa?serialNo=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
-                        //$.getJSON("/remark/getCourse.jspa?serialNo=${recipe.serialNo}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                    $.getJSON("/remark/getCourse.jspx?serialNo=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                        //$.getJSON("/remark/getCourse.jspx?serialNo=${recipe.serialNo}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
                         var template = Handlebars.compile($('#courseContent').html());
                         var htmlArray = [];
                         $.each(result.data, function (index, value) {
@@ -249,8 +249,8 @@
             });
             $('#historyTabIndex').click(function () {
                 if ((loadData & 2) === 0)
-                    $.getJSON("/remark/showHistory.jspa?serialNo=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
-                        //$.getJSON("/remark/getCourse.jspa?serialNo=${recipe.serialNo}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                    $.getJSON("/remark/showHistory.jspx?serialNo=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                        //$.getJSON("/remark/getCourse.jspx?serialNo=${recipe.serialNo}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
                         var template = Handlebars.compile($('#historyContent').html());
 
                         $('#historyContent').html(template(result));

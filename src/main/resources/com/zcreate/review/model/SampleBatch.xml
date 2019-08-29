@@ -5,6 +5,7 @@
     <!--不能缓存，因为detail改变不会通知这里刷新缓存-->
     <resultMap id="RecordResult" type="com.zcreate.review.model.SampleBatch">
         <result column="sampleBatchID" jdbcType="INTEGER" property="sampleBatchID"/>
+        <result column="remarkType" jdbcType="INTEGER" property="remarkType"/>
         <result column="sampleNo" jdbcType="VARCHAR" property="sampleNo"/>
         <result column="year" jdbcType="INTEGER" property="year"/>
         <result column="month" jdbcType="INTEGER" property="month"/>
@@ -35,7 +36,7 @@
         </where>
     </sql>
     <select id="selectSampleBatchList" parameterType="java.util.Map" resultMap="RecordResult">
-        select TOP ${limit} sampleBatchID,sampleNo,year,month,(select count(*) from SampleList D where
+        select TOP ${limit} sampleBatchID,remarkType,sampleNo,year,month,(select count(*) from SampleList D where
         D.sampleBatchID=SampleBatch.sampleBatchID ) num,name,type,createDate,department,doctor,medicineNo,surgery,outPatientNum,total,fromDate,toDate from
         SampleBatch
         <include refid="queryWhere"/>
@@ -48,7 +49,7 @@
         order by sampleBatchID desc
     </select>
     <select id="selectSampleBatch" parameterType="int" resultMap="RecordResult">
-        select   sampleBatchID,sampleNo,year,month,(select count(*) from SampleList D where
+        select   sampleBatchID,remarkType,sampleNo,year,month,(select count(*) from SampleList D where
         D.sampleBatchID=SampleBatch.sampleBatchID ) num,name,type,createDate,department,doctor,medicineNo,surgery,outPatientNum,total,fromDate,toDate from
         SampleBatch WHERE sampleBatchID=#{sampleBatchID:INTEGER}
     </select>
@@ -57,8 +58,8 @@
         <include refid="queryWhere"/>
     </select>
     <insert id="insertSampleBatch" parameterType="com.zcreate.review.model.SampleBatch" flushCache="true">
-        INSERT INTO SampleBatch (sampleNo,year,month,num,name,type,department,doctor,medicineNo,surgery,outPatientNum,total,fromDate,toDate)
-        VALUES ( #{sampleNo:VARCHAR},#{year:INTEGER},#{month:INTEGER},#{num:INTEGER},#{name:VARCHAR},#{type:INTEGER},#{department:VARCHAR},#{doctor:VARCHAR},
+        INSERT INTO SampleBatch (remarkType,sampleNo,year,month,num,name,type,department,doctor,medicineNo,surgery,outPatientNum,total,fromDate,toDate)
+        VALUES ( #{remarkType:INTEGER},#{sampleNo:VARCHAR},#{year:INTEGER},#{month:INTEGER},#{num:INTEGER},#{name:VARCHAR},#{type:INTEGER},#{department:VARCHAR},#{doctor:VARCHAR},
         #{medicineNo:VARCHAR},#{surgery:INTEGER},#{outPatientNum:INTEGER},#{total:INTEGER},#{fromDate:VARCHAR},#{toDate:VARCHAR})
         <selectKey resultType="int" order="AFTER" keyProperty="sampleBatchID">
             select @@IDENTITY as SampleBatch
@@ -68,7 +69,8 @@
         UPDATE SampleBatch
         <set>
             updateTime = getDate(),
-            <if test="sampleNo != null">sampleNo = #{sampleNo:INTEGER},</if>
+            <if test="remarkType != null">remarkType = #{remarkType:INTEGER},</if>
+            <if test="sampleNo != null">sampleNo = #{sampleNo:VARCHAR},</if>
             <if test="year != null">year = #{year:INTEGER},</if>
             <if test="month != null">month = #{month:VARCHAR},</if>
             <if test="num != null">num = #{num:INTEGER},</if>

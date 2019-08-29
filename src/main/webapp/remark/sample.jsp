@@ -4,7 +4,7 @@
 <script src="../js/datatables/jquery.dataTables.bootstrap.min.js"></script>
 <script src="../js/datatables.net-buttons/dataTables.buttons.min.js"></script>
 <script src="../js/datatables/dataTables.select.min.js"></script>
-<script src="../js/jquery-ui/jquery-ui.min.js"></script>
+<script src="../components/jquery-ui/jquery-ui.min.js"></script>
 <script src="../assets/js/ace.js"></script>
 <%--<script src="../assets/js/jquery.gritter.min.js"></script>--%>
 <script src="../js/accounting.min.js"></script>
@@ -32,7 +32,7 @@
 <!-- bootstrap & fontawesome -->
 
 <link rel="stylesheet" href="../components/font-awesome/css/font-awesome.css"/>
-<link rel="stylesheet" href="../css/jqueryui/jquery-ui.min.css"/>
+<link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
 
 <%--<link rel="stylesheet" href="../components/jquery-ui.custom/jquery-ui.custom.min.css"/>--%>
 
@@ -52,12 +52,14 @@
                 bAutoWidth: false,
                 "columns": [
                     {"data": "sampleBatchID"},
+                    /*{"data": "remarkType", "sClass": "center"},*/
                     {"data": "name", "sClass": "center"},
                     {"data": "year", "sClass": "center"},
                     {"data": "month", "sClass": "center"},
                     {"data": "num", "sClass": "center"},
                     {"data": "type", "sClass": "center"},
                     {"data": "surgery", "sClass": "center"},
+                    {"data": "remarkType", "sClass": "center"},
                     {"data": "doctor", "sClass": "center"},
                     {"data": "createDate", "sClass": "center"},
                     {"data": "sampleBatchID"}
@@ -76,18 +78,21 @@
                         "orderable": false, "targets": 5, title: '类型', render: function (data, type, row, meta) {
                             return data === 1 ? "门诊" : "住院";
                         }
-                    },  {
+                    }, {
                         "orderable": false, "targets": 6, title: '手术', render: function (data, type, row, meta) {
                             return data === 1 ? "手术" : "非手术";
                         }
                     },
-                    {"orderable": false, "targets": 7, title: '医生'},
-                    {"orderable": false, "targets": 8, title: '抽样日期', width: 130},
+                    {"orderable": false, "targets": 7, title: '点评类型', render: function (data, type, row, meta) {
+                            return data === 0 ? "医嘱点评" : "抗菌药调查";
+                        }},
+                    {"orderable": false, "targets": 8, title: '医生'},
+                    {"orderable": false, "targets": 9, title: '抽样日期', width: 130},
                     {
-                        'targets': 9, 'searchable': false, 'orderable': false, width: 80, title: '点评/删除',
+                        'targets': 10, 'searchable': false, 'orderable': false, width: 80, title: '点评/删除',
                         render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
-                                '<a class="hasDetail" href="#" data-Url="/index.jspa?content=/remark/recipe_list.jsp&sampleBatchID={0}">'.format(data) +
+                                '<a class="hasDetail" href="#" data-Url="/index.jspx?content=/remark/recipe_list.jsp&sampleBatchID={0}&remarkType={1}">'.format(data, row["remarkType"]) +
                                 '<i class="ace-icon fa fa-inbox bigger-130"></i>' +
                                 '</a>&nbsp;&nbsp;&nbsp;' +
                                 '<a class="hasDetail" href="#" data-Url="javascript:deleteBatch({0},\'{1}\');">'.format(data, row["name"]) +
@@ -101,7 +106,7 @@
                     url: '../js/datatables/datatables.chinese.json'
                 },
                 "ajax": {
-                    url: "/remark/listSamples.jspa",
+                    url: "/remark/listSamples.jspx",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -152,7 +157,7 @@
 
                             $.ajax({
                                 type: "POST",
-                                url: "/remark/deleteSampleBatch.jspa?batchID=" + batchID,
+                                url: "/remark/deleteSampleBatch.jspx?batchID=" + batchID,
                                 //contentType: "application/x-www-form-urlencoded",//http://www.cnblogs.com/yoyotl/p/5853206.html
                                 cache: false,
                                 success: function (response, textStatus) {
@@ -221,18 +226,19 @@
                 var fromDay = moment(dates[0]);
                 var toDay = moment(dates[1]);
                 //toDay.add(1, 'd');
-                //console.log("$('#form-field-algorithm').children('option:selected').val():" + $("input[name='form-field-algorithm']:checked").val());
 
                 var sampleBatch = {
                     type: $('#form-type').children('option:selected').val(),
+                    remarkType: $('#form-remarkType').children('option:selected').val(),
+                    //remarkType: $("input[name='form-field-remarkType']:checked").val(),
                     sampleType: $("input[name='form-field-algorithm']:checked").val(),
                     doctorNo: $('#form-doctorNo').val(),//显示
                     doctor: $('#form-doctor').val(),//存数据库
                     medicineNo: $('#form-medicineNo').val(),//存数据库
                     medicine: $('#form-medicine').val(),//显示
                     surgery: surgery ? 1 : 0,
-                    outPatientNum:$('#form-outPatientNum').val(),
-                    total:$('#form-total').val(),
+                    outPatientNum: $('#form-outPatientNum').val(),
+                    total: $('#form-total').val(),
                     incision: incision,
                     clinicType: clinicType,
                     fromDate: fromDay.format("YYYY年MM月DD日"),
@@ -246,17 +252,20 @@
                 };
                 $.ajax({
                     type: "POST",
-                    url: "/remark/newSampling.jspa",
+                    url: "/remark/newSampling.jspx",
                     data: JSON.stringify(sampleBatch),
                     contentType: "application/json; charset=utf-8",
                     cache: false,
                     success: function (response, textStatus) {
-                        console.log(textStatus);//内容是success
-                        console.log(response);
+                        /* console.log(textStatus);//内容是success
+                         console.log(res);*/
                         //$("#dialog-edit").dialog("close");
+
                         if (!response.succeed) {
+                            //console.log("res.succeed:" + res.succeed);
                             showDialog(response.resultTitle, response.resultData);
                         } else {
+                            console.log("res.succeed:" + response.succeed);
                             samleBatch = response;
                             showSampleResult(response);
                         }
@@ -266,7 +275,7 @@
                     },
                     // async: false, //同步请求，默认情况下是异步（true）
                     beforeSend: function () {
-                        console.log("有执行？");
+                        //console.log("beforeSend？");
                         // 禁用按钮防止重复提交                       //$("#submit").attr({ disabled: "disabled" });
                         if (currentAjax) currentAjax.abort();
                         //$("#dialog-edit").dialog("close");
@@ -277,7 +286,7 @@
                         $("#loadingModal").modal('show');
                     },
                     complete: function () {
-                        console.log("执行完成");
+                        console.log("执行complete完成");
                         //$("#submit").removeAttr("disabled");
                         //$('#dialog-loading').dialog("close");
                         $("#loadingModal").modal('hide');
@@ -310,7 +319,7 @@
 
         function loadDepartment() {
             if ($("#form-department option").length === 0)
-                $.getJSON("/common/dict/listDict.jspa?parentID=108", function (result) {
+                $.getJSON("/common/dict/listDict.jspx?parentID=108", function (result) {
                     if (result.recordsTotal > 0) {
                         $("#form-department option:gt(0)").remove();
                         $.each(result.data, function (n, value) {
@@ -327,7 +336,7 @@
             datumTokenizer: Bloodhound.tokenizers.obj.whitespace('doctorNo'),
             queryTokenizer: Bloodhound.tokenizers.whitespace,
             // 在文本框输入字符时才发起请求
-            remote: {url: "/remark/liveDoctor.jspa?pinyin=%QUERY", wildcard: '%QUERY'}
+            remote: {url: "/remark/liveDoctor.jspx?pinyin=%QUERY", wildcard: '%QUERY'}
         });
 
         doctorBloodHound.initialize();
@@ -344,7 +353,7 @@
                     pinyin: query
                   };
 
-                  $.getJSON('/remark/liveDoctor.jspa', params, function (json) {
+                  $.getJSON('/remark/liveDoctor.jspx', params, function (json) {
                     //console.log("json:" + json.data);
                     if (json.iTotalRecords > 0) {
                       //console.log("json:" + json.data);
@@ -394,7 +403,7 @@
 
                 source: function (query, processSync, processAsync) {
                     var params = {queryChnName: query};
-                    $.getJSON('/remark/liveMedicine.jspa', params, function (json) {
+                    $.getJSON('/remark/liveMedicine.jspx', params, function (json) {
                         //medicineLiveCount = json.iTotalRecords;
                         //console.log("count:" + medicineLiveCount);
                         if (json.iTotalRecords > 0)
@@ -438,10 +447,11 @@
             $("#dialog-edit").removeClass('hide').dialog({
                 resizable: false,
                 width: 760,
-                height: 500,
+                height: 560,
                 modal: true,
-                title: "新的抽样",
+                title: "新抽样",
                 title_html: true,
+
                 buttons: [
                     {
                         html: "<i class='ace-icon fa fa-pencil-square-o bigger-110'></i>&nbsp;开始",
@@ -466,8 +476,8 @@
         }
 
         function showSampleResult(result) {
-            /* console.log("rxID:" + result.sampleBatch.ids);
-             console.log("serialize():" + result.sampleBatch.ids);*/
+            console.log("rxID:" + result.sampleBatch.ids);
+            console.log("serialize():" + result.sampleBatch.ids);
 
             $('#dynamic-table2').DataTable({
                 // bAutoWidth: false,
@@ -509,7 +519,7 @@
                     url: '../js/datatables/datatables.chinese.json'
                 },
                 "ajax": {
-                    url: "/remark/getSamplingList.jspa?type=2&ids=" + result.sampleBatch.ids,
+                    url: "/remark/getSamplingList.jspx?type=2&ids=" + result.sampleBatch.ids,
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -531,13 +541,13 @@
                         click: function () {
                             $.ajax({
                                 type: "POST",
-                                url: "/remark/saveSampling.jspa",
+                                url: "/remark/saveSampling.jspx",
                                 data: JSON.stringify(result.sampleBatch),
                                 contentType: "application/json; charset=utf-8",
                                 cache: false,
                                 success: function (response, textStatus) {
-                                    console.log(textStatus);//内容是success
-                                    console.log(response);
+                                    /* console.log(textStatus);//内容是success
+                                     console.log(response);*/
                                     //$("#dialog-edit").dialog("close");
                                     if (!response.succeed) { //失败
                                         showDialog(response.resultTitle, response.resultData);
@@ -613,13 +623,13 @@
                 batchName += (batchName === "" ? "" : "-") + $('#form-medicine').val();
             //console.log("medicine:" + $('#form-medicine').val());
 
-            $('#form-name').val(batchName+'：'+$('#form-dateRange').val());
+            $('#form-name').val(batchName + '：' + $('#form-dateRange').val());
         });
 
         //计算符合条件的数量
         sampleForm.find("input[type=checkbox][name='form-field-surgery'],#form-dateRange").change(function () {
             var p1 = sampleForm.find('#form-type').children('option:selected').val();//这就是selected的值 门诊为1,住院未2
-           // console.log("p1:" + p1);
+            // console.log("p1:" + p1);
             if (p1 === '2') {
                 var surgery = sampleForm.find("input[name='form-field-surgery']").is(':checked');//=1
                 var params = {
@@ -631,7 +641,7 @@
 
                 $('.icon_total2').addClass("ace-icon fa fa-spinner fa-spin fa-3x fa-fw");//动画
                 $('#form-outPatientNum').val("");
-                $.getJSON("/remark/getObjectCount.jspa", params, function (result) {
+                $.getJSON("/remark/getObjectCount.jspx", params, function (result) {
                     $('#form-outPatientNum').val(result.count);
                     $('.icon_total2').removeClass("ace-icon fa fa-spinner fa-spin fa-3x fa-fw");//动画
                 });
@@ -683,7 +693,7 @@
 
             $('.icon_total').addClass("ace-icon fa fa-spinner fa-spin fa-3x fa-fw");//动画
             $('#form-total').val("");
-            currentAjax = $.getJSON("/remark/getObjectCount.jspa", params, function (result) {
+            currentAjax = $.getJSON("/remark/getObjectCount.jspx", params, function (result) {
                 $('#form-total').val(result.count);
                 $('.icon_total').removeClass("ace-icon fa fa-spinner fa-spin fa-3x fa-fw");
             });
@@ -795,7 +805,7 @@
         </p>
     </div>
     <div id="dialog-sample_list" class="hide dialogs">
-        <div class="col-xs-12">
+        <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
             <%--<div class="table-header col-xs-12">
                 抽样结果
                 <div class="pull-right tableTools-container"></div>
@@ -804,16 +814,30 @@
             <!-- div.table-responsive -->
 
             <!-- div.dataTables_borderWrap -->
-            <table id="dynamic-table2" class="table table-bordered table-hover" style=" width: 100%;">
+            <table id="dynamic-table2" class="table table-bordered table-hover" style="width: 100%;">
             </table>
             <!-- PAGE CONTENT ENDS -->
         </div><!-- /.col -->
     </div>
     <div id="dialog-edit" class="hide">
         <form class="form-horizontal" role="form" id="sampleForm">
+            <div class="col-xs-12  ">
+                <div class="col-xs-5">
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-right" for="form-remarkType">抽样类型 </label>
+
+                        <div class="col-sm-9">
+                            <select id="form-remarkType" data-placeholder="抽样类型">
+                                <option value="0" selected>医嘱点评</option>
+                                <option value="1">抗菌药物调查</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="col-xs-12">
                 <div class="col-xs-5">
-
                     <div class="form-group">
                         <label class="col-sm-3 control-label no-padding-right" for="form-type">门诊住院 </label>
 
@@ -941,11 +965,11 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xs-12 panel panel-primary widget-color-orange" style="margin-top: 5px">
+            <div class="col-xs-12 panel panel-primary widget-color-orange no-padding" style="margin-top: 5px">
 
                 <div class="col-xs-5 col-md-5 " style="padding-top:10px">
                     <div class="form-group">
-                        <label class="col-sm-3 control-label no-padding-right">总体数量</label>
+                        <label class="col-sm-4 control-label no-padding-right">总体数量</label>
                         <div class="col-sm-5">
                             <span class="input-icon input-icon-right">
                                 <input type="text" id="form-total" readonly name="form-total" autocomplete="off" class="col-sm-10"/>
@@ -954,7 +978,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-3 control-label no-padding-right" for="form-number">抽样数量 </label>
+                        <label class="col-sm-4 control-label no-padding-right" for="form-number">抽样数量 </label>
 
                         <div class="col-sm-5">
                             <input type="text" id="form-number" name="num" autocomplete="off" class="col-sm-10"/>

@@ -44,6 +44,7 @@ public class SampleController {
     @RequestMapping(value = "listSamples", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String listSamples(@RequestParam(value = "year", required = false, defaultValue = "0") int year,
                               @RequestParam(value = "month", required = false, defaultValue = "-1") int month,
+                              @RequestParam(value = "remarkType", required = false, defaultValue = "0") int remarkType,
                               @RequestParam(value = "type", required = false, defaultValue = "0") int type,
                               @RequestParam(value = "draw", required = false) Integer draw,
                               @RequestParam(value = "start", required = false, defaultValue = "0") int start,
@@ -61,6 +62,7 @@ public class SampleController {
         Map<String, Object> result = new HashMap<>();
         result.put("draw", draw);
         result.put("data", goods);
+        result.put("remarkType", remarkType);
         result.put("iTotalRecords", count);//todo 表的行数，未加任何调剂
         result.put("iTotalDisplayRecords", count);
 

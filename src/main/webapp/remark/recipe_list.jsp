@@ -4,7 +4,7 @@
 <script src="../js/datatables/jquery.dataTables.bootstrap.min.js"></script>
 <script src="../js/datatables.net-buttons/dataTables.buttons.min.js"></script>
 <script src="../js/datatables/dataTables.select.min.js"></script>
-<script src="../js/jquery-ui/jquery-ui.min.js"></script>
+<script src="../components/jquery-ui/jquery-ui.min.js"></script>
 <script src="../assets/js/ace.js"></script>
 <script src="../js/accounting.min.js"></script>
 <script src="../js/jquery.cookie.min.js"></script>
@@ -22,12 +22,13 @@
 <!-- bootstrap & fontawesome -->
 
 <link rel="stylesheet" href="../components/font-awesome/css/font-awesome.css"/>
-<link rel="stylesheet" href="../css/jqueryui/jquery-ui.min.css"/>
+<link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
 <script type="text/javascript">
     jQuery(function ($) {
         var sampleBatchID = $.getUrlParam("sampleBatchID");
+        var remarkType = $.getUrlParam("remarkType");
 
-        var url = "/remark/listDetails.jspa?sampleBatchID=" + sampleBatchID;
+        var url = "/remark/listDetails.jspx?sampleBatchID=" + sampleBatchID;
         //var editor = new $.fn.dataTable.Editor({});
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');
@@ -60,24 +61,29 @@
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     },
-                    {"orderable": false, "targets": 1, title: '住院号',width:60},
-                    {"orderable": false, "targets": 2, title: '病人',width:60},
+                    {"orderable": false, "targets": 1, title: '住院号', width: 60},
+                    {"orderable": false, "targets": 2, title: '病人', width: 60},
                     {"orderable": false, "targets": 3, title: '年龄'},
                     {"orderable": false, "targets": 4, title: '入院日期', width: 130},
                     {"orderable": false, "targets": 5, title: '出院日期', width: 130},
                     {"orderable": false, "targets": 6, title: '住院天数'},
                     {"orderable": false, "targets": 7, title: '药品组数'},
                     {"orderable": false, "targets": 8, title: '总金额', defaultContent: ''},
-                    {"orderable": false, "targets": 9, title: '药品金额'},
+                    {"orderable": false, "targets": 9, title: '药品金额', defaultContent: ''},
                     {"orderable": false, "targets": 10, title: '入院诊断', defaultContent: ''},
-                    {"orderable": false, "targets": 11, title: '主管医生', defaultContent: '',width:60},
-                    {"orderable": false, "targets": 12, title: '合理', defaultContent: ''},
+                    {"orderable": false, "targets": 11, title: '主管医生', defaultContent: '', width: 60},
+                    {
+                        "orderable": false, "targets": 12, title: '合理', defaultContent: '', render: function (data, type, row, meta) {
+                            if (data === 1) return '是';
+                            return '否';
+                        }
+                    },
                     {"orderable": false, searchable: false, "targets": 13, title: '问题代码'},
                     {
-                        "orderable": false, "targets": 14,title:'点评', render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 14, title: '点评', render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
-                                /*'<a class="hasDetail" href="#" data-Url="/index.jspa?content=/remark/viewRecipe.jspa&recipeID={0}">'.format(data) +*/
-                                '<a class="hasDetail" href="#" data-Url="/remark/viewRecipe.jspa?recipeID={0}&batchID={1}">'.format(data,sampleBatchID) +
+                                /*'<a class="hasDetail" href="#" data-Url="/index.jspx?content=/remark/viewRecipe.jspx&recipeID={0}">'.format(data) +*/
+                                '<a class="hasDetail" href="#" data-Url="/remark/viewRecipe{0}.jspx?recipeID={1}&batchID={2}">'.format(remarkType, data, sampleBatchID) +
                                 '<i class="ace-icon glyphicon glyphicon-pencil  bigger-130"></i>' +
                                 '</a>' +
                                 '</div>';
@@ -109,26 +115,26 @@
                 } else
                     window.open($(this).attr("data-Url"), "_blank");
             });
-           /* $('a.blue').on('click', function (e) {
-                e.preventDefault();
-                $.cookie('goodsID', $(this).attr("data-goodsID"));
-                $.cookie('goodsName', $(this).attr("data-goodsName"));
-                window.location.href = "index.jspx?content=/admin/buyRecord.jsp&menuID=3";
-            });*/
+            /* $('a.blue').on('click', function (e) {
+                 e.preventDefault();
+                 $.cookie('goodsID', $(this).attr("data-goodsID"));
+                 $.cookie('goodsName', $(this).attr("data-goodsName"));
+                 window.location.href = "index.jspx?content=/admin/buyRecord.jsp&menuID=3";
+             });*/
         });
 
         //$.fn.dataTable.Buttons.swfPath = "components/datatables.net-buttons-swf/index.swf"; //in Ace demo ../components will be replaced by correct assets path
-     /*   $.fn.dataTable.Buttons.defaults.dom.container.className = 'dt-buttons btn-overlap btn-group btn-overlap';
+        /*   $.fn.dataTable.Buttons.defaults.dom.container.className = 'dt-buttons btn-overlap btn-group btn-overlap';
 
-        new $.fn.dataTable.Buttons(myTable, {
-            buttons: [
-                {
-                    "text": "<i class='glyphicon glyphicon-plus  bigger-110 red'></i>新增 ",
-                    "className": "btn btn-white btn-primary btn-bold"
-                }
-            ]
-        });
-        myTable.buttons().container().appendTo($('.tableTools-container'));*/
+           new $.fn.dataTable.Buttons(myTable, {
+               buttons: [
+                   {
+                       "text": "<i class='glyphicon glyphicon-plus  bigger-110 red'></i>新增 ",
+                       "className": "btn btn-white btn-primary btn-bold"
+                   }
+               ]
+           });
+           myTable.buttons().container().appendTo($('.tableTools-container'));*/
 
 
         //todo 统一到一个对话框

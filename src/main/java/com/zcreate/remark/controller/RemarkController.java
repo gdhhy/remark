@@ -6,6 +6,7 @@ import com.zcreate.pinyin.PinyinUtil;
 import com.zcreate.rbac.web.DeployRunning;
 import com.zcreate.review.dao.SampleDAO;
 import com.zcreate.review.logic.ReviewService;
+import com.zcreate.review.mapper.RemarkMapper;
 import com.zcreate.review.model.Recipe;
 import com.zcreate.review.model.RecipeReview;
 import com.zcreate.review.model.SampleBatch;
@@ -44,6 +45,9 @@ public class RemarkController {
     private ReviewService reviewService;
     @Autowired
     private SampleDAO sampleDao;
+    @Autowired
+    private RemarkMapper remarkMapper;
+
     private Gson gson = new GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd HH:mm").create();
 
     @Autowired
@@ -57,7 +61,7 @@ public class RemarkController {
 
     @ResponseBody
     @RequestMapping(value = "saveRecipe", method = RequestMethod.POST, produces = "application/json; charset=UTF-8")
-    public String saveRecipe(@RequestBody String string) {
+    public String saveRecipeAnti(@RequestBody String string) {
         log.debug("SecurityContextHolder.getContext().getAuthentication().getPrincipal()=" + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         Map<String, Object> result = new HashMap<>();
         out.println("string = " + string);
@@ -91,7 +95,13 @@ public class RemarkController {
 
         return gson.toJson(result);
     }
+    @ResponseBody
+    @RequestMapping(value = "saveRecipe1", method = RequestMethod.POST, produces = "application/json; charset=UTF-8")
+    public String saveRecipe1(@RequestBody String string) {
+        Map<String, Object> result = new HashMap<>();
 
+        return gson.toJson(result);
+    }
     @RequestMapping("getRecipeExcel")
     public void getRecipeExcel(HttpServletResponse response, @RequestParam(value = "recipeID") int recipeID, @RequestParam(value = "batchID") int batchID) throws IOException {
         Recipe recipe = reviewService.getRecipe(recipeID);
@@ -313,25 +323,54 @@ public class RemarkController {
         }
     }
 
-    @RequestMapping(value = "viewRecipe", method = RequestMethod.GET)
-    public String viewRecipe(@RequestParam(value = "recipeID") Integer recipeID, @RequestParam(value = "batchID") Integer batchID, ModelMap model) {
-        log.debug("viewRecipe");
+    //抗菌药调查
+    @RequestMapping(value = "viewRecipe1", method = RequestMethod.GET)
+    public String viewRecipe0(@RequestParam(value = "recipeID") Integer recipeID, @RequestParam(value = "batchID") Integer batchID, ModelMap model) {
         Recipe recipe = reviewService.getRecipe(recipeID);
-        recipe.setDepartCode(reviewService.getDepartCode(recipe.getDepartment()));
-        SampleBatch batch = sampleDao.getSampleBatch(batchID);
-        recipe.setMasterDoctorName(PinyinUtil.replaceName(recipe.getMasterDoctorName()));
-        if (recipe.getReview().getRecipeReviewID() == null) recipe.getReview().setGermCheck(recipe.getMicrobeCheck() > 0 ? 1 : 0);
+        if (recipe != null) {
+            log.debug("viewRecipe:" + recipe.getDepartment());
+            log.debug("reviewService:" + reviewService);
+            recipe.setDepartCode(reviewService.getDepartCode(recipe.getDepartment()));
+            SampleBatch batch = sampleDao.getSampleBatch(batchID);
+            recipe.setMasterDoctorName(PinyinUtil.replaceName(recipe.getMasterDoctorName()));
+            if (recipe.getReview().getRecipeReviewID() == null) recipe.getReview().setGermCheck(recipe.getMicrobeCheck() > 0 ? 1 : 0);
 
-        model.addAttribute("recipe", recipe);
-        model.addAttribute("deployLocation", reviewConfig.getDeployLocation());
+            model.addAttribute("recipe", recipe);
+            model.addAttribute("deployLocation", reviewConfig.getDeployLocation());
         /*model.addAttribute("inDate", DateUtils.formatSqlDateTime(recipe.getInDate()));
         model.addAttribute("outDate", DateUtils.formatSqlDateTime(recipe.getOutDate()));*/
-        model.addAttribute("inDate", new Date(recipe.getInDate().getTime()));
-        model.addAttribute("outDate", new java.util.Date(recipe.getOutDate().getTime()));
-        model.addAttribute("batchID", batchID);
-        model.addAttribute("batch", batch);
-        model.addAttribute("currentUser", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+            model.addAttribute("inDate", new Date(recipe.getInDate().getTime()));
+            model.addAttribute("outDate", new java.util.Date(recipe.getOutDate().getTime()));
+            model.addAttribute("batchID", batchID);
+            model.addAttribute("batch", batch);
+            model.addAttribute("currentUser", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        }
         return "/remark/recipe";
+    }
+
+    //医嘱点评
+    @RequestMapping(value = "viewRecipe0", method = RequestMethod.GET)
+    public String viewRecipe1(@RequestParam(value = "recipeID") Integer recipeID, @RequestParam(value = "batchID") Integer batchID, ModelMap model) {
+        Recipe recipe = reviewService.getRecipe(recipeID);
+        if (recipe != null) {
+            log.debug("viewRecipe:" + recipe.getDepartment());
+            log.debug("reviewService:" + reviewService);
+            recipe.setDepartCode(reviewService.getDepartCode(recipe.getDepartment()));
+            SampleBatch batch = sampleDao.getSampleBatch(batchID);
+            recipe.setMasterDoctorName(PinyinUtil.replaceName(recipe.getMasterDoctorName()));
+            if (recipe.getReview().getRecipeReviewID() == null) recipe.getReview().setGermCheck(recipe.getMicrobeCheck() > 0 ? 1 : 0);
+
+            model.addAttribute("recipe", recipe);
+            model.addAttribute("deployLocation", reviewConfig.getDeployLocation());
+        /*model.addAttribute("inDate", DateUtils.formatSqlDateTime(recipe.getInDate()));
+        model.addAttribute("outDate", DateUtils.formatSqlDateTime(recipe.getOutDate()));*/
+            model.addAttribute("inDate", new Date(recipe.getInDate().getTime()));
+            model.addAttribute("outDate", new java.util.Date(recipe.getOutDate().getTime()));
+            model.addAttribute("batchID", batchID);
+            model.addAttribute("batch", batch);
+            model.addAttribute("currentUser", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        }
+        return "/remark/recipe2";
     }
 
     public static String getBox(Boolean box) {
