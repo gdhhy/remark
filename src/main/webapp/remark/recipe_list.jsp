@@ -1,19 +1,19 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<script src="../js/datatables/jquery.dataTables.min.js"></script>
-<script src="../js/datatables/jquery.dataTables.bootstrap.min.js"></script>
-<script src="../js/datatables.net-buttons/dataTables.buttons.min.js"></script>
-<script src="../js/datatables/dataTables.select.min.js"></script>
+<script src="../components/datatables/jquery.dataTables.min.js"></script>
+<script src="../components/datatables/jquery.dataTables.bootstrap.min.js"></script>
+<script src="../components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+<script src="../components/datatables/dataTables.select.min.js"></script>
 <script src="../components/jquery-ui/jquery-ui.min.js"></script>
 <script src="../assets/js/ace.js"></script>
 <script src="../js/accounting.min.js"></script>
 <script src="../js/jquery.cookie.min.js"></script>
 <script src="../assets/js/jquery.validate.min.js"></script>
-<script src="../components/bootstrap-datepicker/dist/js/bootstrap-datepicker.js"></script>
+<script src="../components/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
 <script src="../components/bootstrap-timepicker/js/bootstrap-timepicker.js"></script>
 <script src="../components/moment/moment.min.js"></script>
 <script src="../components/bootstrap-daterangepicker/daterangepicker.js"></script>
-<link rel="stylesheet" href="../components/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css"/>
+<link rel="stylesheet" href="../components/bootstrap-datepicker/css/bootstrap-datepicker3.css"/>
 <link rel="stylesheet" href="../components/bootstrap-timepicker/css/bootstrap-timepicker.css"/>
 <link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>
 <script src="../components/typeahead.js/dist/typeahead.bundle.min.js"></script>

@@ -243,9 +243,9 @@ public class SampleController {
     @RequestMapping(value = "getRecipeItemList", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
     public String getRecipeItemList(@RequestParam(value = "serialNo") String serialNo,
                                     @RequestParam(value = "longAdvice", defaultValue = "1") int longAdvice) {
-        log.debug("getRecipeItemList");
+        //      log.debug("getRecipeItemList");
         List<RecipeItem> adviceList = reviewService.getRecipeItemList(serialNo, longAdvice);
-        log.debug("getRecipeItemList2");
+//   log.debug("getRecipeItemList2");
         return wrap(adviceList);
     }
 

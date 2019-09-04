@@ -1,20 +1,20 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<script src="../js/datatables/jquery.dataTables.min.js"></script>
-<script src="../js/datatables/jquery.dataTables.bootstrap.min.js"></script>
-<script src="../js/datatables.net-buttons/dataTables.buttons.min.js"></script>
-<script src="../js/datatables/dataTables.select.min.js"></script>
+<script src="../components/datatables/jquery.dataTables.min.js"></script>
+<script src="../components/datatables/jquery.dataTables.bootstrap.min.js"></script>
+<script src="../components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
+<script src="../components/datatables/dataTables.select.min.js"></script>
 <script src="../components/jquery-ui/jquery-ui.min.js"></script>
 <script src="../assets/js/ace.js"></script>
 <%--<script src="../assets/js/jquery.gritter.min.js"></script>--%>
 <script src="../js/accounting.min.js"></script>
 <script src="../js/jquery.cookie.min.js"></script>
 <script src="../assets/js/jquery.validate.min.js"></script>
-<script src="../components/bootstrap-datepicker/dist/js/bootstrap-datepicker.js"></script>
+<script src="../components/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
 <script src="../components/bootstrap-timepicker/js/bootstrap-timepicker.js"></script>
 <script src="../components/moment/moment.min.js"></script>
 <script src="../components/bootstrap-daterangepicker/daterangepicker.js"></script>
-<link rel="stylesheet" href="../components/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css"/>
+<link rel="stylesheet" href="../components/bootstrap-datepicker/css/bootstrap-datepicker3.css"/>
 <link rel="stylesheet" href="../components/bootstrap-timepicker/css/bootstrap-timepicker.css"/>
 <link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>
 <script src="../components/typeahead.js/dist/typeahead.bundle.min.js"></script>
@@ -92,8 +92,8 @@
                         'targets': 10, 'searchable': false, 'orderable': false, width: 80, title: '点评/删除',
                         render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
-                                '<a class="hasDetail" href="#" data-Url="/index.jspx?content=/remark/recipe_list.jsp&sampleBatchID={0}&remarkType={1}">'.format(data, row["remarkType"]) +
-                                '<i class="ace-icon fa fa-inbox bigger-130"></i>' +
+                                '<a class="hasDetail green" href="#" data-Url="/index.jspx?content=/remark/recipe_list.jsp&sampleBatchID={0}&remarkType={1}&menuID=14">'.format(data, row["remarkType"]) +
+                                '<i class="ace-icon glyphicon glyphicon-tag  "></i>' +
                                 '</a>&nbsp;&nbsp;&nbsp;' +
                                 '<a class="hasDetail" href="#" data-Url="javascript:deleteBatch({0},\'{1}\');">'.format(data, row["name"]) +
                                 '<i class="ace-icon fa fa-trash-o bigger-130"></i>' +

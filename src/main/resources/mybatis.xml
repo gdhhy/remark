@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <settings>
+        <!-- <setting name="cacheEnabled" value="true"/>-->
+        <setting name="lazyLoadingEnabled" value="false"/>
+        <setting name="aggressiveLazyLoading" value="true"/>
+    </settings>
+    <mappers>
+        <mapper resource="com/zcreate/review/model/Health.xml"/>
+        <mapper resource="com/zcreate/review/model/Instruction.xml"/>
+        <mapper resource="com/zcreate/review/model/Drug.xml"/>
+        <mapper resource="com/zcreate/review/model/Medicine.xml"/>
+        <mapper resource="com/zcreate/review/model/Incompatibility.xml"/>
+        <mapper resource="com/zcreate/review/model/SampleBatch.xml"/>
+        <mapper resource="com/zcreate/review/model/SampleList.xml"/>
+        <mapper resource="com/zcreate/review/model/Clinic.xml"/>
+        <mapper resource="com/zcreate/review/model/RxDetail.xml"/>
+        <mapper resource="com/zcreate/review/model/DailyDepartMedicine.xml"/>
+        <mapper resource="com/zcreate/review/model/DailyDepart.xml"/>
+        <mapper resource="com/zcreate/review/model/DailyMedicine.xml"/>
+        <mapper resource="com/zcreate/review/model/DailySummary.xml"/>
+        <mapper resource="com/zcreate/review/model/DailyPatientInOut.xml"/>
+        <mapper resource="com/zcreate/review/model/Import.xml"/>
+        <mapper resource="com/zcreate/review/model/Task.xml"/>
+        <mapper resource="com/zcreate/review/model/Doctor.xml"/>
+        <mapper resource="com/zcreate/review/model/Recipe.xml"/>
+        <mapper resource="com/zcreate/review/model/RecipeItem.xml"/>
+        <!-- 翁源、粤北二院、新丰版本-->
+        <mapper resource="com/zcreate/review/model/LYD.xml"/>
+        <mapper resource="com/zcreate/review/model/Storage_yber.xml"/>
+        <mapper resource="com/zcreate/review/model/DailyDoctor_wy.xml"/>
+        <!--翁源、粤北二院、新丰版本结束-->
+
+        <!--南雄用 PatientMedicine.xml -->
+        <!--<mapper resource="com/zcreate/review/model/PatientMedicine.xml"/>
+        <mapper resource="com/zcreate/review/model/Storage.xml"/>
+        <mapper resource="com/zcreate/review/model/DailyDoctor.xml"/>-->
+        <!--南雄版本结束-->
+        <mapper resource="com/zcreate/review/model/Search.xml"/>
+        <mapper resource="com/zcreate/review/his/His.xml"/>
+        <mapper resource="com/zcreate/review/his/Huaease.xml"/>
+        <mapper resource="com/zcreate/review/model/DocFile.xml"/>
+        <mapper resource="com/zcreate/review/model/Appeal.xml"/>
+        <mapper resource="com/zcreate/review/model/Untoward.xml"/>
+        <mapper resource="com/zcreate/review/model/AntiResearch.xml"/>
+        <mapper resource="com/zcreate/message/model/Message.xml"/>
+        <mapper resource="com/zcreate/review/model/Rational.xml"/>
+        <mapper resource="com/zcreate/review/model/RationalDepartConfig.xml"/>
+        <mapper resource="com/zcreate/review/model/Sunning.xml"/>
+        <mapper resource="com/zcreate/review/model/Etone.xml"/>
+        <mapper resource="com/zcreate/review/model/Infectious.xml"/>
+        <mapper resource="com/zcreate/review/his/PatientInfo.xml"/>
+        <mapper resource="com/zcreate/storage/model/StorageCheck.xml"/>
+
+        <mapper resource="com/zcreate/common/model/Dict_Mssql.xml"/>
+    </mappers>
+</configuration>

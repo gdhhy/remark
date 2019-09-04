@@ -23,7 +23,7 @@
 
     <link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
     <link rel="stylesheet" href="../components/jquery-ui.custom/jquery-ui.custom.css"/>
-    <link rel="stylesheet" href="../js/datatables/select.dataTables.min.css"/>
+    <link rel="stylesheet" href="../components/datatables/select.dataTables.min.css"/>
     <link rel="stylesheet" href="../components/bootstrap-datepicker/css/bootstrap-datepicker3.css"/>
     <link rel="stylesheet" href="../components/bootstrap-timepicker/css/bootstrap-timepicker.css"/>
     <link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>
@@ -45,22 +45,22 @@
 
     <!-- HTML5shiv and Respond.js for IE8 to support HTML5 elements and media queries -->
     <!--[if lte IE 8]>
-    <script src="../js/html5shiv/dist/html5shiv.js"></script>
-    <script src="../js/respond/dest/respond.min.js"></script>
+    <script src="../components/html5shiv/dist/html5shiv.js"></script>
+    <script src="../components/respond/dest/respond.min.js"></script>
     <![endif]-->
     <%--<script src="../assets/js/jquery.ui.touch-punch.min.js"></script>--%>
 
     <!-- page specific plugin scripts -->
     <!-- static.html end-->
     <%--<script src="../components/jquery-ui.custom/jquery-ui.custom.js"></script>--%>
-    <script src="../js/datatables/jquery.dataTables.min.js"></script>
+    <script src="../components/datatables/jquery.dataTables.min.js"></script>
     <%--<link rel="stylesheet" href="../components/chosen/chosen.css" />--%>
 
     <script src="../components/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
     <script src="../components/moment/moment.min.js"></script>
     <script src="../components/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
-    <script src="../js/datatables/jquery.dataTables.bootstrap.min.js"></script>
-    <script src="../js/datatables/dataTables.select.min.js"></script>
+    <script src="../components/datatables/jquery.dataTables.bootstrap.min.js"></script>
+    <script src="../components/datatables/dataTables.select.min.js"></script>
     <script src="../components/jquery-ui/jquery-ui.min.js"></script>
     <%--<script src="../js/jquery-ui/ui/i18n/datepicker-zh-CN.js"  charset="UTF-8"></script>--%>
     <%--<script src="../components/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"  charset="UTF-8"></script>
@@ -660,10 +660,11 @@
 
             //导出
             $('.btn-info').on('click', function (e) {
-                window.location.href = "getRecipeExcel.jspx?recipeID=${recipe.recipeID}&batchID=${batchID}";
+                window.location.href = "getRecipeExcel0.jspx?recipeID=${recipe.recipeID}&batchID=${batchID}";
             });
 
-            var json = {recipeID: '${recipe.recipeID}', serialNo: '${recipe.serialNo}', recipeReviewID: '${recipe.review.recipeReviewID}', reviewUser: '${currentUser.name}'};
+            var json = {recipeID: '${recipe.recipeID}', serialNo: '${recipe.serialNo}', recipeReviewID: '${recipe.review.recipeReviewID}',
+                reviewUser: '${currentUser.name}', masterDoctor: '${recipe.masterDoctorName}'};
             //保存
             $('.btn-success').on('click', function (e) {
                 var baseInfo = {};
@@ -684,9 +685,9 @@
                 json.诊断 = diagnosis;
 
 
-                var lab = {micro: ""};
+                var lab = {micro: false};
 
-                lab.micro = $('input:radio[name="form-field-micro"]:checked').val();
+                lab.micro = $('input:radio[name="form-field-micro"]:checked').val() == null ? false : $('input:radio[name="form-field-micro"]:checked').val();
                 lab.micro_time = $('#micro_time').val();
                 lab.sample = $('#form-field-sample').val();
                 lab.germName = $('#form-field-germName').val();
@@ -696,12 +697,13 @@
 
                 <c:if test="${batch.surgery==1}">
                 var surgery = {incision: 0};
+
                 surgery.surgery = $("input[name='form-field-surgery']").is(':checked');
                 surgery.surgeryName = $('#form-field-surgeryName').val();
                 surgery.startTime = $('#form-field-surgeryTime').val();
                 surgery.lastTime = $('#form-field-lastTime').val();
-                surgery.beforeDrug = $("input[name='form-field-beforeDrug']:checked").val();
-                surgery.afterDrug = $("input[name='form-field-afterDrug']:checked").val();
+                surgery.beforeDrug = $("input:radio[name='form-field-beforeDrug']:checked").val() == null ? 0 : $('input:radio[name="form-field-beforeDrug"]:checked').val();
+                surgery.afterDrug = $("input:radio[name='form-field-afterDrug']:checked").val() == null ? 0 : $('input:radio[name="form-field-afterDrug"]:checked').val();
                 surgery.surgeryAppend = $("input[name='form-field-surgeryAppend']").is(':checked');                //术中追加
                 $("input:checkbox[name='form-field-incision']:checked").each(function () {
                     surgery.incision += parseInt($(this).val());
@@ -915,8 +917,8 @@
                     selArr = selected.split(',');
                 else
                     selArr[0] = selected;
-               /* console.log('selArr:' + selArr);
-                console.log('selArr.length:' + selArr.length);*/
+                /* console.log('selArr:' + selArr);
+                 console.log('selArr.length:' + selArr.length);*/
                 $("input:checkbox[name='dictNo']").each(function () {
                     //console.log('html:' + $(this).html());
                     //console.log('val:' + $(this).val());
@@ -1111,14 +1113,14 @@
                                                     <div class="input-group">
                                                         <label class="col-xs-1 control-label  no-padding" style="text-overflow:ellipsis; white-space:nowrap;width: 70px">术前用药</label>
                                                         <label>
-                                                            <input name="form-field-beforeDrug" type="radio" class="ace" value="1"/>
+                                                            <input name="form-field-beforeDrug" type="radio" class="ace" value="0"/>
                                                             <span class="lbl">≤2h&nbsp;&nbsp;</span>
                                                         </label>
                                                         <label>
-                                                            <input name="form-field-beforeDrug" type="radio" class="ace" value="2"/>
+                                                            <input name="form-field-beforeDrug" type="radio" class="ace" value="1"/>
                                                             <span class="lbl">>2h&nbsp;&nbsp;</span>
                                                         </label> <label>
-                                                        <input name="form-field-beforeDrug" type="radio" class="ace" value="4"/>
+                                                        <input name="form-field-beforeDrug" type="radio" class="ace" value="2"/>
                                                         <span class="lbl">未用</span>
                                                     </label>
                                                     </div>
@@ -1128,23 +1130,23 @@
                                                     <div class="input-group  no-padding">
                                                         <label class=" control-label  no-padding" style="text-overflow:ellipsis; white-space:nowrap;width: 70px">术后停药</label>
                                                         <label>
-                                                            <input name="form-field-afterDrug" type="radio" class="ace" value="1"/>
+                                                            <input name="form-field-afterDrug" type="radio" class="ace" value="0"/>
                                                             <span class="lbl">≤24h </span>
                                                         </label>
                                                         <label>
-                                                            <input name="form-field-afterDrug" type="radio" class="ace" value="2"/>
+                                                            <input name="form-field-afterDrug" type="radio" class="ace" value="1"/>
                                                             <span class="lbl">>24h≤48h </span>
                                                         </label>
                                                         <label>
-                                                            <input name="form-field-afterDrug" type="radio" class="ace" value="4"/>
+                                                            <input name="form-field-afterDrug" type="radio" class="ace" value="2"/>
                                                             <span class="lbl">>48h≤72h</span>
                                                         </label>
                                                         <label>
-                                                            <input name="form-field-afterDrug" type="radio" class="ace" value="8"/>
+                                                            <input name="form-field-afterDrug" type="radio" class="ace" value="3"/>
                                                             <span class="lbl">>3~7天</span>
                                                         </label>
                                                         <label>
-                                                            <input name="form-field-afterDrug" type="radio" class="ace" value="16"/>
+                                                            <input name="form-field-afterDrug" type="radio" class="ace" value="4"/>
                                                             <span class="lbl">>7天</span>
                                                         </label>
                                                     </div>

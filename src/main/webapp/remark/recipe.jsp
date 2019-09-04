@@ -23,7 +23,7 @@
 
     <link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
     <link rel="stylesheet" href="../components/jquery-ui.custom/jquery-ui.custom.css"/>
-    <link rel="stylesheet" href="../js/datatables/select.dataTables.min.css"/>
+    <link rel="stylesheet" href="../components/datatables/select.dataTables.min.css"/>
     <link rel="stylesheet" href="../components/bootstrap-datepicker/css/bootstrap-datepicker3.css"/>
     <link rel="stylesheet" href="../components/bootstrap-timepicker/css/bootstrap-timepicker.css"/>
     <link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>
@@ -45,22 +45,22 @@
 
     <!-- HTML5shiv and Respond.js for IE8 to support HTML5 elements and media queries -->
     <!--[if lte IE 8]>
-    <script src="../js/html5shiv/dist/html5shiv.js"></script>
-    <script src="../js/respond/dest/respond.min.js"></script>
+    <script src="../components/html5shiv/dist/html5shiv.js"></script>
+    <script src="../components/respond/dest/respond.min.js"></script>
     <![endif]-->
     <%--<script src="../assets/js/jquery.ui.touch-punch.min.js"></script>--%>
 
     <!-- page specific plugin scripts -->
     <!-- static.html end-->
     <%--<script src="../components/jquery-ui.custom/jquery-ui.custom.js"></script>--%>
-    <script src="../js/datatables/jquery.dataTables.min.js"></script>
+    <script src="../components/datatables/jquery.dataTables.min.js"></script>
     <%--<link rel="stylesheet" href="../components/chosen/chosen.css" />--%>
 
     <script src="../components/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
     <script src="../components/moment/moment.min.js"></script>
     <script src="../components/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
-    <script src="../js/datatables/jquery.dataTables.bootstrap.min.js"></script>
-    <script src="../js/datatables/dataTables.select.min.js"></script>
+    <script src="../components/datatables/jquery.dataTables.bootstrap.min.js"></script>
+    <script src="../components/datatables/dataTables.select.min.js"></script>
     <script src="../components/jquery-ui/jquery-ui.min.js"></script>
     <%--<script src="../js/jquery-ui/ui/i18n/datepicker-zh-CN.js"></script>--%>
     <%--<script src="../components/bootstrap-datepicker/js/locales/bootstrap-datepicker.zh-CN.js"></script>--%>

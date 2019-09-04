@@ -23,7 +23,7 @@
 
     <link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
     <link rel="stylesheet" href="../components/jquery-ui.custom/jquery-ui.custom.css"/>
-    <link rel="stylesheet" href="../js/datatables/select.dataTables.min.css"/>
+    <link rel="stylesheet" href="../components/datatables/select.dataTables.min.css"/>
     <%--<link rel="stylesheet" href="../components/jquery-ui.custom/dataTables.bootstrap.min.css"/>--%>
 
     <!-- basic scripts -->
@@ -40,17 +40,17 @@
 
     <!-- HTML5shiv and Respond.js for IE8 to support HTML5 elements and media queries -->
     <!--[if lte IE 8]>
-    <script src="../js/html5shiv/dist/html5shiv.js"></script>
-    <script src="../js/respond/dest/respond.min.js"></script>
+    <script src="../components/html5shiv/dist/html5shiv.js"></script>
+    <script src="../components/respond/dest/respond.min.js"></script>
     <![endif]-->
     <%--<script src="../assets/js/jquery.ui.touch-punch.min.js"></script>--%>
 
     <!-- page specific plugin scripts -->
     <!-- static.html end-->
-    <script src="../js/datatables/jquery.dataTables.min.js"></script>
-    <script src="../js/datatables/jquery.dataTables.bootstrap.min.js"></script>
+    <script src="../components/datatables/jquery.dataTables.min.js"></script>
+    <script src="../components/datatables/jquery.dataTables.bootstrap.min.js"></script>
     <%--<script src="js/datatables.net-buttons/dataTables.buttons.min.js"></script>--%>
-    <script src="../js/datatables/dataTables.select.min.js"></script>
+    <script src="../components/datatables/dataTables.select.min.js"></script>
     <script src="../components/jquery-ui/jquery-ui.min.js"></script>
     <script src="../components/typeahead.js/handlebars.js"></script>
     <%--<script src="../js/string_func.js"></script>--%>

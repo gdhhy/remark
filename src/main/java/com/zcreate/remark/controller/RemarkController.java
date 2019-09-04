@@ -2,18 +2,18 @@ package com.zcreate.remark.controller;
 
 import com.google.gson.*;
 import com.zcreate.ReviewConfig;
+import com.zcreate.common.DictService;
 import com.zcreate.pinyin.PinyinUtil;
 import com.zcreate.rbac.web.DeployRunning;
 import com.zcreate.review.dao.SampleDAO;
 import com.zcreate.review.logic.ReviewService;
-import com.zcreate.review.mapper.RemarkMapper;
 import com.zcreate.review.model.Recipe;
 import com.zcreate.review.model.RecipeReview;
 import com.zcreate.review.model.SampleBatch;
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import com.zcreate.util.DateUtils;
+import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,10 +30,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static java.lang.System.out;
 
@@ -45,8 +42,6 @@ public class RemarkController {
     private ReviewService reviewService;
     @Autowired
     private SampleDAO sampleDao;
-    @Autowired
-    private RemarkMapper remarkMapper;
 
     private Gson gson = new GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd HH:mm").create();
 
@@ -55,19 +50,21 @@ public class RemarkController {
 
     @Autowired
     private static String deployDir = DeployRunning.getDir();
+    @Autowired
+    private DictService dictService;
 
     JsonParser parser = new JsonParser();
     String templateDir = "excel";
 
     @ResponseBody
     @RequestMapping(value = "saveRecipe", method = RequestMethod.POST, produces = "application/json; charset=UTF-8")
-    public String saveRecipeAnti(@RequestBody String string) {
+    public String saveRecipe(@RequestBody String string) {
         log.debug("SecurityContextHolder.getContext().getAuthentication().getPrincipal()=" + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         Map<String, Object> result = new HashMap<>();
         out.println("string = " + string);
         //  reviewService.saveRecipe(recipe);
         JsonObject json = (JsonObject) parser.parse(string);
-        //JsonObject baseInfo = json.getAsJsonObject("基本信息");
+        //JsonObject baseInfo = json.getAsJsonObject("基本情况");
         RecipeReview review = new RecipeReview();
         review.setRecipeReviewID(json.getAsJsonPrimitive("recipeReviewID").getAsInt());
         //Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -95,15 +92,205 @@ public class RemarkController {
 
         return gson.toJson(result);
     }
-    @ResponseBody
-    @RequestMapping(value = "saveRecipe1", method = RequestMethod.POST, produces = "application/json; charset=UTF-8")
-    public String saveRecipe1(@RequestBody String string) {
-        Map<String, Object> result = new HashMap<>();
 
-        return gson.toJson(result);
+    @RequestMapping("getRecipeExcel0")
+    public void getRecipeExcel0(HttpServletResponse response, @RequestParam(value = "recipeID") int recipeID, @RequestParam(value = "batchID") int batchID) throws IOException {
+        Recipe recipe = reviewService.getRecipe(recipeID);
+        RecipeReview review = recipe.getReview();
+        SampleBatch batch = sampleDao.getSampleBatch(batchID);
+        JsonObject json = (JsonObject) parser.parse(review.getReviewJson());
+        HashSet problemCodeSet = new HashSet(5);
+
+        HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "reviewHospital.xls"));//getSurgery 0 or 1
+        // String downFileName = "非手术病人抗菌药物使用情况调查表" + recipeID + ".xls";
+        HSSFSheet sheet = wb.getSheet("Sheet1");
+        JsonObject baseInfo = json.getAsJsonObject("基本情况");
+        sheet.getRow(1).getCell(0).setCellValue("科室：" + recipe.getDepartment());
+        sheet.getRow(1).getCell(5).setCellValue("病历号：" + recipe.getPatientNo());
+        sheet.getRow(1).getCell(7).setCellValue("病人姓名：" + recipe.getPatientName());
+        sheet.getRow(2).getCell(2).setCellValue("性别：" + baseInfo.get("sex").getAsString() + baseInfo.get("age").getAsString() + "岁");//(recipe.getSex() ? "男" : "女") + "   年龄：" + String.valueOf(recipe.getAge()) + "岁"
+        sheet.getRow(2).getCell(5).setCellValue("入院时间：" + baseInfo.get("inHospital").getAsString());//DateUtils.formatDate(recipe.getInDate(), "yy-M-d")
+        sheet.getRow(2).getCell(7).setCellValue("出院时间：" + baseInfo.get("outHospital").getAsString());// DateUtils.formatDate(recipe.getOutDate(), "yy-M-d")
+
+        /*诊断*/
+        String inDiagnosis = "入院诊断：", outDiagnosis = "出院诊断：";
+        int inIndex = 1, outIndex = 1;
+        JsonArray diagnosisArray = json.getAsJsonArray("诊断");
+        StringBuilder line = new StringBuilder();
+        for (int i = 0; i < diagnosisArray.size(); i++) {
+            if (diagnosisArray.get(i).getAsJsonObject().get("type").getAsString().equals("入院诊断"))
+                inDiagnosis += inIndex++ + "、" + diagnosisArray.get(i).getAsJsonObject().get("disease").getAsString() + "；  ";
+            else
+                outDiagnosis += outIndex++ + "、" + diagnosisArray.get(i).getAsJsonObject().get("disease").getAsString() + "；  ";
+
+            if (i == 2) line.append("\n");
+        }
+        sheet.getRow(3).getCell(2).setCellValue(inDiagnosis);
+        sheet.getRow(4).getCell(2).setCellValue(outDiagnosis);
+        //细菌培养和药敏
+        JsonObject lab = json.getAsJsonObject("细菌培养和药敏");
+        sheet.getRow(5).getCell(2).setCellValue("是否送检：" + (lab.get("micro").getAsString().equals("true") ? "是" : "否"));
+        sheet.getRow(5).getCell(4).setCellValue("标本：" + lab.get("sample").getAsString());
+        sheet.getRow(5).getCell(7).setCellValue("送检日期：" + lab.get("micro_time").getAsString());
+        sheet.getRow(6).getCell(2).setCellValue("细菌名称：" + lab.get("germName").getAsString());
+        sheet.getRow(7).getCell(2).setCellValue("敏感药物：" + lab.get("sensitiveDrug").getAsString());
+        //围手术期用药
+        JsonObject surgery = json.getAsJsonObject("围手术期用药");
+        //log.debug("surgery=" + surgery);
+        if (surgery != null) {//外科
+            sheet.getRow(8).getCell(2).setCellValue("手术名称：" + surgery.get("surgeryName").getAsString());
+            sheet.getRow(8).getCell(5).setCellValue("手术日期：" + surgery.get("startTime").getAsString());
+            String incision = "";
+            if ((surgery.get("incision").getAsInt() & 1) == 1) incision = "Ⅰ";
+            if ((surgery.get("incision").getAsInt() & 2) == 2) incision += " Ⅱ";
+            if ((surgery.get("incision").getAsInt() & 4) == 4) incision += " Ⅲ";
+            sheet.getRow(8).getCell(7).setCellValue("切口类别：" + incision);
+            String[] before = {"≤2h", ">2h", "未用"};
+            sheet.getRow(9).getCell(2).setCellValue("术前用药时间：" + before[surgery.get("beforeDrug").getAsInt()]);
+            sheet.getRow(9).getCell(5).setCellValue("术中追加：" + (surgery.get("surgeryAppend").getAsBoolean() ? "有" : "无"));
+            sheet.getRow(9).getCell(7).setCellValue("手术持续时间：" + surgery.get("lastTime").getAsString());
+            String[] after = {"≤24h", ">24h≤48h", ">48h≤72h", ">3~7天", ">7天"};
+            sheet.getRow(10).getCell(2).setCellValue("术后停药时间：" + after[surgery.get("afterDrug").getAsInt()]);
+        }
+        //用药情况
+        JsonObject drugInfo = json.getAsJsonObject("用药情况");
+        sheet.getRow(12).getCell(6).setCellValue(drugInfo.get("symptom").getAsString());
+        sheet.getRow(14).getCell(6).setCellValue(drugInfo.get("symptom2").getAsString());
+        //署名、日期
+        sheet.getRow(16).getCell(0).setCellValue("点评人：" + json.get("reviewUser").getAsString());
+        sheet.getRow(16).getCell(3).setCellValue("时间：" + DateUtils.formatDate(recipe.getReview().getReviewTime(), "yyyy年M月d日"));
+        sheet.getRow(16).getCell(8).setCellValue(recipe.getMasterDoctorName());
+
+
+        HSSFCellStyle centerAndWrap = wb.createCellStyle();
+        centerAndWrap.setAlignment(HorizontalAlignment.CENTER);
+        centerAndWrap.setVerticalAlignment(VerticalAlignment.CENTER);
+        centerAndWrap.setWrapText(true);
+        /*长嘱*/
+        JsonArray drugs = json.getAsJsonArray("长嘱");
+        int longRow = drugs.size();
+        if (longRow > 0) {
+            sheet.shiftRows(13, sheet.getLastRowNum(), longRow, false, false);
+            for (int i = 0; i < longRow; i++) {
+                JsonObject item = drugs.get(i).getAsJsonObject();
+                HSSFRow aRow = sheet.createRow(13 + i);
+                for (int m = 0; m < 9; m++) {
+                    HSSFCell cell = aRow.createCell(m);//getCell 、cr    eateCell
+                    HSSFCell sampleCell = sheet.getRow(12).getCell(m);
+                    HSSFCellStyle style = sampleCell.getCellStyle();
+                    cell.setCellStyle(style);
+                    cell.setCellType(sampleCell.getCellType());
+                }
+                aRow = sheet.getRow(12 + i);
+                aRow.setHeight((short) 380);
+                //log.debug("item.getRoute()=" + item.get("adviceType").getAsString());
+                aRow.getCell(2).setCellValue(item.get("advice").getAsString());
+                aRow.getCell(4).setCellValue(item.get("adviceType").getAsString());
+                aRow.getCell(5).setCellValue(item.get("recipeDate").getAsString());
+                aRow.getCell(8).setCellValue("设置".equals(item.get("question").getAsString()) ? "":item.get("question").getAsString());
+
+                if (item.get("question").getAsString().indexOf(",") > 0) {
+                    String[] codes = item.get("question").getAsString().split(",");
+                    for (int p = 0; p < codes.length; p++)
+                        problemCodeSet.add(codes[p]);
+                }
+            }
+            sheet.shiftRows(13 + longRow, sheet.getLastRowNum(), -1, true, false);//删除一行，这行是占位设置单元格样式的
+            longRow--;
+        }
+        // 参数1：起始行号 参数2：终止行号 参数3： 起始列号参数4：终止列号
+        sheet.addMergedRegion(new CellRangeAddress(11, 12 + longRow, 1, 1)); //用药情况（长期)
+        sheet.addMergedRegion(new CellRangeAddress(12, 12 + longRow, 6, 7)); //症状体征及检查
+        HSSFCell cell = sheet.getRow(11).getCell(1);
+        cell.setCellStyle(centerAndWrap);
+        cell = sheet.getRow(12).getCell(6);
+        cell.setCellStyle(centerAndWrap);
+
+        //临嘱
+        drugs = json.getAsJsonArray("临嘱");
+        sheet.getRow(13 + longRow).setHeight((short) 600);
+        int shortRow = drugs.size();
+        if (shortRow > 0) {
+            sheet.shiftRows(15 + longRow, sheet.getLastRowNum(), shortRow, false, false);
+            for (int i = 0; i < shortRow; i++) {
+                JsonObject item = drugs.get(i).getAsJsonObject();
+                HSSFRow aRow = sheet.createRow(15 + longRow + i);
+                for (int m = 0; m < 9; m++) {
+                    cell = aRow.createCell(m);//getCell 、createCell
+                    HSSFCell sampleCell = sheet.getRow(14 + longRow).getCell(m);
+                    HSSFCellStyle style = sampleCell.getCellStyle();
+                    cell.setCellStyle(style);
+                    cell.setCellType(sampleCell.getCellType());
+                }
+                aRow = sheet.getRow(14 + longRow + i);
+                aRow.setHeight((short) 380);
+
+                aRow.getCell(2).setCellValue(item.get("advice").getAsString());
+                aRow.getCell(4).setCellValue(item.get("adviceType").getAsString());
+                aRow.getCell(5).setCellValue(item.get("recipeDate").getAsString());
+                aRow.getCell(8).setCellValue("设置".equals(item.get("question").getAsString()) ? "":item.get("question").getAsString());
+
+                if (item.get("question").getAsString().indexOf(",") > 0) {
+                    String[] codes = item.get("question").getAsString().split(",");
+                    for (int p = 0; p < codes.length; p++)
+                        problemCodeSet.add(codes[p]);
+                }
+            }
+            sheet.shiftRows(15 + longRow + shortRow, sheet.getLastRowNum(), -1, true, false);//删除一行，这行是占位设置单元格样式的
+            shortRow--;
+        }
+        //参数1：起始行号 参数2：终止行号 参数3： 起始列号参数4：终止列号 ;
+        sheet.addMergedRegion(new CellRangeAddress(13 + longRow, 14 + longRow + shortRow, 1, 1));
+        sheet.addMergedRegion(new CellRangeAddress(14 + longRow, 14 + longRow + shortRow, 6, 7));
+        cell = sheet.getRow(13 + longRow).getCell(1);
+        cell.setCellStyle(centerAndWrap);
+        cell = sheet.getRow(14 + longRow).getCell(6);
+        cell.setCellStyle(centerAndWrap);
+        sheet.addMergedRegion(new CellRangeAddress(11, 14 + longRow + shortRow, 0, 0));
+
+        JsonObject remark = json.getAsJsonObject("点评");
+        String problemDesc = "";
+        for (Iterator iter = problemCodeSet.iterator(); iter.hasNext(); ) {
+            String code = (String) iter.next();
+            if (code != null && !"".equals(code))
+                problemDesc += code.trim() + ":" + dictService.getDictByParentChildNo("00010", code.trim()).getValue() + "\n";
+        }
+        sheet.getRow(15 + longRow + shortRow).getCell(2).setCellValue(remark.get("review").getAsString() + "\n" + problemDesc);
+        if (surgery  == null) {//内科，没手术
+            sheet.shiftRows(11, sheet.getLastRowNum(), -3, true, false);//删除3行
+            sheet.getRow(8).getCell(0).setCellValue(4);
+            sheet.getRow(12 + longRow + shortRow).getCell(0).setCellValue(5);
+
+            sheet.getRow(12 + longRow + shortRow).setHeight((short) 2000);
+        } else {
+            sheet.getRow(15 + longRow + shortRow).setHeight((short) 2000);
+            CellRangeAddress region = new CellRangeAddress(8, 10, 1, 1);
+            sheet.addMergedRegion(region);
+
+            sheet.getRow(0).getCell(0).setCellValue("医嘱点评工作表（外科）");
+        }
+
+
+        OutputStream out = null;
+        try {
+            // response.setContentType("image/jpeg;charset=UTF-8");
+            response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+            response.setHeader("Content-Disposition", "attachment; filename*=utf-8'zh_cn'" +
+                    java.net.URLEncoder.encode("医嘱点评工作表", "UTF-8") + recipeID + ".xls");//chrome 、 firefox都正常
+            out = response.getOutputStream(); // 输出到文件流
+            wb.write(out);
+            out.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (out != null) {
+                out.close();
+            }
+        }
     }
+
     @RequestMapping("getRecipeExcel")
-    public void getRecipeExcel(HttpServletResponse response, @RequestParam(value = "recipeID") int recipeID, @RequestParam(value = "batchID") int batchID) throws IOException {
+    public void getRecipeAntiExcel(HttpServletResponse response, @RequestParam(value = "recipeID") int recipeID, @RequestParam(value = "batchID") int batchID) throws IOException {
         Recipe recipe = reviewService.getRecipe(recipeID);
         RecipeReview review = recipe.getReview();
         SampleBatch batch = sampleDao.getSampleBatch(batchID);
@@ -125,7 +312,7 @@ public class RemarkController {
 //基本情况
         string = Optional.ofNullable(sheet.getRow(startRow).getCell(cellIndex).getStringCellValue())
                 .orElse("性别 %s  年龄 %s  体重 %s kg   入院时间： %s 出院时间： %s");
-        JsonObject baseInfo = json.getAsJsonObject("基本信息");
+        JsonObject baseInfo = json.getAsJsonObject("基本情况");
         sheet.getRow(startRow++).getCell(cellIndex).setCellValue(String.format(string, baseInfo.get("sex").getAsString(), baseInfo.get("age").getAsString(),
                 baseInfo.get("weight").getAsString(), baseInfo.get("inHospital").getAsString(), baseInfo.get("outHospital").getAsString()));
 //诊断
