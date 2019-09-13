@@ -5,7 +5,8 @@
 <script src="../components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
 <script src="../components/datatables/dataTables.select.min.js"></script>
 <script src="../components/jquery-ui/jquery-ui.min.js"></script>
-<script src="../assets/js/ace.js"></script>
+<%--<script src="../assets/js/ace.js"></script>--%>
+<script src="../assets/js/jquery.ui.touch-punch.min.js"></script>
 <%--<script src="../assets/js/jquery.gritter.min.js"></script>--%>
 <script src="../js/accounting.min.js"></script>
 <script src="../js/jquery.cookie.min.js"></script>
@@ -80,19 +81,24 @@
                         }
                     }, {
                         "orderable": false, "targets": 6, title: '手术', render: function (data, type, row, meta) {
+                            if (row['type'] === 1) return "";
                             return data === 1 ? "手术" : "非手术";
                         }
                     },
-                    {"orderable": false, "targets": 7, title: '点评类型', render: function (data, type, row, meta) {
+                    {
+                        "orderable": false, "targets": 7, title: '点评类型', render: function (data, type, row, meta) {
+                            if (row['type'] === 1) return "";
                             return data === 0 ? "医嘱点评" : "抗菌药调查";
-                        }},
+                        }
+                    },
                     {"orderable": false, "targets": 8, title: '医生'},
                     {"orderable": false, "targets": 9, title: '抽样日期', width: 130},
                     {
                         'targets': 10, 'searchable': false, 'orderable': false, width: 80, title: '点评/删除',
                         render: function (data, type, row, meta) {
+                            var jsp = row['type'] === 1 ? "clinic_list.jsp" : "recipe_list.jsp";
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
-                                '<a class="hasDetail green" href="#" data-Url="/index.jspx?content=/remark/recipe_list.jsp&sampleBatchID={0}&remarkType={1}&menuID=14">'.format(data, row["remarkType"]) +
+                                '<a class="hasDetail green" href="#" data-Url="/index.jspa?content=/remark/{2}&sampleBatchID={0}&remarkType={1}&menuID=14">'.format(data, row["remarkType"], jsp) +
                                 '<i class="ace-icon glyphicon glyphicon-tag  "></i>' +
                                 '</a>&nbsp;&nbsp;&nbsp;' +
                                 '<a class="hasDetail" href="#" data-Url="javascript:deleteBatch({0},\'{1}\');">'.format(data, row["name"]) +
@@ -103,10 +109,10 @@
                     }],
                 "aaSorting": [],
                 language: {
-                    url: '../js/datatables/datatables.chinese.json'
+                    url: '../components/datatables/datatables.chinese.json'
                 },
                 "ajax": {
-                    url: "/remark/listSamples.jspx",
+                    url: "/remark/listSamples.jspa",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -137,7 +143,7 @@
                 e.preventDefault();
 
                 $.cookie('goodsName', $(this).attr("data-goodsName"));
-                window.location.href = "index.jspx?content=/admin/buyRecord.jsp&menuID=3";
+                window.location.href = "index.jspa?content=/admin/buyRecord.jsp&menuID=3";
             });
         });
 
@@ -157,7 +163,7 @@
 
                             $.ajax({
                                 type: "POST",
-                                url: "/remark/deleteSampleBatch.jspx?batchID=" + batchID,
+                                url: "/remark/deleteSampleBatch.jspa?batchID=" + batchID,
                                 //contentType: "application/x-www-form-urlencoded",//http://www.cnblogs.com/yoyotl/p/5853206.html
                                 cache: false,
                                 success: function (response, textStatus) {
@@ -237,7 +243,7 @@
                     medicineNo: $('#form-medicineNo').val(),//存数据库
                     medicine: $('#form-medicine').val(),//显示
                     surgery: surgery ? 1 : 0,
-                    outPatientNum: $('#form-outPatientNum').val(),
+                    // outPatientNum: $('#form-outPatientNum').val(),
                     total: $('#form-total').val(),
                     incision: incision,
                     clinicType: clinicType,
@@ -252,7 +258,7 @@
                 };
                 $.ajax({
                     type: "POST",
-                    url: "/remark/newSampling.jspx",
+                    url: "/remark/newSampling.jspa",
                     data: JSON.stringify(sampleBatch),
                     contentType: "application/json; charset=utf-8",
                     cache: false,
@@ -319,7 +325,7 @@
 
         function loadDepartment() {
             if ($("#form-department option").length === 0)
-                $.getJSON("/common/dict/listDict.jspx?parentID=108", function (result) {
+                $.getJSON("/common/dict/listDict.jspa?parentID=108", function (result) {
                     if (result.recordsTotal > 0) {
                         $("#form-department option:gt(0)").remove();
                         $.each(result.data, function (n, value) {
@@ -336,7 +342,7 @@
             datumTokenizer: Bloodhound.tokenizers.obj.whitespace('doctorNo'),
             queryTokenizer: Bloodhound.tokenizers.whitespace,
             // 在文本框输入字符时才发起请求
-            remote: {url: "/remark/liveDoctor.jspx?pinyin=%QUERY", wildcard: '%QUERY'}
+            remote: {url: "/remark/liveDoctor.jspa?pinyin=%QUERY", wildcard: '%QUERY'}
         });
 
         doctorBloodHound.initialize();
@@ -353,7 +359,7 @@
                     pinyin: query
                   };
 
-                  $.getJSON('/remark/liveDoctor.jspx', params, function (json) {
+                  $.getJSON('/remark/liveDoctor.jspa', params, function (json) {
                     //console.log("json:" + json.data);
                     if (json.iTotalRecords > 0) {
                       //console.log("json:" + json.data);
@@ -403,7 +409,7 @@
 
                 source: function (query, processSync, processAsync) {
                     var params = {queryChnName: query};
-                    $.getJSON('/remark/liveMedicine.jspx', params, function (json) {
+                    $.getJSON('/remark/liveMedicine.jspa', params, function (json) {
                         //medicineLiveCount = json.iTotalRecords;
                         //console.log("count:" + medicineLiveCount);
                         if (json.iTotalRecords > 0)
@@ -447,7 +453,7 @@
             $("#dialog-edit").removeClass('hide').dialog({
                 resizable: false,
                 width: 760,
-                height: 560,
+                height: 530,
                 modal: true,
                 title: "新抽样",
                 title_html: true,
@@ -478,55 +484,105 @@
         function showSampleResult(result) {
             console.log("rxID:" + result.sampleBatch.ids);
             console.log("serialize():" + result.sampleBatch.ids);
+            console.log("type:" + result.sampleBatch.type);
+            if (result.sampleBatch.type === 2)
+                $('#dynamic-table2').DataTable({
+                    // bAutoWidth: false,
+                    paging: false,
+                    searching: false,
 
-            $('#dynamic-table2').DataTable({
-                // bAutoWidth: false,
-                paging: false,
-                searching: false,
+                    ordering: false,
+                    "destroy": true,
+                    "columns": [
+                        {"data": "recipeID"},
+                        {"data": "serialNo", "sClass": "center"},
+                        {"data": "inDate", "sClass": "center"},
+                        {"data": "outDate", "sClass": "center"},
+                        {"data": "inHospitalDay", "sClass": "center"},
+                        {"data": "patientName", "sClass": "center"},
+                        {"data": "age", "sClass": "center"},
+                        {"data": "diagnosis", "sClass": "center"},
+                        {"data": "masterDoctorName", "sClass": "center"}
+                    ],
 
-                ordering: false,
-                "destroy": true,
-                "columns": [
-                    {"data": "recipeID"},
-                    {"data": "serialNo", "sClass": "center"},
-                    {"data": "inDate", "sClass": "center"},
-                    {"data": "outDate", "sClass": "center"},
-                    {"data": "inHospitalDay", "sClass": "center"},
-                    {"data": "patientName", "sClass": "center"},
-                    {"data": "age", "sClass": "center"},
-                    {"data": "diagnosis", "sClass": "center"},
-                    {"data": "masterDoctorName", "sClass": "center"}
-                ],
-
-                'columnDefs': [
-                    {
-                        "orderable": false, "targets": 0, width: 15, render: function (data, type, row, meta) {
-                            return meta.row + 1 + meta.settings._iDisplayStart;
+                    'columnDefs': [
+                        {
+                            "orderable": false, "targets": 0, width: 15, render: function (data, type, row, meta) {
+                                return meta.row + 1 + meta.settings._iDisplayStart;
+                            }
+                        },
+                        {"orderable": false, "targets": 1, title: '住院号'},
+                        {"orderable": false, "targets": 2, title: '入院日期', width: 130},
+                        {"orderable": false, "targets": 3, title: '出院日期', width: 130},
+                        {"orderable": false, "targets": 4, title: '住院天数'},
+                        {"orderable": false, "targets": 5, title: '病人姓名'},
+                        {"orderable": false, "targets": 6, title: '年龄'},
+                        {"orderable": false, "targets": 7, title: '诊断', width: 250},
+                        {"orderable": false, "targets": 8, title: '主管医生'}],
+                    "aaSorting": [],
+                    language: {
+                        url: '../components/datatables/datatables.chinese.json'
+                    },
+                    "ajax": {
+                        url: "/remark/getSamplingList.jspa?type=" + result.sampleBatch.type + "&ids=" + result.sampleBatch.ids,
+                        "data": function (d) {//删除多余请求参数
+                            for (var key in d)
+                                if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
+                                    delete d[key];
                         }
-                    },
-                    {"orderable": false, "targets": 1, title: '住院号'},
-                    {"orderable": false, "targets": 2, title: '入院日期', width: 130},
-                    {"orderable": false, "targets": 3, title: '出院日期', width: 130},
-                    {"orderable": false, "targets": 4, title: '住院天数'},
-                    {"orderable": false, "targets": 5, title: '病人姓名'},
-                    {
-                        "orderable": false, "targets": 6, title: '年龄'
-                    },
-                    {"orderable": false, "targets": 7, title: '诊断', width: 250},
-                    {"orderable": false, "targets": 8, title: '主管医生'}],
-                "aaSorting": [],
-                language: {
-                    url: '../js/datatables/datatables.chinese.json'
-                },
-                "ajax": {
-                    url: "/remark/getSamplingList.jspx?type=2&ids=" + result.sampleBatch.ids,
-                    "data": function (d) {//删除多余请求参数
-                        for (var key in d)
-                            if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
-                                delete d[key];
                     }
-                }
-            });
+                });
+            else
+                $('#dynamic-table2').DataTable({
+                    // bAutoWidth: false,
+                    paging: false,
+                    searching: false,
+
+                    ordering: false,
+                    "destroy": true,
+                    "columns": [
+                        {"data": "rxID"},
+                        {"data": "clinicDate", "sClass": "center"},
+                        {"data": "serialNo", "sClass": "center"},
+                        {"data": "patientName", "sClass": "center"},
+                        {"data": "age", "sClass": "center"},
+                        {"data": "drugNum", "sClass": "center"},
+                        {"data": "antibiosis", "sClass": "center", "defaultContent": "0"},
+                        {"data": "money", "sClass": "center"},
+                        {"data": "doctorName", "sClass": "center"}
+                    ],
+
+                    'columnDefs': [
+                        {
+                            "orderable": false, "targets": 0, width: 15, render: function (data, type, row, meta) {
+                                return meta.row + 1 + meta.settings._iDisplayStart;
+                            }
+                        },
+                        {"orderable": false, "targets": 1, title: '处方日期', width: 130},
+                        {"orderable": false, "targets": 2, title: '门诊号'},
+                        {"orderable": false, "targets": 3, title: '病人'},
+                        {"orderable": false, "targets": 4, title: '年龄'},
+                        {"orderable": false, "targets": 5, title: '药品品种数'},
+                        {
+                            "orderable": false, "targets": 6, title: '抗菌素', render: function (data, type, row, meta) {
+                                return data === 1 ? "有" : "无";
+                            }
+                        },
+                        {"orderable": false, "targets": 7, title: '金额'},
+                        {"orderable": false, "targets": 8, title: '医生'}],
+                    "aaSorting": [],
+                    language: {
+                        url: '../components/datatables/datatables.chinese.json'
+                    },
+                    "ajax": {
+                        url: "/remark/getSamplingList.jspa?type=" + result.sampleBatch.type + "&ids=" + result.sampleBatch.ids,
+                        "data": function (d) {//删除多余请求参数
+                            for (var key in d)
+                                if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
+                                    delete d[key];
+                        }
+                    }
+                });
             $("#dialog-sample_list").removeClass('hide').dialog({
                 resizable: false,
                 width: 1000,
@@ -541,7 +597,7 @@
                         click: function () {
                             $.ajax({
                                 type: "POST",
-                                url: "/remark/saveSampling.jspx",
+                                url: "/remark/saveSampling.jspa",
                                 data: JSON.stringify(result.sampleBatch),
                                 contentType: "application/json; charset=utf-8",
                                 cache: false,
@@ -627,7 +683,7 @@
         });
 
         //计算符合条件的数量
-        sampleForm.find("input[type=checkbox][name='form-field-surgery'],#form-dateRange").change(function () {
+        /*sampleForm.find("input[type=checkbox][name='form-field-surgery'],#form-dateRange").change(function () {
             var p1 = sampleForm.find('#form-type').children('option:selected').val();//这就是selected的值 门诊为1,住院未2
             // console.log("p1:" + p1);
             if (p1 === '2') {
@@ -641,24 +697,26 @@
 
                 $('.icon_total2').addClass("ace-icon fa fa-spinner fa-spin fa-3x fa-fw");//动画
                 $('#form-outPatientNum').val("");
-                $.getJSON("/remark/getObjectCount.jspx", params, function (result) {
+                $.getJSON("/remark/getObjectCount.jspa", params, function (result) {
                     $('#form-outPatientNum').val(result.count);
                     $('.icon_total2').removeClass("ace-icon fa fa-spinner fa-spin fa-3x fa-fw");//动画
                 });
             }
-        });
+        });*/
         sampleForm.find("#form-type,#form-department,#form-doctor,#form-western,#form-medicine,input[type=checkbox],#form-dateRange").change(function () {//[name!='form-field-surgery']
             var p1 = sampleForm.find('#form-type').children('option:selected').val();//这就是selected的值 门诊为1,住院未2
             console.log("p2:" + p1);
             if (p1 === '1') {
                 $(".clinicType").removeClass("light-grey");
                 $(".surgeryTypeLbl").addClass("light-grey");
+
             } else {
                 $(".clinicType").addClass("light-grey");
                 $(".surgeryTypeLbl").removeClass("light-grey");
             }
             $("input[name='form-field-clinicType']").attr('disabled', p1 === "2");
             $("input[name='form-field-surgery']").attr('disabled', p1 === "1");
+            $("#form-remarkType").attr('disabled', p1 === "1");
             var surgery = p1 === '2' && sampleForm.find("input[name='form-field-surgery']").is(':checked');
             if (surgery) {
                 $(".surgeryItem").removeClass("light-grey");
@@ -693,7 +751,7 @@
 
             $('.icon_total').addClass("ace-icon fa fa-spinner fa-spin fa-3x fa-fw");//动画
             $('#form-total').val("");
-            currentAjax = $.getJSON("/remark/getObjectCount.jspx", params, function (result) {
+            currentAjax = $.getJSON("/remark/getObjectCount.jspa", params, function (result) {
                 $('#form-total').val(result.count);
                 $('.icon_total').removeClass("ace-icon fa fa-spinner fa-spin fa-3x fa-fw");
             });
@@ -721,7 +779,7 @@
     <ul class="breadcrumb">
         <li>
             <i class="ace-icon fa fa-home home-icon"></i>
-            <a href="/index.jspx">首页</a>
+            <a href="/index.jspa">首页</a>
         </li>
         <li class="active">抽样点评</li>
 
@@ -821,21 +879,6 @@
     </div>
     <div id="dialog-edit" class="hide">
         <form class="form-horizontal" role="form" id="sampleForm">
-            <div class="col-xs-12  ">
-                <div class="col-xs-5">
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label no-padding-right" for="form-remarkType">抽样类型 </label>
-
-                        <div class="col-sm-9">
-                            <select id="form-remarkType" data-placeholder="抽样类型">
-                                <option value="0" selected>医嘱点评</option>
-                                <option value="1">抗菌药物调查</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div class="col-xs-12">
                 <div class="col-xs-5">
                     <div class="form-group">
@@ -848,17 +891,22 @@
                             </select>
                         </div>
                     </div>
+                </div>
+                <div class="col-xs-6">
                     <div class="form-group">
-                        <div class="control-group">
-                            <label class="col-sm-3 control-label no-padding-right surgeryTypeLbl">手术</label>
-                            <div class="checkbox col-sm-4">
-                                <label>
-                                    <input name="form-field-surgery" checked type="checkbox" class="ace" value="1"/>
-                                    <span class="lbl surgeryTypeLbl">是</span>
-                                </label>
-                            </div>
+                        <label class="col-sm-3 control-label no-padding-right surgeryTypeLbl" for="form-remarkType">抽样类型 </label>
+
+                        <div class="col-sm-9">
+                            <select id="form-remarkType" data-placeholder="抽样类型">
+                                <option value="0" selected>医嘱点评</option>
+                                <option value="1">抗菌药物调查</option>
+                            </select>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="col-xs-5">
                     <div class="form-group">
                         <label class="col-sm-3 control-label no-padding-right" for="form-department">科室 </label>
 
@@ -866,6 +914,8 @@
                             <select id="form-department" data-placeholder="选择科室"></select>
                         </div>
                     </div>
+                </div>
+                <div class="col-xs-6">
                     <div class="form-group">
                         <label class="col-sm-3 control-label no-padding-right" for="form-doctor">医生 </label>
 
@@ -877,27 +927,10 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <div class="control-group">
-                            <label class="col-sm-3 control-label no-padding-right light-grey clinicType">处方类型 </label>
-                            <div class="checkbox col-sm-4">
-                                <label>
-                                    <input name="form-field-clinicType" checked disabled type="checkbox" class="ace" value="1"/>
-                                    <span class="lbl light-grey clinicType">普通</span>
-                                </label>
-                            </div>
-
-                            <div class="checkbox col-sm-4">
-                                <label>
-                                    <input name="form-field-clinicType" checked disabled type="checkbox" class="ace" value="2"/>
-                                    <span class="lbl light-grey clinicType">急诊</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
-                <div class="col-xs-6">
+            </div>
+            <div class="col-xs-12">
+                <div class="col-xs-5">
                     <div class="form-group">
                         <label class="col-sm-3 control-label no-padding-right" for="form-western">中西药 </label>
 
@@ -909,15 +942,8 @@
                             </select>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="col-sm-3 control-label no-padding-right" id="outPatient">出院人数</label>
-                        <div class="col-sm-5">
-                            <span class="input-icon input-icon-right">
-                                <input type="text" id="form-outPatientNum" readonly autocomplete="off" class="col-sm-10"/>
-                                <i class="icon_total2"></i>
-                            </span>
-                        </div>
-                    </div>
+                </div>
+                <div class="col-xs-6">
                     <div class="form-group">
                         <label class="col-sm-3 control-label no-padding-right" for="form-medicine">药品名称 </label>
 
@@ -926,18 +952,23 @@
                                    placeholder="药品拼音首字母 匹配鼠标选择"/><input type="hidden" id="form-medicineNo"/>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="col-xs-5">
                     <div class="form-group">
-                        <label class="col-sm-3 control-label no-padding-right" for="form-dateRange">时间范围</label>
-                        <div class="col-sm-9">
-                            <!-- #section:plugins/date-time.datepicker -->
-                            <div class="input-group">
-                                <input class="form-control col-xs-10 col-sm-12" name="dateRangeString" id="form-dateRange"
-                                       data-date-format="YYYY-MM-DD"/>
-                                <span class="input-group-addon"><i class="fa fa-clock-o bigger-110"></i></span>
+                        <div class="control-group">
+                            <label class="col-sm-3 control-label no-padding-right surgeryTypeLbl">手术</label>
+                            <div class="checkbox col-sm-4">
+                                <label>
+                                    <input name="form-field-surgery" checked type="checkbox" class="ace" value="1"/>
+                                    <span class="lbl surgeryTypeLbl">是</span>
+                                </label>
                             </div>
                         </div>
                     </div>
-
+                </div>
+                <div class="col-xs-6">
                     <div class="form-group">
                         <div class="control-group">
                             <label class="col-sm-3 control-label no-padding-right surgeryItem">手术类型</label>
@@ -963,6 +994,51 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+
+            <div class="col-xs-12">
+                <div class="col-xs-5">
+
+
+                    <div class="form-group">
+                        <div class="control-group">
+                            <label class="col-sm-3 control-label no-padding-right light-grey clinicType">处方类型 </label>
+                            <div class="checkbox col-sm-4">
+                                <label>
+                                    <input name="form-field-clinicType" checked disabled type="checkbox" class="ace" value="1"/>
+                                    <span class="lbl light-grey clinicType">普通</span>
+                                </label>
+                            </div>
+
+                            <div class="checkbox col-sm-4">
+                                <label>
+                                    <input name="form-field-clinicType" checked disabled type="checkbox" class="ace" value="2"/>
+                                    <span class="lbl light-grey clinicType">急诊</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+                <div class="col-xs-6">
+
+
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-right" for="form-dateRange">时间范围</label>
+                        <div class="col-sm-9">
+                            <!-- #section:plugins/date-time.datepicker -->
+                            <div class="input-group">
+                                <input class="form-control col-xs-10 col-sm-12" name="dateRangeString" id="form-dateRange"
+                                       data-date-format="YYYY-MM-DD"/>
+                                <span class="input-group-addon"><i class="fa fa-clock-o bigger-110"></i></span>
+                            </div>
+                        </div>
+                    </div>
+
+
                 </div>
             </div>
             <div class="col-xs-12 panel panel-primary widget-color-orange no-padding" style="margin-top: 5px">

@@ -20,7 +20,7 @@
 
                     if (thisContent === null && lastContent !== null) {//need redirect
                         console.log("need redirect:" + lastContent);
-                        $(window.location).attr('href', 'index.jspx?content=' + lastContent);
+                        $(window.location).attr('href', 'index.jspa?content=' + lastContent);
                     }
                 }
 
@@ -83,7 +83,7 @@
 
     <ul class="nav nav-list">
         <li>
-            <a href="index.jspx" id="0">
+            <a href="index.jspa" id="0">
                 <i class="menu-icon fa fa-tachometer"></i>
                 <span class="menu-text"> 控制台 </span>
             </a>
@@ -101,7 +101,7 @@
 
             <ul class="submenu">
                 <li class="">
-                    <a href="index.jspx?content=/remark/sample.jsp&menuID=14" id="14">
+                    <a href="index.jspa?content=/remark/sample.jsp&menuID=14" id="14">
                         <!--<i class="menu-icon fa fa-user"></i>-->
                         <i class="menu-icon fa fa-caret-right"></i>
                         抽样点评
@@ -110,7 +110,7 @@
                     <b class="arrow"></b>
                 </li>
                 <li class="">
-                    <a href="index.jspx?content=/admin/roles.jsp&menuID=15" id="15">
+                    <a href="index.jspa?content=/admin/roles.jsp&menuID=15" id="15">
                         <!--<i class="menu-icon fa 	fa-certificate"></i>-->
                         <i class="menu-icon fa fa-caret-right"></i>
                         <span class="menu-text"> 查询点评</span>
@@ -123,14 +123,14 @@
         <%--<sec:authentication property="principal.username"/>--%>
         <sec:authorize access="hasRole('ADMIN')">
             <li>
-                <a href="index.jspx?content=/appeal/checkRecord.jsp&menuID=2" id="2">
+                <a href="index.jspa?content=/appeal/checkRecord.jsp&menuID=2" id="2">
                     <i class="menu-icon fa fa-picture-o"></i>
                     <span class="menu-text"> 盘查录入 </span>
                 </a>
             </li>
         </sec:authorize>
         <li>
-            <a href="index.jspx?content=/appeal/joinbuy.jspx&menuID=3" id="3">
+            <a href="index.jspa?content=/appeal/joinbuy.jspa&menuID=3" id="3">
                 <i class="menu-icon fa fa-pencil-square-o"></i>
                 <span class="menu-text"> 上访事件管理 </span>
             </a>
@@ -147,7 +147,7 @@
 
             <ul class="submenu">
                 <li class="">
-                    <a href="index.jspx?content=/admin/users.jsp&menuID=4" id="4">
+                    <a href="index.jspa?content=/admin/users.jsp&menuID=4" id="4">
                         <!--<i class="menu-icon fa fa-user"></i>-->
                         <i class="menu-icon fa fa-caret-right"></i>
                         用户管理
@@ -156,7 +156,7 @@
                     <b class="arrow"></b>
                 </li>
                 <li class="">
-                    <a href="index.jspx?content=/admin/roles.jsp&menuID=5" id="5">
+                    <a href="index.jspa?content=/admin/roles.jsp&menuID=5" id="5">
                         <!--<i class="menu-icon fa 	fa-certificate"></i>-->
                         <i class="menu-icon fa fa-caret-right"></i>
                         <span class="menu-text"> 角色设置</span>

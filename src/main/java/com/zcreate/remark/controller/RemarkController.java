@@ -5,11 +5,10 @@ import com.zcreate.ReviewConfig;
 import com.zcreate.common.DictService;
 import com.zcreate.pinyin.PinyinUtil;
 import com.zcreate.rbac.web.DeployRunning;
+import com.zcreate.review.dao.AppealDAO;
 import com.zcreate.review.dao.SampleDAO;
 import com.zcreate.review.logic.ReviewService;
-import com.zcreate.review.model.Recipe;
-import com.zcreate.review.model.RecipeReview;
-import com.zcreate.review.model.SampleBatch;
+import com.zcreate.review.model.*;
 import com.zcreate.util.DateUtils;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
@@ -52,6 +51,8 @@ public class RemarkController {
     private static String deployDir = DeployRunning.getDir();
     @Autowired
     private DictService dictService;
+    @Autowired
+    private AppealDAO appealDao;
 
     JsonParser parser = new JsonParser();
     String templateDir = "excel";
@@ -511,6 +512,25 @@ public class RemarkController {
     }
 
     //抗菌药调查
+    @RequestMapping(value = "viewClinic", method = RequestMethod.GET)
+    public String viewClinic(@RequestParam(value = "clinicID") Integer clinicID, @RequestParam(value = "batchID") Integer batchID, ModelMap model) {
+        Clinic clinic = reviewService.getClinic(clinicID);
+        clinic.setDoctorName(PinyinUtil.replaceName(clinic.getDoctorName()));
+        clinic.setApothecaryName(PinyinUtil.replaceName(clinic.getApothecaryName()));
+        clinic.setConfirmName(PinyinUtil.replaceName(clinic.getConfirmName()));
+
+        if (clinic.getAppealState() != null && clinic.getAppealState() > 0) {
+            model.addAttribute("appeal", appealDao.getAppeal(clinicID, 1));
+        }
+        log.debug("clinic:"+clinic.getAntiMoney());
+        SampleBatch batch = sampleDao.getSampleBatch(batchID);
+        model.addAttribute("clicic", clinic);
+        model.addAttribute("deployLocation", reviewConfig.getDeployLocation());
+        model.addAttribute("batchID", batchID);
+        model.addAttribute("batch", batch);
+        model.addAttribute("currentUser", SecurityContextHolder.getContext().getAuthentication().getPrincipal());//todo
+        return "/remark/clinic";
+    }//抗菌药调查
     @RequestMapping(value = "viewRecipe1", method = RequestMethod.GET)
     public String viewRecipe0(@RequestParam(value = "recipeID") Integer recipeID, @RequestParam(value = "batchID") Integer batchID, ModelMap model) {
         Recipe recipe = reviewService.getRecipe(recipeID);
@@ -530,7 +550,7 @@ public class RemarkController {
             model.addAttribute("outDate", new java.util.Date(recipe.getOutDate().getTime()));
             model.addAttribute("batchID", batchID);
             model.addAttribute("batch", batch);
-            model.addAttribute("currentUser", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+            model.addAttribute("currentUser", SecurityContextHolder.getContext().getAuthentication().getPrincipal());//todo change spring security
         }
         return "/remark/recipe";
     }
@@ -549,8 +569,6 @@ public class RemarkController {
 
             model.addAttribute("recipe", recipe);
             model.addAttribute("deployLocation", reviewConfig.getDeployLocation());
-        /*model.addAttribute("inDate", DateUtils.formatSqlDateTime(recipe.getInDate()));
-        model.addAttribute("outDate", DateUtils.formatSqlDateTime(recipe.getOutDate()));*/
             model.addAttribute("inDate", new Date(recipe.getInDate().getTime()));
             model.addAttribute("outDate", new java.util.Date(recipe.getOutDate().getTime()));
             model.addAttribute("batchID", batchID);
@@ -601,5 +619,4 @@ public class RemarkController {
     private String getCorrect(JsonElement element, String compare) {
         return element != null && element.getAsString().equals(compare) ? "√" : " ";
     }
-
 }

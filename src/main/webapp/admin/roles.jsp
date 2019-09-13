@@ -64,7 +64,7 @@
                 language: {
                     url: '/components/datatables/datatables.chinese.json'
                 },
-                "ajax": "/rbac/listRole.jspx",
+                "ajax": "/rbac/listRole.jspa",
 
                 select: {
                     style: 'single'
@@ -115,7 +115,7 @@
                 //console.log("form:" + form);
                 $.ajax({
                     type: "POST",
-                    url: "/rbac/saveRole.jspx",
+                    url: "/rbac/saveRole.jspa",
                     data: roleForm.serialize(),//+ "&productImage=" + av atar_ele.get(0).src,
                     contentType: "application/x-www-form-urlencoded",//http://www.cnblogs.com/yoyotl/p/5853206.html
                     cache: false,
@@ -187,7 +187,7 @@
                         click: function () {
                             $.ajax({
                                 type: "POST",
-                                url: "/rbac/deleteRole.jspx?roleID=" + roleID,
+                                url: "/rbac/deleteRole.jspa?roleID=" + roleID,
                                 //contentType: "application/x-www-form-urlencoded",//http://www.cnblogs.com/yoyotl/p/5853206.html
                                 cache: false,
                                 success: function (response, textStatus) {
@@ -248,7 +248,7 @@
         function showRoleDialog(roleID) {
             //roleForm[0].reset();
             if (roleID != null) {
-                $.getJSON("/rbac/showRole.jspx?roleID=" + roleID, function (result) { //https://www.cnblogs.com/liuling/archive/2013/02/07/sdafsd.html
+                $.getJSON("/rbac/showRole.jspa?roleID=" + roleID, function (result) { //https://www.cnblogs.com/liuling/archive/2013/02/07/sdafsd.html
                     $("#form-name").val(result["name"]);
                     $("#form-roleNo").val(result["roleNo"]);
                     $("#form-allowCount").val(result["allowCount"]);
@@ -299,7 +299,7 @@
     <ul class="breadcrumb">
         <li>
             <i class="ace-icon fa fa-home home-icon"></i>
-            <a href="/index.jspx">首页</a>
+            <a href="/index.jspa">首页</a>
         </li>
         <li class="active">角色管理</li>
     </ul><!-- /.breadcrumb -->

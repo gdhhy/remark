@@ -1,12 +1,12 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <script src="../components/datatables/jquery.dataTables.min.js"></script>
 <script src="../components/datatables/jquery.dataTables.bootstrap.min.js"></script>
 <script src="../components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
 <script src="../components/datatables/dataTables.select.min.js"></script>
 <script src="../components/jquery-ui/jquery-ui.min.js"></script>
-<%--<script src="../assets/js/ace.js"></script>--%>
+<!--不能用1.11.4-->
 <script src="../assets/js/jquery.ui.touch-punch.min.js"></script>
+<%--<script src="../assets/js/ace.js"></script>--%>
 <script src="../js/accounting.min.js"></script>
 <script src="../js/jquery.cookie.min.js"></script>
 <script src="../assets/js/jquery.validate.min.js"></script>
@@ -29,7 +29,7 @@
         var sampleBatchID = $.getUrlParam("sampleBatchID");
         var remarkType = $.getUrlParam("remarkType");
 
-        var url = "/remark/listDetails.jspa?sampleBatchID=" + sampleBatchID;
+        var url = "/remark/listDetails.jspa?sampleBatchID=" + sampleBatchID + '&type=1';
         //var editor = new $.fn.dataTable.Editor({});
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');
@@ -40,51 +40,53 @@
                 paging: false,
                 "columns": [
                     {"data": "detailID"},
-                    {"data": "patientNo", "sClass": "center"},
+                    {"data": "clinicDate", "sClass": "center"},
+                    {"data": "serialNo", "sClass": "center"},
                     {"data": "patientName", "sClass": "center"},
-                    {"data": "age", "sClass": "center"},
-                    {"data": "inDate", "sClass": "center"},//4
-                    {"data": "outDate", "sClass": "center"},
-                    {"data": "inHospitalDay", "sClass": "center"},
-                    {"data": "drugNum", "sClass": "center"},
-                    {"data": "money", "sClass": "center"},
-                    {"data": "medicineMoney", "sClass": "center"},//9
+                    {"data": "age", "sClass": "center"},//4
                     {"data": "diagnosis", "sClass": "center"},
-                    {"data": "masterDoctorName", "sClass": "center"},
+                    {"data": "clinicType", "sClass": "center"},
+                    {"data": "drugNum", "sClass": "center"},
+                    {"data": "antiNum", "sClass": "center"},
+                    {"data": "injectionNum", "sClass": "center"},//9
+                    {"data": "baseDrugNum", "sClass": "center"},
+                    {"data": "money", "sClass": "center"},
+                    {"data": "department", "sClass": "center"},
+                    {"data": "doctorName", "sClass": "center"},
+                    {"data": "confirmName", "sClass": "center"},//14
+                    {"data": "apothecaryName", "sClass": "center"},
                     {"data": "rational", "sClass": "center"},
                     {"data": "disItem", "sClass": "center"},
-                    {"data": "detailID", "sClass": "center"}//14
+                    {"data": "reviewDate", "sClass": "center"}
                 ],
 
                 'columnDefs': [
                     {
-                        "orderable": false, "targets": 0, width: 20, render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 0, width: 10, render: function (data, type, row, meta) {
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     },
-                    {"orderable": false, "targets": 1, title: '住院号', width: 60},
-                    {"orderable": false, "targets": 2, title: '病人', width: 60},
-                    {"orderable": false, "targets": 3, title: '年龄'},
-                    {"orderable": false, "targets": 4, title: '入院日期', width: 130},
-                    {"orderable": false, "targets": 5, title: '出院日期', width: 130},
-                    {"orderable": false, "targets": 6, title: '住院天数'},
-                    {"orderable": false, "targets": 7, title: '药品组数'},
-                    {"orderable": false, "targets": 8, title: '总金额', defaultContent: ''},
-                    {"orderable": false, "targets": 9, title: '药品金额', defaultContent: ''},
-                    {"orderable": false, "targets": 10, title: '入院诊断', defaultContent: ''},
-                    {"orderable": false, "targets": 11, title: '主管医生', defaultContent: '', width: 60},
+                    {"orderable": false, "targets": 1, title: '处方日期', width: 85},
+                    {"orderable": false, "targets": 2, title: '门诊号'},
+                    {"orderable": false, "targets": 3, title: '姓名',width:60},
+                    {"orderable": false, "targets": 4, title: '年龄'},
+                    {"orderable": false, "targets": 5, title: '诊断', width: 120},
+                    {"orderable": false, "targets": 6, title: '类型'},
+                    {"orderable": false, "targets": 7, title: '品种数'},
+                    {"orderable": false, "targets": 8, title: '抗菌素', defaultContent: '', render: renderBoolean},
+                    {"orderable": false, "targets": 9, title: '注射液', defaultContent: '', render: renderBoolean},
+                    {"orderable": false, "targets": 10, title: '基本', defaultContent: ''},
+                    {"orderable": false, "targets": 11, title: '金额', defaultContent: '', width: 60},
+                    {"orderable": false, "targets": 12, title: '科室', defaultContent: '',width:70},
+                    {"orderable": false, "targets": 13, title: '医生', defaultContent: '',width:60},
+                    {"orderable": false, "targets": 14, title: '审核', defaultContent: '',width:60},
+                    {"orderable": false, "targets": 15, title: '配药', defaultContent: '',width:60},
+                    {"orderable": false, "targets": 16, title: '合理', defaultContent: '',render:renderYES},
+                    {"orderable": false, searchable: false, "targets": 17, title: '问题代码', defaultContent: ''},
                     {
-                        "orderable": false, "targets": 12, title: '合理', defaultContent: '', render: function (data, type, row, meta) {
-                            if (data === 1) return '是';
-                            return '否';
-                        }
-                    },
-                    {"orderable": false, searchable: false, "targets": 13, title: '问题代码'},
-                    {
-                        "orderable": false, "targets": 14, title: '点评', render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 18, title: '点评', render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
-                                /*'<a class="hasDetail" href="#" data-Url="/index.jspa?content=/remark/viewRecipe.jspa&recipeID={0}">'.format(data) +*/
-                                '<a class="hasDetail" href="#" data-Url="/remark/viewRecipe{0}.jspa?recipeID={1}&batchID={2}">'.format(remarkType, data, sampleBatchID) +
+                                '<a class="hasDetail" href="#" data-Url="/remark/viewClinic.jspa?clinicID={1}&batchID={2}">'.format(remarkType, row['clinicID'], sampleBatchID) +
                                 '<i class="ace-icon glyphicon glyphicon-pencil  bigger-130"></i>' +
                                 '</a>' +
                                 '</div>';
@@ -124,6 +126,18 @@
              });*/
         });
 
+        function renderBoolean(data, type, row, meta) {
+            return data >= 1 ? "有" : "无";
+        }
+        function renderYES(data, type, row, meta) {
+            return data >= 1 ? "是" : "<font color='red'>否</font>";
+        }
+        function renderWestern(data, type, row, meta) {
+            return data == 1 ? "西" : "中";
+        }
+        function renderReview(data, type, row, meta) {
+            return data != "" && value != null ? "是" : "";
+        }
         //$.fn.dataTable.Buttons.swfPath = "components/datatables.net-buttons-swf/index.swf"; //in Ace demo ../components will be replaced by correct assets path
         /*   $.fn.dataTable.Buttons.defaults.dom.container.className = 'dt-buttons btn-overlap btn-group btn-overlap';
 

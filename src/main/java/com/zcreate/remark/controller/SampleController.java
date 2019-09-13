@@ -152,6 +152,7 @@ public class SampleController {
         log.debug("sampleBatch:" + record);
 
         Map<String, Object> result = new HashMap<>();
+        //result.put("type", record.getType());
         try {
             List<Integer> ids = reviewService.createSampling(record);
             record.setIds(ids);

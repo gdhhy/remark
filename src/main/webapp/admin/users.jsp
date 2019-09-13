@@ -67,7 +67,7 @@
                 language: {
                     url: '/components/datatables/datatables.chinese.json'
                 },
-                "ajax": "/rbac/listUser.jspx",
+                "ajax": "/rbac/listUser.jspa",
 
                 select: {
                     style: 'single'
@@ -116,7 +116,7 @@
                 //console.log("form:" + form);
                 $.ajax({
                     type: "POST",
-                    url: "/rbac/saveUser.jspx",
+                    url: "/rbac/saveUser.jspa",
                     data: userForm.serialize(),//+ "&productImage=" + av atar_ele.get(0).src,
                     contentType: "application/x-www-form-urlencoded",//http://www.cnblogs.com/yoyotl/p/5853206.html
                     cache: false,
@@ -189,7 +189,7 @@
                         click: function () {
                             $.ajax({
                                 type: "POST",
-                                url: "/rbac/deleteUser.jspx?userID=" + userID,
+                                url: "/rbac/deleteUser.jspa?userID=" + userID,
                                 //contentType: "application/x-www-form-urlencoded",//http://www.cnblogs.com/yoyotl/p/5853206.html
                                 cache: false,
                                 success: function (response, textStatus) {
@@ -253,8 +253,8 @@
                 $(this).removeAttr("selected");
             });
             if (userID != null) {
-                // var htmlobj = $.ajax({url: "rbac/showUser.jspx?userID=" + userID, async: false});
-                $.getJSON("/rbac/showUser.jspx?userID=" + userID, function (result) { //https://www.cnblogs.com/liuling/archive/2013/02/07/sdafsd.html
+                // var htmlobj = $.ajax({url: "rbac/showUser.jspa?userID=" + userID, async: false});
+                $.getJSON("/rbac/showUser.jspa?userID=" + userID, function (result) { //https://www.cnblogs.com/liuling/archive/2013/02/07/sdafsd.html
                     $("#form-name").val(result["name"]);
                     $("#form-loginName").val(result["loginName"]);
                     //$("#form-roles").get(0).selectedIndex = result["roles"];//OK
@@ -268,7 +268,7 @@
                 $("#form-userID").val(userID);
             }
 
-            /*  $.getJSON("/rbac/listRole.jspx", function (result) { //https://www.cnblogs.com/liuling/archive/2013/02/07/sdafsd.html
+            /*  $.getJSON("/rbac/listRole.jspa", function (result) { //https://www.cnblogs.com/liuling/archive/2013/02/07/sdafsd.html
                   if (result.iTotalRecords > 0) {
                       $.each(result.data, function (n, value) {
                           console.log("value.roleID:" + '<option value="{0}">{1}</option>'.format(value.roleNo, value.roleNo));
@@ -340,7 +340,7 @@
     <ul class="breadcrumb">
         <li>
             <i class="ace-icon fa fa-home home-icon"></i>
-            <a href="/index.jspx">首页</a>
+            <a href="/index.jspa">首页</a>
         </li>
         <li class="active">用户管理</li>
     </ul><!-- /.breadcrumb -->

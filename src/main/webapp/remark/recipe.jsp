@@ -188,7 +188,7 @@
                 ],
                 "aaSorting": [],
                 language: {
-                    url: '../js/datatables/datatables.chinese.json',
+                    url: '../components/datatables/datatables.chinese.json',
                     select: {
                         rows: {
                             _: "已选择 %d 行", 0: "单击选行", 1: "仅选了 1 行"
@@ -198,7 +198,7 @@
 
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getRecipeItemList.jspx?longAdvice=1&serialNo=${recipe.serialNo}",
+                    url: "/remark/getRecipeItemList.jspa?longAdvice=1&serialNo=${recipe.serialNo}",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -241,7 +241,7 @@
                 ],
                 "aaSorting": [],
                 language: {
-                    url: '../js/datatables/datatables.chinese.json',
+                    url: '../components/datatables/datatables.chinese.json',
                     select: {
                         rows: {
                             _: "已选择 %d 行", 0: "单击选行", 1: "仅选了 1 行"
@@ -251,7 +251,7 @@
 
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getRecipeItemList.jspx?longAdvice=2&serialNo=${recipe.serialNo}",
+                    url: "/remark/getRecipeItemList.jspa?longAdvice=2&serialNo=${recipe.serialNo}",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -268,7 +268,7 @@
                 shortTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
                     if (typeof (this.data()) !== 'undefined' && this.data()['antiClass'] > 0) {
                         var rowData = this.data();
-                        $.getJSON("/remark/getMedicine.jspx?medicineNo=" + this.data()['medicineNo'], function (result) {
+                        $.getJSON("/remark/getMedicine.jspa?medicineNo=" + this.data()['medicineNo'], function (result) {
                             rowData['price'] = result.price;
                         });
                     }
@@ -316,7 +316,7 @@
                         //console.log("medicineNo:" + JSON.stringify(shortTable.row(cc).data()));
                         if (typeof (shortTable.row(cc).data()['medicineNo']) !== 'undefined') {
 
-                            $.getJSON("/remark/getMedicine.jspx?medicineNo=" + shortTable.row(cc).data()['medicineNo'], function (result) {
+                            $.getJSON("/remark/getMedicine.jspa?medicineNo=" + shortTable.row(cc).data()['medicineNo'], function (result) {
                                 //if (result.healthNo === '401801' || result.healthNo === '401802') {
                                 if (result.healthNo.startsWith('4018')) {
                                     rowData['menstruum'] = shortTable.row(cc).data()['advice'];
@@ -351,7 +351,7 @@
                 longTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
                     if (typeof (this.data()) !== 'undefined' && this.data()['antiClass'] > 0) {
                         var rowData = this.data();
-                        $.getJSON("/remark/getMedicine.jspx?medicineNo=" + this.data()['medicineNo'], function (result) {
+                        $.getJSON("/remark/getMedicine.jspa?medicineNo=" + this.data()['medicineNo'], function (result) {
                             rowData['price'] = result.price;
                         });
                     }
@@ -370,7 +370,7 @@
                 });
                 if (exists) return;
                 if (typeof (rowData['price']) === 'undefined' && typeof (rowData['medicineNo']) !== 'undefined')
-                    $.getJSON("/remark/getMedicine.jspx?medicineNo=" + rowData['medicineNo'], function (result) {
+                    $.getJSON("/remark/getMedicine.jspa?medicineNo=" + rowData['medicineNo'], function (result) {
                         console.log("price:" + result.price);
                         rowData['price'] = result.price;
                     });
@@ -404,7 +404,7 @@
                         //console.log("medicineNo:" + JSON.stringify(longTable.row(cc).data()));
                         if (typeof (longTable.row(cc).data()['medicineNo']) !== 'undefined') {
 
-                            $.getJSON("/remark/getMedicine.jspx?medicineNo=" + longTable.row(cc).data()['medicineNo'], function (result) {
+                            $.getJSON("/remark/getMedicine.jspa?medicineNo=" + longTable.row(cc).data()['medicineNo'], function (result) {
                                 //if (result.healthNo === '401801' || result.healthNo === '401802') {
                                 if (result.healthNo.startsWith('4018')) {
                                     rowData['menstruum'] = longTable.row(cc).data()['advice'];
@@ -462,11 +462,11 @@
                 ],
                 "aaSorting": [],
                 language: {
-                    url: '../js/datatables/datatables.chinese.json'
+                    url: '../components/datatables/datatables.chinese.json'
                 },
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getSurgerys.jspx?serialNo=0017527401",//${recipe.serialNo}
+                    url: "/remark/getSurgerys.jspa?serialNo=0017527401",//${recipe.serialNo}
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -515,12 +515,12 @@
                 ],
                 "aaSorting": [],
                 language: {
-                    url: '../js/datatables/datatables.chinese.json'
+                    url: '../components/datatables/datatables.chinese.json'
                 },
                 scrollY: '60vh',
                 "ajax": {
-                    //url:"/remark/getDiagnosis.jspx?serialNo=${recipe.serialNo}&archive=${recipe.archive}",
-                    url: "/remark/getDiagnosis.jspx?serialNo=0000593702&archive=1",
+                    //url:"/remark/getDiagnosis.jspa?serialNo=${recipe.serialNo}&archive=${recipe.archive}",
+                    url: "/remark/getDiagnosis.jspa?serialNo=0000593702&archive=1",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -577,8 +577,8 @@
             var loadData = 0;
             $('#courseTabIndex').click(function () {
                 if ((loadData & 1) === 0)
-                    $.getJSON("/remark/getCourse.jspx?serialNo=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
-                        //$.getJSON("/remark/getCourse.jspx?serialNo=${recipe.serialNo}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                    $.getJSON("/remark/getCourse.jspa?serialNo=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                        //$.getJSON("/remark/getCourse.jspa?serialNo=${recipe.serialNo}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
                         var template = Handlebars.compile($('#courseContent').html());
                         var htmlArray = [];
                         $.each(result.data, function (index, value) {
@@ -593,8 +593,8 @@
             });
             $('#historyTabIndex').click(function () {
                 if ((loadData & 2) === 0)
-                    $.getJSON("/remark/showHistory.jspx?serialNo=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
-                        //$.getJSON("/remark/getCourse.jspx?serialNo=${recipe.serialNo}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                    $.getJSON("/remark/showHistory.jspa?serialNo=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                        //$.getJSON("/remark/getCourse.jspa?serialNo=${recipe.serialNo}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
                         var template = Handlebars.compile($('#historyContent').html());
 
                         $('#historyContent').html(template(result));
@@ -664,7 +664,7 @@
             });
             //导出
             $('.btn-info').on('click', function (e) {
-                window.location.href = "getRecipeExcel.jspx?recipeID=${recipe.recipeID}&batchID=${batchID}";
+                window.location.href = "getRecipeExcel.jspa?recipeID=${recipe.recipeID}&batchID=${batchID}";
             });
 
             var json = {recipeID: '${recipe.recipeID}', serialNo: '${recipe.serialNo}', recipeReviewID: '${recipe.review.recipeReviewID}', reviewUser: '${currentUser.name}'};
@@ -808,7 +808,7 @@
 
                 $.ajax({
                     type: "POST",
-                    url: 'saveRecipe.jspx',
+                    url: 'saveRecipe.jspa',
                     data: JSON.stringify(json),
                     contentType: "application/json; charset=utf-8",
                     cache: false,

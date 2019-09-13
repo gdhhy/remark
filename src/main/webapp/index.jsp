@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <c:import url="/admin/static.html" charEncoding="UTF8"/>
 <body class="no-skin">
-<c:import url="/navbar.jspx" charEncoding="UTF8"/>
+<c:import url="/navbar.jspa" charEncoding="UTF8"/>
 
 <div class="main-container" id="main-container">
     <script type="text/javascript">
@@ -18,7 +18,7 @@
         <a class="menu-toggler" id="menu-toggler" href="#">
             <span class="menu-text"></span>
         </a>
-        <c:import url="/menu.jspx" charEncoding="UTF8"/>
+        <c:import url="/menu.jspa" charEncoding="UTF8"/>
 
         <div class="main-content">
             <c:import url="${content}" charEncoding="UTF8"/>
