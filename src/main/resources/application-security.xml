@@ -42,7 +42,7 @@
         <authentication-provider ref="securityProvider"/>
     </authentication-manager>
     <beans:bean id="customLoginHandler" class="com.zcreate.security.auth.LoginSuccessHandler">
-        <beans:property name="defaultTargetUrl" value="/index.jspx"/>
+        <beans:property name="defaultTargetUrl" value="/index.jspa"/>
     </beans:bean>
     <beans:bean id="jdbcTokenRepository" class="org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl">
         <beans:property name="dataSource" ref="securityDS"/>

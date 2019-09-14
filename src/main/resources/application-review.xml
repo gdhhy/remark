@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+    <bean id="reviewConfig" class="com.zcreate.ReviewConfig">
+        <property name="deployLocation" value="wy_test"/>
+        <property name="hospitalName" value="翁源县人民医院"/>
+    </bean>
+    <!--  <bean id="reviewDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+          <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+          <property name="url" value="jdbc:sqlserver://localhost:1433;databaseName=xf_review_20171108"/>
+          <property name="username" value="sa"/>
+          <property name="password" value="cjdlx"/>
+          <property name="maxIdle" value="100"/>
+          <property name="initialSize" value="20"/>
+      </bean>-->
+    <bean id="reviewDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+        <property name="url" value="jdbc:sqlserver://192.168.1.212:1433;databaseName=wy_review_160222"/>
+        <property name="username" value="sa"/>
+        <property name="password" value="cjdlx"/>
+    </bean>
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:mybatis.xml"/>
+        <property name="dataSource" ref="reviewDataSource"/>
+    </bean>
+    <!--<bean id="posterService" class=" com.zcreate.lottery.ad.PosterService"/>-->
+    <bean id="securityDS" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://192.168.1.212:3310/security?useUnicode=true&amp;characterEncoding=utf-8&amp;serverTimezone=GMT%2B8"/>
+        <property name="username" value="user1"/>
+        <property name="password" value="cjdlx"/>
+        <property name="maxIdle" value="50"/>
+        <property name="initialSize" value="2"/>
+    </bean>
+
+
+    <bean id="session2" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:mybatis-security.xml"/>
+        <property name="dataSource" ref="securityDS"/>
+    </bean>
+    <bean id="userMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="sqlSessionFactory" ref="session2"/>
+        <property name="mapperInterface" value="com.zcreate.security.dao.UserMapper"/>
+    </bean>
+    <bean id="roleMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="sqlSessionFactory" ref="session2"/>
+        <property name="mapperInterface" value="com.zcreate.security.dao.RoleMapper"/>
+    </bean>
+    <!-- <bean id="securityDS" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+         <property name="driverClassName" value="org.postgresql.Driver"/>
+         <property name="url" value="jdbc:postgresql://192.168.1.25:5432/security"/>
+         <property name="username" value="postgres"/>
+         <property name="password" value="cjdlx"/>
+         <property name="maxIdle" value="50"/>
+         <property name="initialSize" value="2"/>
+     </bean>-->
+
+
+    <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate" scope="prototype">
+        <constructor-arg ref="sqlSessionFactory"/>
+    </bean>
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="reviewDataSource"/>
+    </bean>
+    <tx:advice id="transactionManagerAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="do*" isolation="READ_COMMITTED" propagation="REQUIRED"
+                       rollback-for="java.lang.Exception"/>
+
+        </tx:attributes>
+    </tx:advice>
+    <!-- DAO -->
+    <bean id="healthDao" class="com.zcreate.review.dao.HealthDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    <bean id="instructionDao" class="com.zcreate.review.dao.InstructionDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="dictServer" ref="dictService"/>
+        <property name="reviewConfig" ref="reviewConfig"/>
+    </bean>
+    <bean id="drugDao" class="com.zcreate.review.dao.DrugDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="reviewConfig" ref="reviewConfig"/>
+    </bean>
+    <bean id="medicineDao" class="com.zcreate.review.dao.MedicineDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="reviewConfig" ref="reviewConfig"/>
+    </bean>
+    <bean id="incompatibilityDao" class="com.zcreate.review.dao.IncompatibilityDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    <bean id="sampleDao" class="com.zcreate.review.dao.SampleDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+
+    <bean id="hisDao" class="com.zcreate.review.his.HisDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="reviewConfig" ref="reviewConfig"/>
+    </bean>
+    <bean id="clinicDao" class="com.zcreate.review.dao.ClinicDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="reviewConfig" ref="reviewConfig"/>
+    </bean>
+    <bean id="recipeDao" class="com.zcreate.review.dao.RecipeDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="reviewConfig" ref="reviewConfig"/>
+    </bean>
+    <bean id="statDao" class="com.zcreate.review.dao.StatDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="reviewConfig" ref="reviewConfig"/>
+    </bean>
+    <bean id="dailyDao" class="com.zcreate.review.dao.DailyDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="reviewConfig" ref="reviewConfig"/>
+    </bean>
+    <bean id="importDao" class="com.zcreate.review.dao.ImportDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    <bean id="taskDao" class="com.zcreate.review.dao.TaskDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    <bean id="doctorDao" class="com.zcreate.review.dao.DoctorDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    <bean id="searchDao" class="com.zcreate.review.dao.SearchDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    <bean id="storageDao" class="com.zcreate.review.dao.StorageDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="reviewConfig" ref="reviewConfig"/>
+    </bean>
+    <bean id="docFileDao" class="com.zcreate.review.dao.DocFileDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    <bean id="appealDao" class="com.zcreate.review.dao.AppealDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    <bean id="untowardDao" class="com.zcreate.review.dao.UntowardDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    <bean id="researchDao" class="com.zcreate.review.dao.AntiResearchDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    <bean id="messageDao" class="com.zcreate.message.dao.MessageDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    <bean id="rationalDao" class="com.zcreate.review.dao.RationalDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="reviewConfig" ref="reviewConfig"/>
+    </bean>
+    <bean id="sunningDao" class="com.zcreate.review.dao.SunningDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="reviewConfig" ref="reviewConfig"/>
+    </bean>
+    <bean id="infectiousDao" class="com.zcreate.review.dao.InfectiousDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    <bean id="patientInfoDao" class="com.zcreate.review.dao.PatientInfoDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="reviewConfig" ref="reviewConfig"/>
+    </bean>
+    <bean id="storageCheckDao" class="com.zcreate.storage.dao.StorageCheckDAOImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="reviewConfig" ref="reviewConfig"/>
+    </bean>
+
+    <bean id="healthService" class="com.zcreate.review.logic.HealthService">
+        <constructor-arg ref="healthDao"/>
+    </bean>
+    <!-- DWR -->
+    <bean id="reviewService" class="com.zcreate.review.logic.ReviewServiceImpl">
+        <constructor-arg ref="sqlSessionTemplate"/>
+    </bean>
+    <bean id="statService" class="com.zcreate.review.logic.StatServiceImpl">
+        <constructor-arg ref="sqlSessionTemplate"/>
+    </bean>
+    <bean id="doctorService" class="com.zcreate.review.logic.DoctorServiceImpl">
+        <constructor-arg index="0" ref="doctorDao"/>
+        <!--这里单位秒-->
+        <constructor-arg index="1" value="1"/>
+        <constructor-arg index="2" value="3600"/>
+    </bean>
+    <bean id="antibiosisService" class="com.zcreate.review.logic.AntibiosisServiceImpl">
+        <constructor-arg ref="sqlSessionTemplate"/>
+    </bean>
+    <bean class="com.zcreate.pinyin.PinyinUtil">
+        <property name="dictServer" ref="dictService"/>
+    </bean>
+    <!-- <bean class="com.zcreate.review.lucene.SearchAction">
+        <property name="indexPath" value="C:\zcreate\review\document\luceneindex"/>
+    </bean>-->
+
+    <!--定时线程，放在最后启动-->
+    <bean id="timerThread" class="com.zcreate.review.timer.TimerThread" init-method="start" lazy-init="false">
+        <constructor-arg index="0" ref="taskDao"/>
+        <constructor-arg index="1" ref="importDao"/>
+        <constructor-arg index="2" value="1800"/>
+        <!--这里单位秒-->
+    </bean>
+    <!--  <bean id="searchService" class="com.zcreate.review.lucene.SearchServiceImpl" init-method="start" lazy-init="false">
+          <constructor-arg index="0" ref="searchDao"/>
+          &lt;!&ndash;循环静默时间，这里单位秒，默认24小时&ndash;&gt;
+          <constructor-arg index="1" value="86400000"/>
+          &lt;!&ndash;应用启动后首次运行时间&ndash;&gt;
+          <constructor-arg index="2" value="86400000"/>
+          <constructor-arg index="3" value="D:\zcreate\luceneindex"/>
+      </bean>-->
+
+    <!--bean id="sqlConfig" class="com.zcreate.review.jdbc.SqlConfig">
+        <constructor-arg ref="sqlSessionTemplate"/>
+    </bean-->
+    <!--<aop:config proxy-target-class="true">
+        <aop:pointcut id="rbacTxPointcut2"
+                      expression="execution(* com.zcreate.review.dao..*(..))"/>
+        <aop:advisor advice-ref="transactionManagerAdivice" pointcut-ref="rbacTxPointcut2"/>
+    </aop:config>
+    <aop:config proxy-target-class="true">
+        <aop:pointcut id="rbacTxPointcut3"
+                      expression="execution(* com.zcreate.review.logic..*(..))"/>
+        <aop:advisor advice-ref="transactionManagerAdivice" pointcut-ref="rbacTxPointcut3"/>
+    </aop:config>
+
+    <bean id="incompatibilityAspect" class="com.zcreate.review.logic.IncompatibilityAspect"/>
+    <aop:config proxy-target-class="true">
+        <aop:aspect ref="incompatibilityAspect" order="0" id="Test">
+            <aop:pointcut id="incompatibilityPointcut"
+                          expression="execution(* com.zcreate.review.dao..*(..))"/>
+            <aop:after pointcut-ref="incompatibilityPointcut" method="afterAdvice"/>
+        </aop:aspect>
+    </aop:config>-->
+    <context:annotation-config/>
+    <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+        <property name="messageConverters">
+            <list>
+                <ref bean="mappingJacksonHttpMessageConverter"/>
+            </list>
+        </property>
+    </bean>
+    <bean id="mappingJacksonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+        <property name="supportedMediaTypes">
+            <list>
+                <value>text/html;charset=UTF-8</value>
+            </list>
+        </property>
+    </bean>
+    <!--  <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"> 过时了
+          <property name="messageConverters">
+              <list>
+                  <ref bean="jsonHttpMessageConverter"/>
+              </list>
+          </property>
+      </bean>
+
+      <bean id="jsonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+          <property name="supportedMediaTypes">
+              <list>
+                  <value>application/json;charset=UTF-8</value>
+              </list>
+          </property>
+      </bean>-->
+
+    <bean id="dictMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="mapperInterface" value="com.zcreate.common.dao.DictMapper"/>
+    </bean>
+
+    <bean id="configs" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="location" value="classpath:config.properties"/>
+        <property name="fileEncoding" value="UTF-8"/>
+    </bean>
+</beans>

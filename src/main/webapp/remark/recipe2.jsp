@@ -28,7 +28,6 @@
     <link rel="stylesheet" href="../components/bootstrap-timepicker/css/bootstrap-timepicker.css"/>
     <link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>
     <link rel="stylesheet" href="../components/bootstrap-datetimepicker/bootstrap-datetimepicker.css"/>
-    <link href="../components/bootstrap-datetimepicker/bootstrap-datetimepicker.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/bootstrap-editable.css"/>
 
     <!-- basic scripts -->
@@ -663,8 +662,10 @@
                 window.location.href = "getRecipeExcel0.jspa?recipeID=${recipe.recipeID}&batchID=${batchID}";
             });
 
-            var json = {recipeID: '${recipe.recipeID}', serialNo: '${recipe.serialNo}', recipeReviewID: '${recipe.review.recipeReviewID}',
-                reviewUser: '${currentUser.name}', masterDoctor: '${recipe.masterDoctorName}'};
+            var json = {
+                recipeID: '${recipe.recipeID}', serialNo: '${recipe.serialNo}', recipeReviewID: '${recipe.review.recipeReviewID}',
+                reviewUser: '${currentUser.name}', masterDoctor: '${recipe.masterDoctorName}'
+            };
             //保存
             $('.btn-success').on('click', function (e) {
                 var baseInfo = {};
@@ -845,10 +846,11 @@
                 });
             }
 
+
+            /*弹出问题对话框开始*/
             var kk = 0;
             var questionTable = $("#questionTable");
 
-            //弹出二维码对话框开始
             function showQuestionDialog(selected, tableVar, rowNo) {
                 $('#tableVar').val(tableVar);
                 /*$("#shortDrugTb tr").find("td a[id='question']").editable();*/
@@ -906,8 +908,6 @@
                 if (question_select.endWith(', '))
                     question_select = question_select.substring(0, question_select.length - 2);
                 $($('#tableVar').val() + ' tr').find("td a[id='question']").eq($('#rowNo').val()).text(question_select);
-                //$(selected).text(question_select);
-                ///console.log("select:" + question_select);
                 $('#question-choose').modal('hide');
             });
 
@@ -917,11 +917,7 @@
                     selArr = selected.split(',');
                 else
                     selArr[0] = selected;
-                /* console.log('selArr:' + selArr);
-                 console.log('selArr.length:' + selArr.length);*/
                 $("input:checkbox[name='dictNo']").each(function () {
-                    //console.log('html:' + $(this).html());
-                    //console.log('val:' + $(this).val());
                     var checked = false;
                     for (var t = 0; t < selArr.length; t++) {
                         if (selArr[t].trim() === $(this).val()) {

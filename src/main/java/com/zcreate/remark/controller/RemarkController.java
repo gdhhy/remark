@@ -524,7 +524,7 @@ public class RemarkController {
         }
         log.debug("clinic:"+clinic.getAntiMoney());
         SampleBatch batch = sampleDao.getSampleBatch(batchID);
-        model.addAttribute("clicic", clinic);
+        model.addAttribute("clinic", clinic);
         model.addAttribute("deployLocation", reviewConfig.getDeployLocation());
         model.addAttribute("batchID", batchID);
         model.addAttribute("batch", batch);

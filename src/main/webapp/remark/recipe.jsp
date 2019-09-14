@@ -28,7 +28,6 @@
     <link rel="stylesheet" href="../components/bootstrap-timepicker/css/bootstrap-timepicker.css"/>
     <link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>
     <link rel="stylesheet" href="../components/bootstrap-datetimepicker/bootstrap-datetimepicker.css"/>
-    <link href="../components/bootstrap-datetimepicker/bootstrap-datetimepicker.css" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/bootstrap-editable.css"/>
 
     <!-- basic scripts -->

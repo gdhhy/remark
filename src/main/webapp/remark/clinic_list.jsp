@@ -28,7 +28,7 @@
     jQuery(function ($) {
         var sampleBatchID = $.getUrlParam("sampleBatchID");
         var remarkType = $.getUrlParam("remarkType");
-
+        $("#batchName").text( decodeURI($.getUrlParam("batchName")));
         var url = "/remark/listDetails.jspa?sampleBatchID=" + sampleBatchID + '&type=1';
         //var editor = new $.fn.dataTable.Editor({});
         //initiate dataTables plugin
@@ -206,7 +206,7 @@
 
                 <div class="col-xs-12">
                     <div class="table-header">
-                        抽样处方 "全部列表"
+                        抽样处方 <span id="batchName"></span>的"全部列表"
                         <div class="pull-right tableTools-container"></div>
                     </div>
 
