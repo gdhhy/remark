@@ -98,7 +98,8 @@
                         render: function (data, type, row, meta) {
                             var jsp = row['type'] === 1 ? "clinic_list.jsp" : "recipe_list.jsp";
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
-                                '<a class="hasDetail green" href="#" data-Url="/index.jspa?content=/remark/{2}&sampleBatchID={0}&remarkType={1}&menuID=14&batchName={3}">'.format(data, row["remarkType"], jsp,encodeURI(encodeURI(row["name"]))) +                                '<i class="ace-icon glyphicon glyphicon-tag  "></i>' +
+                                '<a class="hasDetail green" href="#" data-Url="/index.jspa?content=/remark/{2}&sampleBatchID={0}&remarkType={1}&menuID=14&batchName={3}">'.format(data, row["remarkType"], jsp, encodeURI(encodeURI(row["name"]))) +
+                                '<i class="ace-icon glyphicon glyphicon-tag  "></i>' +
                                 '</a>&nbsp;&nbsp;&nbsp;' +
                                 '<a class="hasDetail" href="#" data-Url="javascript:deleteBatch({0},\'{1}\');">'.format(data, row["name"]) +
                                 '<i class="ace-icon fa fa-trash-o bigger-130"></i>' +

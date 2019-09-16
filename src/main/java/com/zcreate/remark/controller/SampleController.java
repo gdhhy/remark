@@ -73,11 +73,13 @@ public class SampleController {
     @RequestMapping(value = "listDetails", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String listDetails(@RequestParam(value = "sampleBatchID", required = false, defaultValue = "0") int querySampleBatchID,
                               @RequestParam(value = "draw", required = false) Integer draw,
-                              @RequestParam(value = "type", required = false, defaultValue = "0") int type) {
+                              @RequestParam(value = "type", required = false, defaultValue = "0") int type,
+                              @RequestParam(value = "start", required = false, defaultValue = "0") int start,
+                              @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
 
-        List<HashMap<String, Object>> list = sampleDao.getSampleList(querySampleBatchID, type, 0, 10000);
+        List<HashMap<String, Object>> list = sampleDao.getSampleList(querySampleBatchID, type, 0, 100000);
 
-        return wrap(list, draw);
+        return wrap(list, start, limit, draw);
     }
 
     @ResponseBody
@@ -289,9 +291,9 @@ public class SampleController {
         return gson.toJson(result);
     }
 
-    private String wrap(List list, int draw) {
+    private String wrap(List list, int start, int limit, int draw) {
         Map<String, Object> result = new HashMap<>();
-        result.put("data", list);
+        result.put("data", list.subList(start, start + limit));
         result.put("draw", draw);
 
         result.put("iTotalRecords", list.size());

@@ -8,7 +8,10 @@ import com.zcreate.rbac.web.DeployRunning;
 import com.zcreate.review.dao.AppealDAO;
 import com.zcreate.review.dao.SampleDAO;
 import com.zcreate.review.logic.ReviewService;
-import com.zcreate.review.model.*;
+import com.zcreate.review.model.Clinic;
+import com.zcreate.review.model.Recipe;
+import com.zcreate.review.model.RecipeReview;
+import com.zcreate.review.model.SampleBatch;
 import com.zcreate.util.DateUtils;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
@@ -18,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -30,8 +34,6 @@ import java.io.OutputStream;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
 import java.util.*;
-
-import static java.lang.System.out;
 
 @Controller
 @RequestMapping("/remark")
@@ -60,9 +62,9 @@ public class RemarkController {
     @ResponseBody
     @RequestMapping(value = "saveRecipe", method = RequestMethod.POST, produces = "application/json; charset=UTF-8")
     public String saveRecipe(@RequestBody String string) {
-        log.debug("SecurityContextHolder.getContext().getAuthentication().getPrincipal()=" + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+        //log.debug("SecurityContextHolder.getContext().getAuthentication().getPrincipal()=" + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         Map<String, Object> result = new HashMap<>();
-        out.println("string = " + string);
+        //out.println("string = " + string);
         //  reviewService.saveRecipe(recipe);
         JsonObject json = (JsonObject) parser.parse(string);
         //JsonObject baseInfo = json.getAsJsonObject("基本情况");
@@ -94,11 +96,44 @@ public class RemarkController {
         return gson.toJson(result);
     }
 
+    @ResponseBody
+    @RequestMapping(value = "saveClinic", method = RequestMethod.POST, produces = "application/json; charset=UTF-8")
+    public String saveClinic(@RequestBody String string) {
+        JsonObject json = (JsonObject) parser.parse(string);
+        //Clinic clinic=reviewService.getClinic(json.getAsJsonPrimitive("clinicID").getAsInt());
+        Clinic clinic = new Clinic();
+        clinic.setClinicID(json.get("clinicID").getAsInt());
+        clinic.setReviewDate(new Timestamp(System.currentTimeMillis()));
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            clinic.setReviewUser(((UserDetails) principal).getUsername());
+        }
+        clinic.setResult(json.get("result").getAsString());
+        clinic.setDisItem(json.get("disItem").getAsString());
+        clinic.setRational(json.get("rational").getAsInt());
+
+        Map<String, Object> result = new HashMap<>();
+        reviewService.saveClinic(clinic);
+        boolean succeed;
+        try {
+            succeed = reviewService.saveClinic(clinic);
+            //log.debug("review.getRecipeReviewID():" + review.getRecipeReviewID());
+            result.put("succeed", succeed);
+            result.put("message", "已保存！");
+        } catch (Exception e) {
+            e.printStackTrace();
+            result.put("succeed", false);
+            result.put("message", e.getMessage());
+        }
+        return gson.toJson(result);
+
+    }
+
     @RequestMapping("getRecipeExcel0")
     public void getRecipeExcel0(HttpServletResponse response, @RequestParam(value = "recipeID") int recipeID, @RequestParam(value = "batchID") int batchID) throws IOException {
         Recipe recipe = reviewService.getRecipe(recipeID);
         RecipeReview review = recipe.getReview();
-        SampleBatch batch = sampleDao.getSampleBatch(batchID);
+        //SampleBatch batch = sampleDao.getSampleBatch(batchID);
         JsonObject json = (JsonObject) parser.parse(review.getReviewJson());
         HashSet problemCodeSet = new HashSet(5);
 
@@ -188,7 +223,7 @@ public class RemarkController {
                 aRow.getCell(2).setCellValue(item.get("advice").getAsString());
                 aRow.getCell(4).setCellValue(item.get("adviceType").getAsString());
                 aRow.getCell(5).setCellValue(item.get("recipeDate").getAsString());
-                aRow.getCell(8).setCellValue("设置".equals(item.get("question").getAsString()) ? "":item.get("question").getAsString());
+                aRow.getCell(8).setCellValue("设置".equals(item.get("question").getAsString()) ? "" : item.get("question").getAsString());
 
                 if (item.get("question").getAsString().indexOf(",") > 0) {
                     String[] codes = item.get("question").getAsString().split(",");
@@ -229,7 +264,7 @@ public class RemarkController {
                 aRow.getCell(2).setCellValue(item.get("advice").getAsString());
                 aRow.getCell(4).setCellValue(item.get("adviceType").getAsString());
                 aRow.getCell(5).setCellValue(item.get("recipeDate").getAsString());
-                aRow.getCell(8).setCellValue("设置".equals(item.get("question").getAsString()) ? "":item.get("question").getAsString());
+                aRow.getCell(8).setCellValue("设置".equals(item.get("question").getAsString()) ? "" : item.get("question").getAsString());
 
                 if (item.get("question").getAsString().indexOf(",") > 0) {
                     String[] codes = item.get("question").getAsString().split(",");
@@ -257,7 +292,7 @@ public class RemarkController {
                 problemDesc += code.trim() + ":" + dictService.getDictByParentChildNo("00010", code.trim()).getValue() + "\n";
         }
         sheet.getRow(15 + longRow + shortRow).getCell(2).setCellValue(remark.get("review").getAsString() + "\n" + problemDesc);
-        if (surgery  == null) {//内科，没手术
+        if (surgery == null) {//内科，没手术
             sheet.shiftRows(11, sheet.getLastRowNum(), -3, true, false);//删除3行
             sheet.getRow(8).getCell(0).setCellValue(4);
             sheet.getRow(12 + longRow + shortRow).getCell(0).setCellValue(5);
@@ -522,7 +557,7 @@ public class RemarkController {
         if (clinic.getAppealState() != null && clinic.getAppealState() > 0) {
             model.addAttribute("appeal", appealDao.getAppeal(clinicID, 1));
         }
-        log.debug("clinic:"+clinic.getAntiMoney());
+        log.debug("clinic:" + clinic.getAntiMoney());
         SampleBatch batch = sampleDao.getSampleBatch(batchID);
         model.addAttribute("clinic", clinic);
         model.addAttribute("deployLocation", reviewConfig.getDeployLocation());
@@ -531,6 +566,7 @@ public class RemarkController {
         model.addAttribute("currentUser", SecurityContextHolder.getContext().getAuthentication().getPrincipal());//todo
         return "/remark/clinic";
     }//抗菌药调查
+
     @RequestMapping(value = "viewRecipe1", method = RequestMethod.GET)
     public String viewRecipe0(@RequestParam(value = "recipeID") Integer recipeID, @RequestParam(value = "batchID") Integer batchID, ModelMap model) {
         Recipe recipe = reviewService.getRecipe(recipeID);

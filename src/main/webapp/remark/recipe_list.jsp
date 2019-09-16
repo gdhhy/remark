@@ -8,6 +8,7 @@
 <%--<script src="../assets/js/ace.js"></script>--%>
 <script src="../assets/js/jquery.ui.touch-punch.min.js"></script>
 <script src="../js/accounting.min.js"></script>
+<script src="../js/resize.js"></script>
 <script src="../js/jquery.cookie.min.js"></script>
 <script src="../assets/js/jquery.validate.min.js"></script>
 <script src="../components/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
@@ -39,7 +40,7 @@
         //.wrap("<div class='dataTables_borderWrap' />")   //if you are applying horizontal scrolling (sScrollX)
             .DataTable({
                 bAutoWidth: false,
-                paging: false,
+                //paging: false,
                 "columns": [
                     {"data": "detailID"},
                     {"data": "patientNo", "sClass": "center"},
@@ -105,7 +106,7 @@
                                 delete d[key];
                     }
                 },
-                scrollY: '60vh',
+                //scrollY: '60vh',
                 "serverSide": true,
                 select: {
                     style: 'single'
@@ -124,6 +125,9 @@
                  $.cookie('goodsName', $(this).attr("data-goodsName"));
                  window.location.href = "index.jspa?content=/admin/buyRecord.jsp&menuID=3";
              });*/
+        });
+        $("#dt").resize(function(){
+            myTable.columns.adjust();
         });
 
         //$.fn.dataTable.Buttons.swfPath = "components/datatables.net-buttons-swf/index.swf"; //in Ace demo ../components will be replaced by correct assets path
@@ -184,7 +188,7 @@
 <!-- /section:basics/content.breadcrumbs -->
 <div class="page-content">
     <div class="page-header">
-        <h1>抽样列表 </h1>
+        <h1>住院抽样列表 </h1>
     </div><!-- /.page-header -->
 
     <div class="row">
@@ -201,7 +205,7 @@
                     <!-- div.table-responsive -->
 
                     <!-- div.dataTables_borderWrap -->
-                    <div>
+                    <div id="dt">
                         <table id="dynamic-table" class="table table-striped table-bordered table-hover">
                         </table>
                     </div>

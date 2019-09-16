@@ -22,7 +22,7 @@
         <!-- authentication-success-forward-url="/ace/index.html"-->
         <!--   default-target-url="/admin/index.jspx"-->
         <!-- authentication-success-forward-url="/admin/index.jspx?forward" -->
-        <form-login login-page="/loginPage.jspx"
+        <form-login login-page="/loginPage.jspa"
                     username-parameter="loginName"
                     password-parameter="password"
                     login-processing-url="/login"

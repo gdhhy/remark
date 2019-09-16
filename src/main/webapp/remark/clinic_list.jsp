@@ -8,6 +8,7 @@
 <script src="../assets/js/jquery.ui.touch-punch.min.js"></script>
 <%--<script src="../assets/js/ace.js"></script>--%>
 <script src="../js/accounting.min.js"></script>
+<script src="../js/resize.js"></script>
 <script src="../js/jquery.cookie.min.js"></script>
 <script src="../assets/js/jquery.validate.min.js"></script>
 <script src="../components/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
@@ -28,7 +29,7 @@
     jQuery(function ($) {
         var sampleBatchID = $.getUrlParam("sampleBatchID");
         var remarkType = $.getUrlParam("remarkType");
-        $("#batchName").text( decodeURI($.getUrlParam("batchName")));
+        $("#batchName").text(decodeURI($.getUrlParam("batchName")));
         var url = "/remark/listDetails.jspa?sampleBatchID=" + sampleBatchID + '&type=1';
         //var editor = new $.fn.dataTable.Editor({});
         //initiate dataTables plugin
@@ -37,7 +38,7 @@
         //.wrap("<div class='dataTables_borderWrap' />")   //if you are applying horizontal scrolling (sScrollX)
             .DataTable({
                 bAutoWidth: false,
-                paging: false,
+               // paging: false,
                 "columns": [
                     {"data": "detailID"},
                     {"data": "clinicDate", "sClass": "center"},
@@ -66,25 +67,25 @@
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     },
-                    {"orderable": false, "targets": 1, title: '处方日期', width: 85},
-                    {"orderable": false, "targets": 2, title: '门诊号'},
-                    {"orderable": false, "targets": 3, title: '姓名',width:60},
-                    {"orderable": false, "targets": 4, title: '年龄'},
-                    {"orderable": false, "targets": 5, title: '诊断', width: 120},
-                    {"orderable": false, "targets": 6, title: '类型'},
-                    {"orderable": false, "targets": 7, title: '品种数'},
-                    {"orderable": false, "targets": 8, title: '抗菌素', defaultContent: '', render: renderBoolean},
-                    {"orderable": false, "targets": 9, title: '注射液', defaultContent: '', render: renderBoolean},
-                    {"orderable": false, "targets": 10, title: '基本', defaultContent: ''},
+                    {"orderable": false, "targets": 1, title: '处方日期'},//, width: 85
+                    {"orderable": false, "targets": 2, title: '门诊号' ,width: 60},
+                    {"orderable": false, "targets": 3, title: '姓名', width: 60},
+                    {"orderable": false, "targets": 4, title: '年龄', width: 50},
+                    {"orderable": false, "targets": 5, title: '诊断' },
+                    {"orderable": false, "targets": 6, title: '类型', width: 45},
+                    {"orderable": false, "targets": 7, title: '品种数', width: 60},
+                    {"orderable": false, "targets": 8, title: '抗菌素', defaultContent: '',  width: 60,render: renderBoolean},
+                    {"orderable": false, "targets": 9, title: '注射液', defaultContent: '',  width: 60,render: renderBoolean},
+                    {"orderable": false, "targets": 10, title: '基本', defaultContent: '', width: 20},
                     {"orderable": false, "targets": 11, title: '金额', defaultContent: '', width: 60},
-                    {"orderable": false, "targets": 12, title: '科室', defaultContent: '',width:70},
-                    {"orderable": false, "targets": 13, title: '医生', defaultContent: '',width:60},
-                    {"orderable": false, "targets": 14, title: '审核', defaultContent: '',width:60},
-                    {"orderable": false, "targets": 15, title: '配药', defaultContent: '',width:60},
-                    {"orderable": false, "targets": 16, title: '合理', defaultContent: '',render:renderYES},
-                    {"orderable": false, searchable: false, "targets": 17, title: '问题代码', defaultContent: ''},
+                    {"orderable": false, "targets": 12, title: '科室', defaultContent: ''},//, width: 70
+                    {"orderable": false, "targets": 13, title: '医生', defaultContent: '', width: 60},
+                    {"orderable": false, "targets": 14, title: '审核', defaultContent: '', width: 60},
+                    {"orderable": false, "targets": 15, title: '配药', defaultContent: '', width: 60},
+                    {"orderable": false, "targets": 16, title: '合理', defaultContent: '',  width: 45, render: renderYES},
+                    {"orderable": false, searchable: false, "targets": 17, title: '问题代码', width: 50, defaultContent: ''},
                     {
-                        "orderable": false, "targets": 18, title: '点评', render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 18, title: '点评',width: 45,  render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 '<a class="hasDetail" href="#" data-Url="/remark/viewClinic.jspa?clinicID={1}&batchID={2}">'.format(remarkType, row['clinicID'], sampleBatchID) +
                                 '<i class="ace-icon glyphicon glyphicon-pencil  bigger-130"></i>' +
@@ -105,12 +106,17 @@
                                 delete d[key];
                     }
                 },
-                scrollY: '60vh',
+               // scrollY: '60vh',
+                //'sScrollY': 'calc(60vh - 280px)',
                 "serverSide": true,
                 select: {
                     style: 'single'
                 }
             });
+
+        $("#dt").bind('resize',function(){
+            myTable.columns.adjust();
+        });
         myTable.on('draw', function () {
             $('#dynamic-table tr').find('.hasDetail').click(function () {
                 if ($(this).attr("data-Url").indexOf('javascript:') >= 0) {
@@ -129,15 +135,19 @@
         function renderBoolean(data, type, row, meta) {
             return data >= 1 ? "有" : "无";
         }
+
         function renderYES(data, type, row, meta) {
             return data >= 1 ? "是" : "<font color='red'>否</font>";
         }
+
         function renderWestern(data, type, row, meta) {
-            return data == 1 ? "西" : "中";
+            return data === 1 ? "西" : "中";
         }
+
         function renderReview(data, type, row, meta) {
-            return data != "" && value != null ? "是" : "";
+            return data !== "" && value != null ? "是" : "";
         }
+
         //$.fn.dataTable.Buttons.swfPath = "components/datatables.net-buttons-swf/index.swf"; //in Ace demo ../components will be replaced by correct assets path
         /*   $.fn.dataTable.Buttons.defaults.dom.container.className = 'dt-buttons btn-overlap btn-group btn-overlap';
 
@@ -196,7 +206,7 @@
 <!-- /section:basics/content.breadcrumbs -->
 <div class="page-content">
     <div class="page-header">
-        <h1>抽样列表 </h1>
+        <h1>门诊抽样列表 </h1>
     </div><!-- /.page-header -->
 
     <div class="row">
@@ -213,7 +223,7 @@
                     <!-- div.table-responsive -->
 
                     <!-- div.dataTables_borderWrap -->
-                    <div>
+                    <div id="dt">
                         <table id="dynamic-table" class="table table-striped table-bordered table-hover">
                         </table>
                     </div>
