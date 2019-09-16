@@ -36,6 +36,8 @@
 
     <!-- ace scripts -->
     <%--<script src="../assets/js/src/elements.scroller.js"></script>--%>
+    <%--<script src="../assets/js/jquery.mobile.custom.min.js"></script>--%>
+
     <script src="../assets/js/ace.js"></script>
     <script src="../assets/js/ace-elements.js"></script>
     <script src="../assets/js/src/ace.widget-box.js"></script>
@@ -69,9 +71,46 @@
     <%--<script src="../assets/js/x-editable/ace-editable.min.js"></script>--%>
     <script src="../js/string_func.js"></script>
     <script src="../js/accounting.min.js"></script>
+    <style type="text/css">
+        .modal-dialog {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
 
+        .modal-content {
+            /*overflow-y: scroll; */
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .modal-body2 {
+            overflow-y: scroll;
+            position: absolute;
+            top: 38px;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .modal-header .close {
+            margin-right: 15px;
+        }
+
+        .modal-footer {
+            position: absolute;
+            width: 100%;
+            bottom: 0;
+        }
+
+    </style>
     <script type="text/javascript">
         jQuery(function ($) {
+            /*   document.addEventListener("mousewheel", fn, {passive: true});
+               document.addEventListener("touchstart", fn, {passive: true});*/
             var recipeID = '${recipe.recipeID}';
             if (recipeID === '') {
                 showDialog("加载失败", "请检查数据或联系系统开发！");
@@ -174,7 +213,13 @@
                     {"orderable": false, "data": "adviceType", "targets": 2, title: '&nbsp;'},
                     {
                         "orderable": false, "data": "advice", "targets": 3, title: '医嘱内容', defaultContent: '', width: 120, render: function (data, type, row, meta) {
-                            return row["antiClass"] > 0 ? "<span class='pink2'>" + data + "</span>" : data;
+                            if (row["instructionID"] > 0)
+                                if (row["antiClass"] > 0)
+                                    return "<a href='#' class='hasInstruction' data-instructionID='{1}'><span class='pink2'>{0}</span></a>".format(data, row["instructionID"]);
+                                else
+                                    return "<a href='#' class='hasInstruction' data-instructionID='{1}'>{0}</a>".format(data, row["instructionID"]);
+                            else
+                                return row["antiClass"] > 0 ? "<span class='pink2'>" + data + "</span>" : data;
                         }
                     },
                     {"orderable": false, "data": "quantity", "targets": 4, title: '数量', width: 40, className: 'center'},
@@ -227,7 +272,13 @@
                     {"orderable": false, "data": "adviceType", "targets": 2, title: '&nbsp;'},
                     {
                         "orderable": false, "data": "advice", "targets": 3, title: '医嘱内容', defaultContent: '', width: 120, render: function (data, type, row, meta) {
-                            return row["antiClass"] > 0 ? "<span class='pink2'>" + data + "</span>" : data;
+                            if (row["instructionID"] > 0)
+                                if (row["antiClass"] > 0)
+                                    return "<a href='#' class='hasInstruction' data-instructionID='{1}'><span class='pink2'>{0}</span></a>".format(data, row["instructionID"]);
+                                else
+                                    return "<a href='#' class='hasInstruction' data-instructionID='{1}'>{0}</a>".format(data, row["instructionID"]);
+                            else
+                                return row["antiClass"] > 0 ? "<span class='pink2'>" + data + "</span>" : data;
                         }
                     },
                     {"orderable": false, "data": "quantity", "targets": 4, title: '数量', width: 40, className: 'center'},
@@ -263,6 +314,24 @@
                 //加载时，通过render函数增加了checked，这里把整行选上
                 $('#short-table tr').find('input[type="checkbox"]:checked').parent().parent().each(function (index, element) {
                     shortTable.row(element).select();
+                });
+                $('#short-table tr').find('.hasInstruction').on('click',function () {
+                    $.ajax({
+                        type: "GET",
+                        url: '/instruction/getInstruction.jspa',
+                        data: 'instructionID=' + $(this).attr("data-instructionID"),
+                        contentType: "application/json; charset=utf-8",
+                        cache: false,
+                        success: function (response, textStatus) {
+                            var respObject = JSON.parse(response);
+                            $('#instruction-title').text(respObject.chnName);
+                            $('#instruction-content').html(respObject.instruction);
+                            $('#showInstructionDialog').modal();
+                        },
+                        error: function (response, textStatus) {/*能够接收404,500等错误*/
+                            showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));
+                        },
+                    });
                 });
                 shortTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
                     if (typeof (this.data()) !== 'undefined' && this.data()['antiClass'] > 0) {
@@ -346,6 +415,24 @@
                 //加载时，通过render函数增加了checked，这里把整行选上
                 $('#long-table tr').find('input[type="checkbox"]:checked').parent().parent().each(function (index, element) {
                     longTable.row(element).select();
+                });
+                $('#long-table tr').find('.hasInstruction').on('click',function () {
+                    $.ajax({
+                        type: "GET",
+                        url: '/instruction/getInstruction.jspa',
+                        data: 'instructionID=' + $(this).attr("data-instructionID"),
+                        contentType: "application/json; charset=utf-8",
+                        cache: false,
+                        success: function (response, textStatus) {
+                            var respObject = JSON.parse(response);
+                            $('#instruction-title').text(respObject.chnName);
+                            $('#instruction-content').html(respObject.instruction);
+                            $('#showInstructionDialog').modal();
+                        },
+                        error: function (response, textStatus) {/*能够接收404,500等错误*/
+                            showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));
+                        },
+                    });
                 });
                 longTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
                     if (typeof (this.data()) !== 'undefined' && this.data()['antiClass'] > 0) {
@@ -435,10 +522,10 @@
                         drugTable.row(rowIdx).remove().draw();
                 });
             });
-          var surgeryTable=$('#surgery-table').DataTable({
+            var surgeryTable = $('#surgery-table').DataTable({
                 bAutoWidth: true,
                 paging: false, searching: false, ordering: false, "destroy": true,
-              select: {style: 'single', selector: 'td:first-child :radio'},
+                select: {style: 'single', selector: 'td:first-child :radio'},
                 "columns": [
                     {"data": "surgeryID"},
                     {"data": "surgeryDate", "sClass": "center"},
@@ -483,6 +570,7 @@
                 $("input:checkbox[name='form-field-incision']").eq(1).attr("checked", rowData['incision'].trim() === 'Ⅱ');
                 $("input:checkbox[name='form-field-incision']").eq(2).attr("checked", rowData['incision'].trim() === 'Ⅲ');
             });
+
             function chooseTab(tabId) {
                 //$('#myTab3 a[href="' + tabId + '"]').parent().tab('show');
                 /* $('#myTab3 li').removeClass("active");
@@ -940,6 +1028,7 @@
                     }]
                 });
             }
+
         })
     </script>
 </head>
@@ -1756,6 +1845,24 @@
     <div class="table-detail no-padding">
         溶剂：{{menstruum}}
     </div>
+</div>
+
+<div id="showInstructionDialog" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header no-padding">
+                <div class="table-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        <span class="white">&times;</span>
+                    </button>
+                    <span id="instruction-title">药品名称</span>
+                </div>
+            </div>
+
+            <div class="modal-body2" id="instruction-content"></div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
 </div>
 </body>
 </html>

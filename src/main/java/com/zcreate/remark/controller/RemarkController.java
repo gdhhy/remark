@@ -565,10 +565,11 @@ public class RemarkController {
         model.addAttribute("batch", batch);
         model.addAttribute("currentUser", SecurityContextHolder.getContext().getAuthentication().getPrincipal());//todo
         return "/remark/clinic";
-    }//抗菌药调查
+    }
 
+    //抗菌药调查
     @RequestMapping(value = "viewRecipe1", method = RequestMethod.GET)
-    public String viewRecipe0(@RequestParam(value = "recipeID") Integer recipeID, @RequestParam(value = "batchID") Integer batchID, ModelMap model) {
+    public String viewRecipe1(@RequestParam(value = "recipeID") Integer recipeID, @RequestParam(value = "batchID") Integer batchID, ModelMap model) {
         Recipe recipe = reviewService.getRecipe(recipeID);
         if (recipe != null) {
             log.debug("viewRecipe:" + recipe.getDepartment());
@@ -588,12 +589,12 @@ public class RemarkController {
             model.addAttribute("batch", batch);
             model.addAttribute("currentUser", SecurityContextHolder.getContext().getAuthentication().getPrincipal());//todo change spring security
         }
-        return "/remark/recipe";
+        return "/remark/recipe1";
     }
 
     //医嘱点评
     @RequestMapping(value = "viewRecipe0", method = RequestMethod.GET)
-    public String viewRecipe1(@RequestParam(value = "recipeID") Integer recipeID, @RequestParam(value = "batchID") Integer batchID, ModelMap model) {
+    public String viewRecipe0(@RequestParam(value = "recipeID") Integer recipeID, @RequestParam(value = "batchID") Integer batchID, ModelMap model) {
         Recipe recipe = reviewService.getRecipe(recipeID);
         if (recipe != null) {
             log.debug("viewRecipe:" + recipe.getDepartment());
@@ -611,7 +612,7 @@ public class RemarkController {
             model.addAttribute("batch", batch);
             model.addAttribute("currentUser", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         }
-        return "/remark/recipe2";
+        return "/remark/recipe0";
     }
 
     public static String getBox(Boolean box) {

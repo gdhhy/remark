@@ -95,6 +95,14 @@
             width: 100%;
         }
 
+        .modal-body2 {
+            overflow-y: scroll;
+            position: absolute;
+            top: 38px;
+            bottom: 0;
+            width: 100%;
+        }
+
         .modal-header .close {
             margin-right: 15px;
         }
@@ -224,7 +232,13 @@
                     {"orderable": false, "data": "adviceType", "targets": 2, title: '&nbsp;'},
                     {
                         "orderable": false, "data": "advice", "targets": 3, title: '医嘱内容', defaultContent: '', width: 120, render: function (data, type, row, meta) {
-                            return row["antiClass"] > 0 ? "<span class='pink2'>" + data + "</span>" : data;
+                            if (row["instructionID"] > 0)
+                                if (row["antiClass"] > 0)
+                                    return "<a href='#' class='hasInstruction' data-instructionID='{1}'><span class='pink2'>{0}</span></a>".format(data, row["instructionID"]);
+                                else
+                                    return "<a href='#' class='hasInstruction' data-instructionID='{1}'>{0}</a>".format(data, row["instructionID"]);
+                            else
+                                return row["antiClass"] > 0 ? "<span class='pink2'>" + data + "</span>" : data;
                         }
                     },
                     {"orderable": false, "data": "quantity", "targets": 4, title: '数量', width: 40, className: 'center'},
@@ -277,7 +291,13 @@
                     {"orderable": false, "data": "adviceType", "targets": 2, title: '&nbsp;'},
                     {
                         "orderable": false, "data": "advice", "targets": 3, title: '医嘱内容', defaultContent: '', width: 120, render: function (data, type, row, meta) {
-                            return row["antiClass"] > 0 ? "<span class='pink2'>" + data + "</span>" : data;
+                            if (row["instructionID"] > 0)
+                                if (row["antiClass"] > 0)
+                                    return "<a href='#' class='hasInstruction' data-instructionID='{1}'><span class='pink2'>{0}</span></a>".format(data, row["instructionID"]);
+                                else
+                                    return "<a href='#' class='hasInstruction' data-instructionID='{1}'>{0}</a>".format(data, row["instructionID"]);
+                            else
+                                return row["antiClass"] > 0 ? "<span class='pink2'>" + data + "</span>" : data;
                         }
                     },
                     {"orderable": false, "data": "quantity", "targets": 4, title: '数量', width: 40, className: 'center'},
@@ -314,7 +334,24 @@
                 $('#short-table tr').find('input[type="checkbox"]:checked').parent().parent().each(function (index, element) {
                     shortTable.row(element).select();
                 });
-
+                $('#short-table tr').find('.hasInstruction').on('click', function () {
+                    $.ajax({
+                        type: "GET",
+                        url: '/instruction/getInstruction.jspa',
+                        data: 'instructionID=' + $(this).attr("data-instructionID"),
+                        contentType: "application/json; charset=utf-8",
+                        cache: false,
+                        success: function (response, textStatus) {
+                            var respObject = JSON.parse(response);
+                            $('#instruction-title').text(respObject.chnName);
+                            $('#instruction-content').html(respObject.instruction);
+                            $('#showInstructionDialog').modal();
+                        },
+                        error: function (response, textStatus) {/*能够接收404,500等错误*/
+                            showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));
+                        },
+                    });
+                });
             }).on('select', function (e, dt, type, indexes) {
                 chooseTab('#dropdown17');
 
@@ -370,6 +407,24 @@
                 //加载时，通过render函数增加了checked，这里把整行选上
                 $('#long-table tr').find('input[type="checkbox"]:checked').parent().parent().each(function (index, element) {
                     longTable.row(element).select();
+                });
+                $('#long-table tr').find('.hasInstruction').on('click', function () {
+                    $.ajax({
+                        type: "GET",
+                        url: '/instruction/getInstruction.jspa',
+                        data: 'instructionID=' + $(this).attr("data-instructionID"),
+                        contentType: "application/json; charset=utf-8",
+                        cache: false,
+                        success: function (response, textStatus) {
+                            var respObject = JSON.parse(response);
+                            $('#instruction-title').text(respObject.chnName);
+                            $('#instruction-content').html(respObject.instruction);
+                            $('#showInstructionDialog').modal();
+                        },
+                        error: function (response, textStatus) {/*能够接收404,500等错误*/
+                            showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));
+                        },
+                    });
                 });
             }).on('select', function (e, dt, type, indexes) {
                 chooseTab('#dropdown17');
@@ -929,6 +984,24 @@
                 });
             }
 
+            $('.hasInstruction').click(function () {
+                $.ajax({
+                    type: "GET",
+                    url: '/instruction/getInstruction.jspa',
+                    data: 'instructionID=' + $(this).attr("data-instructionID"),
+                    contentType: "application/json; charset=utf-8",
+                    cache: false,
+                    success: function (response, textStatus) {
+                        var respObject = JSON.parse(response);
+                        $('#instruction-title').text(respObject.chnName);
+                        $('#instruction-content').html(respObject.instruction);
+                        $('#showInstructionDialog').modal();
+                    },
+                    error: function (response, textStatus) {/*能够接收404,500等错误*/
+                        showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));
+                    },
+                });
+            });
         })
     </script>
 </head>
@@ -1435,6 +1508,24 @@
                     确定
                 </button>
             </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
+
+<div id="showInstructionDialog" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header no-padding">
+                <div class="table-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        <span class="white">&times;</span>
+                    </button>
+                    <span id="instruction-title">药品名称</span>
+                </div>
+            </div>
+
+            <div class="modal-body2" id="instruction-content"></div>
+
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div>

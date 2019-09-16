@@ -4,7 +4,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="s" uri="http://java.sun.com/jsp/jstl/core" %>
 <html>
-<head><title>处方点评工作表</title>
+<head><title>门诊点评</title>
     <!-- basic styles -->
     <link href="../components/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet"/>
     <!-- bootstrap & fontawesome -->
@@ -55,6 +55,14 @@
             position: absolute;
             top: 38px;
             bottom: 65px;
+            width: 100%;
+        }
+
+        .modal-body2 {
+            overflow-y: scroll;
+            position: absolute;
+            top: 38px;
+            bottom: 0;
             width: 100%;
         }
 
@@ -209,19 +217,19 @@
                     }]
                 });
             }
-            $('#paper tr').find('.hasInstuction').click(function () {
+
+            $('.hasInstruction').click(function () {
                 $.ajax({
                     type: "GET",
-                    url: 'saveClinic.jspa',
-                    data: JSON.stringify(json),
+                    url: '/instruction/getInstruction.jspa',
+                    data: 'instructionID=' + $(this).attr("data-instructionID"),
                     contentType: "application/json; charset=utf-8",
                     cache: false,
                     success: function (response, textStatus) {
-                        showDialog(response.succeed ? "保存成功" : "保存失败", response.message);
-                        if (response.succeed) {
-                            $('.btn-info').removeClass("hidden");
-                            json.recipeReviewID = response.recipeReviewID;
-                        }
+                        var respObject = JSON.parse(response);
+                        $('#instruction-title').text(respObject.chnName);
+                        $('#instruction-content').html(respObject.instruction);
+                        $('#showInstructionDialog').modal();
                     },
                     error: function (response, textStatus) {/*能够接收404,500等错误*/
                         showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));
@@ -245,7 +253,7 @@
                     <tr>
                         <td width="5"></td>
                         <td>
-                            <table border="1" cellspacing="0" bordercolor="#368E9D" style="border-collapse:collapse" id="paper">
+                            <table border="1" cellspacing="0" bordercolor="#368E9D" style="border-collapse:collapse">
                                 <tr>
                                     <td colspan="8" height="40" align="center"><span style="font-size: 20px; font-family:'黑体';">翁源县人民医院</span>
                                         <br/>
@@ -304,21 +312,21 @@
                                                     <td width="20">${detail.num2}</td>
                                                     <c:if test='${detail.medicineNo!="+"}'>
                                                         <td nowrap="true" width="300">
-                                                            <c:if test='${detail.instructionID>0}'>    <%--有说明书--%>
-                                                                <a href="#" class="hasInstuction" data-instructionID="${detail.instructionID}" data-medicineName="${detail.medicineName}" >
-                                                                        <%--onclick="displayInstruction(${detail.instructionID},'${detail.medicineName}',300,10)"--%>
+                                                            <c:choose>
+                                                                <c:when test='${detail.instructionID>0}'>
+                                                                    <a href="#" class="hasInstruction" data-instructionID="${detail.instructionID}">
+                                                                        <c:if test="${detail.antiClass>0}">    <%--抗生素颜色特殊--%>
+                                                                            <span style="color: #e66e00;"> ${fn:trim(detail.dosage)} </span>
+                                                                        </c:if>
+                                                                        <c:if test="${detail.antiClass<=0}">${fn:trim(detail.dosage)}</c:if>
+                                                                    </a></c:when>
+                                                                <c:otherwise>
                                                                     <c:if test="${detail.antiClass>0}">    <%--抗生素颜色特殊--%>
                                                                         <span style="color: #e66e00;"> ${fn:trim(detail.dosage)} </span>
                                                                     </c:if>
-                                                                    <c:if test="${detail.antiClass<=0}">${fn:trim(detail.dosage)}</c:if>
-                                                                </a>
-                                                            </c:if>
-                                                            <c:if test='${detail.instructionID<=0}'>
-                                                                <c:if test="${detail.antiClass>0}">    <%--抗生素颜色特殊--%>
-                                                                    <span style="color: #e66e00;"> ${fn:trim(detail.dosage)} </span>
-                                                                </c:if>
-                                                                <c:if test="${detail.antiClass<=0}"> ${fn:trim(detail.dosage)} </c:if>
-                                                            </c:if>
+                                                                    <c:if test="${detail.antiClass<=0}"> ${fn:trim(detail.dosage)} </c:if>
+                                                                </c:otherwise>
+                                                            </c:choose>
                                                         </td>
                                                         <c:if test="${detail.incompatibility==1}">
                                                             <td onmouseout="hiddenPic();" onmousemove="showPic('${detail.taboo}');">
@@ -460,14 +468,11 @@
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
                         <span class="white">&times;</span>
                     </button>
-                    <span id="instruction-title">选择问题</span>
+                    <span id="instruction-title">药品名称</span>
                 </div>
             </div>
 
-            <div class="modal-body no-padding" id="instruction-content">
-
-
-            </div>
+            <div class="modal-body2" id="instruction-content"></div>
 
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
