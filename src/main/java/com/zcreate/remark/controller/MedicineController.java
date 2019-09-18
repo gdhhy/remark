@@ -39,7 +39,7 @@ public class MedicineController {
         param.put("antiClass", antiClass);
         if (queryChnName != null) {
             queryChnName = queryChnName.replaceAll("'", "");
-            if (Verify.validPositiveInt(queryChnName.trim()))
+            if (Verify.validNumber(queryChnName.trim()))
                 param.put("liveNo", queryChnName.trim());
             else if (PinyinUtil.isFullEnglish(queryChnName))
                 param.put("livePinyin", queryChnName.trim());

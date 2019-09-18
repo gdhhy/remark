@@ -104,7 +104,7 @@
                     <a href="index.jspa?content=/remark/sample.jsp&menuID=14" id="14">
                         <!--<i class="menu-icon fa fa-user"></i>-->
                         <i class="menu-icon fa fa-caret-right"></i>
-                        抽样点评
+                        <span class="menu-text">抽样点评</span>
                     </a>
 
                     <b class="arrow"></b>
@@ -114,6 +114,39 @@
                         <!--<i class="menu-icon fa 	fa-certificate"></i>-->
                         <i class="menu-icon fa fa-caret-right"></i>
                         <span class="menu-text"> 查询点评</span>
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="#" class="dropdown-toggle">
+                <i class="menu-icon fa  fa-eye "></i>
+
+                <span class="menu-text"> 阳光用药 </span>
+
+                <b class="arrow fa fa-angle-down"></b>
+            </a>
+
+            <b class="arrow"></b>
+
+            <ul class="submenu">
+                <li class="">
+                    <a href="index.jspa?content=/remark/sample.jsp&menuID=20" id="20">
+                        <!--<i class="menu-icon fa fa-user"></i>-->
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        <span class="menu-text">用药概况</span>
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+                <li class="">
+                    <a href="index.jspa?content=/sunning/medicine_day.jsp&menuID=21" id="21">
+
+                        <!--<i class="menu-icon fa 	fa-certificate"></i>-->
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        <span class="menu-text">药品分析（天）</span>
                     </a>
 
                     <b class="arrow"></b>
@@ -173,6 +206,7 @@
     </ul><!-- /.nav-list -->
 
     <div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse">
-        <i id="sidebar-toggle-icon" class="ace-icon fa fa-angle-double-left ace-save-state" data-icon1="ace-icon fa fa-angle-double-left" data-icon2="ace-icon fa fa-angle-double-right"></i>
+        <i id="sidebar-toggle-icon" class="ace-icon fa fa-angle-double-left ace-save-state"
+           data-icon1="ace-icon fa fa-angle-double-left" data-icon2="ace-icon fa fa-angle-double-right"></i>
     </div>
 </div>

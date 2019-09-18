@@ -1,5 +1,4 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <script src="../components/datatables/jquery.dataTables.min.js"></script>
 <script src="../components/datatables/jquery.dataTables.bootstrap.min.js"></script>
 <script src="../components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
@@ -13,14 +12,15 @@
 <script src="../assets/js/jquery.validate.min.js"></script>
 <script src="../components/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
 <script src="../components/bootstrap-timepicker/js/bootstrap-timepicker.js"></script>
+<script src="../components/monthpicker/MonthPicker.js"></script>
 <script src="../components/moment/moment.min.js"></script>
 <script src="../components/bootstrap-daterangepicker/daterangepicker.js"></script>
-<link rel="stylesheet" href="../components/bootstrap-datepicker/css/bootstrap-datepicker3.css"/>
-<link rel="stylesheet" href="../components/bootstrap-timepicker/css/bootstrap-timepicker.css"/>
-<link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>
 <script src="../components/typeahead.js/dist/typeahead.bundle.min.js"></script>
 <script src="../components/typeahead.js/handlebars.js"></script>
 
+<link rel="stylesheet" href="../components/bootstrap-datepicker/css/bootstrap-datepicker3.css"/>
+<link rel="stylesheet" href="../components/bootstrap-timepicker/css/bootstrap-timepicker.css"/>
+<link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>
 <%--<script src="../assets/js/chosen.jquery.min.js"></script>
 <link rel="stylesheet" href="../assets/css/chosen.css"/>--%>
 <%--
@@ -28,18 +28,44 @@
 <link rel="stylesheet" href="../components/chosen/chosen.min.css"/>
 --%>
 
-<%--<script src="../js/messages_cn.js"></script>--%>
 
 <!-- bootstrap & fontawesome -->
 
 <link rel="stylesheet" href="../components/font-awesome/css/font-awesome.css"/>
 <link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
+<link rel="stylesheet" href="../components/monthpicker/MonthPicker.css"/>
 
 <%--<link rel="stylesheet" href="../components/jquery-ui.custom/jquery-ui.custom.min.css"/>--%>
 
 <%--<link rel="stylesheet" href="../assets/css/jquery.gritter.css"/>--%>
 <%--<link rel="stylesheet" href="../css/joinbuy.css"/>--%>
+<style>
+    /* body {
+         font-size: 12px;
+         font-family: Verdana, Arial, sans-serif;
+     }*/
 
+    /*  .icon {
+          vertical-align: bottom;
+          margin-top: 2px;
+          margin-bottom: 3px;
+          cursor: pointer;
+      }
+
+      .icon:active {
+          opacity: .5;
+      }
+
+      .ui-button-text {
+          padding: .4em .6em;
+          line-height: 0.8;
+      }*/
+
+    .month-year-input {
+        width: 80px;
+        margin-right: 2px;
+    }
+</style>
 <script type="text/javascript">
     jQuery(function ($) {
         var samleBatch;
@@ -126,24 +152,17 @@
                     style: 'single'
                 }
             });
-        myTable.on('order.dt search.dt', function () {
+      /*  myTable.on('order.dt search.dt', function () {
             myTable.column(0, {search: 'applied', order: 'applied'}).nodes().each(function (cell, i) {
                 cell.innerHTML = i + 1;
             });
-        }).draw();
+        }).draw();*/
         myTable.on('draw', function () {
-
             $('#dynamic-table tr').find('.hasDetail').click(function () {
                 if ($(this).attr("data-Url").indexOf('javascript:') >= 0) {
                     eval($(this).attr("data-Url"));
                 } else
                     window.open($(this).attr("data-Url"), "_blank");
-            });
-            $('a.blue').on('click', function (e) {
-                e.preventDefault();
-
-                $.cookie('goodsName', $(this).attr("data-goodsName"));
-                window.location.href = "index.jspa?content=/admin/buyRecord.jsp&menuID=3";
             });
         });
 
@@ -405,27 +424,31 @@
         });
         $('#form-medicine').typeahead({hint: true},
             {
-                limit: 100,
-
-                source: function (query, processSync, processAsync) {
-                    var params = {queryChnName: query};
+                limit: 1000,
+                source: function (queryStr, processSync, processAsync) {
+                    var params = {queryChnName: queryStr, length: 1000};
                     $.getJSON('/remark/liveMedicine.jspa', params, function (json) {
                         //medicineLiveCount = json.iTotalRecords;
                         //console.log("count:" + medicineLiveCount);
-                        if (json.iTotalRecords > 0)
-                            return processAsync(json.data);
+                        return processAsync(json.data);
                     });
                 },
                 display: function (item) {
-                    return item.chnName
+                    return item.chnName + "-" + item.spec;
                 },
                 templates: {
-                    /*suggestion: function (item) {
-                      return '<p><strong>{0}</strong>({1})</p>'.format(item.chnName, item.spec);
-                    },*/
-                    suggestion: Handlebars.compile('<div><strong>{{chnName}}</strong> – {{spec}}</div>'),
-                    /*footer: '<div style="text-align:center" >共{0}项</div>'.format(0),*/
-                    notFound: '<div class="notFound">没匹配的</div>'
+                    header: function (query) {//header or footer
+                        //console.log("query:" + JSON.stringify(query, null, 4));
+                        if (query.suggestions.length > 1)
+                            return '<div style="text-align:center" class="green" >发现 {0} 项</div>'.format(query.suggestions.length);
+                    },
+                    suggestion: Handlebars.compile('<div style="font-size: 9px">' +
+                        '<div style="font-weight:bold">{{chnName}}</div>' +
+                        '<span class="light-grey">编码：</span>{{goodsNo}}<span class="space-4"/> <span class="light-grey">规格：</span>{{spec}}</div>'),
+                    pending: function (query) {
+                        return '<div>查询中...</div>';
+                    },
+                    notFound: '<div class="red">没匹配</div>'
                 }
 
             }
@@ -441,8 +464,8 @@
                 applyLabel: '确定',
                 cancelLabel: '取消'
             }
-        }).prev().on(ace.click_event, function () {
-            $(this).next().focus();
+        }).next().on(ace.click_event, function () {
+            $(this).prev().focus();
         });
         $('#form-dateRange').val(moment().subtract(30, 'd').format("YYYY-MM-DD") + " ～ " + moment().format("YYYY-MM-DD"));
 
@@ -644,29 +667,29 @@
             showSampleDialog(null);
         });
         //select/deselect all rows according to table header checkbox
-        $('#dynamic-table > thead > tr > th input[type=checkbox], #dynamic-table_wrapper input[type=checkbox]').eq(0).on('click', function () {
-            var th_checked = this.checked;//checkbox inside "TH" table header
+        /* $('#dynamic-table > thead > tr > th input[type=checkbox], #dynamic-table_wrapper input[type=checkbox]').eq(0).on('click', function () {
+             var th_checked = this.checked;//checkbox inside "TH" table header
 
-            dynamicTable.find('tbody > tr').each(function () {
-                var row = this;
-                if (th_checked) myTable.row(row).select();
-                else myTable.row(row).deselect();
-            });
-        });
+             dynamicTable.find('tbody > tr').each(function () {
+                 var row = this;
+                 if (th_checked) myTable.row(row).select();
+                 else myTable.row(row).deselect();
+             });
+         });
 
-        //select/deselect a row when the checkbox is checked/unchecked
-        dynamicTable.on('click', 'td input[type=checkbox]', function () {
-            var row = $(this).closest('tr').get(0);
-            if (this.checked) myTable.row(row).deselect();
-            else myTable.row(row).select();
-        });
+         //select/deselect a row when the checkbox is checked/unchecked
+         dynamicTable.on('click', 'td input[type=checkbox]', function () {
+             var row = $(this).closest('tr').get(0);
+             if (this.checked) myTable.row(row).deselect();
+             else myTable.row(row).select();
+         });*/
 
 
-        $(document).on('click', '#dynamic-table .dropdown-toggle', function (e) {
-            e.stopImmediatePropagation();
-            e.stopPropagation();
-            e.preventDefault();
-        });
+        /* $(document).on('click', '#dynamic-table .dropdown-toggle', function (e) {
+             e.stopImmediatePropagation();
+             e.stopPropagation();
+             e.preventDefault();
+         });*/
         //设置批次名称
         sampleForm.find(" #form-department,#form-doctor,#form-medicine").change(function () {
             /*var batchName = $('#form-type').children('option:selected').val() === "1" ? "门诊" : "住院";*/
@@ -771,6 +794,16 @@
                 }]
             });
         }
+
+        $('#PastDateDemo').MonthPicker({MaxMonth: 0, MonthFormat: 'yy-mm', Button: false});
+        $('.btn-success').click(function () {
+            var mm = moment($('#PastDateDemo').val(), "YYYY-MM");
+            if (mm.isValid()) {
+                url = "/remark/listSamples.jspa?month=" + (mm.month() + 1) + '&year=' + mm.year();
+                myTable.ajax.url(url).load();
+            } else
+                myTable.ajax.url("/remark/listSamples.jspa").load();
+        });
     })
 </script>
 
@@ -798,15 +831,14 @@
     <div class="page-header">
 
         <form class="form-search form-inline">
-            <label>年份 ：</label>
-            <input type="text" name="memberNo" placeholder="年份……" class="nav-search-input" autocomplete="off"/>
-            月份：
-            <input type="text" name="username" placeholder="月份……" class="nav-search-input" autocomplete="off"/>
+            <label>月份 ：</label>
+            <input id="PastDateDemo" type="text" class="month-year-input nav-search-input">
 
             <button type="button" class="btn btn-sm btn-success">
                 查询
-                <i class="ace-icon fa fa-arrow-right icon-on-right bigger-110"></i>
+                <i class="ace-icon glyphicon glyphicon-search icon-on-right bigger-110"></i>
             </button>
+
         </form>
     </div><!-- /.page-header -->
 
@@ -894,7 +926,8 @@
                 </div>
                 <div class="col-xs-6">
                     <div class="form-group">
-                        <label class="col-sm-3 control-label no-padding-right surgeryTypeLbl" for="form-remarkType">抽样类型 </label>
+                        <label class="col-sm-3 control-label no-padding-right surgeryTypeLbl"
+                               for="form-remarkType">抽样类型 </label>
 
                         <div class="col-sm-9">
                             <select id="form-remarkType" data-placeholder="抽样类型">
@@ -921,7 +954,8 @@
 
                         <div class="col-sm-9">
                             <div class="input-group">
-                                <input class="typeahead scrollable" type="text" id="form-doctor" name="form-doctor" autocomplete="off"
+                                <input class="typeahead scrollable" type="text" id="form-doctor" name="form-doctor"
+                                       autocomplete="off"
                                        placeholder="医生拼音字母 匹配鼠标选择"/>
                                 <input type="hidden" id="form-doctorNo"/>
                             </div>
@@ -948,7 +982,8 @@
                         <label class="col-sm-3 control-label no-padding-right" for="form-medicine">药品名称 </label>
 
                         <div class="col-sm-9">
-                            <input class="typeahead scrollable " type="text" id="form-medicine" name="form-medicine" autocomplete="off"
+                            <input class="typeahead scrollable" type="text" id="form-medicine" name="form-medicine"
+                                   autocomplete="off" style="width: 250px;font-size: 9px;color: black"
                                    placeholder="药品拼音首字母 匹配鼠标选择"/><input type="hidden" id="form-medicineNo"/>
                         </div>
                     </div>
@@ -1007,14 +1042,16 @@
                             <label class="col-sm-3 control-label no-padding-right light-grey clinicType">处方类型 </label>
                             <div class="checkbox col-sm-4">
                                 <label>
-                                    <input name="form-field-clinicType" checked disabled type="checkbox" class="ace" value="1"/>
+                                    <input name="form-field-clinicType" checked disabled type="checkbox" class="ace"
+                                           value="1"/>
                                     <span class="lbl light-grey clinicType">普通</span>
                                 </label>
                             </div>
 
                             <div class="checkbox col-sm-4">
                                 <label>
-                                    <input name="form-field-clinicType" checked disabled type="checkbox" class="ace" value="2"/>
+                                    <input name="form-field-clinicType" checked disabled type="checkbox" class="ace"
+                                           value="2"/>
                                     <span class="lbl light-grey clinicType">急诊</span>
                                 </label>
                             </div>
@@ -1031,9 +1068,10 @@
                         <div class="col-sm-9">
                             <!-- #section:plugins/date-time.datepicker -->
                             <div class="input-group">
-                                <input class="form-control col-xs-10 col-sm-12" name="dateRangeString" id="form-dateRange"
+                                <input class="form-control col-xs-10 col-sm-12" name="dateRangeString"
+                                       id="form-dateRange"
                                        data-date-format="YYYY-MM-DD"/>
-                                <span class="input-group-addon"><i class="fa fa-clock-o bigger-110"></i></span>
+                                <span class="input-group-addon"><i class="fa fa-calendar bigger-110"></i></span>
                             </div>
                         </div>
                     </div>
@@ -1048,7 +1086,8 @@
                         <label class="col-sm-4 control-label no-padding-right">总体数量</label>
                         <div class="col-sm-5">
                             <span class="input-icon input-icon-right">
-                                <input type="text" id="form-total" readonly name="form-total" autocomplete="off" class="col-sm-10"/>
+                                <input type="text" id="form-total" readonly name="form-total" autocomplete="off"
+                                       class="col-sm-10"/>
                                 <i class="icon_total"></i>
                             </span>
                         </div>
@@ -1094,8 +1133,8 @@
             </div>
         </form>
     </div><!-- #dialog-edit -->
-    <div id="dialog-null" class="hidden">
+    <%--<div id="dialog-null" class="hidden">
         <div id="dialog-content"></div>
-    </div>
+    </div>--%>
 </div>
 <!-- /.page-content -->
