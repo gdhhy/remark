@@ -123,7 +123,7 @@
                         type: "GET",
                         url: "/common/dict/listDict.jspa",
                         data: "parentID=118",
-                        contentType: "application/x-www-form-urlencoded",
+                        contentType: "application/json; charset=utf-8",
                         cache: false,
                         success: function (response, textStatus) {
                             var respObject = JSON.parse(response);

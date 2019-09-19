@@ -911,7 +911,7 @@
                 /*$("#shortDrugTb tr").find("td a[id='question']").editable();*/
                 $('#rowNo').val(rowNo);
                 //console.log('html2:' + $($('#tableVar').val()+' tr').find("td a[id='question']").html());
-                console.log('rowNo:' + rowNo);
+                //console.log('rowNo:' + rowNo);
 
                 if (questionTable.find("tbody tr").length === 0 && kk === 0) {
                     kk = 1;
@@ -919,7 +919,7 @@
                         type: "GET",
                         url: "/common/dict/listDict.jspa",
                         data: "parentID=118",
-                        contentType: "application/x-www-form-urlencoded",
+                        contentType: "application/json; charset=utf-8",
                         cache: false,
                         success: function (response, textStatus) {
                             var respObject = JSON.parse(response);

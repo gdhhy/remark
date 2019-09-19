@@ -18,7 +18,7 @@
       </bean>-->
     <bean id="reviewDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-        <property name="url" value="jdbc:sqlserver://192.168.1.212:1433;databaseName=wy_review_160222"/>
+        <property name="url" value="jdbc:sqlserver://192.168.1.233:1433;databaseName=wy_review_160222"/>
         <property name="username" value="sa"/>
         <property name="password" value="cjdlx"/>
     </bean>
@@ -29,7 +29,7 @@
     <!--<bean id="posterService" class=" com.zcreate.lottery.ad.PosterService"/>-->
     <bean id="securityDS" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
-        <property name="url" value="jdbc:mysql://192.168.1.212:3310/security?useUnicode=true&amp;characterEncoding=utf-8&amp;serverTimezone=GMT%2B8"/>
+        <property name="url" value="jdbc:mysql://192.168.1.233:3310/security?useUnicode=true&amp;characterEncoding=utf-8&amp;serverTimezone=GMT%2B8"/>
         <property name="username" value="user1"/>
         <property name="password" value="cjdlx"/>
         <property name="maxIdle" value="50"/>

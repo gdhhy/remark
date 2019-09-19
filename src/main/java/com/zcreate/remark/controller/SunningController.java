@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.zcreate.review.dao.StatDAO;
 import com.zcreate.util.DateUtils;
+import com.zcreate.util.StatMath;
+import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,31 @@ public class SunningController {
     private StatDAO statDao;
     private Gson gson = new GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd HH:mm").create();
 
+    //药品分析（天） 按科室
+    @ResponseBody
+    @RequestMapping(value = "statMedicineGroupByDepart", method = RequestMethod.GET,  produces = "text/html;charset=UTF-8")
+    public String statMedicineGroupByDepart(
+            @RequestParam(value = "medicineNo", required = false, defaultValue = "") String medicineNo,
+            @RequestParam(value = "fromDate") String fromDate,
+            @RequestParam(value = "toDate") String toDate,
+            @RequestParam(value = "draw", required = false) Integer draw,
+            @RequestParam(value = "start", required = false, defaultValue = "0") int start,
+            @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
+        HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, null);
+        param.put("medicineNo", medicineNo);
+        List<HashMap<String, Object>> result = statDao.statMedicineGroupByDepart(param);
+        StatMath.sumAndCalcRatio(result, "amount", "ratio");
+
+        Map<String, Object> retMap = new HashMap<>();
+        retMap.put("draw", draw);
+        retMap.put("data", result.subList(start, Math.min(start + limit, result.size())));
+        retMap.put("iTotalRecords", result.size());//todo 表的行数，未加任何调剂
+        retMap.put("iTotalDisplayRecords", result.size());
+
+        return gson.toJson(retMap);
+    }
+
+    //药品分析（天）
     @ResponseBody
     @RequestMapping(value = "statMedicine", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String statMedicine(
@@ -39,7 +66,7 @@ public class SunningController {
             @RequestParam(value = "start", required = false, defaultValue = "0") int start,
             @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
 
-        HashMap<String, Object> param = produceMap(fromDate, toDate, department, type);
+        HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, department, type);
         param.put("start", start);
         param.put("limit", limit);
         param.put("likeHealthNo", healthNo);
@@ -76,31 +103,5 @@ public class SunningController {
         return gson.toJson(retMap);
     }
 
-    private HashMap<String, Object> produceMap(String fromDate, String toDate, String department, int type) {
-        HashMap<String, Object> param = produceMap(fromDate, toDate, department);
-        param.put("type", type);
-        return param;
-    }
 
-    private HashMap<String, Object> produceMap(String fromDate, String toDate, String department) {
-        HashMap<String, Object> param = new HashMap<String, Object>();
-        if (department != null && department.indexOf(',') > 0) {
-            String[] departs = department.split(",");
-            ArrayList<String> newDeparts = new ArrayList<String>(departs.length * 2);
-            for (String s : departs) {
-                newDeparts.add(s);
-                if (!s.endsWith("门诊")) newDeparts.add(s + "门诊");
-            }
-            param.put("departs", newDeparts);
-        } else
-            param.put("department", department);
-        if (!"".equals(fromDate))
-            param.put("fromDate", DateUtils.parseDateDayFormat(fromDate));
-        if (!"".equals(toDate)) {
-            Calendar cal = DateUtils.parseCalendarDayFormat(toDate);
-            cal.add(Calendar.DATE, 1);
-            param.put("toDate", cal.getTime());
-        }
-        return param;
-    }
 }

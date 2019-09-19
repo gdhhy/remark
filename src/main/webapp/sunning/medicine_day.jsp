@@ -21,6 +21,44 @@
 <link rel="stylesheet" href="../components/font-awesome/css/font-awesome.css"/>
 <link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
 <link rel="stylesheet" href="../assets/css/ace.css"/>
+<style type="text/css">
+    .modal-dialog {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+    }
+
+    .modal-content {
+        /*overflow-y: scroll; */
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+    }
+
+    .modal-body {
+        overflow-y: scroll;
+        position: absolute;
+        top: 38px;
+        bottom: 0;
+        width: 100%;
+    }
+
+
+
+    .modal-header .close {
+        margin-right: 15px;
+    }
+
+    .modal-footer {
+        position: absolute;
+        width: 100%;
+        bottom: 0;
+    }
+
+</style>
 <script type="text/javascript">
     jQuery(function ($) {
         var startDate = moment().month(moment().month() - 1).startOf('month');
@@ -76,13 +114,13 @@
                         render: function (data, type, row, meta) {
                             var jsp = row['type'] === 1 ? "clinic_list.jsp" : "recipe_list.jsp";
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
-                                '<a class="hasDetail green" href="#" data-Url="/index.jspa?content=/remark/{2}&sampleBatchID={0}&remarkType={1}&menuID=14&batchName={3}">'.format(data, row["medicineNo"], jsp, encodeURI(encodeURI(row["chnName"]))) +
-                                '<i class="ace-icon glyphicon glyphicon-stats "></i>' +
+                                '<a class="hasDetail" href="#" data-Url="javascript:showMedicineChart({0},\'{1}\');">'.format(data, row["chnName"]) +
+                                '<i class="ace-icon glyphicon glyphicon-stats bigger-130"></i>' +
                                 '</a>&nbsp;&nbsp;&nbsp;' +
-                                '<a class="hasDetail" href="#" data-Url="javascript:deleteBatch({0},\'{1}\');">'.format(data, row["name"]) +
+                                '<a class="hasDetail" href="#" data-Url="javascript:showGroupDetail({0},\'{1}\');">'.format(data, row["chnName"]) +
                                 '<i class="ace-icon glyphicon glyphicon-th bigger-130"></i>' +
                                 '</a>&nbsp;&nbsp;&nbsp;' +
-                                '<a class="hasDetail" href="#" data-Url="javascript:deleteBatch({0},\'{1}\');">'.format(data, row["name"]) +
+                                '<a class="hasDetail" href="#" data-Url="javascript:showGroupDetail({0},\'{1}\');">'.format(data, row["chnName"]) +
                                 '<i class="ace-icon glyphicon glyphicon-user bigger-130"></i>' +
                                 '</a>' +
                                 '</div>';
@@ -107,11 +145,6 @@
                     style: 'single'
                 }
             });
-        /* myTable.on('order.dt search.dt', function () {
-             myTable.column(0, {search: 'applied', order: 'applied'}).nodes().each(function (cell, i) {
-                 cell.innerHTML = i + 1;
-             });
-         }).draw();*/
         myTable.on('draw', function () {
             $('#dynamic-table tr').find('.hasDetail').click(function () {
                 if ($(this).attr("data-Url").indexOf('javascript:') >= 0) {
@@ -121,8 +154,7 @@
             });
         });
 
-
-        var dateRange = $('#form-dateRange').daterangepicker({
+        $('#form-dateRange').daterangepicker({
             'applyClass': 'btn-sm btn-success',
             'cancelClass': 'btn-sm btn-default',
             locale: {
@@ -134,7 +166,6 @@
         }, function (start, end, label) {
             startDate = start;
             endDate = end;
-            console.log(start);
         }).next().on(ace.click_event, function () {
             $(this).prev().focus();
         });
@@ -160,8 +191,8 @@
             var mental = $('#mental').is(':checked');
             var assist = $('#assist').is(':checked');
             var medicineNo = $('#form-medicineNo').val();
-            console.log("medicine:" + medicineNo);
-            console.log('url=' + url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), assist, mental, medicineNo));
+            // console.log("medicine:" + medicineNo);
+            //console.log('url=' + url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), assist, mental, medicineNo));
             myTable.ajax.url(url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), assist, mental, medicineNo)).load();
         });
 
@@ -178,7 +209,7 @@
                     });
                 },
                 display: function (item) {
-                    return item.chnName + "-" + item.spec;
+                    return item.chnName + " - " + item.spec;
                 },
                 templates: {
                     header: function (query) {//header or footer
@@ -201,12 +232,59 @@
         });
         $('#form-medicine').on("input propertychange", function () {
             $('#form-medicineNo').val("");
-            //console.log("clear medicineNo");
         });
-        /*$('#form-medicine').bind('typeahead:asyncrequest', function (ev, suggestion, ds) {
-            for (var o in ev) console.log("o:" + o);
-        });*/
 
+        function showMedicineChart(medicineNo, chnName) {
+            var url = "/chart/medicine.jspa?fromDate={0}&toDate={1}&medicineNo={2}&chartWidth={3}&chartHeight={4}";
+            /*   console.log($("#imagePic").width());
+               console.log($("#imagePic").height());*/
+            $('#dialog-title').text(chnName + " - 走势图");
+            $('#showChartDialog').modal();
+            $("#imagePic").attr("src", url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), medicineNo, $("#imagePic").width(), $("#imagePic").height()));
+
+        }
+
+        function showGroupDetail(medicineNo, chnName) {
+            var url = "/sunning/statMedicineGroupByDepart.jspa?fromDate={0}&toDate={1}&medicineNo={2}";
+            //console.log("text=" + $('#disItem').val());
+            $.ajax({
+                type: "GET",
+                url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), medicineNo),
+                contentType: "application/json; charset=utf-8",
+                cache: false,
+                success: function (response, textStatus) {
+                    var respObject = JSON.parse(response);
+                    if (respObject.data.length > 0) {
+                        //if($("#groupTable tbody tr").length === 0)
+                        //$('#groupTable').empty();
+                        var i = 0;
+                        $.each(respObject.data, function () {
+                            var $tr = '<tr><td align="center">{0}</td><td align="center">{1}</td><td align="left">{2}</td><td align="left">{2}</td></tr>'
+                                .format(++i, this.department, this.amount, this.ratio);
+                            // console.log($tr);
+                            $("#groupTable tbody").append($tr);
+                        });
+                        $('#dialog-title2').text(chnName + " - 按科室汇总");
+                        $('#showDepartDoctorDialog').modal();
+                        console.log("i=" + i);
+                    }
+                },
+                error: function (response, textStatus) {/*能够接收404,500等错误*/
+                    $("#errorText").text(response.responseText.substr(0, 1000));
+                    $("#dialog-error").removeClass('hide').dialog({
+                        modal: true,
+                        width: 600,
+                        title: "请求状态码：" + response.status,//404，500等
+                        buttons: [{
+                            text: "确定", "class": "btn btn-primary btn-xs", click: function () {
+                                $(this).dialog("close");
+                            }
+                        }]
+                    });
+                },
+
+            });
+        }
     })
 </script>
 
@@ -303,6 +381,56 @@
 
     <div id="dialog-error" class="hide alert" title="提示">
         <p id="errorText">保存失败，请稍后再试，或与系统管理员联系。</p>
+    </div>
+
+    <div id="showChartDialog" class="modal fade text-center" tabindex="-1">
+        <div class="modal-dialog" style="display: inline-block; width: auto;">
+            <div class="modal-content">
+                <div class="modal-header no-padding">
+                    <div class="table-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            <span class="white">&times;</span>
+                        </button>
+                        <span id="dialog-title">走势图</span>
+                    </div>
+                </div>
+
+                <div class="modal-body no-padding"><img id="imagePic" alt="走势图" width="650px" height="300px"/></div>
+
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+    <div id="showDepartDoctorDialog" class="modal fade" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header no-padding">
+                    <div class="table-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                            <span class="white">&times;</span>
+                        </button>
+                        <span id="dialog-title2">科室汇总</span>
+                    </div>
+                </div>
+
+                <div class="modal-body">
+                    <table id="groupTable" class="table table-striped table-bordered table-hover no-margin-bottom no-border-top">
+                        <thead>
+                        <tr>
+                            <th class="col-xs-1">排名</th>
+                            <th class="col-xs-5">科室</th>
+                            <th class="col-xs-3">金额</th>
+                            <th class="col-xs-3">占比</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
     </div>
 </div>
 <!-- /.page-content -->

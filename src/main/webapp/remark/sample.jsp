@@ -397,10 +397,10 @@
                         /*  return ['<p class="repo-language">', item.name, '</p>',
                             '<p class="repo-name">', item.doctorNo, '</p>'
                           ].join('');*/
-                        return '<p><strong>' + item.name + '</strong>-' + item.title + '</p>';
+                        return '<p><strong>' + item.name + '</strong> - <span class="light-grey">' + item.title + '</span></p>';
                     },
 
-                    notFound: '<div class="notFound">没匹配的</div>'
+                    notFound: '<div class="red">没匹配</div>'
                     /*, header: '<h3 class="tt-suggestion-title">可使用键盘↑↓选择。  </h3>'*/
                     // footer: '<h3>支持剪头移动选择项</h3>'
                 }
@@ -434,7 +434,7 @@
                     });
                 },
                 display: function (item) {
-                    return item.chnName + "-" + item.spec;
+                    return item.chnName + " - " + item.spec;
                 },
                 templates: {
                     header: function (query) {//header or footer
