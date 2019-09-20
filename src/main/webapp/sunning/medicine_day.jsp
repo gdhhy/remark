@@ -9,6 +9,7 @@
 <%--<script src="../assets/js/jquery.gritter.min.js"></script>--%>
 <script src="../js/accounting.min.js"></script>
 <script src="../js/jquery.cookie.min.js"></script>
+<script src="../js/accounting.min.js"></script>
 <script src="../assets/js/jquery.validate.min.js"></script>
 <script src="../components/moment/moment.min.js"></script>
 <script src="../components/bootstrap-daterangepicker/daterangepicker.js"></script>
@@ -22,7 +23,7 @@
 <link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
 <link rel="stylesheet" href="../assets/css/ace.css"/>
 <style type="text/css">
-    .modal-dialog {
+    #showDepartDoctorDialog .modal-dialog {
         position: absolute;
         top: 0;
         bottom: 0;
@@ -30,7 +31,7 @@
         right: 0;
     }
 
-    .modal-content {
+    #showDepartDoctorDialog .modal-content {
         /*overflow-y: scroll; */
         position: absolute;
         top: 0;
@@ -38,7 +39,7 @@
         width: 100%;
     }
 
-    .modal-body {
+    #showDepartDoctorDialog .modal-body {
         overflow-y: scroll;
         position: absolute;
         top: 38px;
@@ -46,18 +47,9 @@
         width: 100%;
     }
 
-
-
-    .modal-header .close {
+    #showDepartDoctorDialog .modal-header .close {
         margin-right: 15px;
     }
-
-    .modal-footer {
-        position: absolute;
-        width: 100%;
-        bottom: 0;
-    }
-
 </style>
 <script type="text/javascript">
     jQuery(function ($) {
@@ -117,10 +109,10 @@
                                 '<a class="hasDetail" href="#" data-Url="javascript:showMedicineChart({0},\'{1}\');">'.format(data, row["chnName"]) +
                                 '<i class="ace-icon glyphicon glyphicon-stats bigger-130"></i>' +
                                 '</a>&nbsp;&nbsp;&nbsp;' +
-                                '<a class="hasDetail" href="#" data-Url="javascript:showGroupDetail({0},\'{1}\');">'.format(data, row["chnName"]) +
+                                '<a class="hasDetail" href="#" data-Url="javascript:showDepartmentDetail({0},\'{1}\',\'department\');">'.format(data, row["chnName"]) +
                                 '<i class="ace-icon glyphicon glyphicon-th bigger-130"></i>' +
                                 '</a>&nbsp;&nbsp;&nbsp;' +
-                                '<a class="hasDetail" href="#" data-Url="javascript:showGroupDetail({0},\'{1}\');">'.format(data, row["chnName"]) +
+                                '<a class="hasDetail" href="#" data-Url="javascript:showDoctorDetail({0},\'{1}\',\'doctor\');">'.format(data, row["chnName"]) +
                                 '<i class="ace-icon glyphicon glyphicon-user bigger-130"></i>' +
                                 '</a>' +
                                 '</div>';
@@ -195,7 +187,9 @@
             //console.log('url=' + url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), assist, mental, medicineNo));
             myTable.ajax.url(url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), assist, mental, medicineNo)).load();
         });
-
+        $('.btn-info').click(function () {
+            window.location.href = "/excel/statMedicine.jspa?fromDate={0}&toDate={1}".format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"));
+        });
         //https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
         $('#form-medicine').typeahead({hint: true},
             {
@@ -244,8 +238,11 @@
 
         }
 
-        function showGroupDetail(medicineNo, chnName) {
+        function showDepartmentDetail(medicineNo, chnName) {
+            $('#doctorTable').hide();
+            $('#departmentTable').show();
             var url = "/sunning/statMedicineGroupByDepart.jspa?fromDate={0}&toDate={1}&medicineNo={2}";
+
             //console.log("text=" + $('#disItem').val());
             $.ajax({
                 type: "GET",
@@ -255,16 +252,64 @@
                 success: function (response, textStatus) {
                     var respObject = JSON.parse(response);
                     if (respObject.data.length > 0) {
-                        //if($("#groupTable tbody tr").length === 0)
-                        //$('#groupTable').empty();
+                        //if($("#departmentTable tbody tr").length === 0)
+                        //$('#departmentTable').empty();
+
+                        $('#departmentTable tbody tr').remove();
                         var i = 0;
                         $.each(respObject.data, function () {
-                            var $tr = '<tr><td align="center">{0}</td><td align="center">{1}</td><td align="left">{2}</td><td align="left">{2}</td></tr>'
-                                .format(++i, this.department, this.amount, this.ratio);
+                            var $tr = ('<tr><td style="text-align: center">{0}</td><td style="text-align: center">{1}</td>' +
+                                '<td style="text-align: right">{2}</td><td style="text-align: right">{3}</td></tr>')
+                                .format(++i, this.department, accounting.format(this.amount, 2), accounting.format(this.ratio * 100, 1) + '%');
                             // console.log($tr);
-                            $("#groupTable tbody").append($tr);
+                            $("#departmentTable tbody").append($tr);
                         });
                         $('#dialog-title2').text(chnName + " - 按科室汇总");
+                        $('#showDepartDoctorDialog').modal();
+                        console.log("i=" + i);
+                    }
+                },
+                error: function (response, textStatus) {/*能够接收404,500等错误*/
+                    $("#errorText").text(response.responseText.substr(0, 1000));
+                    $("#dialog-error").removeClass('hide').dialog({
+                        modal: true,
+                        width: 600,
+                        title: "请求状态码：" + response.status,//404，500等
+                        buttons: [{
+                            text: "确定", "class": "btn btn-primary btn-xs", click: function () {
+                                $(this).dialog("close");
+                            }
+                        }]
+                    });
+                },
+
+            });
+        }
+
+        function showDoctorDetail(medicineNo, chnName) {
+            $('#doctorTable').show();
+            $('#departmentTable').hide();
+            url = "/sunning/getDoctorListByMedicine.jspa?fromDate={0}&toDate={1}&medicineNo={2}";
+            $.ajax({
+                type: "GET",
+                url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), medicineNo),
+                contentType: "application/json; charset=utf-8",
+                cache: false,
+                success: function (response, textStatus) {
+                    var respObject = JSON.parse(response);
+                    if (respObject.data.length > 0) {
+                        //if($("#doctorTable tbody tr").length === 0)
+                        //$('#doctorTable').empty();
+                        $('#doctorTable tbody tr').remove();
+                        var i = 0;
+                        $.each(respObject.data, function () {
+                            var $tr = ('<tr><td style="text-align: center">{0}</td><td style="text-align: center">{1}</td>' +
+                                '<td style="text-align: right">{2}</td><td style="text-align: right">{3}</td></tr>')
+                                .format(++i, this.doctorName, accounting.format(this.amount, 2), this.quantity);
+                            // console.log($tr);
+                            $("#doctorTable tbody").append($tr);
+                        });
+                        $('#dialog-title2').text(chnName + " - 按医生汇总");
                         $('#showDepartDoctorDialog').modal();
                         console.log("i=" + i);
                     }
@@ -412,14 +457,28 @@
                     </div>
                 </div>
 
-                <div class="modal-body">
-                    <table id="groupTable" class="table table-striped table-bordered table-hover no-margin-bottom no-border-top">
+                <div class="modal-body no-padding">
+                    <table id="departmentTable" class="table table-striped table-bordered table-hover no-margin-bottom no-border-top">
                         <thead>
                         <tr>
-                            <th class="col-xs-1">排名</th>
-                            <th class="col-xs-5">科室</th>
-                            <th class="col-xs-3">金额</th>
-                            <th class="col-xs-3">占比</th>
+                            <th class="col-xs-1" style="text-align: center">排名</th>
+                            <th class="col-xs-5" style="text-align: center">科室</th>
+                            <th class="col-xs-3" style="text-align: center">金额</th>
+                            <th class="col-xs-3" style="text-align: center">占比</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                    <table id="doctorTable" class="table table-striped table-bordered table-hover no-margin-bottom no-border-top">
+                        <thead>
+                        <tr>
+                            <th class="col-xs-1" style="text-align: center">排名</th>
+                            <th class="col-xs-5" style="text-align: center">医生</th>
+                            <th class="col-xs-3" style="text-align: center">金额</th>
+                            <th class="col-xs-3" style="text-align: center">数量</th>
                         </tr>
                         </thead>
 

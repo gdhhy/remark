@@ -2,6 +2,7 @@ package com.zcreate.remark.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.zcreate.review.dao.DailyDAO;
 import com.zcreate.review.dao.StatDAO;
 import com.zcreate.util.DateUtils;
 import com.zcreate.util.StatMath;
@@ -24,11 +25,13 @@ public class SunningController {
     private static Logger log = LoggerFactory.getLogger(SunningController.class);
     @Autowired
     private StatDAO statDao;
+    @Autowired
+    private DailyDAO dailyDao;
     private Gson gson = new GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd HH:mm").create();
 
     //药品分析（天） 按科室
     @ResponseBody
-    @RequestMapping(value = "statMedicineGroupByDepart", method = RequestMethod.GET,  produces = "text/html;charset=UTF-8")
+    @RequestMapping(value = "statMedicineGroupByDepart", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String statMedicineGroupByDepart(
             @RequestParam(value = "medicineNo", required = false, defaultValue = "") String medicineNo,
             @RequestParam(value = "fromDate") String fromDate,
@@ -39,6 +42,29 @@ public class SunningController {
         HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, null);
         param.put("medicineNo", medicineNo);
         List<HashMap<String, Object>> result = statDao.statMedicineGroupByDepart(param);
+        StatMath.sumAndCalcRatio(result, "amount", "ratio");
+
+        Map<String, Object> retMap = new HashMap<>();
+        retMap.put("draw", draw);
+        retMap.put("data", result.subList(start, Math.min(start + limit, result.size())));
+        retMap.put("iTotalRecords", result.size());//todo 表的行数，未加任何调剂
+        retMap.put("iTotalDisplayRecords", result.size());
+
+        return gson.toJson(retMap);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "getDoctorListByMedicine", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String getDoctorListByMedicine(
+            @RequestParam(value = "medicineNo", required = false, defaultValue = "") String medicineNo,
+            @RequestParam(value = "fromDate") String fromDate,
+            @RequestParam(value = "toDate") String toDate,
+            @RequestParam(value = "draw", required = false) Integer draw,
+            @RequestParam(value = "start", required = false, defaultValue = "0") int start,
+            @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
+        HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, null);
+        param.put("medicineNo", medicineNo);
+        List<HashMap<String, Object>> result = dailyDao.getDoctorListByMedicine(param);
         StatMath.sumAndCalcRatio(result, "amount", "ratio");
 
         Map<String, Object> retMap = new HashMap<>();

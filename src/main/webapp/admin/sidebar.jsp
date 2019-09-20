@@ -150,6 +150,15 @@
                     </a>
 
                     <b class="arrow"></b>
+                </li> <li class="">
+                    <a href="index.jspa?content=/sunning/medicine_day.jsp&menuID=22" id="22">
+
+                        <!--<i class="menu-icon fa 	fa-certificate"></i>-->
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        <span class="menu-text">科室用药草是</span>
+                    </a>
+
+                    <b class="arrow"></b>
                 </li>
             </ul>
         </li>
