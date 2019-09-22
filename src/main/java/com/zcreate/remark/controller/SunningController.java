@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.zcreate.review.dao.DailyDAO;
 import com.zcreate.review.dao.StatDAO;
+import com.zcreate.review.logic.StatService;
 import com.zcreate.util.DateUtils;
 import com.zcreate.util.StatMath;
 import org.apache.ibatis.annotations.Param;
@@ -27,6 +28,8 @@ public class SunningController {
     private StatDAO statDao;
     @Autowired
     private DailyDAO dailyDao;
+    @Autowired
+    private StatService statService;
     private Gson gson = new GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd HH:mm").create();
 
     //药品分析（天） 按科室
@@ -129,5 +132,26 @@ public class SunningController {
         return gson.toJson(retMap);
     }
 
+    //药品分析（天）
+    @ResponseBody
+    @RequestMapping(value = "byDepart", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String byDepart(
+            @RequestParam(value = "medicineNo", required = false, defaultValue = "") String medicineNo,
+            @RequestParam(value = "healthNo", required = false, defaultValue = "") String healthNo,
+            @RequestParam(value = "fromDate") String fromDate,
+            @RequestParam(value = "toDate") String toDate,
+            @RequestParam(value = "type", required = false, defaultValue = "-1") Integer type,
+            @RequestParam(value = "draw", required = false) Integer draw,
+            @RequestParam(value = "start", required = false, defaultValue = "0") int start,
+            @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
+        List<HashMap<String, Object>> result = statService.byDepart(fromDate, toDate, type, healthNo, medicineNo);
 
+        Map<String, Object> retMap = new HashMap<>();
+        retMap.put("draw", draw);
+        retMap.put("data", result.subList(start, Math.min(start + limit, result.size())));
+        retMap.put("iTotalRecords", result.size());//todo 表的行数，未加任何调剂
+        retMap.put("iTotalDisplayRecords", result.size());
+
+        return gson.toJson(retMap);
+    }
 }

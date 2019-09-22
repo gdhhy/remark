@@ -45,15 +45,15 @@
         <mapper resource="com/zcreate/review/model/Appeal.xml"/>
         <mapper resource="com/zcreate/review/model/Untoward.xml"/>
         <mapper resource="com/zcreate/review/model/AntiResearch.xml"/>
-        <mapper resource="com/zcreate/message/model/Message.xml"/>
+        <!--<mapper resource="com/zcreate/message/model/Message.xml"/>-->
         <mapper resource="com/zcreate/review/model/Rational.xml"/>
         <mapper resource="com/zcreate/review/model/RationalDepartConfig.xml"/>
         <mapper resource="com/zcreate/review/model/Sunning.xml"/>
         <mapper resource="com/zcreate/review/model/Etone.xml"/>
         <mapper resource="com/zcreate/review/model/Infectious.xml"/>
         <mapper resource="com/zcreate/review/his/PatientInfo.xml"/>
-        <mapper resource="com/zcreate/storage/model/StorageCheck.xml"/>
 
         <mapper resource="com/zcreate/common/model/Dict_Mssql.xml"/>
+        <mapper resource="com/zcreate/common/persistence/map/Dict_Mssql.xml"/>
     </mappers>
 </configuration>

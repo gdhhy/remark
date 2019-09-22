@@ -69,7 +69,6 @@
 
     <%--<script src="../assets/js/x-editable/ace-editable.min.js"></script>--%>
     <script src="../js/string_func.js"></script>
-    <script src="../js/accounting.min.js"></script>
     <style type="text/css">
         .modal-dialog {
             position: absolute;

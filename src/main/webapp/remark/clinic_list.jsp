@@ -7,7 +7,6 @@
 <!--不能用1.11.4-->
 <script src="../assets/js/jquery.ui.touch-punch.min.js"></script>
 <%--<script src="../assets/js/ace.js"></script>--%>
-<script src="../js/accounting.min.js"></script>
 <script src="../js/resize.js"></script>
 <script src="../js/jquery.cookie.min.js"></script>
 <script src="../assets/js/jquery.validate.min.js"></script>

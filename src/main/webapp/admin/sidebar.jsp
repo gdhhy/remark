@@ -150,12 +150,23 @@
                     </a>
 
                     <b class="arrow"></b>
-                </li> <li class="">
-                    <a href="index.jspa?content=/sunning/medicine_day.jsp&menuID=22" id="22">
+                </li>
+                <li class="">
+                    <a href="index.jspa?content=/sunning/department.jsp&menuID=22" id="22">
 
                         <!--<i class="menu-icon fa 	fa-certificate"></i>-->
                         <i class="menu-icon fa fa-caret-right"></i>
-                        <span class="menu-text">科室用药草是</span>
+                        <span class="menu-text">科室用药趋势</span>
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+                <li class="">
+                    <a href="index.jspa?content=/sunning/doctor.jsp&menuID=23" id="23">
+
+                        <!--<i class="menu-icon fa 	fa-certificate"></i>-->
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        <span class="menu-text">医生用药分析</span>
                     </a>
 
                     <b class="arrow"></b>
