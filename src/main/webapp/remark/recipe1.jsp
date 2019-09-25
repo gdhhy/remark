@@ -336,7 +336,7 @@
                 shortTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
                     if (typeof (this.data()) !== 'undefined' && this.data()['antiClass'] > 0) {
                         var rowData = this.data();
-                        $.getJSON("/remark/getMedicine.jspa?medicineNo=" + this.data()['medicineNo'], function (result) {
+                        $.getJSON("/medicine/getMedicine.jspa?medicineNo=" + this.data()['medicineNo'], function (result) {
                             rowData['price'] = result.price;
                         });
                     }
@@ -384,7 +384,7 @@
                         //console.log("medicineNo:" + JSON.stringify(shortTable.row(cc).data()));
                         if (typeof (shortTable.row(cc).data()['medicineNo']) !== 'undefined') {
 
-                            $.getJSON("/remark/getMedicine.jspa?medicineNo=" + shortTable.row(cc).data()['medicineNo'], function (result) {
+                            $.getJSON("/medicine/getMedicine.jspa?medicineNo=" + shortTable.row(cc).data()['medicineNo'], function (result) {
                                 //if (result.healthNo === '401801' || result.healthNo === '401802') {
                                 if (result.healthNo.startsWith('4018')) {
                                     rowData['menstruum'] = shortTable.row(cc).data()['advice'];
@@ -437,7 +437,7 @@
                 longTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
                     if (typeof (this.data()) !== 'undefined' && this.data()['antiClass'] > 0) {
                         var rowData = this.data();
-                        $.getJSON("/remark/getMedicine.jspa?medicineNo=" + this.data()['medicineNo'], function (result) {
+                        $.getJSON("/medicine/getMedicine.jspa?medicineNo=" + this.data()['medicineNo'], function (result) {
                             rowData['price'] = result.price;
                         });
                     }
@@ -456,7 +456,7 @@
                 });
                 if (exists) return;
                 if (typeof (rowData['price']) === 'undefined' && typeof (rowData['medicineNo']) !== 'undefined')
-                    $.getJSON("/remark/getMedicine.jspa?medicineNo=" + rowData['medicineNo'], function (result) {
+                    $.getJSON("/medicine/getMedicine.jspa?medicineNo=" + rowData['medicineNo'], function (result) {
                         console.log("price:" + result.price);
                         rowData['price'] = result.price;
                     });
@@ -490,7 +490,7 @@
                         //console.log("medicineNo:" + JSON.stringify(longTable.row(cc).data()));
                         if (typeof (longTable.row(cc).data()['medicineNo']) !== 'undefined') {
 
-                            $.getJSON("/remark/getMedicine.jspa?medicineNo=" + longTable.row(cc).data()['medicineNo'], function (result) {
+                            $.getJSON("/medicine/getMedicine.jspa?medicineNo=" + longTable.row(cc).data()['medicineNo'], function (result) {
                                 //if (result.healthNo === '401801' || result.healthNo === '401802') {
                                 if (result.healthNo.startsWith('4018')) {
                                     rowData['menstruum'] = longTable.row(cc).data()['advice'];

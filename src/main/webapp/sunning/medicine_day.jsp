@@ -131,7 +131,7 @@
                 },
 
                 // "processing": true,
-                "serverSide": true,
+                //"serverSide": true,
                 select: {
                     style: 'single'
                 }
@@ -195,7 +195,7 @@
                 limit: 1000,
                 source: function (queryStr, processSync, processAsync) {
                     var params = {queryChnName: queryStr, length: 1000};
-                    $.getJSON('/remark/liveMedicine.jspa', params, function (json) {
+                    $.getJSON('/medicine/liveMedicine.jspa', params, function (json) {
                         //medicineLiveCount = json.iTotalRecords;
                         //console.log("count:" + medicineLiveCount);
                         return processAsync(json.data);
@@ -339,7 +339,7 @@
             <i class="ace-icon fa fa-home home-icon"></i>
             <a href="/index.jspa">首页</a>
         </li>
-        <li class="active">抽样点评</li>
+        <li class="active">药品分析（天）</li>
 
     </ul><!-- /.breadcrumb -->
 
@@ -399,7 +399,7 @@
 
                 <div class="col-xs-12">
                     <div class="table-header">
-                        药品排名
+                        查询结果
                         <div class="pull-right tableTools-container"></div>
 
                     </div>

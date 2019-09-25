@@ -143,7 +143,7 @@ public class SunningController {
             @RequestParam(value = "type", required = false, defaultValue = "-1") Integer type,
             @RequestParam(value = "draw", required = false) Integer draw,
             @RequestParam(value = "start", required = false, defaultValue = "0") int start,
-            @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
+            @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
         List<HashMap<String, Object>> result = statService.byDepart(fromDate, toDate, type, healthNo, medicineNo);
 
         Map<String, Object> retMap = new HashMap<>();
@@ -154,4 +154,51 @@ public class SunningController {
 
         return gson.toJson(retMap);
     }
+
+    @ResponseBody
+    @RequestMapping(value = "byDepartDetail", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String byDepartDetail(
+            @RequestParam(value = "medicineNo", required = false, defaultValue = "") String medicineNo,
+            @RequestParam(value = "department", required = false, defaultValue = "") String department,
+            @RequestParam(value = "healthNo", required = false, defaultValue = "") String healthNo,
+            @RequestParam(value = "fromDate") String fromDate,
+            @RequestParam(value = "toDate") String toDate,
+            @RequestParam(value = "type", required = false, defaultValue = "-1") Integer type,
+            @RequestParam(value = "antiClass", required = false, defaultValue = "-1") Integer antiClass,
+            @RequestParam(value = "draw", required = false) Integer draw,
+            @RequestParam(value = "start", required = false, defaultValue = "0") int start,
+            @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
+        List<HashMap<String, Object>> result = statService.getDepartDetail(fromDate, toDate, department, type, healthNo, antiClass);
+
+        Map<String, Object> retMap = new HashMap<>();
+        retMap.put("draw", draw);
+        retMap.put("data", result.subList(start, Math.min(start + limit, result.size())));
+        retMap.put("iTotalRecords", result.size());
+        retMap.put("iTotalDisplayRecords", result.size());
+
+        return gson.toJson(retMap);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "byDoctor", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String byDoctor(
+            @RequestParam(value = "medicineNo", required = false, defaultValue = "") String medicineNo,
+            @RequestParam(value = "department", required = false, defaultValue = "") String department,
+            @RequestParam(value = "fromDate") String fromDate,
+            @RequestParam(value = "toDate") String toDate,
+            @RequestParam(value = "draw", required = false) Integer draw,
+            @RequestParam(value = "start", required = false, defaultValue = "0") int start,
+            @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
+        List<HashMap<String, Object>> result = statService.byDoctor(fromDate, toDate, department);
+
+        Map<String, Object> retMap = new HashMap<>();
+        retMap.put("draw", draw);
+        retMap.put("data", result.subList(start, Math.min(start + limit, result.size())));
+        retMap.put("iTotalRecords", result.size());//todo 表的行数，未加任何调剂
+        retMap.put("iTotalDisplayRecords", result.size());
+
+        return gson.toJson(retMap);
+    }
+
+
 }

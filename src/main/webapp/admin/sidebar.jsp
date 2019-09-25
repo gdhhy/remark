@@ -174,19 +174,82 @@
             </ul>
         </li>
         <%--<sec:authentication property="principal.username"/>--%>
-        <sec:authorize access="hasRole('ADMIN')">
+        <sec:authorize access="hasRole('ADMIN2')">
             <li>
                 <a href="index.jspa?content=/appeal/checkRecord.jsp&menuID=2" id="2">
                     <i class="menu-icon fa fa-picture-o"></i>
                     <span class="menu-text"> 盘查录入 </span>
                 </a>
             </li>
+            <li>
+                <a href="index.jspa?content=/appeal/joinbuy.jspa&menuID=3" id="3">
+                    <i class="menu-icon fa fa-pencil-square-o"></i>
+                    <span class="menu-text"> 上访事件管理 </span>
+                </a>
+            </li>
         </sec:authorize>
+
         <li>
-            <a href="index.jspa?content=/appeal/joinbuy.jspa&menuID=3" id="3">
-                <i class="menu-icon fa fa-pencil-square-o"></i>
-                <span class="menu-text"> 上访事件管理 </span>
+            <a href="#" class="dropdown-toggle">
+                <i class="menu-icon fa fa-flask "></i>
+                <span class="menu-text"> 抗菌药监测 </span>
+
+                <b class="arrow fa fa-angle-down"></b>
             </a>
+
+            <b class="arrow"></b>
+
+            <ul class="submenu">
+                <li class="">
+                    <a href="index.jspa?content=/anti/drug.jsp&menuID=30" id="30">
+                        <!--<i class="menu-icon fa fa-user"></i>-->
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        <span class="menu-text"> 抗菌药品种统计</span>
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+                <li class="">
+                    <a href="index.jspa?content=/admin/roles.jsp&menuID=31" id="31">
+                        <!--<i class="menu-icon fa 	fa-certificate"></i>-->
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        <span class="menu-text"> 住院科室抗菌药统计</span>
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+                <li class="">
+                    <a href="index.jspa?content=/admin/roles.jsp&menuID=31" id="31">
+                        <!--<i class="menu-icon fa 	fa-certificate"></i>-->
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        <span class="menu-text"> 门诊抗菌药统计</span>
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="#" class="dropdown-toggle">
+                <i class="menu-icon glyphicon glyphicon-adjust "></i>
+                <span class="menu-text">基础数据 </span>
+
+                <b class="arrow fa fa-angle-down"></b>
+            </a>
+
+            <b class="arrow"></b>
+
+            <ul class="submenu">
+                <li class="">
+                    <a href="index.jspa?content=/base/medicine.jsp&menuID=40" id="40">
+                        <!--<i class="menu-icon fa fa-user"></i>-->
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        <span class="menu-text">本院药品</span>
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+            </ul>
         </li>
         <li>
             <a href="#" class="dropdown-toggle">

@@ -1,10 +1,13 @@
 package com.zcreate.remark.controller;
 
+import com.zcreate.common.DictService;
 import com.zcreate.rbac.web.DeployRunning;
 import com.zcreate.review.dao.DailyDAO;
 import com.zcreate.review.dao.StatDAO;
+import com.zcreate.review.logic.AntibiosisService;
 import com.zcreate.review.logic.StatService;
 import com.zcreate.util.DataFormat;
+import com.zcreate.util.StatMath;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
@@ -36,6 +39,10 @@ public class ExcelController {
     private DailyDAO dailyDao;
     @Autowired
     private StatService statService;
+    @Autowired
+    private AntibiosisService antibiosisService;
+    @Autowired
+    private DictService dictService;
     String templateDir = "template";
 
     //药品分析（天）
@@ -76,6 +83,68 @@ public class ExcelController {
         String[] prop = {"department", "amount", "clinicAmount", "hospitalAmount", "amountRatio", "insuranceAmount", "insuranceRatio"};
 
         HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "byDepart.xls"));
+
+        exportExcel(response, wb, 3, "科室用药统计", result, prop);
+    }
+
+    @RequestMapping(value = "antiDrug", method = RequestMethod.GET)
+    public void antiDrug(HttpServletResponse response,
+            @RequestParam(value = "quarter", required = false, defaultValue = "") String quarter,
+            @RequestParam(value = "month", required = false, defaultValue = "") String month) throws Exception {
+        HashMap<String, Object> param = new HashMap<>();
+        String chnPeriod = "";
+        String[] prop;
+        HSSFWorkbook wb;
+        if (!"".equals(quarter)) {
+            String date[] = quarter.split("-");
+            param.put("year", Integer.parseInt(date[0]));
+            param.put("quarter", Integer.parseInt(date[1]));
+            chnPeriod = Integer.parseInt(date[0]) + "年" + Integer.parseInt(date[1]) + "季度";
+            prop = new String[]{"chnName", "antiClass", "dose", "spec", "minUnit", "", "clinicQuantity", "hospitalQuantity", "bringQuantity", "total", "DDDs"};
+            wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "antiDrug.xls"));
+        } else {//if (!"".equals(month))
+            String date[] = month.split("-");
+            param.put("year", Integer.parseInt(date[0]));
+            param.put("month", Integer.parseInt(date[1]));
+            chnPeriod = Integer.parseInt(date[0]) + "年" + Integer.parseInt(date[1]) + "月";
+            prop = new String[]{"goodsNo", "chnName", "antiClass", "spec", "minUnit", "price", "amount", "clinicQuantity", "hospitalQuantity", "bringQuantity", "total", "DDDs"};
+            wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "antiDrug_month.xls"));
+        }
+        List<HashMap<String, Object>> result = antibiosisService.antiDrug(param);
+        String[] antiClass = {"非限制", "限制", "特殊"};
+        for (HashMap<String, Object> aMap : result)
+            if ((Short) aMap.get("antiClass") > 0 && (Short) aMap.get("antiClass") <= 3)
+                aMap.put("antiClass", antiClass[(Short) aMap.get("antiClass") - 1]);
+
+        wb.getSheet("Sheet1").getRow(1).getCell(0).setCellValue("机构名称：" + dictService.getDictByNo("00011001").getValue());
+        wb.getSheet("Sheet1").getRow(1).getCell(11).setCellValue(chnPeriod);
+
+        exportExcel(response, wb, 5, !"".equals(quarter), "抗菌药物品种统计" + chnPeriod, result, prop);
+    }
+
+    @RequestMapping(value = "byDoctor", method = RequestMethod.GET)
+    public void byDoctor(
+            HttpServletResponse response,
+            @RequestParam(value = "department", required = false, defaultValue = "") String department,
+            @RequestParam(value = "fromDate") String fromDate,
+            @RequestParam(value = "toDate") String toDate) throws Exception {
+        List<HashMap<String, Object>> result = statService.byDoctor(fromDate, toDate, department);
+
+        StatMath.ratio(result, "antiAmount", "amount", "amountRatio");
+        StatMath.sumAndCalcRatio(result, "antiAmount", "antiAmountRatio");
+        StatMath.ratio(result, "hospitalAntiPatient2", "hospitalPatient2", "antiPatientRatio");
+        StatMath.sumAndCalcRatio(result, "clinicAntiPatient", "clinicAntiCompose");
+        StatMath.ratio(result, "clinicAntiPatient", "clinicPatient2", "clinicAntiPatientRatio");
+
+        for (HashMap<String, Object> aMap : result) {
+            if (aMap.get("hospitalDay") != null && aMap.get("DDDs") != null && ((Number) aMap.get("hospitalDay")).doubleValue() > 0)
+                aMap.put("AUD", ((Number) aMap.get("DDDs")).doubleValue() * 100 / ((Number) aMap.get("hospitalDay")).doubleValue());
+        }
+
+        String prop[] = {"doctorName", "antiAmount", "amount", "amountRatio", "antiAmountRatio", "hospitalAntiPatient2", "antiPatientRatio",
+                "DDDs", "hospitalDay", "AUD", "clinicAntiPatient", "clinicAntiPatientRatio", "clinicAntiCompose"};
+
+        HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "antiByDoctor.xls"));
 
         exportExcel(response, wb, 3, "科室用药统计", result, prop);
     }

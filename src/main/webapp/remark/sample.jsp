@@ -147,7 +147,7 @@
                 },
 
                 // "processing": true,
-                "serverSide": true,
+                //"serverSide": true,
                 select: {
                     style: 'single'
                 }
@@ -427,7 +427,7 @@
                 limit: 1000,
                 source: function (queryStr, processSync, processAsync) {
                     var params = {queryChnName: queryStr, length: 1000};
-                    $.getJSON('/remark/liveMedicine.jspa', params, function (json) {
+                    $.getJSON('/medicine/liveMedicine.jspa', params, function (json) {
                         //medicineLiveCount = json.iTotalRecords;
                         //console.log("count:" + medicineLiveCount);
                         return processAsync(json.data);

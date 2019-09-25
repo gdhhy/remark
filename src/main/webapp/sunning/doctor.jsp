@@ -22,40 +22,12 @@
 <link rel="stylesheet" href="../components/font-awesome/css/font-awesome.css"/>
 <link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
 <link rel="stylesheet" href="../assets/css/ace.css"/>
-<style type="text/css">
-    #showDepartDoctorDialog .modal-dialog {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-    }
 
-    #showDepartDoctorDialog .modal-content {
-        /*overflow-y: scroll; */
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 100%;
-    }
-
-    #showDepartDoctorDialog .modal-body {
-        overflow-y: scroll;
-        position: absolute;
-        top: 38px;
-        bottom: 0;
-        width: 100%;
-    }
-
-    #showDepartDoctorDialog .modal-header .close {
-        margin-right: 15px;
-    }
-</style>
 <script type="text/javascript">
     jQuery(function ($) {
         var startDate = moment().month(moment().month() - 1).startOf('month');
         var endDate = moment().month(moment().month() - 1).endOf('month');
-        var url = "/sunning/byDepart.jspa?fromDate={0}&toDate={1}&medicineNo={2}";
+        var url = "/sunning/byDoctor.jspa?fromDate={0}&toDate={1}";
 
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');
@@ -65,15 +37,16 @@
                 bAutoWidth: false,
                 bProcessing: true,
                 "columns": [
-                    {"data": "department", "sClass": "center"},
-                    {"data": "department", "sClass": "center"},
+                    {"data": "doctorName", "sClass": "center"},
+                    {"data": "doctorName", "sClass": "center"},
                     {"data": "amount", "sClass": "center"},
                     {"data": "clinicAmount", "sClass": "center"},
                     {"data": "hospitalAmount", "sClass": "center"},//4
-                    {"data": "amountRatio", "sClass": "center"},
-                    {"data": "insuranceAmount", "sClass": "center"},
-                    {"data": "insuranceRatio", "sClass": "center"},
-                    {"data": "department", "sClass": "center"}
+                    {"data": "clinicPatient", "sClass": "center"},
+                    {"data": "clinicPatient2", "sClass": "center"},
+                    {"data": "hospitalPatient", "sClass": "center"},
+                    {"data": "clinicAmount", "sClass": "center"},
+                    {"data": "hospitalAmount", "sClass": "center"}
                 ],
                 'columnDefs': [
                     {
@@ -81,30 +54,22 @@
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     },
-                    {"orderable": false, "targets": 1, title: '科室',searchable: true},
+                    {"orderable": false, "targets": 1, title: '医生'},
                     {"orderable": false, "targets": 2, title: '金额', render: renderAmount},
                     {"orderable": false, "targets": 3, title: '门诊金额', render: renderAmount},
                     {"orderable": false, "targets": 4, title: '住院金额', render: renderAmount},
-                    {"orderable": false, "targets": 5, title: '科室占全院', render: renderPercent1},
-                    {"orderable": false, "targets": 6, title: '医保金额', render: renderAmount},
-                    {"orderable": false, "targets": 7, title: '医保比例', render: renderPercent1},
-                    {
-                        'targets': 8, 'searchable': false, 'orderable': false, width: 110, title: '科室明细',
-                        render: function (data, type, row, meta) {
-                            var jsp = row['type'] === 1 ? "clinic_list.jsp" : "recipe_list.jsp";
-                            return '<div class="hidden-sm hidden-xs action-buttons">' +
-                                '<a class="hasDetail" href="#" data-Url="javascript:showDepartmentDetail(\'{0}\');">'.format(data) +
-                                '<i class="ace-icon glyphicon  glyphicon-list  bigger-130"></i>' +
-                                '</a>&nbsp;&nbsp;&nbsp;' +
-                                '</div>';
-                        }
-                    }],
+                    {"orderable": false, "targets": 5, title: '门诊病人', defaultContent: ''},
+                    {"orderable": false, "targets": 6, title: '门诊病人<br/>（西药）', defaultContent: ''},
+                    {"orderable": false, "targets": 7, title: '出院病人', defaultContent: ''},
+                    {"orderable": false, "targets": 8, title: '门诊平均', render: clinicAvr},
+                    {"orderable": false, "targets": 9, title: '出院平均', render: hospitalAvr}
+                ],
                 "aaSorting": [],
                 language: {
                     url: '../components/datatables/datatables.chinese.json'
                 },
                 "ajax": {
-                    url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"),   ""),
+                    url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD")),
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -126,6 +91,19 @@
                     window.open($(this).attr("data-Url"), "_blank");
             });
         });
+
+        function clinicAvr(data, type, row, meta) {
+            if (row["clinicPatient"] > 0)
+                return accounting.format(data / row["clinicPatient"], 2);
+            else
+                return "-";
+        }
+
+        function hospitalAvr(data, type, row, meta) {
+            if (row["hospitalPatient"] > 0)
+                return accounting.format(data / row["hospitalPatient"], 2);
+            else return "-";
+        }
 
         $('#form-dateRange').daterangepicker({
             'applyClass': 'btn-sm btn-success',
@@ -161,97 +139,59 @@
         }
 
         $('.btn-success').click(function () {
-            var medicineNo = $('#form-medicineNo').val();
-            // console.log("medicine:" + medicineNo);
-            myTable.ajax.url(url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"),   medicineNo)).load();
+            myTable.ajax.url(url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"))).load();
         });
         $('.btn-info').click(function () {
-            window.location.href = "/excel/byDepart.jspa?fromDate={0}&toDate={1}".format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"));
-        });
-        //https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
-        $('#form-medicine').typeahead({hint: true},
-            {
-                limit: 1000,
-                source: function (queryStr, processSync, processAsync) {
-                    var params = {queryChnName: queryStr, length: 1000};
-                    $.getJSON('/medicine/liveMedicine.jspa', params, function (json) {
-                        //medicineLiveCount = json.iTotalRecords;
-                        //console.log("count:" + medicineLiveCount);
-                        return processAsync(json.data);
-                    });
-                },
-                display: function (item) {
-                    return item.chnName + " - " + item.spec;
-                },
-                templates: {
-                    header: function (query) {//header or footer
-                        //console.log("query:" + JSON.stringify(query, null, 4));
-                        if (query.suggestions.length > 1)
-                            return '<div style="text-align:center" class="green" >发现 {0} 项</div>'.format(query.suggestions.length);
-                    },
-                    suggestion: Handlebars.compile('<div style="font-size: 9px">' +
-                        '<div style="font-weight:bold">{{chnName}}</div>' +
-                        '<span class="light-grey">编码：</span>{{goodsNo}}<span class="space-4"/> <span class="light-grey">规格：</span>{{spec}}</div>'),
-                    pending: function (query) {
-                        return '<div>查询中...</div>';
-                    },
-                    notFound: '<div class="red">没匹配</div>'
-                }
-            }
-        );
-        $('.typeahead').bind('typeahead:select', function (ev, suggestion) {
-            $('#form-medicineNo').val(suggestion["medicineNo"]);
-        });
-        $('#form-medicine').on("input propertychange", function () {
-            $('#form-medicineNo').val("");
+            window.location.href = "/excel/byDoctor.jspa?fromDate={0}&toDate={1}".format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"));
         });
 
-        function showDepartmentDetail(department) {
-            var url = "/sunning/byDepartDetail.jspa?fromDate={0}&toDate={1}&department={2}&limit=1000";
 
-            //console.log("text=" + $('#disItem').val());
-            $.ajax({
-                type: "GET",
-                url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), department),
-                contentType: "application/json; charset=utf-8",
-                cache: false,
-                success: function (response, textStatus) {
-                    var respObject = JSON.parse(response);
-                    if (respObject.data.length > 0) {
-                        //if($("#departmentTable tbody tr").length === 0)
-                        //$('#departmentTable').empty();
+        /* function showDepartmentDetail(department) {
+             var url = "/sunning/byDepartDetail.jspa?fromDate={0}&toDate={1}&department={2}&limit=1000";
 
-                        $('#departmentTable tbody tr').remove();
-                        var i = 0;
-                        $.each(respObject.data, function () {
-                            var $tr = ('<tr><td style="text-align: center">{0}</td><td style="text-align: center">{1}</td>' +
-                                '<td style="text-align: right">{2}</td><td style="text-align: right">{3}</td>' +
-                                '<td style="text-align: right">{4}</td><td style="text-align: right">{5}</td></tr>'
-                            ).format(++i, this.chnName, this.spec, this.quantity, accounting.format(this.amount, 2), accounting.format(this.ratioInDepart * 100, 2) + '%');
-                            // console.log($tr);
-                            $("#departmentTable tbody").append($tr);
-                        });
-                        $('#dialog-title').text(department + " - 用药明细");
-                        $('#showDepartDoctorDialog').modal();
-                        console.log("i=" + i);
-                    }
-                },
-                error: function (response, textStatus) {/*能够接收404,500等错误*/
-                    $("#errorText").text(response.responseText.substr(0, 1000));
-                    $("#dialog-error").removeClass('hide').dialog({
-                        modal: true,
-                        width: 600,
-                        title: "请求状态码：" + response.status,//404，500等
-                        buttons: [{
-                            text: "确定", "class": "btn btn-primary btn-xs", click: function () {
-                                $(this).dialog("close");
-                            }
-                        }]
-                    });
-                },
+             //console.log("text=" + $('#disItem').val());
+             $.ajax({
+                 type: "GET",
+                 url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), department),
+                 contentType: "application/json; charset=utf-8",
+                 cache: false,
+                 success: function (response, textStatus) {
+                     var respObject = JSON.parse(response);
+                     if (respObject.data.length > 0) {
+                         //if($("#departmentTable tbody tr").length === 0)
+                         //$('#departmentTable').empty();
 
-            });
-        }
+                         $('#departmentTable tbody tr').remove();
+                         var i = 0;
+                         $.each(respObject.data, function () {
+                             var $tr = ('<tr><td style="text-align: center">{0}</td><td style="text-align: center">{1}</td>' +
+                                 '<td style="text-align: right">{2}</td><td style="text-align: right">{3}</td>' +
+                                 '<td style="text-align: right">{4}</td><td style="text-align: right">{5}</td></tr>'
+                             ).format(++i, this.chnName, this.spec, this.quantity, accounting.format(this.amount, 2), accounting.format(this.ratioInDepart * 100, 2) + '%');
+                             // console.log($tr);
+                             $("#departmentTable tbody").append($tr);
+                         });
+                         $('#dialog-title').text(department + " - 用药明细");
+                         $('#showDepartDoctorDialog').modal();
+                         console.log("i=" + i);
+                     }
+                 },
+                 error: function (response, textStatus) {/!*能够接收404,500等错误*!/
+                     $("#errorText").text(response.responseText.substr(0, 1000));
+                     $("#dialog-error").removeClass('hide').dialog({
+                         modal: true,
+                         width: 600,
+                         title: "请求状态码：" + response.status,//404，500等
+                         buttons: [{
+                             text: "确定", "class": "btn btn-primary btn-xs", click: function () {
+                                 $(this).dialog("close");
+                             }
+                         }]
+                     });
+                 },
+
+             });
+         }*/
     })
 </script>
 
@@ -262,7 +202,7 @@
             <i class="ace-icon fa fa-home home-icon"></i>
             <a href="/index.jspa">首页</a>
         </li>
-        <li class="active">科室用药趋势</li>
+        <li class="active">医生用药分析</li>
 
     </ul><!-- /.breadcrumb -->
 
@@ -279,12 +219,7 @@
     <div class="page-header">
 
         <form class="form-search form-inline">
-            <label class=" control-label no-padding-right" for="form-medicine">药品名称： </label>
-            <div class="input-group">
-                <input class="typeahead scrollable nav-search-input" type="text" id="form-medicine" name="form-medicine"
-                       autocomplete="off" style="width: 250px;font-size: 9px;color: black"
-                       placeholder="编码或拼音匹配，鼠标选择"/><input type="hidden" id="form-medicineNo"/>
-            </div>
+
 
             <label>日期：</label>
             <!-- #section:plugins/date-time.datepicker -->
@@ -336,7 +271,7 @@
     <div id="dialog-error" class="hide alert" title="提示">
         <p id="errorText">保存失败，请稍后再试，或与系统管理员联系。</p>
     </div>
-    <div id="showDepartDoctorDialog" class="modal fade" tabindex="-1">
+    <%--<div id="showDepartDoctorDialog" class="modal fade" tabindex="-1">
         <div class="modal-dialog" style="width: 600px">
             <div class="modal-content">
                 <div class="modal-header no-padding">
@@ -369,6 +304,6 @@
 
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
-    </div>
+    </div>--%>
 </div>
 <!-- /.page-content -->

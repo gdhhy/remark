@@ -107,7 +107,7 @@
                 },
                // scrollY: '60vh',
                 //'sScrollY': 'calc(60vh - 280px)',
-                "serverSide": true,
+                //"serverSide": true,
                 select: {
                     style: 'single'
                 }

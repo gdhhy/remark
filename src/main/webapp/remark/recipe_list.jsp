@@ -106,7 +106,7 @@
                     }
                 },
                 //scrollY: '60vh',
-                "serverSide": true,
+                //"serverSide": true,
                 select: {
                     style: 'single'
                 }
