@@ -68,6 +68,8 @@ public class MedicineController {
     @RequestMapping(value = "getMedicineList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String getMedicineList(
             //@RequestParam(value = "queryChnName", required = false) String queryChnName,
+            @RequestParam(value = "medicineNo", required = false) String medicineNo,
+            @RequestParam(value = "medicineID", required = false, defaultValue = "0") int medicineID,
             @RequestParam(value = "search[value]", required = false) String search,
             @RequestParam(value = "search[regex]", required = false) String regex,
             @RequestParam(value = "goodsNo", required = false) String goodsNo,
@@ -126,6 +128,8 @@ public class MedicineController {
         }
 
         param.put("no", goodsNo);
+        param.put("medicineNo", medicineNo);
+        param.put("medicineID", medicineID);
 
         List<Medicine> medicineList = medicineDao.query(param);
 

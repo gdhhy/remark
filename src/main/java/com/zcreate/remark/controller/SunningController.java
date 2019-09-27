@@ -2,12 +2,12 @@ package com.zcreate.remark.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.zcreate.remark.util.ParamUtils;
 import com.zcreate.review.dao.DailyDAO;
 import com.zcreate.review.dao.StatDAO;
 import com.zcreate.review.logic.StatService;
 import com.zcreate.util.DateUtils;
 import com.zcreate.util.StatMath;
-import org.apache.ibatis.annotations.Param;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

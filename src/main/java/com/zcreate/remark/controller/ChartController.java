@@ -2,6 +2,7 @@ package com.zcreate.remark.controller;
 
 import ChartDirector.Chart;
 import ChartDirector.XYChart;
+import com.zcreate.remark.util.ChartHelp;
 import com.zcreate.review.dao.DailyDAO;
 import com.zcreate.review.dao.StatDAO;
 import org.slf4j.Logger;
@@ -22,7 +23,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.zcreate.remark.controller.ParamUtils.produceMap;
+import static com.zcreate.remark.util.ParamUtils.produceMap;
 
 @Controller
 @RequestMapping("/chart")

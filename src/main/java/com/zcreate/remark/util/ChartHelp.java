@@ -1,4 +1,4 @@
-package com.zcreate.remark.controller;
+package com.zcreate.remark.util;
 
 import ChartDirector.BarLayer;
 import ChartDirector.Chart;

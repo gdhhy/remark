@@ -26,13 +26,13 @@
     <sql id="queryWhere">
         <where>
             <if test="sampleBatchID > 0">AND sampleBatchID=#{sampleBatchID}</if>
-            <if test="@Ognl@isNotEmpty(sampleNo)">AND sampleNo=#{sampleNo}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(sampleNo)">AND sampleNo=#{sampleNo}</if>
             <if test="type>0">AND type = #{type}</if>
             <if test="year>0">AND year = #{year}</if>
             <if test="month>0">AND month = #{month}</if>
-            <if test="@Ognl@isNotEmpty(department)">AND department = #{department}</if>
-            <if test="@Ognl@isNotEmpty(doctor)">AND doctor = #{doctor}</if>
-            <if test="@Ognl@isNotEmpty(name)">AND name = #{name}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(department)">AND department = #{department}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(doctor)">AND doctor = #{doctor}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(name)">AND name = #{name}</if>
         </where>
     </sql>
     <select id="selectSampleBatchList" parameterType="java.util.Map" resultMap="RecordResult">
@@ -74,16 +74,16 @@
             <if test="year != null">year = #{year:INTEGER},</if>
             <if test="month != null">month = #{month:VARCHAR},</if>
             <if test="num != null">num = #{num:INTEGER},</if>
-            <if test="@Ognl@isNotEmpty(name)">name = #{name:VARCHAR},</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(name)">name = #{name:VARCHAR},</if>
             <if test="type != null">type = #{type:INTEGER},</if>
-            <if test="@Ognl@isNotEmpty(doctor)">doctor = #{doctor:VARCHAR},</if>
-            <if test="@Ognl@isNotEmpty(department)">department = #{department:VARCHAR},</if>
-            <if test="@Ognl@isNotEmpty(medicineNo)">medicineNo = #{medicineNo:VARCHAR},</if>
-            <if test="@Ognl@isNotEmpty(surgery)">surgery = #{surgery:INTEGER},</if>
-            <if test="@Ognl@isNotEmpty(outPatientNum)">outPatientNum = #{outPatientNum:INTEGER},</if>
-            <if test="@Ognl@isNotEmpty(total)">total = #{total:INTEGER},</if>
-            <if test="@Ognl@isNotEmpty(fromDate)">fromDate = #{fromDate:VARCHAR},</if>
-            <if test="@Ognl@isNotEmpty(toDate)">toDate = #{toDate:VARCHAR},</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(doctor)">doctor = #{doctor:VARCHAR},</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(department)">department = #{department:VARCHAR},</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(medicineNo)">medicineNo = #{medicineNo:VARCHAR},</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(surgery)">surgery = #{surgery:INTEGER},</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(outPatientNum)">outPatientNum = #{outPatientNum:INTEGER},</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(total)">total = #{total:INTEGER},</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">fromDate = #{fromDate:VARCHAR},</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(toDate)">toDate = #{toDate:VARCHAR},</if>
         </set>
         where sampleBatchID = #{sampleBatchID:INTEGER}
     </update>

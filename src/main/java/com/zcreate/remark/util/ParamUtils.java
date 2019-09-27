@@ -1,4 +1,4 @@
-package com.zcreate.remark.controller;
+package com.zcreate.remark.util;
 
 import com.zcreate.util.DateUtils;
 

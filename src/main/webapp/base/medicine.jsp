@@ -12,17 +12,24 @@
 <script src="../js/jquery.cookie.min.js"></script>
 <script src="../assets/js/jquery.validate.min.js"></script>
 <script src="../components/moment/moment.min.js"></script>
-<script src="../components/monthpicker/MonthPicker.js"></script>
 <script src="../components/typeahead.js/dist/typeahead.bundle.min.js"></script>
 <script src="../components/typeahead.js/handlebars.js"></script>
+<script src="../components/chosen/chosen.jquery.js"></script>
+<script src="../components/combotree/comboTreePlugin.js?v2"></script>
 
 <!-- bootstrap & fontawesome -->
 
 <link rel="stylesheet" href="../components/font-awesome/css/font-awesome.css"/>
 <link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
-<link rel="stylesheet" href="../components/monthpicker/MonthPicker.css"/>
-<link rel="stylesheet" href="../assets/css/ace.css"/>
-
+<link rel="stylesheet" href="../components/chosen/chosen.min.css"/>
+<%--<link href="https://www.jqueryscript.net/css/jquerysctipttop.css" rel="stylesheet" type="text/css">--%>
+<link rel="stylesheet" href="../components/combotree/style.css"/>
+<style>
+    .form-group {
+        margin-bottom: 3px;
+        margin-top: 3px;
+    }
+</style>
 <script type="text/javascript">
     jQuery(function ($) {
         var url = "/medicine/getMedicineList.jspa?queryChnName={0}";
@@ -59,13 +66,15 @@
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     }, {
-                        'targets': 15, 'searchable': false, 'orderable': false, width: 110, //title: '科室明细',
+                        'targets': 15, 'searchable': false, 'orderable': false,
                         render: function (data, type, row, meta) {
-                            var jsp = row['type'] === 1 ? "clinic_list.jsp" : "recipe_list.jsp";
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
-                                '<a class="hasDetail" href="#" data-Url="javascript:showDepartmentDetail(\'{0}\');">'.format(data) +
-                                '<i class="ace-icon glyphicon  glyphicon-list  bigger-130"></i>' +
+                                '<a class="hasDetail" href="#" data-Url="javascript:showMedicine(\'{0}\');">'.format(data) +
+                                '<i class="ace-icon fa  fa-pencil-square-o bigger-130"></i>' +
                                 '</a>&nbsp;&nbsp;&nbsp;' +
+                                '<a class="hasDetail" href="#" data-Url="javascript:showMedicine(\'{0}\');">'.format(data) +
+                                '<i class="ace-icon fa  fa-exchange  bigger-130"></i>' +
+                                '</a>' +
                                 '</div>';
                         }
                     }
@@ -82,13 +91,6 @@
                                 delete d[key];
                     }
                 },
-                /* "fnServerParams": function ( aoData ) {
-                     aoData.push(
-                         { "name": "queryChnName", "value": $("#form-medicine").val() },
-                         { "name": "goodsNo", "value": $("#form-goodsNo").val() }
-                     );
-                 },*/
-                // paging: false,
                 "processing": true,
                 "serverSide": true,
                 select: {style: 'single'},
@@ -106,11 +108,11 @@
                 $.getJSON("/common/dict/listDict.jspa?parentID=261", function (result) {
                     $.each(result.data, function (index, object) {
                         route[index] = object;
-                        //console.log("object:" + object.value);
                     });
                     renderRoute();
+                    setRouteOption();
                 });
-            else renderRoute();
+            //else renderRoute();
         });
 
         function renderRoute() {
@@ -192,7 +194,107 @@
             $('#form-goodsNo').val("");
         });
 
-    })
+
+        //下拉多选
+        $('.chosen-select').chosen({allow_single_deselect: true, no_results_text: "未找到此选项!"});
+
+        //$('.chosen-select').css({'width': 190});
+        /*resize the chosen on window resize*/
+        $(window)
+            .off('resize.chosen')
+            .on('resize.chosen', function () {
+                $('.chosen-select').each(function () {
+                    var $this = $(this);
+                    $this.next().css({'width': 190});
+                })
+            }).trigger('resize.chosen');
+        //resize chosen on sidebar collapse/expand
+        $(document).on('settings.ace.chosen', function (e, event_name, event_val) {
+            console.log("settings.ace.chosen");
+            if (event_name !== 'sidebar_collapsed') return;
+            $('.chosen-select').each(function () {
+                var $this = $(this);
+                $this.next().css({'width': 190});
+            })
+        });//下拉多选结束
+
+        function setRouteOption() {
+            $.each(route, function (index, object) {
+                $('#route').append("<option value='{0}'>{1}</option>".format(object.value, object.name));
+            });
+            $("#route").trigger("chosen:updated");
+        }
+
+        $.getJSON("/common/dict/listDict.jspa?parentDictNo=00015", function (result) {
+            $.each(result.data, function (index, object) {
+                $('#injection').append("<option value='{0}'>{1}</option>".format(object.value, object.name));
+            });
+            $("#injection").trigger("chosen:updated");
+        });
+        $.getJSON("/common/dict/listDict.jspa?parentDictNo=00017", function (result) {
+            $.each(result.data, function (index, object) {
+                $('#menstruum').append("<option value='{0}'>{1}</option>".format(object.value, object.name));
+            });
+            $("#menstruum").trigger("chosen:updated");
+        });
+
+        function showMedicine(medicineID) {
+            $.getJSON("/medicine/getMedicineList.jspa?medicineID=" + medicineID, function (ret) {
+                var result = ret.aaData[0];
+                $('#chnName').text(result.chnName);
+                $('#goodsNo').text(result.no);
+                $('#pinyin').text(result.pinyin);
+                $('#spec').text(result.spec);
+                $('#producer').text(result.producer);
+                $('#dealer').text(result.dealer);
+                $('#price').text(result.price);
+                $('#insurance').text(renderInsurance(result.insurance));
+                $('#dose').html(result.dose == null ? "&nbsp;" : result.dose);
+                $('#lastPurchaseTime').html(result.lastPurchaseTime == null ? "&nbsp;" : result.lastPurchaseTime);
+                $('#generalName').html(result.generalName == null ? "&nbsp;" : result.generalName);
+                $('#instructionName').html(result.instructionName == null ? "&nbsp;" : result.instructionName);
+                $('#contents').val(result.contents);
+                $('#DDDs').val(result.DDDs);
+                $('#maxDay').val(result.maxDay);
+                $('#antiClass').val(result.antiClass);
+                $('#base').val(result.base);
+                $('#mental').val(result.mental);
+                $("input[name='isStat'][value='" + result.isStat + "']").attr("checked", true);
+
+                $("#dialog-edit").removeClass('hide').dialog({
+                    resizable: false,
+                    width: 760,
+                    height: 530,
+                    modal: true,
+                    title: "药品资料",
+                    title_html: true,
+
+                    buttons: [
+                        {
+                            html: "<i class='ace-icon fa fa-pencil-square-o bigger-110'></i>&nbsp;保存",
+                            "class": "btn btn-danger btn-minier",
+                            click: function () {
+
+                            }
+                        }, {
+                            html: "<i class='ace-icon fa fa-times bigger-110'></i>&nbsp; 取消",
+                            "class": "btn btn-minier",
+                            click: function () {
+                                $(this).dialog("close");
+                            }
+                        }
+                    ]
+                });
+            });
+        }
+
+        $.getJSON("/health/tree.jspa?healthID=1", function (result) {
+            $('#healthNo').comboTree({
+                source: result
+            });
+        });
+
+    });
 </script>
 
 <!-- #section:basics/content.breadcrumbs -->
@@ -267,7 +369,7 @@
                                 <th style="text-align: center;width:80px">更新日期</th>
                                 <th style="text-align: center;width:80px">最后<br/>采购日期</th>
                                 <th style="text-align: center;width:60px;">维护人</th>
-                                <th style="text-align: center;width:60px;">编辑/配对</th>
+                                <th style="text-align: center;width:75px;">编辑/配对</th>
                             </tr>
                             </thead>
 
@@ -284,5 +386,179 @@
     <div id="dialog-error" class="hide alert" title="提示">
         <p id="errorText">保存失败，请稍后再试，或与系统管理员联系。</p>
     </div>
+    <div id="dialog-edit" class="hide">
+        <div class="col-xs-12">
+            <!-- PAGE CONTENT BEGINS -->
+            <form class="form-horizontal" role="form">
+                <div class="col-sm-4 no-padding">
+                    <%-- <div class="widget-header">
+                         <h4 class="smaller">
+                             Tooltips
+                             <small>different directions and colors</small>
+                         </h4>
+                     </div>--%>
+
+                    <div class="row ">
+                        <label class="col-sm-4" style="white-space: nowrap">药品名称 </label>
+                        <div class="col-sm-8 no-padding" id="chnName" style="border-bottom: 1px solid; border-bottom-color: lightgrey;font-size:  large"></div>
+                    </div>
+                    <div class="row">
+                        <label class="col-sm-4">编码 </label>
+                        <div class="col-sm-8 no-padding " style=" border-bottom: 1px solid; border-bottom-color: lightgrey" id="goodsNo"></div>
+                    </div>
+                    <div class="row">
+                        <label class="col-sm-4">规格 </label>
+                        <div class="col-sm-8 no-padding " style=" border-bottom: 1px solid; border-bottom-color: lightgrey" id="spec"></div>
+                    </div>
+                    <div class="row">
+                        <label class="col-sm-4">拼音码 </label>
+                        <div class="col-sm-8 no-padding " style=" border-bottom: 1px solid; border-bottom-color: lightgrey" id="pinyin"></div>
+                    </div>
+                    <div class="row">
+                        <label class="col-sm-4" style="white-space: nowrap">生产厂家 </label>
+                        <div class="col-sm-8 no-padding " style=" border-bottom: 1px solid; border-bottom-color: lightgrey" id="producer"></div>
+                    </div>
+                    <div class="row">
+                        <label class="col-sm-4" style="white-space: nowrap">经销商 </label>
+                        <div class="col-sm-8 no-padding " style=" border-bottom: 1px solid; border-bottom-color: lightgrey" id="dealer"></div>
+                    </div>
+                    <div class="row">
+                        <label class="col-sm-4" style="white-space: nowrap">单价 </label>
+                        <div class="col-sm-8 no-padding " style=" border-bottom: 1px solid; border-bottom-color: lightgrey" id="price"></div>
+                    </div>
+                    <div class="row">
+                        <label class="col-sm-4" style="white-space: nowrap">医保 </label>
+                        <div class="col-sm-8 no-padding " style=" border-bottom: 1px solid; border-bottom-color: lightgrey" id="insurance"></div>
+                    </div>
+                    <div class="row">
+                        <label class="col-sm-4" style="white-space: nowrap">剂型 </label>
+                        <div class="col-sm-8 no-padding " style=" border-bottom: 1px solid; border-bottom-color: lightgrey" id="dose"></div>
+                    </div>
+                    <div class="row">
+                        <label class="col-sm-4" style="white-space: nowrap">最后采购 </label>
+                        <div class="col-sm-8 no-padding " style=" border-bottom: 1px solid; border-bottom-color: lightgrey" id="lastPurchaseTime"></div>
+                    </div>
+                    <div class="row">
+                        <label class="col-sm-4" style="white-space: nowrap">通用名 </label>
+                        <div class="col-sm-8 no-padding " style=" border-bottom: 1px solid; border-bottom-color: lightgrey" id="generalName"></div>
+                    </div>
+                    <div class="row">
+                        <label class="col-sm-4" style="white-space: nowrap">说明书 </label>
+                        <div class="col-sm-8 no-padding " style=" border-bottom: 1px solid; border-bottom-color: lightgrey" id="instructionName"></div>
+                    </div>
+
+                    <hr/>
+                </div><!-- /.col -->
+
+                <div class="col-xs-7" style="margin: 2px;">
+                    <div class="form-group" style="margin-bottom: 3px;margin-top: 3px;">
+                        <label class="col-sm-3 control-label no-padding-right " for="contents"> 含量 </label>
+                        <div class="col-sm-9">
+                            <input type="text" id="contents" placeholder="含量" class="col-xs-10 col-sm-5"/>
+                            <span class="help-inline col-xs-12 col-sm-7"><span class="middle red">g</span></span>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 3px;margin-top: 3px">
+                        <label class="col-sm-3 control-label no-padding-right " for="DDDs"> DDD值 </label>
+                        <div class="col-sm-9">
+                            <input type="text" id="DDDs" placeholder="DDD值" class="col-xs-10 col-sm-5"/>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 3px;margin-top: 3px">
+                        <label class="col-sm-3 control-label no-padding-right " for="maxDay"> 最大用药天数 </label>
+                        <div class="col-sm-9">
+                            <input type="text" id="maxDay" placeholder="最大用药天数" class="col-xs-10 col-sm-5"/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="healthNo" class="col-sm-3 control-label no-padding-right">药理分类</label>
+                        <div class="col-sm-9">
+                            <input id="healthNo" type="text" value="" style="width:120px;" class="col-xs-10 col-sm-5"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="route" class="col-sm-3 control-label no-padding-right">给药途径</label>
+                        <div class="col-sm-9">
+                            <div class="input-group">
+                                <select class="chosen-select" id="route" data-placeholder="给药途径" name="route" multiple>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="injection" class="col-sm-3 control-label no-padding-right">注射方法</label>
+                        <div class="col-sm-9">
+                            <div class="input-group">
+                                <select class="chosen-select" id="injection" data-placeholder="注射方法" name="injection" multiple>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="menstruum" class="col-sm-3 control-label no-padding-right">溶媒</label>
+                        <div class="col-sm-9">
+                            <div class="input-group">
+                                <select class="chosen-select" id="menstruum" data-placeholder="溶媒" name="menstruum" multiple style="z-index: 1000000">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 3px;margin-top: 3px">
+                        <label class="col-sm-3 control-label no-padding-right " for="antiClass"> 抗菌药级别 </label>
+                        <div class="col-sm-9">
+                            <select class="form-control" id="antiClass">
+                                <option value="0"></option>
+                                <option value="1">非限制</option>
+                                <option value="2">限制</option>
+                                <option value="3">特殊</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 3px;margin-top: 3px">
+                        <label class="col-sm-3 control-label no-padding-right " for="mental"> 基本药物 </label>
+                        <div class="col-sm-9">
+                            <select class="form-control" id="base">
+                                <option value="0">否</option>
+                                <option value="1">基药</option>
+                                <option value="2">国基</option>
+                                <option value="3">省基</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 3px;margin-top: 3px">
+                        <label class="col-sm-3 control-label no-padding-right " for="mental"> 特殊分类 </label>
+                        <div class="col-sm-9">
+                            <select class="form-control" id="mental">
+                                <option value="0">无</option>
+                                <option value="1">精神药品</option>
+                                <option value="4">麻醉药品</option>
+                                <option value="8">糖皮质激素</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-3 control-label no-padding-right "> 统计品种 </label>
+                        <div class="col-sm-5">
+                            <div class="radio col-sm-6">
+                                <label style="white-space: nowrap">
+                                    <input name="isStat" type="radio" class="ace" checked value="1"/>
+                                    <span class="lbl">是</span>
+                                </label>
+                            </div>
+
+                            <div class="radio col-sm-6">
+                                <label style="white-space: nowrap">
+                                    <input name="isStat" type="radio" class="ace" value="0"/>
+                                    <span class="lbl">否</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </div>
 <!-- /.page-content -->

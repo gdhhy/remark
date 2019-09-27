@@ -77,27 +77,27 @@
     <sql id="queryWhere">
         <where>
             <if test="recipeID > 0">AND recipeID=#{recipeID}</if>
-            <if test="@Ognl@isNotEmpty(serialNo)">AND serialNo=#{serialNo}</if>
-            <!--  <if test="@Ognl@isNotEmpty(recipeDateFrom)">
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(serialNo)">AND serialNo=#{serialNo}</if>
+            <!--  <if test="@com.zcreate.util.Ognl@isNotEmpty(recipeDateFrom)">
                 AND ((inDate >= #{recipeDateFrom:TIMESTAMP} )
-                <if test="@Ognl@isEmpty(recipeDateTo)">AND (outDate is null OR outDate &lt; #{recipeDateFrom:TIMESTAMP}) )</if>
-                <if test="@Ognl@isNotEmpty(recipeDateTo)">AND (outDate is null OR outDate &lt; #{recipeDateTo:TIMESTAMP}) )</if>
+                <if test="@com.zcreate.util.Ognl@isEmpty(recipeDateTo)">AND (outDate is null OR outDate &lt; #{recipeDateFrom:TIMESTAMP}) )</if>
+                <if test="@com.zcreate.util.Ognl@isNotEmpty(recipeDateTo)">AND (outDate is null OR outDate &lt; #{recipeDateTo:TIMESTAMP}) )</if>
             </if>-->
-            <if test="@Ognl@isNotEmpty(reviewDateFrom)">AND reviewDate >= #{reviewDateFrom:VARCHAR}</if>
-            <if test="@Ognl@isNotEmpty(reviewDateTo)">AND reviewDate &lt; #{reviewDateTo:TIMESTAMP}</if>
-            <if test="@Ognl@isNotEmpty(outDateFrom)">AND outDate >= #{outDateFrom:VARCHAR}</if>
-            <if test="@Ognl@isNotEmpty(outDateTo)">AND outDate &lt; #{outDateTo:TIMESTAMP}</if>
-            <if test="@Ognl@isNotEmpty(reviewDateNotNull)">AND reviewDate IS NOT NULL
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(reviewDateFrom)">AND reviewDate >= #{reviewDateFrom:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(reviewDateTo)">AND reviewDate &lt; #{reviewDateTo:TIMESTAMP}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(outDateFrom)">AND outDate >= #{outDateFrom:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(outDateTo)">AND outDate &lt; #{outDateTo:TIMESTAMP}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(reviewDateNotNull)">AND reviewDate IS NOT NULL
                 <if test="rational>=0">AND rational = #{rational:INTEGER}</if>
             </if>
-            <if test="@Ognl@isNotEmpty(department)">AND department = #{department:VARCHAR}</if>
-            <if test="@Ognl@isNotEmpty(hasResearch)">AND serialNo in (select serialNo from AntiResearch)</if>
-            <if test="@Ognl@isNotEmpty(doctor)">AND substring(masterDoctorNo,3,5) = #{doctor:VARCHAR}</if>
-            <if test="@Ognl@isNotEmpty(doctorName)">AND masterDoctorName = #{doctorName:VARCHAR}</if>
-            <if test="@Ognl@isNotEmpty(patientNo)">AND patientNo = #{patientNo:VARCHAR}</if>
-            <if test="@Ognl@isNotEmpty(patientName)">AND patientName = #{patientName:VARCHAR}</if>
-            <if test="@Ognl@isNotEmpty(likePatientName)">AND patientName like '%${likePatientName}%'</if>
-            <if test="@Ognl@isNotEmpty(outHospital)">AND inHospitalDay >0</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(department)">AND department = #{department:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(hasResearch)">AND serialNo in (select serialNo from AntiResearch)</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(doctor)">AND substring(masterDoctorNo,3,5) = #{doctor:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(doctorName)">AND masterDoctorName = #{doctorName:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(patientNo)">AND patientNo = #{patientNo:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(patientName)">AND patientName = #{patientName:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(likePatientName)">AND patientName like '%${likePatientName}%'</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(outHospital)">AND inHospitalDay >0</if>
             <!--不可能有中药住院-->
             <if test="western==2">AND recipeID=0</if>
             <if test="appeal>0">AND appealState >0</if>
@@ -105,17 +105,17 @@
             <if test="atLeastMoney>0">AND medicineMoney>#{atLeastMoney:DOUBLE}</if>
             <if test="atLeastDrugNum>0">AND drugNum>#{atLeastDrugNum:INTEGER}</if>
             <choose>   <!--抗菌药专项点评，不同时出现-->
-                <when test="@Ognl@isNotEmpty(antiDrugNum)">AND concurAntiNum=#{antiDrugNum:INTEGER}</when>
-                <when test="@Ognl@isNotEmpty(atLeastAntiDrugNum)">AND concurAntiNum>#{atLeastAntiDrugNum:INTEGER}</when>
+                <when test="@com.zcreate.util.Ognl@isNotEmpty(antiDrugNum)">AND concurAntiNum=#{antiDrugNum:INTEGER}</when>
+                <when test="@com.zcreate.util.Ognl@isNotEmpty(atLeastAntiDrugNum)">AND concurAntiNum>#{atLeastAntiDrugNum:INTEGER}</when>
             </choose>
             <if test="medicine1>0">AND serialNo IN(SELECT DISTINCT serialNo FROM RecipeItem R WHERE R.medicineNo=#{medicine1:VARCHAR})</if>
             <if test="medicine2>0">AND serialNo IN(SELECT DISTINCT serialNo FROM RecipeItem R WHERE R.medicineNo=#{medicine2:VARCHAR})</if>
 
-            <if test="@Ognl@isNotEmpty(oldFolks)">AND dAge > 60</if>
-            <if test="@Ognl@isNotEmpty(children)">AND dAge &lt;= 14</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(oldFolks)">AND dAge > 60</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(children)">AND dAge &lt;= 14</if>
             <if test="incompatibilityID>0">AND serialNo IN (SELECT objectID FROM RxIncompatibility WHERE incompatibilityID=#{incompatibilityID} AND TYPE=2)</if>
             <choose>
-                <when test="@Ognl@isNotEmpty(healthNo)">
+                <when test="@com.zcreate.util.Ognl@isNotEmpty(healthNo)">
                     AND serialNo IN (SELECT DISTINCT R.serialNo FROM RecipeItem R JOIN medicine M ON R.medicineNo = M.medicineNo WHERE M.healthNo LIKE '${healthNo}%' )
                 </when>
                 <when test="antiClass>=0">
@@ -139,11 +139,11 @@
             </if>
             <if test="surgery == 0">AND serialNo not in (select serialNo from surgery)</if>
             <!-- <if test="year>0">AND serialNo in (select distinct serialNo from RecipeItem where datepart(year,recipeDate)=#{year:INTEGER} )</if>-->
-            <if test="@Ognl@isNotEmpty(recipeDateFrom)">
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(recipeDateFrom)">
                 AND serialNo IN (SELECT DISTINCT serialNo FROM RecipeItem
                 <where>
-                    <if test="@Ognl@isNotEmpty(recipeDateFrom)">AND recipeDate >= #{recipeDateFrom:TIMESTAMP}</if>
-                    <if test="@Ognl@isNotEmpty(recipeDateTo)">AND recipeDate &lt; #{recipeDateTo:TIMESTAMP}</if>
+                    <if test="@com.zcreate.util.Ognl@isNotEmpty(recipeDateFrom)">AND recipeDate >= #{recipeDateFrom:TIMESTAMP}</if>
+                    <if test="@com.zcreate.util.Ognl@isNotEmpty(recipeDateTo)">AND recipeDate &lt; #{recipeDateTo:TIMESTAMP}</if>
                 </where>
                 )
             </if>
@@ -265,8 +265,8 @@
         LEFT JOIN Medicine M ON R.medicineNo=M.medicineNo
         LEFT JOIN doctor D ON R.doctorName = D.name
         WHERE M.antiClass>=1 AND M.antiClass>D.antiClass
-        <if test="@Ognl@isNotEmpty(fromDate)">AND R.recipeDate >= #{fromDate:TIMESTAMP}</if>
-        <if test="@Ognl@isNotEmpty(toDate)">AND R.recipeDate &lt; #{toDate:TIMESTAMP}</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND R.recipeDate >= #{fromDate:TIMESTAMP}</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(toDate)">AND R.recipeDate &lt; #{toDate:TIMESTAMP}</if>
         <if test="antiClass==0">AND M.antiClass >0</if>
         <if test="antiClass>0">AND M.antiClass = #{antiClass:INTEGER}</if>
     </select>
@@ -282,16 +282,16 @@
         R.inHospitalDay,R.rational ,R.concurAntiNum,RR.surgeryName,RR.incision,RR.afterStopDrug,RR.beforeDrug,R.antiNum,
         (SELECT count(*) FROM medicine M,RecipeItem I where R.serialNo=I.serialNo and western>1 and M.route=2 and M.medicineNo=I.medicineNo) chineseInjectNum
         FROM RecipeReview RR , Recipe R where R.serialNo=RR.serialNo
-        <if test="@Ognl@isNotEmpty(sampleBatchID)">AND R.recipeID in (SELECT objectID FROM SampleList WHERE sampleBatchID = #{sampleBatchID:INTEGER})</if>
-        <if test="@Ognl@isNotEmpty(sampleBatchIDs)">AND R.recipeID in (SELECT objectID FROM SampleList
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(sampleBatchID)">AND R.recipeID in (SELECT objectID FROM SampleList WHERE sampleBatchID = #{sampleBatchID:INTEGER})</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(sampleBatchIDs)">AND R.recipeID in (SELECT objectID FROM SampleList
             <foreach separator="," item="item" index="index" open=" WHERE sampleBatchID in (" close=")" collection="sampleBatchIDs">
                 #{item}
             </foreach>)
         </if>
-        <if test="@Ognl@isNotEmpty(department)">AND R.department = #{department:VARCHAR}</if>
-        <if test="@Ognl@isNotEmpty(reviewDateFrom)">AND RR.reviewTime >= #{reviewDateFrom:VARCHAR}</if>
-        <if test="@Ognl@isNotEmpty(reviewDateTo)">AND RR.reviewTime &lt; #{reviewDateTo:TIMESTAMP}</if>
-        <if test="@Ognl@isNotEmpty(rational)">AND R.rational &lt; #{rational:INTEGER}</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(department)">AND R.department = #{department:VARCHAR}</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(reviewDateFrom)">AND RR.reviewTime >= #{reviewDateFrom:VARCHAR}</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(reviewDateTo)">AND RR.reviewTime &lt; #{reviewDateTo:TIMESTAMP}</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(rational)">AND R.rational &lt; #{rational:INTEGER}</if>
     </select>
 
     <update id="clearCache" flushCache="true" parameterType="string">
@@ -342,7 +342,7 @@
         B.advice,
         CASE WHEN a.serialNo IS NOT NULL THEN '是' ELSE '' END antiDrug
         FROM Recipe R JOIN Surgery S ON S.serialNo = R.serialNo
-        <if test="@Ognl@isNotEmpty(incisionType)">AND S.incision = #{incisionType:VARCHAR}</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(incisionType)">AND S.incision = #{incisionType:VARCHAR}</if>
         LEFT JOIN
         (SELECT S.serialNo FROM Surgery S JOIN RecipeItem R ON S.serialNo = R.serialNo
         WHERE S.incision = 'Ⅰ' AND datediff(DAY, S.surgeryDate, R.recipeDate) = 0

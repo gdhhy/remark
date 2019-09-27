@@ -40,6 +40,8 @@ function renderAntiClass(data, type, row, meta) {
         case 3:
             return "特殊";
         default :
+            if (row['mental'] === 1) return "精神药品";
+            else if (row['mental'] === 2) return "糖皮质激素";
             return "";
     }
 }
@@ -60,7 +62,7 @@ function renderBase2(data, type, row, meta) {
 function renderInsurance(data, type, row, meta) {
     if (data == 1) return "甲";
     else if (data == 2) return "乙";
-    else return "";
+    else return " ";
 }
 
 function renderWestern(data, type, row, meta) {
