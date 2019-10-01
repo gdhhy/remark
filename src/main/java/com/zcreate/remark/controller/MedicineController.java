@@ -3,17 +3,21 @@ package com.zcreate.remark.controller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.zcreate.pinyin.PinyinUtil;
+import com.zcreate.review.dao.DrugDAO;
+import com.zcreate.review.dao.InstructionDAO;
 import com.zcreate.review.dao.MedicineDAO;
-import com.zcreate.review.logic.DoctorService;
-import com.zcreate.review.model.Doctor;
+import com.zcreate.review.model.Drug;
 import com.zcreate.review.model.Medicine;
+import com.zcreate.util.StringUtils;
 import com.zcreate.util.Verify;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,8 +26,14 @@ import java.util.Map;
 @Controller
 @RequestMapping("/medicine")
 public class MedicineController {
+    private static Logger log = LoggerFactory.getLogger(MedicineController.class);
     @Autowired
     private MedicineDAO medicineDao;
+    @Autowired
+    private DrugDAO drugDao;
+
+    @Autowired
+    private InstructionDAO instructionDao;
 
     private Gson gson = new GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd HH:mm").create();
 
@@ -34,7 +44,7 @@ public class MedicineController {
                                @RequestParam(value = "draw", required = false) Integer draw,
                                @RequestParam(value = "start", required = false, defaultValue = "0") int start,
                                @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
-        Map<String, Object> param = new HashMap<String, Object>();
+        Map<String, Object> param = new HashMap<>();
         param.put("start", start);
         param.put("limit", limit);
         param.put("antiClass", antiClass);
@@ -58,9 +68,65 @@ public class MedicineController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "liveDrug", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String liveDrug(@RequestParam(value = "queryString", required = false) String queryString,
+                           @RequestParam(value = "drugID", required = false, defaultValue = "0") int drugID,
+                           @RequestParam(value = "start", required = false, defaultValue = "0") int start,
+                           @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("drugID", drugID);
+        param.put("start", start);
+        param.put("limit", limit);
+        if (queryString != null) {
+            //queryString = queryString.replaceAll("'", "");
+            if (PinyinUtil.isFullEnglish(queryString))
+                param.put("livePinyin", queryString.trim());
+            else
+                param.put("liveChnName", queryString.trim());
+        }
+        List<Drug> medicineList = drugDao.liveDrug(param);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("data", medicineList);
+        result.put("iTotalRecords", medicineList.size());//todo 表的行数，未加任何调剂
+        result.put("iTotalDisplayRecords", medicineList.size());
+
+        return gson.toJson(result);
+    }
+
+   /* @ResponseBody
+    @RequestMapping(value = "getDrug", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String getDrug(@RequestParam(value = "drugID") int drugID) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("drugID",drugID);
+        return gson.toJson(drugDao.getDrug(drugID));
+    }*/
+
+    @ResponseBody
     @RequestMapping(value = "getMedicine", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public String getMedicine(@RequestParam(value = "medicineNo") String medicineNo) {
+    public String getMedicine(@RequestParam(value = "medicineNo", required = false) String medicineNo,
+                              @RequestParam(value = "medicineID", defaultValue = "0") int medicineID) {
+        if (medicineID > 0)
+            return gson.toJson(medicineDao.getMedicine(medicineID));
         return gson.toJson(medicineDao.getMedicine(medicineNo));
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "matchInstruct", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String matchInstruct(@RequestParam(value = "instrIDs") String instrIDs,
+                                @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("instrIDs", StringUtils.splitToInts(instrIDs, ","));
+        param.put("hasInstruction", 1);
+        param.put("limit", limit);
+        List<HashMap> instructionList = instructionDao.query(param);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("data", instructionList);
+        result.put("iTotalRecords", instructionList.size());//todo 表的行数，未加任何调剂
+        result.put("iTotalDisplayRecords", instructionList.size());
+
+        return gson.toJson(result);
 
     }
 
@@ -145,5 +211,43 @@ public class MedicineController {
 
         return gson.toJson(retMap);
 
+    }
+
+    @ResponseBody
+    @Transactional
+    @RequestMapping(value = "/saveMedicine", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
+    public String saveMedicine(@ModelAttribute("medicine") Medicine medicine) {
+        log.debug("medicine = " + medicine);
+        Map<String, Object> map = new HashMap<>();
+        int result;
+        map.put("title", "保存药品资料");
+
+        result = medicineDao.save(medicine);
+        map.put("succeed", result > 0);
+
+        return gson.toJson(map);
+    }
+
+    @ResponseBody
+    @Transactional
+    @RequestMapping(value = "/saveMatch", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
+    public String saveMatch(@ModelAttribute("medicine") Medicine medicine) {
+        log.debug("medicine = " + medicine);
+        Map<String, Object> map = new HashMap<>();
+        int result;
+        map.put("title", "保存药品资料");
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            medicine.setUpdateUser(((UserDetails) principal).getUsername());
+            result = medicineDao.saveMatch(medicine);
+            map.put("succeed", result > 0);
+        } else {
+            map.put("title", "保存配对失败");
+            map.put("errmsg", "没登录用户信息，请重新登录！");
+            map.put("succeed", false);
+        }
+
+
+        return gson.toJson(map);
     }
 }
