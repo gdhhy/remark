@@ -152,11 +152,11 @@
                     style: 'single'
                 }
             });
-      /*  myTable.on('order.dt search.dt', function () {
-            myTable.column(0, {search: 'applied', order: 'applied'}).nodes().each(function (cell, i) {
-                cell.innerHTML = i + 1;
-            });
-        }).draw();*/
+        /*  myTable.on('order.dt search.dt', function () {
+              myTable.column(0, {search: 'applied', order: 'applied'}).nodes().each(function (cell, i) {
+                  cell.innerHTML = i + 1;
+              });
+          }).draw();*/
         myTable.on('draw', function () {
             $('#dynamic-table tr').find('.hasDetail').click(function () {
                 if ($(this).attr("data-Url").indexOf('javascript:') >= 0) {
@@ -458,6 +458,8 @@
         $('#form-dateRange').daterangepicker({
             'applyClass': 'btn-sm btn-success',
             'cancelClass': 'btn-sm btn-default',
+            startDate: moment().subtract(30, 'd'),
+            endDate: moment(),
             locale: {
                 format: 'YYYY-MM-DD',
                 separator: ' ～ ',
@@ -467,7 +469,8 @@
         }).next().on(ace.click_event, function () {
             $(this).prev().focus();
         });
-        $('#form-dateRange').val(moment().subtract(30, 'd').format("YYYY-MM-DD") + " ～ " + moment().format("YYYY-MM-DD"));
+
+        //$('#form-dateRange').val(moment().subtract(30, 'd').format("YYYY-MM-DD") + " ～ " + moment().format("YYYY-MM-DD"));
 
 
         function showSampleDialog() {

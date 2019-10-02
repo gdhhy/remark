@@ -108,6 +108,8 @@
         $('#form-dateRange').daterangepicker({
             'applyClass': 'btn-sm btn-success',
             'cancelClass': 'btn-sm btn-default',
+            startDate: startDate,
+            endDate: endDate,
             locale: {
                 format: 'YYYY-MM-DD',
                 separator: ' ～ ',
@@ -120,7 +122,6 @@
         }).next().on(ace.click_event, function () {
             $(this).prev().focus();
         });
-        $('#form-dateRange').val(startDate.format("YYYY-MM-DD") + " ～ " + endDate.format("YYYY-MM-DD"));
 
 
         //todo 统一到一个对话框

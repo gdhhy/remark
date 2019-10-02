@@ -280,6 +280,15 @@
 
                     <b class="arrow"></b>
                 </li>
+                <li class="">
+                    <a href="index.jspa?content=/monitor/data.jsp&menuID=6" id="6">
+                        <!--<i class="menu-icon fa 	fa-certificate"></i>-->
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        <span class="menu-text">数据量监控</span>
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
             </ul>
         </li>
         <li>
