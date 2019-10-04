@@ -16,7 +16,6 @@
 <link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>
 <!-- bootstrap & fontawesome -->
 
-<link rel="stylesheet" href="../components/font-awesome/css/font-awesome.css"/>
 <link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
 <link rel="stylesheet" href="../assets/css/ace.css"/>
 

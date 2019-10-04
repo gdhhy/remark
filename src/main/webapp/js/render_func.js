@@ -7,6 +7,10 @@ function renderYES(data, type, row, meta) {
 }
 
 
+function renderLongTime(data, type, row, meta) {
+    return moment(data).format("YYYY-MM-DD HH:mm");
+}
+
 function renderPercent0(data, type, row, meta) {
     return accounting.format(data * 100, 0) + '%';
 }

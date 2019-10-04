@@ -8,7 +8,7 @@
     <!-- basic styles -->
     <link href="../components/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet"/>
     <!-- bootstrap & fontawesome -->
-    <link rel="stylesheet" href="../components/font-awesome/css/font-awesome.css"/>
+    <link rel="stylesheet" href="../components/font-awesome-4.7.0/css/font-awesome.css"/>
 
     <link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
     <%--<link rel="stylesheet" href="../components/jquery-ui.custom/jquery-ui.custom.css"/>--%>

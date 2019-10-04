@@ -289,6 +289,15 @@
 
                     <b class="arrow"></b>
                 </li>
+                <li class="">
+                    <a href="index.jspa?content=/monitor/task.jsp&menuID=7" id="7">
+                        <!--<i class="menu-icon fa 	fa-certificate"></i>-->
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        <span class="menu-text">导入任务</span>
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
             </ul>
         </li>
         <li>

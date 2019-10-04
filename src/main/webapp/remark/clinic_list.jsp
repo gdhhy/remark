@@ -22,7 +22,6 @@
 
 <!-- bootstrap & fontawesome -->
 
-<link rel="stylesheet" href="../components/font-awesome/css/font-awesome.css"/>
 <link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
 <script type="text/javascript">
     jQuery(function ($) {

@@ -31,7 +31,6 @@
 
 <!-- bootstrap & fontawesome -->
 
-<link rel="stylesheet" href="../components/font-awesome/css/font-awesome.css"/>
 <link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
 <link rel="stylesheet" href="../components/monthpicker/MonthPicker.css"/>
 
@@ -147,7 +146,7 @@
                 },
 
                 // "processing": true,
-                //"serverSide": true,
+                "serverSide": true,
                 select: {
                     style: 'single'
                 }
@@ -290,7 +289,7 @@
                             //console.log("res.succeed:" + res.succeed);
                             showDialog(response.resultTitle, response.resultData);
                         } else {
-                            console.log("res.succeed:" + response.succeed);
+                            //console.log("res.succeed:" + response.succeed);
                             samleBatch = response;
                             showSampleResult(response);
                         }
@@ -330,8 +329,8 @@
         new $.fn.dataTable.Buttons(myTable, {
             buttons: [
                 {
-                    "text": "<i class='glyphicon glyphicon-plus  red'></i>新抽样 ",
-                    "className": "btn btn-white btn-primary btn-bold"
+                    "text": "<i class='fa fa-calendar-plus-o red'></i>新抽样 ",
+                    "className": "btn btn-white btn-primary btn-bold smaller"
                 }
             ]
         });
@@ -486,7 +485,7 @@
 
                 buttons: [
                     {
-                        html: "<i class='ace-icon fa fa-pencil-square-o bigger-110'></i>&nbsp;开始",
+                        html: "<i class='ace-icon fa fa-play-circle-o bigger-110'></i>&nbsp;开始",
                         "class": "btn btn-danger btn-minier",
                         click: function () {
                             //todo 直接从#form-closingTime获取时间的毫秒值!
@@ -854,6 +853,7 @@
                     <div class="table-header">
                         处方抽样 "全部列表"
                         <div class="pull-right tableTools-container"></div>
+
                     </div>
 
                     <!-- div.table-responsive -->

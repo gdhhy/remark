@@ -11,8 +11,6 @@
     <!-- basic styles -->
     <link href="../components/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet"/>
 
-    <!-- bootstrap & fontawesome -->
-    <link rel="stylesheet" href="../components/font-awesome/css/font-awesome.css"/>
     <!-- text fonts -->
     <link rel="stylesheet" href="../assets/css/ace-fonts.css"/>
     <!-- page specific plugin styles -->
