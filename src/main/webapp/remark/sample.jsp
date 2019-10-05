@@ -9,17 +9,17 @@
 <%--<script src="../assets/js/jquery.gritter.min.js"></script>--%>
 <script src="../js/accounting.min.js"></script>
 <script src="../js/jquery.cookie.min.js"></script>
-<script src="../assets/js/jquery.validate.min.js"></script>
+<script src="../assets/js/jquery.validate.min.js"></script><%--
 <script src="../components/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
-<script src="../components/bootstrap-timepicker/js/bootstrap-timepicker.js"></script>
+<script src="../components/bootstrap-timepicker/js/bootstrap-timepicker.js"></script>--%>
 <script src="../components/monthpicker/MonthPicker.js"></script>
 <script src="../components/moment/moment.min.js"></script>
 <script src="../components/bootstrap-daterangepicker/daterangepicker.js"></script>
 <script src="../components/typeahead.js/dist/typeahead.bundle.min.js"></script>
 <script src="../components/typeahead.js/handlebars.js"></script>
-
+<%--
 <link rel="stylesheet" href="../components/bootstrap-datepicker/css/bootstrap-datepicker3.css"/>
-<link rel="stylesheet" href="../components/bootstrap-timepicker/css/bootstrap-timepicker.css"/>
+<link rel="stylesheet" href="../components/bootstrap-timepicker/css/bootstrap-timepicker.css"/>--%>
 <link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>
 <%--<script src="../assets/js/chosen.jquery.min.js"></script>
 <link rel="stylesheet" href="../assets/css/chosen.css"/>--%>
@@ -149,7 +149,8 @@
                 "serverSide": true,
                 select: {
                     style: 'single'
-                }
+                },
+                buttons: [{extend: "create"}]
             });
         /*  myTable.on('order.dt search.dt', function () {
               myTable.column(0, {search: 'applied', order: 'applied'}).nodes().each(function (cell, i) {
@@ -330,7 +331,7 @@
             buttons: [
                 {
                     "text": "<i class='fa fa-calendar-plus-o red'></i>新抽样 ",
-                    "className": "btn btn-white btn-primary btn-bold smaller"
+                    "className": "btn btn-xs btn-white btn-primary"
                 }
             ]
         });
@@ -468,9 +469,6 @@
         }).next().on(ace.click_event, function () {
             $(this).prev().focus();
         });
-
-        //$('#form-dateRange').val(moment().subtract(30, 'd').format("YYYY-MM-DD") + " ～ " + moment().format("YYYY-MM-DD"));
-
 
         function showSampleDialog() {
             loadDepartment();

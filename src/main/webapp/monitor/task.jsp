@@ -6,18 +6,23 @@
 <script src="../components/jquery-ui/jquery-ui.min.js"></script>
 <%--<script src="../assets/js/ace.js"></script>--%>
 <script src="../assets/js/jquery.ui.touch-punch.min.js"></script>
-<script src="../assets/js/jquery.gritter.min.js"></script>
+<%--<script src="../assets/js/jquery.gritter.min.js"></script>--%>
 <script src="../js/accounting.min.js"></script>
 <script src="../js/render_func.js"></script>
-<script src="../js/jquery.cookie.min.js"></script>
+<%--<script src="../js/jquery.cookie.min.js"></script>--%>
 <%--<script src="../assets/js/jquery.validate.min.js"></script>--%>
 <script src="../components/moment/moment.min.js"></script>
 <script src="../components/bootstrap-daterangepicker/daterangepicker.js"></script>
+<script src="../components/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+<script src="../components/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>
+
 <link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>
+<link rel="stylesheet" href="../components/bootstrap-datepicker/css/bootstrap-datepicker3.css"/>
 <!-- bootstrap & fontawesome -->
 
 <link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
 <link rel="stylesheet" href="../assets/css/ace.css"/>
+
 <script type="text/javascript">
     jQuery(function ($) {
         var dynamicTable = $('#taskLogTable');
@@ -83,7 +88,7 @@
             if (type === 'row') {
                 var logID = myTable.rows(indexes).data()["0"]["logID"];
                 var errMsg = myTable.rows(indexes).data()["0"]["errMsg"];
-                console.log("data:" + JSON.stringify(myTable.rows(indexes).data()["0"], null, 4));
+                //console.log("data:" + JSON.stringify(myTable.rows(indexes).data()["0"], null, 4));
                 if (logID)
                     $('#detailTable tbody tr').remove();
                 if (errMsg) {
@@ -109,17 +114,29 @@
                 // do something with the ID of the selected items
             }
         });
-        $.getJSON("/monitor/listTask.jspa", function (result) {
-            if (result.data.length > 0)
-                $('#taskTable tbody tr').remove();
-            $.each(result.data, function (index, object) {
-                // console.log("object:" + JSON.stringify(object, null, 4));
-                var $tr = ('<tr><td style="text-align: center">{0}</td><td style="text-align: center">{1}</td>' +
-                    '<td style="text-align: right">{2}</td></tr>').format(index + 1, object.taskName, rendeTimerTime(this.timerTime, this.timerMode));
-                // console.log($tr);
-                $("#taskTable tbody").append($tr);
+
+        function listTask() {
+            $.getJSON("/monitor/listTask.jspa", function (result) {
+                if (result.data.length > 0)
+                    $('#taskTable tbody tr').remove();
+                $.each(result.data, function (index, object) {
+                    // console.log("object:" + JSON.stringify(object, null, 4));
+                    var $tr = ('<tr><td style="text-align: center">{0}</td><td style="text-align: center">{1}</td>' +
+                        '<td style="text-align: right">{2}</td><td style="text-align: center">' +
+                        '<i class="fa fa-trash-o bigger-130" data-id={3} data-time="{4}" data-name={5}></i></td></tr>')
+                        .format(index + 1, object.taskName, rendeTimerTime(this.timerTime, this.timerMode),
+                            object.taskID, rendeTimerTime(this.timerTime, this.timerMode), object.taskName);
+                    // console.log($tr);
+                    $("#taskTable tbody").append($tr);
+                });
+
+                $('#taskTable tbody tr').find(".fa-trash-o").bind("click", function () {
+                    deleteDialog($(this).attr("data-id"), $(this).attr("data-time"), $(this).attr("data-name"))
+                });
             });
-        });
+        }
+
+        listTask();
         $.getJSON("/monitor/getRunningThread.jspa", function (result) {
             // if (result.data.length > 0)
             $('#threadInfo').html(result.threadInfo);
@@ -182,6 +199,175 @@
             if (data > 1000) return accounting.format(data / 1000, 1) + '秒';
             return data + "毫秒";
         }
+
+        $('.btn-danger').click(function (e) {
+            $("#dialog-task").removeClass('hide').dialog({
+                modal: true,
+                width: 600,
+                title_html: true,
+                buttons: [{
+                    html: "<i class='ace-icon fa fa-check bigger-110'></i>&nbsp; 提交", "class": "btn  btn-xs btn-success btn-primary", click: function () {
+                        var param = {
+                            runType: $("input[name='runType']:checked").val(),
+                            timerMode: $('#timerMode').children('option:selected').val(),
+                            exeDateField: $('#execDate').val(),
+                            exeTimeField: $('#execTime').children('option:selected').val(),
+                            timeFrom: timeFrom.format("YYYY-MM-DD"),
+                            timeTo: timeTo.format("YYYY-MM-DD"),
+                        };
+                        console.log("param:" + JSON.stringify(param));
+                        $.ajax({
+                            type: "POST",
+                            url: "/monitor/submitTask.jspa",
+                            data: param,
+                            contentType: "application/x-www-form-urlencoded", //https://www.cnblogs.com/yoyotl/p/5853206.html
+                            cache: false,
+                            success: function (response, textStatus) {
+                                showDialog("定时任务", response.message);
+                                if (param.timerMode !== 2)
+                                    listTask();
+                                $('#dialog-task').dialog("close");
+                            },
+                            error: function (response, textStatus) {/*能够接收404,500等错误*/
+                                showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));
+                            }
+                        });
+                    },
+                }, {
+                    html: "<i class='ace-icon fa fa-times bigger-110'></i>&nbsp; 取消",
+                    "class": "btn btn-primary btn-xs btn-grey",
+                    click: function () {
+                        $(this).dialog("close");
+                    }
+                }]
+            });
+
+        });
+        var timeFrom = moment().subtract(1, 'd'), timeTo = moment().subtract(1, 'd');
+        $('#form-dateRange').daterangepicker({
+            'applyClass': 'btn-sm btn-success',
+            'cancelClass': 'btn-sm btn-default',
+            startDate: timeFrom,
+            endDate: timeTo,
+            locale: {
+                format: 'YYYY-MM-DD',
+                separator: ' ～ ',
+                applyLabel: '确定',
+                cancelLabel: '取消'
+            }
+        }, function (start, end, label) {
+            timeFrom = start;
+            timeTo = end;
+        }).next().on(ace.click_event, function () {
+            $(this).prev().focus();
+        });
+        $("input[name='runType']").on('change', function () {
+            //console.log("value:" + $(this).val());
+            var tips = ["执行从医院HIS系统导入数据（相当于每日定时：review.daily)", "统计每张处方使用药品情况，例如抗菌药、基本药物、注射等",
+                "生成部门、医生、药品等维度的日统计汇总", "根据药物相互作用，搜索疑有配伍禁忌处方，生成处方点评的配伍禁忌处方模块数据"];
+            $('#taskInfo').html(tips[$(this).val() - 1]);
+        });
+        //datepicker plugin
+        //link
+        $('.date-picker').datepicker({
+            autoclose: true,
+            format: "yyyy-mm-dd", //选择日期后，文本框显示的日期格式
+            language: 'zh-CN', //汉化
+            //startDate: '-3d',
+            todayHighlight: true
+        })
+        //show datepicker when clicking on the icon
+            .next().on(ace.click_event, function () {
+            $(this).prev().focus();
+        });
+        $('#execDate').val(moment().add(1, "days").format("YYYY-MM-DD"));
+
+        var mm = moment({hour: 0, minute: 0});
+        var mm2 = moment({hour: 23, minute: 59});
+        var execTime = $('#execTime');
+        while (mm < mm2) {
+            if ("04:00" === mm.format("HH:mm"))
+                execTime.append("<option value='{0}' selected>{1}</option>".format(mm.format("HH:mm"), mm.format("HH:mm")));
+            else
+                execTime.append("<option value='{0}'>{1}</option>".format(mm.format("HH:mm"), mm.format("HH:mm")));
+            mm.add(10, "minutes");
+        }
+
+        $('#timerMode').on('change', function () {
+            switch (parseInt($(this).val())) {
+                case 1:
+                    $('#divDate').hide();
+                    $('#divTime').show();
+                    break;
+                case 2:
+                    $('#divDate').show();
+                    $('#divTime').show();
+                    break;
+                default://3
+                    $('#divDate').hide();
+                    $('#divTime').hide();
+            }
+        });
+
+        function showDialog(title, content) {
+            $("#errorText").text(content);
+            $("#dialog-error").removeClass('hide').dialog({
+                modal: true,
+                width: 600,
+                title: title,
+                buttons: [{
+                    text: "确定", "class": "btn btn-primary btn-xs", click: function () {
+                        $(this).dialog("close");
+                    }
+                }]
+            });
+        }
+
+        function deleteDialog(taskID, taskTime, taskName) {
+
+            /*    console.log("taskID:" + taskID);
+                console.log("taskTime:" + taskTime);
+                console.log("taskName:" + taskName);
+                return;*/
+            $('#deleteTaskTime').text(taskTime);
+            $('#deleteTaskName').text(taskName);
+            $("#dialog-delete").removeClass('hide').dialog({
+                resizable: false,
+                modal: true,
+                title: "确认删除任务",
+                //title_html: true,
+                buttons: [
+                    {
+                        html: "<i class='ace-icon fa  fa-trash bigger-110'></i>&nbsp;确定",
+                        "class": "btn btn-danger btn-minier",
+                        click: function () {
+                            $.ajax({
+                                type: "POST",
+                                url: "/monitor/deleteTask.jspa?taskID={0}".format(taskID),
+                                //contentType: "application/x-www-form-urlencoded",//http://www.cnblogs.com/yoyotl/p/5853206.html
+                                cache: false,
+                                success: function (response, textStatus) {
+                                    showDialog("请求结果：" + response.succeed, response.message);
+                                    if (response.succeed)
+                                        listTask();
+                                },
+                                error: function (response, textStatus) {/*能够接收404,500等错误*/
+                                    showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));
+                                }
+                            });
+                            $(this).dialog("close");
+                        }
+                    },
+                    {
+                        html: "<i class='ace-icon fa fa-times bigger-110'></i>&nbsp; 取消",
+                        "class": "btn btn-minier",
+                        click: function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                ]
+            });
+        }
     })
 </script>
 
@@ -209,7 +395,6 @@
     <div class="row">
         <div class="col-xs-12">
 
-
             <div class="row">
                 <div class="col-sm-3">
 
@@ -219,22 +404,21 @@
                                 设定任务
                             </h4>
                             <div class="widget-toolbar no-border">
-                                <button class="btn btn-xs btn-danger smaller">
-                                   新任务 <i class="ace-icon fa fa-tasks"></i>
+                                <button class="btn btn-xs btn-danger">
+                                    新任务 <i class="ace-icon fa fa-tasks"></i>
                                 </button>
-
-
                             </div>
                         </div>
 
                         <div class="widget-body">
-                            <div class="widget-main no-padding" style="height:125px; overflow-y:auto">
+                            <div class="widget-main no-padding" style="height:290px; overflow-y:auto">
                                 <table class="table table-striped table-bordered table-hover table-detail " id="taskTable">
                                     <thead class="thin-border-bottom">
                                     <tr>
-                                        <th>序号</th>
+                                        <th style="text-align: center">序号</th>
                                         <th>任务类型</th>
-                                        <th>设定时间</th>
+                                        <th style="text-align: right">设定时间</th>
+                                        <th style="text-align: center">删除</th>
                                     </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -281,7 +465,7 @@
                     </div>
 
                     <%--<div class="space-6"></div>--%>
-                    <div class="alert alert-danger hide" style="margin-bottom: 0">
+                    <div class="alert alert-danger no-padding  hide" style="margin-bottom: 0">
                         <button type="button" class="close" data-dismiss="alert">
                             <i class="ace-icon fa fa-times"></i>
                         </button>
@@ -339,16 +523,92 @@
             </div>
         </div>
     </div>
-    <div id="dialog-calcData" class="hide" title="执行时间段确认">
-        重新计算指定时间段的数据量
-        <div class="col-xs-12" style="padding-top: 10px">
-            <label class="col-xs-2  no-padding-right" style="white-space: nowrap;margin-top: 7px;">日期：</label>
-            <div class="input-group col-xs-10">
-                <input class="form-control nav-search-input" name="dateRangeString" id="calcDateRange"
-                       style="color: black"
-                       data-date-format="YYYY-MM-DD"/>
-                <span class="input-group-addon"><i class="fa fa-calendar bigger-100"></i></span>
+    <div id="dialog-task" class="hide" title="设定新任务">
+        <div class="col-xs-12 ">
+            <div class="col-xs-12">重新计算指定时间段的数据量</div>
+            <div class="row ">
+                <div class="col-xs-5">
+                    <div class="row">
+                        <label class="col-xs-3 bolder blue" style="white-space: nowrap;margin-top: 10px;">任务类型</label>
+                        <div class="col-xs-9">
+                            <div class="radio">
+                                <label>
+                                    <input name="runType" type="radio" class="ace" value="3" checked>
+                                    <span class="lbl"> 每日统计汇总</span>
+                                </label>
+                            </div>
+
+                            <div class="radio">
+                                <label>
+                                    <input name="runType" type="radio" class="ace" value="2">
+                                    <span class="lbl">重建处方数据</span>
+                                </label>
+                            </div>
+
+                            <div class="radio">
+                                <label>
+                                    <input name="runType" type="radio" class="ace" value="4">
+                                    <span class="lbl" style="white-space: nowrap">搜索有配伍禁忌处方</span>
+                                </label>
+                            </div>
+
+                            <div class="radio">
+                                <label>
+                                    <input name="runType" type="radio" class="ace" value="1">
+                                    <span class="lbl" style="white-space: nowrap"> 亿通HIS->处方点评</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-7">
+                    <div class="row">
+                        <label class="col-xs-3 bolder blue  no-padding-right" style="white-space: nowrap;margin-top: 7px;">时间范围</label>
+                        <div class="input-group col-xs-9">
+                            <input class="form-control nav-search-input" name="form-dateRange" id="form-dateRange"
+                                   style="color: black"
+                                   data-date-format="YYYY-MM-DD"/>
+                            <span class="input-group-addon"><i class="fa fa-calendar bigger-100"></i></span>
+                        </div>
+                    </div>
+                </div>
             </div>
+            <hr class="row no-margin no-padding"/>
+            <div class="row">
+                <div class="col-xs-5" style="margin-top: 10px;">
+                    <label class="control-label bolder blue  no-padding-right" for="timerMode"> 执行方式&nbsp;&nbsp;&nbsp;</label>
+
+                    <select id="timerMode">
+                        <option value="0">每天循环</option>
+                        <option value="1" selected>指定时间</option>
+                        <option value="2">马上执行</option>
+                    </select>
+                </div>
+                <div class="col-xs-7">
+                    <div class="row form-inline" id="divDate" style="margin-top: 10px;">
+                        <label class="control-label  bolder blue" for="execDate" style="text-overflow:ellipsis; white-space:nowrap;">执行日期&nbsp;&nbsp;&nbsp;</label>
+                        <div class="input-group">
+                            <input class="date-picker " style="width: 110px" id="execDate" type="text"/>
+                            <span class="input-group-addon no-padding"><i class="fa fa-calendar bigger-110"></i></span>
+                        </div>
+                    </div>
+                    <div class="row form-inline" id="divTime" style="margin-top: 10px;">
+                        <label class="control-label  bolder blue" for="execTime" style="text-overflow:ellipsis; white-space:nowrap;">执行时间&nbsp;&nbsp;&nbsp;</label>
+                        <select id="execTime">
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="margin-top: 10px;">
+                <div class="pull-left alert alert-info  no-margin col-xs-12" id="taskInfo">
+                    生成部门、医生、药品等维度的日统计汇总
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="dialog-delete" class="hide">
+        <div class="alert alert-info bigger-110">
+            您确定要删除 <span id="deleteTaskTime"></span> 执行的 <span id="deleteTaskName"></span> 任务吗?
         </div>
     </div>
 </div>

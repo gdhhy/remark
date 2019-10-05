@@ -9,7 +9,7 @@
 <%--<script src="../assets/js/jquery.gritter.min.js"></script>--%>
 <script src="../js/accounting.min.js"></script>
 <script src="../js/render_func.js"></script>
-<script src="../js/jquery.cookie.min.js"></script>
+<%--<script src="../js/jquery.cookie.min.js"></script>--%>
 <%--<script src="../assets/js/jquery.validate.min.js"></script>--%>
 <script src="../components/moment/moment.min.js"></script>
 <script src="../components/bootstrap-daterangepicker/daterangepicker.js"></script>
@@ -207,8 +207,8 @@
             $("#dialog-calcData").removeClass('hide').dialog({
                 resizable: false,
                 width: 360,
-                height: 180,
-                modal: true,
+                height: 220,
+               // modal: true,
                 /* title: "确认统计时间段",*/
                 buttons: [
                     {

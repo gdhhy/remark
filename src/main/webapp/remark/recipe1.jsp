@@ -62,7 +62,7 @@
     <script src="../components/datatables/dataTables.select.min.js"></script>
     <script src="../components/jquery-ui/jquery-ui.min.js"></script>
     <%--<script src="../js/jquery-ui/ui/i18n/datepicker-zh-CN.js"></script>--%>
-    <%--<script src="../components/bootstrap-datepicker/js/locales/bootstrap-datepicker.zh-CN.js"></script>--%>
+    <%--<script src="../components/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>--%>
     <script src="../components/typeahead.js/handlebars.js"></script>
     <script src="../assets/js/x-editable/bootstrap-editable.min.js"></script>
 

@@ -168,7 +168,7 @@
             buttons: [
                 {
                     "text": "<i class='fa fa-user-plus bigger-110 red'></i>新增 ",
-                    "className": "btn btn-white btn-primary btn-bold"
+                    "className": "btn btn-xs btn-white btn-primary"
                 }
             ]
         });
