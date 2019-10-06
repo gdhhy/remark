@@ -3,7 +3,6 @@
 <script src="../components/datatables/jquery.dataTables.bootstrap.min.js"></script>
 <script src="../components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
 <script src="../components/datatables/dataTables.select.min.js"></script>
-<script src="../components/jquery-ui/jquery-ui.min.js"></script>
 <%--<script src="../assets/js/ace.js"></script>--%>
 <script src="../assets/js/jquery.ui.touch-punch.min.js"></script>
 <%--<script src="../assets/js/jquery.gritter.min.js"></script>--%>
@@ -22,7 +21,6 @@
 <!-- bootstrap & fontawesome -->
 
 <link rel="stylesheet" href="../components/font-awesome/css/font-awesome.css"/>
-<link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
 <link rel="stylesheet" href="../components/chosen/chosen.min.css"/>
 <link rel="stylesheet" type="text/css" href="../components/jquery.easyui/themes/default/easyui.css">
 <link rel="stylesheet" type="text/css" href="../components/jquery.easyui/themes/icon.css">
@@ -392,7 +390,7 @@
                     type: "POST",
                     url: "/medicine/saveMedicine.jspa",
                     data: medicineForm.serialize(),//+ "&productImage=" + av atar_ele.get(0).src,
-                    contentType: "application/x-www-form-urlencoded",//http://www.cnblogs.com/yoyotl/p/5853206.html
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",//http://www.cnblogs.com/yoyotl/p/5853206.html
                     cache: false,
                     success: function (response, textStatus) {
                         var result = JSON.parse(response);
@@ -562,12 +560,12 @@
                                     type: "POST",
                                     url: "/medicine/saveMatch.jspa",
                                     data: submitForm,//+ "&productImage=" + av atar_ele.get(0).src,
-                                    contentType: "application/x-www-form-urlencoded",//http://www.cnblogs.com/yoyotl/p/5853206.html
+                                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",//http://www.cnblogs.com/yoyotl/p/5853206.html
                                     cache: false,
                                     success: function (response, textStatus) {
                                         var result = JSON.parse(response);
                                         if (!result.succeed) {
-                                            $("#errorText").text(result.errmsg);
+                                            $("#errorText").text(result.message);
                                             $("#dialog-error").removeClass('hide').dialog({
                                                 modal: true,
                                                 width: 600,
@@ -723,10 +721,6 @@
             <!-- PAGE CONTENT ENDS -->
         </div><!-- /.col -->
     </div><!-- /.row -->
-
-    <div id="dialog-error" class="hide alert" title="提示">
-        <p id="errorText">保存失败，请稍后再试，或与系统管理员联系。</p>
-    </div>
     <div id="dialog-edit" class="hide" data-options="iconCls:'icon-save',modal:true">
         <div class="col-xs-12" style="padding-top: 10px">
             <!-- PAGE CONTENT BEGINS -->

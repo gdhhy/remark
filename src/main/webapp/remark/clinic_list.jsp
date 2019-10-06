@@ -3,7 +3,6 @@
 <script src="../components/datatables/jquery.dataTables.bootstrap.min.js"></script>
 <script src="../components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
 <script src="../components/datatables/dataTables.select.min.js"></script>
-<script src="../components/jquery-ui/jquery-ui.min.js"></script>
 <!--不能用1.11.4-->
 <script src="../assets/js/jquery.ui.touch-punch.min.js"></script>
 <%--<script src="../assets/js/ace.js"></script>--%>
@@ -22,7 +21,6 @@
 
 <!-- bootstrap & fontawesome -->
 
-<link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
 <script type="text/javascript">
     jQuery(function ($) {
         var sampleBatchID = $.getUrlParam("sampleBatchID");

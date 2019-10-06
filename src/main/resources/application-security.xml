@@ -9,25 +9,25 @@
             <frame-options policy="SAMEORIGIN"/>
         </headers>
 
-        <intercept-url pattern="/" access="permitAll"/>
+        <intercept-url pattern="/" access="permitAll"/> 
         <!-- <intercept-url pattern="/home" access="permitAll"/>-->
         <!-- <intercept-url pattern="/admin/assets/**" access="permitAll" />-->
-        <intercept-url pattern="/rbac/getFunctionList.jspx" access="permitAll"/>
-        <!-- <intercept-url pattern="/admin/login.jspx" access="permitAll"/>
-         <intercept-url pattern="/admin/index.jspx" access="permitAll"/>-->
-        <intercept-url pattern="/admin/upload/*.jspx" access="hasRole('ADMIN')"/>
-        <!--<intercept-url pattern="/admin/*.jspx" access="hasRole('ADMIN')"/>-->
-        <!--<intercept-url pattern="/remark/*.jspx" access="hasRole('ADMIN')"/>-->
+        <intercept-url pattern="/rbac/getFunctionList.jspa" access="permitAll"/>
+        <!-- <intercept-url pattern="/admin/login.jspa" access="permitAll"/>
+         <intercept-url pattern="/admin/index.jspa" access="permitAll"/>-->
+        <intercept-url pattern="/admin/upload/*.jspa" access="hasRole('ADMIN')"/>
+        <!--<intercept-url pattern="/admin/*.jspa" access="hasRole('ADMIN')"/>-->
+        <!--<intercept-url pattern="/remark/*.jspa" access="hasRole('ADMIN')"/>-->
         <intercept-url pattern="/dba*" access="hasRole('ADMIN') and hasRole('DBA')"/>
         <!-- authentication-success-forward-url="/ace/index.html"-->
-        <!--   default-target-url="/admin/index.jspx"-->
-        <!-- authentication-success-forward-url="/admin/index.jspx?forward" -->
+        <!--   default-target-url="/admin/index.jspa"-->
+        <!-- authentication-success-forward-url="/admin/index.jspa?forward" -->
         <form-login login-page="/loginPage.jspa"
                     username-parameter="loginName"
                     password-parameter="password"
                     login-processing-url="/login"
-                    authentication-success-handler-ref="customLoginHandler"
-                    authentication-failure-url="/loginPage.jspx?error"/>
+                    authentication-success-handler-ref="savedRequestAware"
+                    authentication-failure-url="/loginPage.jspa?error"/>
         <csrf disabled="true"/>
 
         <remember-me remember-me-parameter="remember-me" remember-me-cookie="remember-me"
@@ -41,8 +41,9 @@
     <authentication-manager>
         <authentication-provider ref="securityProvider"/>
     </authentication-manager>
-    <beans:bean id="customLoginHandler" class="com.zcreate.security.auth.LoginSuccessHandler">
+    <beans:bean id="savedRequestAware" class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler ">
         <beans:property name="defaultTargetUrl" value="/index.jspa"/>
+        <beans:property name="useReferer" value="true"/>
     </beans:bean>
     <beans:bean id="jdbcTokenRepository" class="org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl">
         <beans:property name="dataSource" ref="securityDS"/>

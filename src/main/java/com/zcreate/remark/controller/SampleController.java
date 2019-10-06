@@ -236,7 +236,7 @@ public class SampleController {
             deleteCount = reviewService.doDeleteSampleBatch(batchID);
         } catch (Exception e) {
             e.printStackTrace();
-            map.put("errmsg", "错误信息：<br/>" + e.getMessage());
+            map.put("message", "错误信息：<br/>" + e.getMessage());
         }
         map.put("succeed", deleteCount > 0);
         map.put("affectedRowCount", deleteCount);

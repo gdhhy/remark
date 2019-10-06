@@ -243,7 +243,7 @@ public class MedicineController {
             map.put("succeed", result > 0);
         } else {
             map.put("title", "保存配对失败");
-            map.put("errmsg", "没登录用户信息，请重新登录！");
+            map.put("message", "没登录用户信息，请重新登录！");
             map.put("succeed", false);
         }
 

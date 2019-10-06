@@ -219,7 +219,7 @@
                     <b class="arrow"></b>
                 </li>
                 <li class="">
-                    <a href="index.jspa?content=/admin/roles.jsp&menuID=31" id="31">
+                    <a href="index.jspa?content=/admin/roles.jsp&menuID=32" id="32">
                         <!--<i class="menu-icon fa 	fa-certificate"></i>-->
                         <i class="menu-icon fa fa-caret-right"></i>
                         <span class="menu-text"> 门诊抗菌药统计</span>
@@ -262,6 +262,7 @@
             <b class="arrow"></b>
 
             <ul class="submenu">
+                <sec:authorize access="hasAuthority('ADMIN')">
                 <li class="">
                     <a href="index.jspa?content=/admin/users.jsp&menuID=4" id="4">
                         <!--<i class="menu-icon fa fa-user"></i>-->
@@ -280,6 +281,7 @@
 
                     <b class="arrow"></b>
                 </li>
+                </sec:authorize>
                 <li class="">
                     <a href="index.jspa?content=/monitor/data.jsp&menuID=6" id="6">
                         <!--<i class="menu-icon fa 	fa-certificate"></i>-->

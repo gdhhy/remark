@@ -3,7 +3,6 @@
 <script src="../components/datatables/jquery.dataTables.bootstrap.min.js"></script>
 <script src="../components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
 <script src="../components/datatables/dataTables.select.min.js"></script>
-<script src="../components/jquery-ui/jquery-ui.min.js"></script>
 <%--<script src="../assets/js/ace.js"></script>--%>
 <script src="../assets/js/jquery.ui.touch-punch.min.js"></script>
 <%--<script src="../assets/js/jquery.gritter.min.js"></script>--%>
@@ -16,7 +15,6 @@
 <link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>
 <!-- bootstrap & fontawesome -->
 
-<link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
 <link rel="stylesheet" href="../assets/css/ace.css"/>
 
 <script type="text/javascript">
@@ -165,23 +163,6 @@
 
         var calcEndDate = moment(endDate),
             calcStartDate = moment(calcEndDate).subtract(10, "days");
-        $('#calcDateRange').daterangepicker({
-            'applyClass': 'btn-sm btn-success',
-            'cancelClass': 'btn-sm btn-default',
-            startDate: calcStartDate, //设置开始日期
-            endDate: calcEndDate, //设置结束器日期
-            locale: {
-                format: 'YYYY-MM-DD',
-                separator: ' ～ ',
-                applyLabel: '确定',
-                cancelLabel: '取消'
-            }
-        }, function (start, end, label) {
-            calcStartDate = start;
-            calcEndDate = end;
-        }).next().on(ace.click_event, function () {
-            $(this).prev().focus();
-        });
 
 
         function showDialog(title, content) {
@@ -203,12 +184,11 @@
         });
         $('.btn-info').click(function () {
 
-
             $("#dialog-calcData").removeClass('hide').dialog({
                 resizable: false,
                 width: 360,
-                height: 220,
-               // modal: true,
+               // height: 220,
+                 modal: true,
                 /* title: "确认统计时间段",*/
                 buttons: [
                     {
@@ -252,8 +232,24 @@
                     }
                 ]
             });
-            $('#calcDateRange').blur();
 
+            $('#calcDateRange').daterangepicker({
+                'applyClass': 'btn-sm btn-success',
+                'cancelClass': 'btn-sm btn-default',
+                startDate: calcStartDate, //设置开始日期
+                endDate: calcEndDate, //设置结束器日期
+                locale: {
+                    format: 'YYYY-MM-DD',
+                    separator: ' ～ ',
+                    applyLabel: '确定',
+                    cancelLabel: '取消'
+                }
+            }, function (start, end, label) {
+                calcStartDate = start;
+                calcEndDate = end;
+            }).next().on(ace.click_event, function () {
+                $(this).prev().focus();
+            });
         });
 
         function deleteDialog(dataDate) {
@@ -271,10 +267,10 @@
                             $.ajax({
                                 type: "POST",
                                 url: "/monitor/deleteData.jspa?fromDate={0}&toDate={1}".format(dataDate, dataDate),
-                                //contentType: "application/x-www-form-urlencoded",//http://www.cnblogs.com/yoyotl/p/5853206.html
+                                //contentType: "application/x-www-form-urlencoded; charset=UTF-8",//http://www.cnblogs.com/yoyotl/p/5853206.html
                                 cache: false,
                                 success: function (response, textStatus) {
-                                   // var result = JSON.parse(response);
+                                    // var result = JSON.parse(response);
                                     /* if (result.succeed)
                                          myTable.ajax.reload();
                                      else*/
@@ -395,15 +391,11 @@
             <!-- PAGE CONTENT ENDS -->
         </div><!-- /.col -->
     </div><!-- /.row -->
-
-    <div id="dialog-error" class="hide alert" title="提示">
-        <p id="errorText">保存失败，请稍后再试，或与系统管理员联系。</p>
-    </div>
     <div id="dialog-calcData" class="hide" title="执行时间段确认">
         重新计算指定时间段的数据量
         <div class="col-xs-12" style="padding-top: 10px">
-            <label class="col-xs-2  no-padding-right" style="white-space: nowrap;margin-top: 7px;">日期：</label>
-            <div class="input-group col-xs-10">
+            <label class="col-xs-3  no-padding-right" style="white-space: nowrap;margin-top: 7px;">日期：</label>
+            <div class="input-group col-xs-9">
                 <input class="form-control nav-search-input" name="dateRangeString" id="calcDateRange"
                        style="color: black"
                        data-date-format="YYYY-MM-DD"/>

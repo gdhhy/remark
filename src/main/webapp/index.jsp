@@ -18,7 +18,7 @@
         <a class="menu-toggler" id="menu-toggler" href="#">
             <span class="menu-text"></span>
         </a>
-        <c:import url="/menu.jspa" charEncoding="UTF8"/>
+        <c:import url="/admin/sidebar.jsp" charEncoding="UTF8"/>
 
         <div class="main-content">
             <c:import url="${content}" charEncoding="UTF8"/>

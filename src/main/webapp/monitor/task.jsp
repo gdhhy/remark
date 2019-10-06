@@ -3,7 +3,6 @@
 <script src="../components/datatables/jquery.dataTables.bootstrap.min.js"></script>
 <script src="../components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
 <script src="../components/datatables/dataTables.select.min.js"></script>
-<script src="../components/jquery-ui/jquery-ui.min.js"></script>
 <%--<script src="../assets/js/ace.js"></script>--%>
 <script src="../assets/js/jquery.ui.touch-punch.min.js"></script>
 <%--<script src="../assets/js/jquery.gritter.min.js"></script>--%>
@@ -20,7 +19,6 @@
 <link rel="stylesheet" href="../components/bootstrap-datepicker/css/bootstrap-datepicker3.css"/>
 <!-- bootstrap & fontawesome -->
 
-<link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
 <link rel="stylesheet" href="../assets/css/ace.css"/>
 
 <script type="text/javascript">
@@ -220,7 +218,7 @@
                             type: "POST",
                             url: "/monitor/submitTask.jspa",
                             data: param,
-                            contentType: "application/x-www-form-urlencoded", //https://www.cnblogs.com/yoyotl/p/5853206.html
+                            contentType: "application/x-www-form-urlencoded; charset=UTF-8", //https://www.cnblogs.com/yoyotl/p/5853206.html
                             cache: false,
                             success: function (response, textStatus) {
                                 showDialog("定时任务", response.message);
@@ -512,10 +510,6 @@
             <!-- PAGE CONTENT ENDS -->
         </div><!-- /.col -->
     </div><!-- /.row -->
-
-    <div id="dialog-error" class="hide alert" title="提示">
-        <p id="errorText">保存失败，请稍后再试，或与系统管理员联系。</p>
-    </div>
     <div class="modal fade" id="loadingModal">
         <div style="width: 200px;height:20px; z-index: 20000; position: absolute; text-align: center; left: 50%; top: 50%;margin-left:-100px;margin-top:-10px">
             <div class="progress progress-striped active" style="margin-bottom: 0;">

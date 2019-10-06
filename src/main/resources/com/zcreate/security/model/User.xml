@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zcreate.security.dao.UserMapper">
+    <cache eviction="LRU" readOnly="false" flushInterval="60000" size="10000"/>
+    <resultMap id="UserResult" type="com.zcreate.security.pojo.User">
+        <result column="userid" jdbcType="INTEGER" property="userID"/>
+        <result column="loginname" jdbcType="VARCHAR" property="loginName"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="accountnonlocked" jdbcType="BOOLEAN" property="accountNonLocked"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result property="link" column="link" jdbcType="VARCHAR"/>
+        <result column="createdate" javaType="java.sql.Timestamp" jdbcType="TIMESTAMP" property="createDate"/>
+        <result column="note" jdbcType="VARCHAR" property="note"/>
+        <result column="groupid" jdbcType="INTEGER" property="groupID"/>
+        <result column="roles" jdbcType="VARCHAR" property="roles"/>
+        <result column="orderid" jdbcType="INTEGER" property="orderID"/>
+        <result column="expireddate" javaType="java.sql.Timestamp" jdbcType="TIMESTAMP" property="expiredDate"/>
+        <result column="lockedIP" jdbcType="VARCHAR" property="lockedIP"/>
+        <result column="lockedloginip" jdbcType="BOOLEAN" property="lockedLoginIP"/>
+        <result column="lastlogintime" javaType="java.sql.Timestamp" jdbcType="TIMESTAMP" property="lastLoginTime"/>
+        <result column="lastloginip" jdbcType="VARCHAR" property="lastLoginIP"/>
+        <result column="allowsynlogin" jdbcType="BOOLEAN" property="allowSynLogin"/>
+        <result column="failurelogin" jdbcType="INTEGER" property="failureLogin"/>
+        <result column="succeedlogin" jdbcType="INTEGER" property="succeedLogin"/>
+    </resultMap>
+
+    <select id="getUser" resultMap="UserResult">
+        SELECT userid, loginname, password, accountnonlocked, name, link, createdate, note, groupid,roles, orderid, expireddate, lockedip, lockedloginip,
+        lastlogintime, lastloginip, allowsynlogin, failurelogin, succeedlogin
+        FROM sys_user
+        <where>
+            <if test="param.loginname!=null">AND loginname = #{param.loginname:VARCHAR}</if>
+            <if test="param.userID!=null">AND userID = #{param.userID:INTEGER}</if>
+        </where>
+        ORDER BY orderID
+    </select>
+    <select id="selectUser" resultMap="UserResult">
+        SELECT userid, loginname, password, accountnonlocked, name, link, createdate, note, groupid,roles, orderid, expireddate, lockedip, lockedloginip,
+               lastlogintime, lastloginip, allowsynlogin, failurelogin, succeedlogin
+        FROM sys_user
+        ORDER BY orderID
+    </select>
+    <update id="updateUser" flushCache="true" >
+        update sys_user
+        <set>
+            updatetime=now(),
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(pojo.password)">password = #{pojo.password:VARCHAR},</if>
+            <if test="pojo.accountNonLocked != null">accountnonlocked = #{pojo.accountNonLocked:BIT},</if>
+            <if test="pojo.name != null">name = #{pojo.name:VARCHAR},</if>
+            <if test="pojo.link != null">link = #{pojo.link:OTHER},</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(pojo.createDate)">createdate = #{pojo.createDate:TIMESTAMP},</if>
+            <if test="pojo.note != null">note = #{pojo.note:VARCHAR},</if>
+            <if test="pojo.groupID != null">groupid = #{pojo.groupID:INTEGER},</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(pojo.roles)">roles = #{pojo.roles:VARCHAR},</if>
+            <if test="pojo.orderID != null">orderid = #{pojo.orderID:INTEGER},</if>
+            <if test="pojo.expiredDate != null">expireddate = #{pojo.expiredDate:TIMESTAMP},</if>
+            <if test="pojo.lockedIP != null">lockedip = #{pojo.lockedIP:VARCHAR},</if>
+            <if test="pojo.lockedLoginIP != null">lockedloginip = #{pojo.lockedLoginIP:BIT},</if>
+            <if test="pojo.lastLogintime != null">lastlogintime = #{pojo.lastLoginTime:TIMESTAMP},</if>
+            <if test="pojo.lastLoginIP != null">lastloginip = #{pojo.lastLoginIP:VARCHAR},</if>
+            <if test="pojo.allowSynLogin != null">allowsynlogin = #{pojo.allowSynLogin:BIT},</if>
+            <if test="pojo.failureLogin != null">failurelogin = #{pojo.failureLogin:INTEGER},</if>
+            <if test="pojo.succeedLogin != null">succeedlogin = #{pojo.succeedLogin:INTEGER},</if>
+        </set>
+        where loginname = #{pojo.username:VARCHAR}
+    </update>
+    <update id="loginUpdateUser">
+        update sys_user
+        <set>
+            <if test="pojo.failureLogin != null">failurelogin = #{pojo.failureLogin:INTEGER},</if>
+            <if test="pojo.succeedLogin != null">succeedlogin = #{pojo.succeedLogin:INTEGER},</if>
+        </set>
+        where loginname = #{pojo.username:VARCHAR}
+    </update>
+    <insert id="insertUser" flushCache="true" useGeneratedKeys="true" keyProperty="pojo.userID">
+        INSERT INTO sys_user (loginname, password, accountnonlocked, name, link, note, groupid, roles, orderid, expireddate,
+                              lockedip, lockedloginip, lastloginip, allowsynlogin)
+        VALUES (#{pojo.username:VARCHAR}, #{pojo.password:VARCHAR}, #{pojo.accountNonLocked:BIT},
+                #{pojo.name:VARCHAR}, #{pojo.link:OTHER}, #{pojo.note:VARCHAR},
+                #{pojo.groupID:INTEGER}, #{pojo.roles:VARCHAR}, #{pojo.orderID:INTEGER},
+                #{pojo.expiredDate:TIMESTAMP}, #{pojo.lockedIP:VARCHAR}, #{pojo.lockedLoginIP:BIT},
+                #{pojo.lastLoginIP:VARCHAR}, #{pojo.allowSynLogin:BIT})
+    </insert>
+    <delete id="deleteUser" parameterType="int">
+        DELETE
+        FROM sys_user
+        WHERE userID = #{userID:INTEGER}
+    </delete>
+
+    <!--<insert id="setUserRole" parameterType="java.util.List">
+        INSERT INTO Sys_UserRole(userID, roleID)
+        VALUES
+        <foreach collection="list" item="pojo" separator=",">
+            (#{pojo.userID:INTEGER}, #{pojo.roleID:INTEGER})
+        </foreach>
+    </insert>
+    <delete id="deleteUserRole">
+        DELETE
+        FROM Sys_UserRole
+        WHERE userID = #{userID:INTEGER}
+    </delete>-->
+</mapper>

@@ -3,7 +3,6 @@
 <script src="../components/datatables/jquery.dataTables.bootstrap.min.js"></script>
 <script src="../components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
 <script src="../components/datatables/dataTables.select.min.js"></script>
-<script src="../components/jquery-ui/jquery-ui.min.js"></script>
 <%--<script src="../assets/js/ace.js"></script>--%>
 <script src="../assets/js/jquery.ui.touch-punch.min.js"></script>
 <%--<script src="../assets/js/jquery.gritter.min.js"></script>--%>
@@ -18,7 +17,6 @@
 
 <!-- bootstrap & fontawesome -->
 
-<link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
 <link rel="stylesheet" href="../components/monthpicker/MonthPicker.css"/>
 <link rel="stylesheet" href="../assets/css/ace.css"/>
 <style>
@@ -284,9 +282,5 @@
             <!-- PAGE CONTENT ENDS -->
         </div><!-- /.col -->
     </div><!-- /.row -->
-
-    <div id="dialog-error" class="hide alert" title="提示">
-        <p id="errorText">保存失败，请稍后再试，或与系统管理员联系。</p>
-    </div>
 </div>
 <!-- /.page-content -->

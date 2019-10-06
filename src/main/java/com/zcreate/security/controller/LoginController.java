@@ -2,6 +2,7 @@ package com.zcreate.security.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.zcreate.security.dao.UserMapper;
 import com.zcreate.security.pojo.User;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,15 +22,14 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 @Controller
 @RequestMapping("/")
 public class LoginController {
     @Autowired
-    private JdbcTokenRepositoryImpl jdbcTokenRepository;
+    private JdbcTokenRepositoryImpl jdbcTokenRepository; @Autowired
+    private UserMapper userMapper;
 
     private Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 
@@ -42,12 +42,14 @@ public class LoginController {
     public String currentUserName(Principal principal) {
         return principal.getName();
     }
+
     @RequestMapping(value = "/loginPage", method = RequestMethod.GET)
     public String loginPage(@RequestParam(value = "error", required = false) String error, ModelMap model, HttpServletRequest request) {
-
-        logger.debug("url function = loginPage");
-        logger.debug("getContext" + SecurityContextHolder.getContext());
-        logger.debug("getAuthentication" + SecurityContextHolder.getContext().getAuthentication());
+        // logger.debug("url function = loginPage");
+        /*logger.debug("getPathInfo" + request.getPathInfo());
+        logger.debug("getParameterMap" + request.getParameterMap().toString());*/
+        //logger.debug("model" + model.toString());//model{content=/admin/users.jsp}
+        //logger.debug("getAuthorities" + SecurityContextHolder.getContext().getAuthentication().getAuthorities());//仅仅登录前的 ROLE_ANONYMOUS，无意义
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
             Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -65,50 +67,23 @@ public class LoginController {
         /*model.addAttribute("systemTitle2", "系统登录");*/
         return "/loginPage";
     }
-
-    /* @RequestMapping(value = "/login", method = RequestMethod.GET)
-       public ModelAndView loginPage(@RequestParam(value = "error", required = false) String error,   HttpServletRequest request) {
-           logger.debug("url function = loginPage");
-           logger.debug("getContext" + SecurityContextHolder.getContext());
-           logger.debug("getAuthentication" + SecurityContextHolder.getContext().getAuthentication());
-           Map<String, Object> model = new HashMap<>();
-           if (SecurityContextHolder.getContext().getAuthentication() != null) {
-               Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-               if (principal instanceof UserDetails) {
-                   logger.debug("已登录");
-                   model.put("loginSucceed", true);
-                   model.put("loginName", ((UserDetails) principal).getUsername());
-               }
-           }
-           if (error != null) {
-               model.put("errMsg", getErrorMessage(request));om
-           }
-           System.out.println("config.getProperty(\"systemTitle\") = " + config.getProperty("systemTitle"));
-
-           model.put("systemTitle", config.getProperty("systemTitle"));
-           model.put("systemTitle2", config.getProperty("systemTitle2"));
-           return  new ModelAndView("/admin/login", model);
-       }*/
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index(@RequestParam(value = "content", defaultValue = "/admin/hello.html") String contentUrl, ModelMap model) {
         model.addAttribute("content", contentUrl);
         Object loginObject = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (loginObject instanceof User)
+        if (loginObject instanceof UserDetails)
             return "/index";
         else {
             return loginPage(null, model, null);
         }
     }
-    @RequestMapping(value = "/menu", method = RequestMethod.GET)
+
+   /* @RequestMapping(value = "/menu", method = RequestMethod.GET)
     public String menu(ModelMap model) {
-        model.addAttribute("user", getPrincipal());
-        logger.debug("SecurityContextHolder.getContext().getAuthentication().getPrincipal()=" + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-
-
+        //model.addAttribute("user", getPrincipal());
         return "/admin/sidebar";
     }
-
+*/
     private List<com.zcreate.security.pojo.Function> findChildFunction(List<com.zcreate.security.pojo.Function> roleFuncs, com.zcreate.security.pojo.Function parent) throws Exception {
         List<com.zcreate.security.pojo.Function> child = new ArrayList<>();
         for (int k = roleFuncs.size() - 1; k >= 0; k--) {
@@ -125,9 +100,15 @@ public class LoginController {
         return child;
     }
 
-    @RequestMapping(value = "/navbar", method = RequestMethod.GET)
+    @RequestMapping(value = "/navbar", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String navbar(ModelMap model) {
-        model.addAttribute("user", getPrincipal());
+        String loginname=getPrincipal();
+
+        Map<String, Object> param = new HashMap<>();
+        param.put("loginname", loginname);
+        User user = userMapper.getUser(param);
+        model.addAttribute("user",user);
+
         return "/admin/navbar";
     }
 
@@ -149,8 +130,8 @@ public class LoginController {
 
     private String getPrincipal() {
         String userName;
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        logger.debug("auth:" + auth);
+        //Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        //logger.debug("auth:" + auth);
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (principal instanceof UserDetails) {

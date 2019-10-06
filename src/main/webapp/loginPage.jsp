@@ -150,7 +150,7 @@
                                 </div><!-- /widget-main -->
 
                                 <div class="toolbar center">
-                                    <a href="#" onclick="location='/admin/logout.jspa'" class="back-to-login-link">
+                                    <a href="#" onclick="location='/logout.jspa'" class="back-to-login-link">
                                         退出
                                         <i class="icon-arrow-right"></i>
                                     </a>

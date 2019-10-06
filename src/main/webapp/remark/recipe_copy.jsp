@@ -19,7 +19,6 @@
     <link rel="stylesheet" href="../assets/css/ace-skins.min.css"/>
 
 
-    <link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
     <link rel="stylesheet" href="../components/jquery-ui.custom/jquery-ui.custom.css"/>
     <link rel="stylesheet" href="../components/datatables/select.dataTables.min.css"/>
     <%--<link rel="stylesheet" href="../components/jquery-ui.custom/dataTables.bootstrap.min.css"/>--%>
@@ -49,7 +48,6 @@
     <script src="../components/datatables/jquery.dataTables.bootstrap.min.js"></script>
     <%--<script src="js/datatables.net-buttons/dataTables.buttons.min.js"></script>--%>
     <script src="../components/datatables/dataTables.select.min.js"></script>
-    <script src="../components/jquery-ui/jquery-ui.min.js"></script>
     <script src="../components/typeahead.js/handlebars.js"></script>
     <%--<script src="../js/string_func.js"></script>--%>
 

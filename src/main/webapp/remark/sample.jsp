@@ -3,7 +3,6 @@
 <script src="../components/datatables/jquery.dataTables.bootstrap.min.js"></script>
 <script src="../components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
 <script src="../components/datatables/dataTables.select.min.js"></script>
-<script src="../components/jquery-ui/jquery-ui.min.js"></script>
 <%--<script src="../assets/js/ace.js"></script>--%>
 <script src="../assets/js/jquery.ui.touch-punch.min.js"></script>
 <%--<script src="../assets/js/jquery.gritter.min.js"></script>--%>
@@ -31,7 +30,6 @@
 
 <!-- bootstrap & fontawesome -->
 
-<link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
 <link rel="stylesheet" href="../components/monthpicker/MonthPicker.css"/>
 
 <%--<link rel="stylesheet" href="../components/jquery-ui.custom/jquery-ui.custom.min.css"/>--%>
@@ -183,14 +181,14 @@
                             $.ajax({
                                 type: "POST",
                                 url: "/remark/deleteSampleBatch.jspa?batchID=" + batchID,
-                                //contentType: "application/x-www-form-urlencoded",//http://www.cnblogs.com/yoyotl/p/5853206.html
+                                //contentType: "application/x-www-form-urlencoded; charset=UTF-8",//http://www.cnblogs.com/yoyotl/p/5853206.html
                                 cache: false,
                                 success: function (response, textStatus) {
                                     var result = JSON.parse(response);
                                     if (result.succeed)
                                         myTable.ajax.reload();
                                     else
-                                        showDialog("请求结果：" + result.succeed, response);
+                                        showDialog("请求结果：" + result.succeed, result.message);
                                 },
                                 error: function (response, textStatus) {/*能够接收404,500等错误*/
                                     showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));
@@ -877,10 +875,6 @@
     </div>
     <div id="dialog-loading" class="hide info" title="提示">
         <p id="infoText" class="ace-icon fa fa-spinner fa-spin fa-3x fa-fw">请稍后……</p>
-    </div>
-
-    <div id="dialog-error" class="hide alert" title="提示">
-        <p id="errorText">保存失败，请稍后再试，或与系统管理员联系。</p>
     </div>
 
     <div id="dialog-delete" class="hide">

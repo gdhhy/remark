@@ -5,14 +5,12 @@
 <script src="../components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
 <script src="../components/datatables/dataTables.select.min.js"></script>
 
-<script src="../components/jquery-ui/jquery-ui.min.js"></script>
 <!--不能用1.11.4-->
 <script src="../assets/js/jquery.ui.touch-punch.min.js"></script>
 <script src="../components/jquery.gritter/js/jquery.gritter.js"></script>
 <script src="../assets/js/jquery.validate.min.js"></script>
 <script src="../components/chosen/chosen.jquery.js"></script>
 <link rel="stylesheet" href="../components/bootstrap-datetimepicker/bootstrap-datetimepicker.css"/>
-<link rel="stylesheet" href="../components/jquery-ui/jquery-ui.min.css"/>
 <link rel="stylesheet" href="../components/jquery-ui.custom/jquery-ui.custom.min.css"/>
 <link rel="stylesheet" href="../components/jquery.gritter/css/jquery.gritter.min.css"/>
 <link rel="stylesheet" href="../components/chosen/chosen.min.css"/>
@@ -118,7 +116,7 @@
                     type: "POST",
                     url: "/rbac/saveUser.jspa",
                     data: userForm.serialize(),//+ "&productImage=" + av atar_ele.get(0).src,
-                    contentType: "application/x-www-form-urlencoded",//http://www.cnblogs.com/yoyotl/p/5853206.html
+                    contentType: "application/x-www-form-urlencoded; charset=UTF-8",//http://www.cnblogs.com/yoyotl/p/5853206.html
                     cache: false,
                     success: function (response, textStatus) {
                         var result = JSON.parse(response);
@@ -190,7 +188,7 @@
                             $.ajax({
                                 type: "POST",
                                 url: "/rbac/deleteUser.jspa?userID=" + userID,
-                                //contentType: "application/x-www-form-urlencoded",//http://www.cnblogs.com/yoyotl/p/5853206.html
+                                //contentType: "application/x-www-form-urlencoded; charset=UTF-8",//http://www.cnblogs.com/yoyotl/p/5853206.html
                                 cache: false,
                                 success: function (response, textStatus) {
                                     var result = JSON.parse(response);
@@ -378,9 +376,6 @@
             <!-- PAGE CONTENT ENDS -->
         </div><!-- /.col -->
     </div><!-- /.row -->
-    <div id="dialog-error" class="hide alert" title="提示">
-        <p id="errorText">保存失败，请稍后再试，或与系统管理员联系。</p>
-    </div>
 
     <div id="dialog-delete" class="hide">
         <div class="alert alert-info bigger-110">
@@ -400,7 +395,7 @@
                 <div class="col-xs-11">
                     <input type="hidden" id="form-userID" name="userID"/>
                     <div class="form-group">
-                        <label class="col-sm-3 control-label no-padding-right" for="form-name">登录名 </label>
+                        <label class="col-sm-3 control-label no-padding-right" for="form-loginName">登录名 </label>
 
                         <div class="col-sm-9">
                             <div class="input-group">
