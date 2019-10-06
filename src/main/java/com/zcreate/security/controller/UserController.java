@@ -119,7 +119,7 @@ public class UserController {
         return gson.toJson(result);
     }
 
-    @ResponseBody
+    /*@ResponseBody
     @RequestMapping(value = "/showRole", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String showRole(@RequestParam(value = "roleID") Integer roleID) {
         Map<String, Object> param = new HashMap<>();
@@ -160,7 +160,7 @@ public class UserController {
         map.put("affectedRowCount", result);
 
         return gson.toJson(map);
-    }
+    }*/
 
     /*private String returnJson(List user) {
         Map<String, Object> result = new HashMap<>();

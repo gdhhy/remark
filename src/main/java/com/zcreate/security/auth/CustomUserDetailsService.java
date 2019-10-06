@@ -21,8 +21,6 @@ import java.util.Map;
 @Service("customUserDetailsService")
 public class CustomUserDetailsService implements UserDetailsService {
     Logger logger = Logger.getLogger(CustomUserDetailsService.class);
-    //@Autowired
-    //private UserDao userDao;
 
     @Autowired
     private UserMapper userMapper;
@@ -41,10 +39,10 @@ public class CustomUserDetailsService implements UserDetailsService {
         }
         logger.debug("user:" + user.getUsername());
 
-        /*logger.debug("User : " + user.get(0));
-        logger.debug("User.isAccountNonExpired(): " + user.get(0).isAccountNonExpired());
-        logger.debug("User.isAccountNonLocked(): " + user.get(0).isAccountNonLocked());
-        logger.debug("User.isCredentialsNonExpired(): " + user.get(0).isCredentialsNonExpired());*/
+        logger.debug("User : " + user);
+        logger.debug("User.isAccountNonExpired(): " + user.isAccountNonExpired());
+        logger.debug("User.isAccountNonLocked(): " + user.isAccountNonLocked());
+        logger.debug("User.isCredentialsNonExpired(): " + user.isCredentialsNonExpired());
         //return user;
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
                 user.isEnabled(), user.isAccountNonExpired(), user.isCredentialsNonExpired(), user.isAccountNonLocked(),

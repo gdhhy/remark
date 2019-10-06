@@ -31,6 +31,7 @@
                     {"data": "roles", "sClass": "center", "defaultContent": ""},
                     {"data": "createDate", "sClass": "center"},
                     {"data": "lastLoginTime", "sClass": "center", "defaultContent": ""},
+                    {"data": "lastLoginIP", "sClass": "center", "defaultContent": ""},
                     {"data": "failureLogin", "sClass": "center", "defaultContent": ""},
                     {"data": "succeedLogin", "sClass": "center", "defaultContent": ""}
                 ],
@@ -46,10 +47,11 @@
                     {"searchable": true, "orderable": false, title: '角色', className: 'text-center', "targets": 3},
                     {"searchable": false, "orderable": false, title: '创建时间', className: 'text-center', "targets": 4},
                     {"searchable": true, "orderable": false, title: '最后登录时间', className: 'text-center', "targets": 5},
-                    {"searchable": false, "orderable": false, title: '连续失败次数', className: 'text-center', "targets": 6},
-                    {"searchable": true, "orderable": false, title: '累计登录次数', className: 'text-center', "targets": 7},
+                    {"searchable": true, "orderable": false, title: '最后登录IP', className: 'text-center', "targets": 6},
+                    {"searchable": false, "orderable": false, title: '连续失败次数', className: 'text-center', "targets": 7},
+                    {"searchable": true, "orderable": false, title: '累计登录次数', className: 'text-center', "targets": 8},
                     {
-                        'targets': 8, 'searchable': false, 'orderable': false, width: 60, data: 'userID',
+                        'targets': 9, 'searchable': false, 'orderable': false, width: 60, data: 'userID',
                         render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 '<a class="green" href="#" data-userID="{0}">'.format(data) +
@@ -111,7 +113,8 @@
 
             submitHandler: function (form) {
                 //console.log(userForm.serialize());// + "&productImage=" + av atar_ele.get(0).src);
-                //console.log("form:" + form);
+                if ($('#form-password').val() !== '' && $('#form-password').val() === $('#form-pwdretry').val())
+                    $("input[name='failureLogin']").val(0);
                 $.ajax({
                     type: "POST",
                     url: "/rbac/saveUser.jspa",
@@ -255,6 +258,7 @@
                 $.getJSON("/rbac/showUser.jspa?userID=" + userID, function (result) { //https://www.cnblogs.com/liuling/archive/2013/02/07/sdafsd.html
                     $("#form-name").val(result["name"]);
                     $("#form-loginName").val(result["loginName"]);
+                    $("input[name='failureLogin']").val(result["failureLogin"]);
                     //$("#form-roles").get(0).selectedIndex = result["roles"];//OK
                     var roles = result["roles"].split(",");
 
@@ -278,7 +282,7 @@
             $("#dialog-edit").removeClass('hide').dialog({
                 resizable: false,
                 width: 450,
-                height: 530,
+                height: 480,
                 modal: true,
                 title: userID == null ? "增加用户" : "设置用户",
                 title_html: true,
@@ -443,19 +447,7 @@
                             </div>
                         </div>
                     </div>
-                    <%--<div class="form-group">
-                        <label for="form-groupID" class="col-sm-3 control-label no-padding-right">部门</label>
-
-                        <div class="col-sm-9">
-                            <div class="input-group">
-                                <select class="chosen-select" id="form-groupID" data-placeholder="选择部门" name="groupID">
-                                    <option value=""></option>
-                                    <option value="1">营销部</option>
-                                    <option value="2">技术部</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>--%>
+                    <input name="failureLogin" type="hidden">
 
 
                 </div>

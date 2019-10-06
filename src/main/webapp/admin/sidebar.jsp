@@ -265,18 +265,10 @@
                 <sec:authorize access="hasAuthority('ADMIN')">
                 <li class="">
                     <a href="index.jspa?content=/admin/users.jsp&menuID=4" id="4">
-                        <!--<i class="menu-icon fa fa-user"></i>-->
                         <i class="menu-icon fa fa-caret-right"></i>
-                        用户管理
-                    </a>
+                        <i class="fa fa-user"></i>
+                        <span class="menu-text">用户管理</span>
 
-                    <b class="arrow"></b>
-                </li>
-                <li class="">
-                    <a href="index.jspa?content=/admin/roles.jsp&menuID=5" id="5">
-                        <!--<i class="menu-icon fa 	fa-certificate"></i>-->
-                        <i class="menu-icon fa fa-caret-right"></i>
-                        <span class="menu-text"> 角色设置</span>
                     </a>
 
                     <b class="arrow"></b>
@@ -286,6 +278,7 @@
                     <a href="index.jspa?content=/monitor/data.jsp&menuID=6" id="6">
                         <!--<i class="menu-icon fa 	fa-certificate"></i>-->
                         <i class="menu-icon fa fa-caret-right"></i>
+                        <i class="fa fa-database"></i>
                         <span class="menu-text">数据量监控</span>
                     </a>
 
@@ -295,6 +288,8 @@
                     <a href="index.jspa?content=/monitor/task.jsp&menuID=7" id="7">
                         <!--<i class="menu-icon fa 	fa-certificate"></i>-->
                         <i class="menu-icon fa fa-caret-right"></i>
+                        <i class="fa fa-tasks" aria-hidden="true"></i>
+
                         <span class="menu-text">导入任务</span>
                     </a>
 

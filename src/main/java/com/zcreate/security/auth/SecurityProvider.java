@@ -5,15 +5,14 @@ import com.zcreate.security.pojo.User;
 import com.zcreate.util.Hmac;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -31,15 +30,20 @@ public class SecurityProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        //UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) authentication;
-        /*logger.debug("auth.getName()=" + authentication.getName());//登录的用户名
-        logger.debug("auth.getCredentials()=" + authentication.getCredentials().toString());//密码*/
 
         Map<String, Object> param = new HashMap<>();
+      /*  logger.debug("authentication:"+ authentication);
+        logger.debug("authentication:"+ ((WebAuthenticationDetails)authentication.getDetails()).getRemoteAddress());*/
         param.put("loginname", authentication.getName());
         User user = userMapper.getUser(param);
         if (user == null) {
             throw new UsernameNotFoundException("用户名不存在");
+        }
+        if (user.getFailureLogin() > 4) {
+            user.setFailureLogin(user.getFailureLogin() + 1);
+            userMapper.loginUpdateUser(user);
+
+            throw new LockedException("登录失败次数太多，请联系管理员解锁");
         }
         if (!user.getPassword().equals(Hmac.sha1(authentication.getCredentials().toString().getBytes(),
                 configs.getProperty("application_name").getBytes()))) {
@@ -50,10 +54,13 @@ public class SecurityProvider implements AuthenticationProvider {
         if (user.getAuthorities().size() == 0) {
             throw new AuthenticationCredentialsNotFoundException("未设置授权");
         }
-       /* logger.debug("user:" + user);
-        logger.debug("user:" + user.getAuthorities());
-        logger.debug("authentication:" + authentication);
-        logger.debug("authentication:" + authentication.getCredentials());*/
+        //todo 用户锁定、登录IP 限制等等
+
+        user.setFailureLogin(0);
+        user.setSucceedLogin(user.getSucceedLogin() + 1);
+        user.setLastLoginTime(new Date());
+        user.setLastLoginIP(((WebAuthenticationDetails) authentication.getDetails()).getRemoteAddress());
+        userMapper.loginUpdateUser(user);
 
         return new UsernamePasswordAuthenticationToken(user, authentication.getCredentials(), user.getAuthorities());
     }

@@ -84,7 +84,6 @@
                 $("#dialog-k12900123").removeClass('hide').dialog({
                     resizable: false,
                     width: 450,
-                    height: 530,
                     modal: true,
                     title: "个人资料",
                     title_html: true,
@@ -148,7 +147,7 @@
 
                         <li>
                             <a href="#">
-                                <i class="ace-icon fa fa-user"></i>
+                                <i class="ace-icon fa fa-user blue"></i>
                                 个人资料
                             </a>
                         </li>
@@ -157,7 +156,7 @@
 
                         <li>
                             <a href="/logout.jspa">
-                                <i class="ace-icon fa  fa-sign-out"></i>
+                                <i class="ace-icon fa  fa-sign-out red"></i>
                                 退出
                             </a>
                         </li>

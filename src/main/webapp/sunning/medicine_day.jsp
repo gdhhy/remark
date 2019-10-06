@@ -103,7 +103,7 @@
                             var jsp = row['type'] === 1 ? "clinic_list.jsp" : "recipe_list.jsp";
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 '<a class="hasDetail" href="#" data-Url="javascript:showMedicineChart({0},\'{1}\');">'.format(data, row["chnName"]) +
-                                '<i class="ace-icon glyphicon glyphicon-stats bigger-130"></i>' +
+                                '<i class="ace-icon fa fa-line-chart bigger-110"></i>' +
                                 '</a>&nbsp;&nbsp;&nbsp;' +
                                 '<a class="hasDetail" href="#" data-Url="javascript:showDepartmentDetail({0},\'{1}\',\'department\');">'.format(data, row["chnName"]) +
                                 '<i class="ace-icon glyphicon glyphicon-th bigger-130"></i>' +

@@ -26,8 +26,8 @@
     </resultMap>
 
     <select id="getUser" resultMap="UserResult">
-        SELECT userid, loginname, password, accountnonlocked, name, link, createdate, note, groupid,roles, orderid, expireddate, lockedip, lockedloginip,
-        lastlogintime, lastloginip, allowsynlogin, failurelogin, succeedlogin
+        SELECT userid, loginname, password, accountnonlocked, name, link, createdate, note, groupid,roles, orderid, expireddate, lockedip,
+               lockedloginip, lastlogintime, lastloginip, allowsynlogin, failurelogin, succeedlogin
         FROM sys_user
         <where>
             <if test="param.loginname!=null">AND loginname = #{param.loginname:VARCHAR}</if>
@@ -36,8 +36,8 @@
         ORDER BY orderID
     </select>
     <select id="selectUser" resultMap="UserResult">
-        SELECT userid, loginname, password, accountnonlocked, name, link, createdate, note, groupid,roles, orderid, expireddate, lockedip, lockedloginip,
-               lastlogintime, lastloginip, allowsynlogin, failurelogin, succeedlogin
+        SELECT userid, loginname, password, accountnonlocked, name, link, createdate, note, groupid,roles, orderid, expireddate, lockedip,
+               lockedloginip,lastlogintime, lastloginip, allowsynlogin, failurelogin, succeedlogin
         FROM sys_user
         ORDER BY orderID
     </select>
@@ -57,17 +57,16 @@
             <if test="pojo.expiredDate != null">expireddate = #{pojo.expiredDate:TIMESTAMP},</if>
             <if test="pojo.lockedIP != null">lockedip = #{pojo.lockedIP:VARCHAR},</if>
             <if test="pojo.lockedLoginIP != null">lockedloginip = #{pojo.lockedLoginIP:BIT},</if>
-            <if test="pojo.lastLogintime != null">lastlogintime = #{pojo.lastLoginTime:TIMESTAMP},</if>
-            <if test="pojo.lastLoginIP != null">lastloginip = #{pojo.lastLoginIP:VARCHAR},</if>
             <if test="pojo.allowSynLogin != null">allowsynlogin = #{pojo.allowSynLogin:BIT},</if>
             <if test="pojo.failureLogin != null">failurelogin = #{pojo.failureLogin:INTEGER},</if>
-            <if test="pojo.succeedLogin != null">succeedlogin = #{pojo.succeedLogin:INTEGER},</if>
         </set>
         where loginname = #{pojo.username:VARCHAR}
     </update>
-    <update id="loginUpdateUser">
+    <update id="loginUpdateUser" flushCache="true" >
         update sys_user
         <set>
+            <if test="pojo.lastLogintime != null">lastlogintime = #{pojo.lastLoginTime:TIMESTAMP},</if>
+            <if test="pojo.lastLoginIP != null">lastloginip = #{pojo.lastLoginIP:VARCHAR},</if>
             <if test="pojo.failureLogin != null">failurelogin = #{pojo.failureLogin:INTEGER},</if>
             <if test="pojo.succeedLogin != null">succeedlogin = #{pojo.succeedLogin:INTEGER},</if>
         </set>
