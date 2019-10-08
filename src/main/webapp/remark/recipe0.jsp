@@ -345,7 +345,7 @@
                             $('#showInstructionDialog').modal();
                         },
                         error: function (response, textStatus) {/*能够接收404,500等错误*/
-                            showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));
+                            showDialog("请求状态码：" + response.status, response.responseText);
                         },
                     });
                 });
@@ -419,7 +419,7 @@
                             $('#showInstructionDialog').modal();
                         },
                         error: function (response, textStatus) {/*能够接收404,500等错误*/
-                            showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));
+                            showDialog("请求状态码：" + response.status, response.responseText);
                         },
                     });
                 });
@@ -823,7 +823,7 @@
                         }
                     },
                     error: function (response, textStatus) {/*能够接收404,500等错误*/
-                        showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));
+                        showDialog("请求状态码：" + response.status, response.responseText);
                     },
                 });
             });
@@ -885,7 +885,7 @@
 
             //todo 统一到一个对话框
             function showDialog(title, content) {
-                $("#errorText").text(content);
+                $("#errorText").html(content);
                 $("#dialog-error").removeClass('hide').dialog({
                     modal: true,
                     width: 600,
@@ -929,7 +929,7 @@
                             setCheckQuestion($(selected).text());
                         },
                         error: function (response, textStatus) {/*能够接收404,500等错误*/
-                            $("#errorText").text(response.responseText.substr(0, 1000));
+                            $("#errorText").html(response.responseText);
                             $("#dialog-error").removeClass('hide').dialog({
                                 modal: true,
                                 width: 600,
@@ -995,7 +995,7 @@
                         $('#showInstructionDialog').modal();
                     },
                     error: function (response, textStatus) {/*能够接收404,500等错误*/
-                        showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));
+                        showDialog("请求状态码：" + response.status, response.responseText);
                     },
                 });
             });

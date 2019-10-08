@@ -135,7 +135,7 @@
 
         //todo 统一到一个对话框
         function showDialog(title, content) {
-            $("#errorText").text(content);
+            $("#errorText").html(content);
             $("#dialog-error").removeClass('hide').dialog({
                 modal: true,
                 width: 600,
@@ -395,7 +395,7 @@
                     success: function (response, textStatus) {
                         var result = JSON.parse(response);
                         if (!result.succeed) {
-                            $("#errorText").text(result.errmsg);
+                            $("#errorText").html(result.errmsg);
                             $("#dialog-error").removeClass('hide').dialog({
                                 modal: true,
                                 width: 600,
@@ -413,7 +413,7 @@
                         }
                     },
                     error: function (response, textStatus) {/*能够接收404,500等错误*/
-                        $("#errorText").text(response.responseText.substr(0, 1000));
+                        $("#errorText").html(response.responseText);
                         $("#dialog-error").removeClass('hide').dialog({
                             modal: true,
                             width: 600,
@@ -565,7 +565,7 @@
                                     success: function (response, textStatus) {
                                         var result = JSON.parse(response);
                                         if (!result.succeed) {
-                                            $("#errorText").text(result.message);
+                                            $("#errorText").html(result.message);
                                             $("#dialog-error").removeClass('hide').dialog({
                                                 modal: true,
                                                 width: 600,
@@ -583,7 +583,7 @@
                                         }
                                     },
                                     error: function (response, textStatus) {/*能够接收404,500等错误*/
-                                        $("#errorText").text(response.responseText.substr(0, 1000));
+                                        $("#errorText").html(response.responseText);
                                         $("#dialog-error").removeClass('hide').dialog({
                                             modal: true,
                                             width: 600,
@@ -629,7 +629,7 @@
                     $('#instructionContent').html(respObject.instruction);
                 },
                 error: function (response, textStatus) {/*能够接收404,500等错误*/
-                    showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));
+                    showDialog("请求状态码：" + response.status, response.responseText);
                 },
             });
         }

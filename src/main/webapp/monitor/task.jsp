@@ -121,7 +121,7 @@
                     // console.log("object:" + JSON.stringify(object, null, 4));
                     var $tr = ('<tr><td style="text-align: center">{0}</td><td style="text-align: center">{1}</td>' +
                         '<td style="text-align: right">{2}</td><td style="text-align: center">' +
-                        '<i class="fa fa-trash-o bigger-130" data-id={3} data-time="{4}" data-name={5}></i></td></tr>')
+                        '<i class="ace-icon glyphicon glyphicon-trash red bigger-110" data-id={3} data-time="{4}" data-name={5}></i></td></tr>')
                         .format(index + 1, object.taskName, rendeTimerTime(this.timerTime, this.timerMode),
                             object.taskID, rendeTimerTime(this.timerTime, this.timerMode), object.taskName);
                     // console.log($tr);
@@ -227,7 +227,7 @@
                                 $('#dialog-task').dialog("close");
                             },
                             error: function (response, textStatus) {/*能够接收404,500等错误*/
-                                showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));
+                                showDialog("请求状态码：" + response.status, response.responseText);
                             }
                         });
                     },
@@ -293,22 +293,22 @@
 
         $('#timerMode').on('change', function () {
             switch (parseInt($(this).val())) {
-                case 1:
+                case 0:
                     $('#divDate').hide();
                     $('#divTime').show();
                     break;
-                case 2:
+                case 1:
                     $('#divDate').show();
                     $('#divTime').show();
                     break;
-                default://3
+                default://2
                     $('#divDate').hide();
                     $('#divTime').hide();
             }
         });
 
         function showDialog(title, content) {
-            $("#errorText").text(content);
+            $("#errorText").html(content);
             $("#dialog-error").removeClass('hide').dialog({
                 modal: true,
                 width: 600,
@@ -350,7 +350,7 @@
                                         listTask();
                                 },
                                 error: function (response, textStatus) {/*能够接收404,500等错误*/
-                                    showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));
+                                    showDialog("请求状态码：" + response.status, response.responseText);
                                 }
                             });
                             $(this).dialog("close");
@@ -583,7 +583,7 @@
                         <label class="control-label  bolder blue" for="execDate" style="text-overflow:ellipsis; white-space:nowrap;">执行日期&nbsp;&nbsp;&nbsp;</label>
                         <div class="input-group">
                             <input class="date-picker " style="width: 110px" id="execDate" type="text"/>
-                            <span class="input-group-addon no-padding"><i class="fa fa-calendar bigger-110"></i></span>
+                            <span class="input-group-addon  "><i class="fa fa-calendar bigger-110"></i></span>
                         </div>
                     </div>
                     <div class="row form-inline" id="divTime" style="margin-top: 10px;">

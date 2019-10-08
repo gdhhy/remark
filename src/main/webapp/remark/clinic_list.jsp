@@ -160,7 +160,7 @@
 
         //todo 统一到一个对话框
         function showDialog(title, content) {
-            $("#errorText").text(content);
+            $("#errorText").html(content);
             $("#dialog-error").removeClass('hide').dialog({
                 modal: true,
                 width: 600,

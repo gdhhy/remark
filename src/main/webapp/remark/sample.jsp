@@ -122,10 +122,10 @@
                             var jsp = row['type'] === 1 ? "clinic_list.jsp" : "recipe_list.jsp";
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 '<a class="hasDetail green" href="#" data-Url="/index.jspa?content=/remark/{2}&sampleBatchID={0}&remarkType={1}&menuID=14&batchName={3}">'.format(data, row["remarkType"], jsp, encodeURI(encodeURI(row["name"]))) +
-                                '<i class="ace-icon glyphicon glyphicon-tag  "></i>' +
+                                '<i class="ace-icon fa fa-chain bigger-110"></i>' +
                                 '</a>&nbsp;&nbsp;&nbsp;' +
                                 '<a class="hasDetail" href="#" data-Url="javascript:deleteBatch({0},\'{1}\');">'.format(data, row["name"]) +
-                                '<i class="ace-icon fa fa-trash-o bigger-130"></i>' +
+                                '<i class="ace-icon fa fa-trash-o red bigger-110"></i>' +
                                 '</a>' +
                                 '</div>';
                         }
@@ -174,7 +174,7 @@
                 //title_html: true,
                 buttons: [
                     {
-                        html: "<i class='ace-icon fa  fa-trash bigger-110'></i>&nbsp;确定",
+                        html: "<i class='ace-icon fa fa-trash bigger-110'></i>&nbsp;确定",
                         "class": "btn btn-danger btn-minier",
                         click: function () {
 
@@ -191,7 +191,7 @@
                                         showDialog("请求结果：" + result.succeed, result.message);
                                 },
                                 error: function (response, textStatus) {/*能够接收404,500等错误*/
-                                    showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));
+                                    showDialog("请求状态码：" + response.status, response.responseText);
                                 }
                             });
                             $(this).dialog("close");
@@ -294,7 +294,7 @@
                         }
                     },
                     error: function (response, textStatus) {/*能够接收404,500等错误*/
-                        showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));
+                        showDialog("请求状态码：" + response.status, response.responseText);
                     },
                     // async: false, //同步请求，默认情况下是异步（true）
                     beforeSend: function () {
@@ -634,7 +634,7 @@
                                     }
                                 },
                                 error: function (response, textStatus) {/*能够接收404,500等错误*/
-                                    showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));
+                                    showDialog("请求状态码：" + response.status, response.responseText);
                                 },
 
                             });
@@ -780,7 +780,7 @@
 
         //todo 统一到一个对话框
         function showDialog(title, content) {
-            $("#errorText").text(content);
+            $("#errorText").html(content);
             $("#dialog-error").removeClass('hide').dialog({
                 modal: true,
                 width: 600,

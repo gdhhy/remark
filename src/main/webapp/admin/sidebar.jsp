@@ -83,7 +83,7 @@
 
     <ul class="nav nav-list">
         <li>
-            <a href="index.jspa" id="0">
+            <a href="index.jspa?content=/admin/hello.html" id="0">
                 <i class="menu-icon fa fa-tachometer"></i>
                 <span class="menu-text"> 控制台 </span>
             </a>
@@ -104,6 +104,7 @@
                     <a href="index.jspa?content=/remark/sample.jsp&menuID=14" id="14">
                         <!--<i class="menu-icon fa fa-user"></i>-->
                         <i class="menu-icon fa fa-caret-right"></i>
+                        <i class="fa fa-random"></i>
                         <span class="menu-text">抽样点评</span>
                     </a>
 
@@ -122,7 +123,7 @@
         </li>
         <li>
             <a href="#" class="dropdown-toggle">
-                <i class="menu-icon fa  fa-eye "></i>
+                <i class="menu-icon fa  fa-sun-o"></i>
 
                 <span class="menu-text"> 阳光用药 </span>
 

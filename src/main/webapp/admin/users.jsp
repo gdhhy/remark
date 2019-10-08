@@ -58,7 +58,7 @@
                                 '<i class="ace-icon fa fa-pencil bigger-130"></i>' +
                                 '</a>' +
                                 '<a class="black" href="#" data-userID="{0}" data-goodsName="{1}">'.format(data, row["name"]) +
-                                '<i class="ace-icon fa fa-trash-o bigger-130"></i>' +
+                                '<i class="ace-icon fa fa-trash-o red bigger-130"></i>' +
                                 '</a>' +
                                 '</div>';
                         }
@@ -124,7 +124,7 @@
                     success: function (response, textStatus) {
                         var result = JSON.parse(response);
                         if (!result.succeed) {
-                            $("#errorText").text(result.errmsg);
+                            $("#errorText").html(result.errmsg);
                             $("#dialog-error").removeClass('hide').dialog({
                                 modal: true,
                                 width: 600,
@@ -142,7 +142,7 @@
                         }
                     },
                     error: function (response, textStatus) {/*能够接收404,500等错误*/
-                        $("#errorText").text(response.responseText.substr(0, 1000));
+                        $("#errorText").html(response.responseText);
                         $("#dialog-error").removeClass('hide').dialog({
                             modal: true,
                             width: 600,
@@ -185,7 +185,7 @@
                 title_html: true,
                 buttons: [
                     {
-                        html: "<i class='ace-icon fa  fa-trash bigger-110'></i>&nbsp;确定",
+                        html: "<i class='ace-icon fa fa-trash bigger-110'></i>&nbsp;确定",
                         "class": "btn btn-danger btn-minier",
                         click: function () {
                             $.ajax({
@@ -201,8 +201,8 @@
                                         showDialog("请求结果：" + result.succeed, response);
                                 },
                                 error: function (response, textStatus) {/*能够接收404,500等错误*/
-                                    showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));
-                                    /* $("#errorText").text(response.responseText.substr(0, 1000));
+                                    showDialog("请求状态码：" + response.status, response.responseText);
+                                    /* $("#errorText").html(response.responseText);
                                      $("#dialog-error").removeClass('hide').dialog({
                                          modal: true,
                                          width: 600,
@@ -234,7 +234,7 @@
 
         //todo 统一到一个对话框
         function showDialog(title, content) {
-            $("#errorText").text(content);
+            $("#errorText").html(content);
             $("#dialog-error").removeClass('hide').dialog({
                 modal: true,
                 width: 600,

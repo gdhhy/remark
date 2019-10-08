@@ -120,7 +120,7 @@
 
         //todo 统一到一个对话框
         function showDialog(title, content) {
-            $("#errorText").text(content);
+            $("#errorText").html(content);
             $("#dialog-error").removeClass('hide').dialog({
                 modal: true,
                 width: 600,
@@ -222,7 +222,7 @@
             </button>
             <button type="button" class="btn btn-sm btn-info">
                 导出
-                <i class="ace-icon glyphicon glyphicon-download icon-on-right bigger-100"></i>
+                <i class="ace-icon fa fa-file-excel-o icon-on-right bigger-100"></i>
             </button>
         </form>
     </div><!-- /.page-header -->

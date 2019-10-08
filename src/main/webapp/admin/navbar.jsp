@@ -43,7 +43,7 @@
                             var result = JSON.parse(response);
                             //if (!result.succeed) {
                             if (result.succeed)
-                                $("#errorText").text("保存成功，请重新登录。");
+                                $("#errorText").html("保存成功，请重新登录。");
                             $("#dialog-error").removeClass('hide').dialog({
                                 modal: true,
                                 width: 300,
@@ -61,7 +61,7 @@
                              }*/
                         },
                         error: function (response, textStatus) {/*能够接收404,500等错误*/
-                            $("#errorText").text(response.responseText.substr(0, 1000));
+                            $("#errorText").html(response.responseText);
                             $("#dialog-error").removeClass('hide').dialog({
                                 modal: true,
                                 width: 600,

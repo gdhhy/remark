@@ -56,7 +56,7 @@
                         render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 '<a class="hasDetail" href="#" data-Url="javascript:deleteDialog(\'{0}\');">'.format(data) +
-                                '<i class="ace-icon  glyphicon glyphicon-trash  bigger-110"></i>' +
+                                '<i class="ace-icon  glyphicon glyphicon-trash red bigger-110"></i>' +
                                 '</a> ' +
                                 '</div>';
                         }
@@ -166,7 +166,7 @@
 
 
         function showDialog(title, content) {
-            $("#errorText").text(content);
+            $("#errorText").html(content);
             $("#dialog-error").removeClass('hide').dialog({
                 modal: true,
                 width: 600,
@@ -208,7 +208,7 @@
                                         myTable.ajax.reload();
                                 },
                                 error: function (response, textStatus) {/*能够接收404,500等错误*/
-                                    showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));
+                                    showDialog("请求状态码：" + response.status, response.responseText);
                                 },
                                 // async: false, //同步请求，默认情况下是异步（true）
                                 beforeSend: function () {
@@ -261,7 +261,7 @@
                 //title_html: true,
                 buttons: [
                     {
-                        html: "<i class='ace-icon fa  fa-trash bigger-110'></i>&nbsp;确定",
+                        html: "<i class='ace-icon fa fa-trash bigger-110'></i>&nbsp;确定",
                         "class": "btn btn-danger btn-minier",
                         click: function () {
                             $.ajax({
@@ -277,7 +277,7 @@
                                     showDialog("请求结果：" + response.succeed, response.message);
                                 },
                                 error: function (response, textStatus) {/*能够接收404,500等错误*/
-                                    showDialog("请求状态码：" + response.status, response.responseText.substr(0, 1000));
+                                    showDialog("请求状态码：" + response.status, response.responseText);
                                 },
                                 beforeSend: function () {
                                     $('#loadingText').text("正在删除……");
