@@ -44,7 +44,6 @@ public class ExcelController {
     @Autowired
     private DictService dictService;
     String templateDir = "template";
-
     //药品分析（天）
     //@ResponseBody
     @RequestMapping(value = "statMedicine", method = RequestMethod.GET/*, produces = "text/html;charset=UTF-8"*/)

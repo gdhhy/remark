@@ -55,5 +55,7 @@
 
         <mapper resource="com/zcreate/common/model/Dict_Mssql.xml"/>
         <mapper resource="com/zcreate/common/persistence/map/Dict_Mssql.xml"/>
+
+        <mapper resource="com/zcreate/remark/model/DrugRecords.xml"/>
     </mappers>
 </configuration>

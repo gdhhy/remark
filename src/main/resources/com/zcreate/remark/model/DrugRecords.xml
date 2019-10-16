@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zcreate.remark.dao.DrugRecordsMapper">
+    <cache eviction="LRU" readOnly="false" flushInterval="600000" size="1000"/>
+    <!--600000毫秒为10分钟-->
+    <sql id="queryWhere">
+        <where>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND T.dispensingDate >= #{fromDate:TIMESTAMP}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(toDate)">AND T.dispensingDate &lt; #{toDate:TIMESTAMP}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(patient)">AND T.patientName = #{patient:VARCHAR}</if>
+            <choose>
+                <when test="@com.zcreate.util.Ognl@isNotEmpty(doctorName)">AND T.doctorName = #{doctorName:VARCHAR}</when>
+                <when test="@com.zcreate.util.Ognl@isNotEmpty(doctors)">
+                    <foreach separator="," item="item" index="index" open=" AND T.doctorName in (" close=")" collection="doctors">
+                        #{item}
+                    </foreach>
+                </when>
+            </choose>
+            <choose>
+                <when test="@com.zcreate.util.Ognl@isNotEmpty(department)">AND (T.department = #{department:VARCHAR} OR T.department = #{department:VARCHAR}+'门诊')</when>
+                <when test="@com.zcreate.util.Ognl@isNotEmpty(departs)">
+                    <foreach separator="," item="item" index="index" open=" AND T.department in (" close=")" collection="departs">
+                        #{item}
+                    </foreach>
+                </when>
+            </choose>
+            <if test="antiClass==0">AND T.goodsID IN (SELECT goodsID FROM Medicine WHERE antiClass>0)</if>
+            <if test="antiClass>0">AND T.goodsID IN (SELECT goodsID FROM Medicine WHERE antiClass=#{antiClass:INTEGER})</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(baseType)">AND T.goodsID IN (SELECT goodsID FROM Medicine WHERE base>0)</if>
+            <choose>
+                <when test="@com.zcreate.util.Ognl@isNotEmpty(dose)">AND T.goodsID IN (SELECT goodsID FROM Medicine WHERE dose = #{dose:VARCHAR})</when>
+                <when test="@com.zcreate.util.Ognl@isNotEmpty(nullDose)">AND T.goodsID IN (SELECT goodsID FROM Medicine WHERE dose ='' OR dose IS NULL)</when>
+            </choose>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(medicineNo)">AND T.goodsID IN (SELECT goodsID FROM Medicine WHERE medicineNo=#{medicineNo:VARCHAR})</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(likeMedicineName)">AND T.goodsID IN (SELECT goodsID FROM Medicine WHERE chnName LIKE '$%{likeMedicineName}%')</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(healthNo)">AND T.goodsID IN (SELECT goodsID FROM Medicine WHERE healthNo LIKE '${healthNo}%')</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(likeHealthNo)">AND T.goodsID IN (SELECT goodsID FROM Medicine WHERE healthNo LIKE '${likeHealthNo}%')</if>
+        </where>
+    </sql>
+    <select id="medicineList" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT M.chnName,M.anticlass,M.spec,M.producer,M.dealer, A.amount,A.quantity FROM (
+        SELECT T.goodsNo,sum(T.amount)amount ,sum(T.quantity) quantity FROM DrugRecords T
+        <include refid="queryWhere"/>
+        GROUP BY goodsNo HAVING sum(T.quantity)>0) A
+        JOIN Medicine M ON M.no=A.goodsNo ORDER BY A.amount DESC
+    </select>
+    <!--基药-->
+    <select id="medicineList2" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT M.chnName,M.spec,M.producer,M.dealer, A.amount,A.quantity FROM (
+        SELECT T.goodsNo,sum(T.amount)amount ,sum(T.quantity) quantity FROM DrugRecords T
+        <include refid="queryWhere"/>
+        GROUP BY goodsNo HAVING sum(T.quantity)>0) A
+        JOIN Medicine M ON M.no=A.goodsNo
+        ORDER BY A.amount DESC
+    </select>
+
+    <select id="medicineTrend" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT cast(dateStr AS DATETIME) date ,amount, number,quantity FROM
+        (SELECT convert(VARCHAR(10),T.dispensingDate,120) AS dateStr,sum(T.amount)amount ,count(DISTINCT(T.goodsNo)) number, sum(T.quantity) quantity
+        FROM DrugRecords T
+        <include refid="queryWhere"/>
+        GROUP BY convert(VARCHAR(10),T.dispensingDate,120)) A ORDER BY dateStr
+    </select>
+
+    <!--按药品使用分析-->
+    <!--todo 翁源Medicine.goodsID 有null值，需要查找原因，否则统计误差大-->
+    <!--WHEN len(T.dispensingNo)>=10 THEN-->
+    <select id="statByMedicine" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT M.medicineNo,M.no,M.chnName,M.spec,M.producer,M.dealer,A.amount,A.patient,A.quantity FROM Medicine M,
+        (SELECT T.goodsID,sum(T.amount) amount,sum(T.quantity) quantity,
+        count(DISTINCT CASE WHEN len(T.dispensingNo) &lt; 10 THEN T.invoiceNo ELSE T.dispensingNo END) patient
+        FROM ${tableName} T LEFT JOIN rbac..Dict R ON R.name=T.department AND R.parentID=108
+        <include refid="queryWhere"/>
+        GROUP BY goodsID) A
+        WHERE M.goodsID =A.goodsID
+        <if test="mental==true">AND mental=1</if>
+        <if test="assist==true">AND medicineNo IN(SELECT medicineNo FROM medicine
+            WHERE matchDrugID IN(SELECT drugID FROM Drug WHERE adjuvantDrug=1) )
+        </if>ORDER BY A.amount DESC
+    </select>
+    <!--药理分析-->
+    <select id="healthAnalysis2" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT H.healthNo,H.chnName,B.amount,B.quantity FROM Health H,
+        (SELECT left(M.healthNo,6)healthNo, sum(A.amount) amount,sum(A.quantity) quantity
+        FROM Medicine M,
+        (SELECT T.goodsNo,sum(T.amount) amount,sum(T.quantity) quantity
+        FROM DrugRecords T
+        <include refid="queryWhere"/>
+        GROUP BY T.goodsNo) A WHERE A.goodsNo=M.no
+        GROUP BY left(M.healthNo,6)) B WHERE H.healthNo=B.healthNo
+        ORDER BY B.amount DESC
+    </select>
+    <select id="statRxDetailByHealthNo2" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT M.chnName,M.spec,M.medicineNo,A.amount FROM
+        (SELECT T.goodsNo,sum(T.amount) amount
+        FROM DrugRecords T
+        <include refid="queryWhere"/>
+        GROUP BY T.goodsNo) A JOIN Medicine M ON M.no=A.goodsNo
+    </select>
+    <!--病人用药查询 Start-->
+    <!--查询条件：起止日期，药品名称、药理分类、病人姓名-->
+    <select id="queryPatientDrug" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT A.patientName patientName,A.dispensingDate date,A.quantity quantity, A.unit,M.chnName,M.spec,A.drugstore FROM
+        (
+        SELECT TOP ${limit} t.drID,T.patientName,T.dispensingDate, T.quantity,T.unit,T.goodsNo,T.drugstore
+        FROM DrugRecords T
+        <include refid="queryWhere"/>
+        <if test="start!=null and start > 0">
+            AND t.drID &lt; (SELECT min(lydmx_id) FROM (SELECT TOP ${start} t.drID FROM DrugRecords T
+            <include refid="queryWhere"/>
+            ORDER BY t.drID DESC) A)
+        </if>
+        ORDER BY t.drID DESC
+        ) A LEFT JOIN Medicine M ON A.goodsNo=M.no ORDER BY A.drID DESC
+    </select>
+    <select id="queryPatientDrugCount" parameterType="java.util.Map" resultType="int">
+        SELECT count(t.drID) FROM DrugRecords T
+        <include refid="queryWhere"/>
+    </select>
+    <!--病人用药查询 END-->
+    <!--某一药品在各科室使用的情况-->
+    <select id="statMedicineGroupByDepart" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT T.department department,sum(T.amount) amount,sum(T.quantity) quantity FROM DrugRecords T
+        <include refid="queryWhere"/>
+        GROUP BY T.department ORDER BY sum(T.amount) DESC
+    </select>
+
+    <select id="queryDoctorByMedicine" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT T.doctorName doctorName,sum(amount) amount,sum(quantity) quantity
+        FROM DrugRecords T
+        <include refid="queryWhere"/>
+        GROUP BY T.doctorName having sum(amount)>0 ORDER BY sum(amount) DESC
+    </select>
+    <select id="medicineMonth" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT convert(VARCHAR(7), T.dispensingDate, 120) MONTH,
+               sum(T.amount)                              amount,
+               sum(T.quantity)                            quantity
+        FROM DrugRecords T
+                 LEFT JOIN Medicine M1
+                           ON M1.no = T.goodsNo
+        WHERE T.doctorName = #{doctorName:VARCHAR}
+          AND T.dispensingDate > #{fromDate:VARCHAR}
+          AND M1.medicineNo = #{medicineNo:VARCHAR}
+        GROUP BY convert(VARCHAR(7), T.dispensingDate, 120)
+    </select>
+    <select id="medicineDay" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT cast(convert(VARCHAR(10), T.dispensingDate, 120) AS SMALLDATETIME) date,
+               sum(T.amount)                                                      amount,
+               sum(T.quantity)                                                    quantity
+        FROM DrugRecords T
+                 LEFT JOIN Medicine M1
+                           ON M1.no = T.goodsNo
+        WHERE T.doctorName = #{doctorName:VARCHAR}
+          AND T.dispensingDate > #{fromDate:VARCHAR}
+          AND M1.medicineNo = #{medicineNo:VARCHAR}
+        GROUP BY convert(VARCHAR(10), T.dispensingDate, 120)
+    </select>
+    <!--
+    <select id="statAntiDailyDoctor" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT A.doctorName,A.amount,A.antiAmount,A.patient,A.antiPatient FROM
+        (SELECT YS doctorName, sum(T.amount) amount,sum(CASE WHEN M1.antiClass>0 THEN T.amount ELSE 0 END) antiAmount,
+        count(DISTINCT CASE WHEN len(T.dispensingNo) &lt; 10 THEN D.T.invoiceNo ELSE null END) patient,
+        count(DISTINCT CASE WHEN len(T.dispensingNo) &lt; 10 AND M1.antiClass>0 THEN T.invoiceNo ELSE null END) antiPatient
+        FROM DrugRecords T LEFT JOIN Medicine M1 ON T.goodsNo=M1.no LEFT JOIN rbac.dbo.Dict R ON R.name=T.department AND R.parentID=108
+        <include refid="queryWhere"/>
+        GROUP BY T.doctorName ) A ORDER BY A.antiAmount DESC
+    </select>-->
+    <!--越级使用抗菌药-->
+    <select id="bypass" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT P.*,M.antiClass mAntiClass,D.antiClass dAntiClass ,D.name doctorName FROM Clinic P
+        LEFT JOIN RxDetail R ON P.clinicID=R.clinicID
+        LEFT JOIN Medicine M ON R.medicineNo=M.medicineNo
+        LEFT JOIN doctor D ON P.doctorNo = D.doctorNo WHERE M.antiClass>=1 AND M.antiClass>D.antiClass
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(clinicDateFrom)">AND P.clinicDate >= #{clinicDateFrom:TIMESTAMP}</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(clinicDateTo)">AND P.clinicDate &lt; #{clinicDateTo:TIMESTAMP}</if>
+        <if test="antiClass>0">AND M.antiClass = #{antiClass:INTEGER}</if>
+    </select>
+    <select id="summaryHospitalDrugNum" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        count(DISTINCT T.goodsNo+T.dispensingNo) hospitalDrugNum,
+        count(DISTINCT CASE WHEN M1.base>0 THEN T.goodsNo+T.dispensingNo ELSE null END) hospitalBaseDrugNum,
+        count(DISTINCT CASE WHEN M1.insurance=1 THEN T.goodsNo+T.dispensingNo ELSE null END) hospitalInsuranceADrugNum,
+        count(DISTINCT CASE WHEN M1.insurance=2 THEN T.goodsNo+T.dispensingNo ELSE null END) hospitalInsuranceBDrugNum,
+        count(DISTINCT CASE WHEN M1.antiClass>0 THEN T.goodsNo+T.dispensingNo ELSE null END) hospitalAntiNum,
+        count(DISTINCT T.dispensingNo ) hospitalPatient2,
+        count(DISTINCT CASE WHEN T.adviceType ='肌注静注' OR T.adviceType ='静滴' THEN T.dispensingNo ELSE null END) hospitalInjectPatient,
+        count(DISTINCT CASE WHEN M1.antiClass>0 AND (T.adviceType ='肌注静注' OR T.adviceType ='静滴') THEN T.dispensingNo ELSE null END) hospitalInjectAntiPatient
+        FROM DrugRecords T LEFT JOIN Medicine M1 ON T.goodsNo=M1.no
+        <include refid="queryWhere"/>
+        and len(T.dispensingNo)>=10
+    </select>
+    <select id="summaryBase" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        COUNT(distinct case when base=3 then T.goodsNo else null end) localBaseNum,sum(case when base=3 then amount else 0 end) localBaseMoney,
+        COUNT(distinct case when base=2 then T.goodsNo else null end) nationBaseNum,sum(case when base=2 then amount else 0 end) nationBaseMoney
+        FROM DrugRecords T LEFT JOIN Medicine M1 ON T.goodsNo=M1.no
+        <include refid="queryWhere"/>
+    </select>
+    <!--抗菌药按科室查询-->
+    <select id="antiDepart2" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT A.department,A.antiAmount,D.amount,CASE WHEN D.hospitalDay>0 THEN A.DDDs/D.hospitalDay ELSE 0 END AUD,A.clinicAntiPatient,A.DDDs,D.hospitalDay,D.hospitalPatient2,
+        D.clinicPatient,D.clinicPatient2,CASE WHEN D.orderNum IS NOT null THEN D.orderNum ELSE 9999999 END orderNum
+        FROM
+        (SELECT department,sum(antiAmount)antiAmount,sum(clinicAntiPatient) clinicAntiPatient, sum(DDDs) DDDs FROM (
+        SELECT CASE WHEN len(T.department)>3 and T.department not like '%产科%' THEN replace(T.department,'门诊','') ELSE T.department END department, sum(T.amount) antiAmount,
+        sum(CASE WHEN len(T.dispensingNo)>=10 AND M1.ddd>0 THEN T.quantity*M1.contents/M1.ddd ELSE 0 END)*100.0 DDDs,
+        count(DISTINCT CASE WHEN len(T.dispensingNo) &lt; 10 THEN T.invoiceNo ELSE null END) clinicAntiPatient
+        FROM DrugRecords T LEFT JOIN Medicine M1 ON T.goodsNo=M1.no
+        WHERE T.dispensingDate >= #{fromDate:TIMESTAMP} AND T.dispensingDate &lt; #{toDate:TIMESTAMP}
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(medicineNo)">AND M1.medicineNo=#{medicineNo:VARCHAR}</if>
+        <if test="antiClass!=null and antiClass>0">AND M1.antiClass=#{antiClass:INTEGER}</if>
+        AND T.adviceType!='出院带药' AND T.adviceType!='其他'
+        GROUP BY T.department)A GROUP BY department) A,
+        (SELECT A.department,sum(A.clinicPatient)clinicPatient, sum(A.clinicPatient2)clinicPatient2, sum(A.hospitalDay)hospitalDay,
+        sum(A.hospitalPatient2)outPatient,max(D.orderNum) orderNum,sum(A.clinicAmount+A.hospitalAmount)amount,sum(hospitalPatient2) hospitalPatient2
+        FROM DailyDepart A LEFT JOIN rbac..Dict D ON D.name=A.department WHERE A.date >= #{fromDate:TIMESTAMP} AND A.date &lt; #{toDate:TIMESTAMP} GROUP BY A.department) D
+        WHERE A.department=D.department ORDER BY A.antiAMount DESC
+    </select>
+    <select id="antiDrug" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT M.no
+        goodsNo,M.price,M.chnName,M.antiClass,M.dose,M.spec,M.minUnit,A.clinicQuantity,A.hospitalQuantity,A.bringQuantity,A.total,A.clinicPatient,A.hospitalPatient,A.amount,
+        case when M.ddd>0 then A.hospitalQuantity2*M.contents / M.ddd else 0 end DDDs FROM (
+        SELECT T.goodsNo,
+        sum(case when len(T.dispensingNo) &lt; 10 then T.quantity else 0 end) clinicQuantity ,
+        sum(case when len(T.dispensingNo)>=10 and T.adviceType!='出院带药' then T.quantity else 0 end) hospitalQuantity,
+        sum(case when T.adviceType='出院带药' then T.quantity else 0 end) bringQuantity,
+        sum(T.quantity) total,
+        sum(T.amount) amount,
+        count(distinct case when len(T.dispensingNo) &lt; 10 then T.invoiceNo else null end) clinicPatient,
+        count(distinct case when len(T.dispensingNo)>=10 then T.dispensingNo else null end) hospitalPatient ,
+        SUM(CASE when len(T.dispensingNo)>=10 and T.adviceType!='出院带药' and T.adviceType!='其它' then T.quantity else 0 end)hospitalQuantity2
+        FROM ${tableName} T join Medicine M on M.no=T.goodsNo
+        WHERE M.antiClass>=1
+        <if test="year>0">AND datepart(year,T.dispensingDate) =#{year:INTEGER}</if>
+        <if test="month>0">AND datepart(mm,T.dispensingDate) =#{month:INTEGER}</if>
+        <if test="quarter>0">AND datepart(qq,T.dispensingDate) =#{quarter:INTEGER}</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND T.dispensingDate >= #{fromDate:VARCHAR}</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(toDate)">AND T.dispensingDate &lt; #{toDate:VARCHAR}</if>
+        group by T.goodsNo) A
+        LEFT JOIN Medicine M on M.no=A.goodsNo
+        order by a.amount desc
+    </select>
+</mapper>

@@ -29,8 +29,8 @@
     <!--<bean id="posterService" class=" com.zcreate.lottery.ad.PosterService"/>-->
     <bean id="securityDS" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
-        <property name="url" value="jdbc:mysql://192.168.1.212:3310/security?useUnicode=true&amp;characterEncoding=utf-8&amp;serverTimezone=GMT%2B8"/>
-        <property name="username" value="user1"/>
+        <property name="url" value="jdbc:sqlserver://192.168.1.212:1433;databaseName=wy_review_160222"/>
+        <property name="username" value="sa"/>
         <property name="password" value="cjdlx"/>
         <property name="maxIdle" value="50"/>
         <property name="initialSize" value="2"/>
@@ -48,6 +48,11 @@
     <bean id="roleMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="sqlSessionFactory" ref="session2"/>
         <property name="mapperInterface" value="com.zcreate.security.dao.RoleMapper"/>
+    </bean>
+
+    <bean id="drugRecordsMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="mapperInterface" value="com.zcreate.remark.dao.DrugRecordsMapper"/>
     </bean>
     <!-- <bean id="securityDS" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
          <property name="driverClassName" value="org.postgresql.Driver"/>

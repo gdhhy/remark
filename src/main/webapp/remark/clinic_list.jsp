@@ -13,6 +13,7 @@
 <script src="../components/bootstrap-timepicker/js/bootstrap-timepicker.js"></script>
 <script src="../components/moment/moment.min.js"></script>
 <script src="../components/bootstrap-daterangepicker/daterangepicker.js"></script>
+<script src="../components/bootstrap-daterangepicker/daterangepicker.zh-CN.js"></script>
 <link rel="stylesheet" href="../components/bootstrap-datepicker/css/bootstrap-datepicker3.css"/>
 <link rel="stylesheet" href="../components/bootstrap-timepicker/css/bootstrap-timepicker.css"/>
 <link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>
@@ -34,7 +35,7 @@
         //.wrap("<div class='dataTables_borderWrap' />")   //if you are applying horizontal scrolling (sScrollX)
             .DataTable({
                 bAutoWidth: false,
-               // paging: false,
+                // paging: false,
                 "columns": [
                     {"data": "detailID"},
                     {"data": "clinicDate", "sClass": "center"},
@@ -64,24 +65,24 @@
                         }
                     },
                     {"orderable": false, "targets": 1, title: '处方日期'},//, width: 85
-                    {"orderable": false, "targets": 2, title: '门诊号' ,width: 60},
+                    {"orderable": false, "targets": 2, title: '门诊号', width: 60},
                     {"orderable": false, "targets": 3, title: '姓名', width: 60},
                     {"orderable": false, "targets": 4, title: '年龄', width: 50},
-                    {"orderable": false, "targets": 5, title: '诊断' },
+                    {"orderable": false, "targets": 5, title: '诊断'},
                     {"orderable": false, "targets": 6, title: '类型', width: 45},
                     {"orderable": false, "targets": 7, title: '品种数', width: 60},
-                    {"orderable": false, "targets": 8, title: '抗菌素', defaultContent: '',  width: 60,render: renderBoolean},
-                    {"orderable": false, "targets": 9, title: '注射液', defaultContent: '',  width: 60,render: renderBoolean},
+                    {"orderable": false, "targets": 8, title: '抗菌素', defaultContent: '', width: 60, render: renderBoolean},
+                    {"orderable": false, "targets": 9, title: '注射液', defaultContent: '', width: 60, render: renderBoolean},
                     {"orderable": false, "targets": 10, title: '基本', defaultContent: '', width: 20},
                     {"orderable": false, "targets": 11, title: '金额', defaultContent: '', width: 60},
                     {"orderable": false, "targets": 12, title: '科室', defaultContent: ''},//, width: 70
                     {"orderable": false, "targets": 13, title: '医生', defaultContent: '', width: 60},
                     {"orderable": false, "targets": 14, title: '审核', defaultContent: '', width: 60},
                     {"orderable": false, "targets": 15, title: '配药', defaultContent: '', width: 60},
-                    {"orderable": false, "targets": 16, title: '合理', defaultContent: '',  width: 45, render: renderYES},
+                    {"orderable": false, "targets": 16, title: '合理', defaultContent: '', width: 45, render: renderYES},
                     {"orderable": false, searchable: false, "targets": 17, title: '问题代码', width: 50, defaultContent: ''},
                     {
-                        "orderable": false, "targets": 18, title: '点评',width: 45,  render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 18, title: '点评', width: 45, render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 '<a class="hasDetail" href="#" data-Url="/remark/viewClinic.jspa?clinicID={1}&batchID={2}">'.format(remarkType, row['clinicID'], sampleBatchID) +
                                 '<i class="ace-icon glyphicon glyphicon-pencil  bigger-130"></i>' +
@@ -102,7 +103,7 @@
                                 delete d[key];
                     }
                 },
-               // scrollY: '60vh',
+                // scrollY: '60vh',
                 //'sScrollY': 'calc(60vh - 280px)',
                 //"serverSide": true,
                 select: {
@@ -110,7 +111,7 @@
                 }
             });
 
-        $("#dt").bind('resize',function(){
+        $("#dt").bind('resize', function () {
             myTable.columns.adjust();
         });
         myTable.on('draw', function () {
@@ -127,6 +128,7 @@
                  window.location.href = "index.jspa?content=/admin/buyRecord.jsp&menuID=3";
              });*/
         });
+
 
         function renderBoolean(data, type, row, meta) {
             return data >= 1 ? "有" : "无";
@@ -145,17 +147,21 @@
         }
 
         //$.fn.dataTable.Buttons.swfPath = "components/datatables.net-buttons-swf/index.swf"; //in Ace demo ../components will be replaced by correct assets path
-        /*   $.fn.dataTable.Buttons.defaults.dom.container.className = 'dt-buttons btn-overlap btn-group btn-overlap';
+        $.fn.dataTable.Buttons.defaults.dom.container.className = 'dt-buttons btn-overlap btn-group btn-overlap';
 
-           new $.fn.dataTable.Buttons(myTable, {
-               buttons: [
-                   {
-                       "text": "<i class='glyphicon glyphicon-plus  bigger-110 red'></i>新增 ",
-                       "className": "btn btn-white btn-primary btn-bold"
-                   }
-               ]
-           });
-           myTable.buttons().container().appendTo($('.tableTools-container'));*/
+        new $.fn.dataTable.Buttons(myTable, {
+            buttons: [
+                {
+                    "text": "<i class='fa fa-file-excel-o  bigger-110 red'></i>导出评价表",
+                    "className": "btn btn-xs btn-white btn-primary"
+                }
+            ]
+        });
+        myTable.buttons().container().appendTo($('.tableTools-container'));
+        myTable.button(0).action(function (e, dt, button, config) {
+            e.preventDefault();
+            window.location.href = "remark/clinic.jspa?sampleBatchID="+sampleBatchID;
+        });
 
 
         //todo 统一到一个对话框

@@ -11,6 +11,7 @@
 <script src="../assets/js/jquery.validate.min.js"></script>
 <script src="../components/moment/moment.min.js"></script>
 <script src="../components/bootstrap-daterangepicker/daterangepicker.js"></script>
+<script src="../components/bootstrap-daterangepicker/daterangepicker.zh-CN.js"></script>
 <script src="../components/typeahead.js/dist/typeahead.bundle.min.js"></script>
 <script src="../components/typeahead.js/handlebars.js"></script>
 
@@ -51,7 +52,8 @@
     jQuery(function ($) {
         var startDate = moment().month(moment().month() - 1).startOf('month');
         var endDate = moment().month(moment().month() - 1).endOf('month');
-        var url = "/sunning/statMedicine.jspa?fromDate={0}&toDate={1}&assist={2}&mental={3}&medicineNo={4}";
+        var table = $.getUrlParam("table") ==null? 0:$.getUrlParam("table");
+        var url = "/sunning/statMedicine.jspa?fromDate={0}&toDate={1}&assist={2}&mental={3}&medicineNo={4}&table="+table;
 
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');
@@ -147,15 +149,21 @@
             'cancelClass': 'btn-sm btn-default',
             startDate: startDate,
             endDate: endDate,
-            locale: {
-                format: 'YYYY-MM-DD',
-                separator: ' ～ ',
-                applyLabel: '确定',
-                cancelLabel: '取消'
-            }
+            ranges: {
+                '本月': [moment().startOf('month')],
+                '上月': [moment().month(moment().month() - 1).startOf('month'), moment().month(moment().month() - 1).endOf('month')],
+                '本季': [moment().startOf('quarter')],
+                '上季': [moment().quarter(moment().quarter() - 1).startOf('month'), moment().quarter(moment().quarter() - 1).endOf('quarter')],
+                '今年': [moment().startOf('year')],
+                '去年': [moment().year(moment().year() - 1).startOf('year'), moment().year(moment().year() - 1).endOf('year')]
+            },
+            locale: locale
         }, function (start, end, label) {
             startDate = start;
             endDate = end;
+        }).css("min-width", "210px").next("i").click(function () {
+            // 对日期的i标签增加click事件，使其在鼠标点击时可以拉出日期选择
+            $(this).parent().find('input').click();
         }).next().on(ace.click_event, function () {
             $(this).prev().focus();
         });
@@ -182,7 +190,10 @@
             var medicineNo = $('#form-medicineNo').val();
             // console.log("medicine:" + medicineNo);
             //console.log('url=' + url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), assist, mental, medicineNo));
-            myTable.ajax.url(url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), assist, mental, medicineNo)).load();
+            if (startDate.year() !== endDate.year())
+                showDialog("日期错误", "查询日期不能跨年！");
+            else
+                myTable.ajax.url(url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), assist, mental, medicineNo)).load();
         });
         $('.btn-info').click(function () {
             window.location.href = "/excel/statMedicine.jspa?fromDate={0}&toDate={1}".format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"));

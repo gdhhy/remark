@@ -12,8 +12,10 @@ import com.zcreate.review.model.Clinic;
 import com.zcreate.review.model.Recipe;
 import com.zcreate.review.model.RecipeReview;
 import com.zcreate.review.model.SampleBatch;
+import com.zcreate.util.DataFormat;
 import com.zcreate.util.DateUtils;
 import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -27,12 +29,11 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
+import java.text.NumberFormat;
 import java.util.*;
 
 @Controller
@@ -55,6 +56,9 @@ public class RemarkController {
     private DictService dictService;
     @Autowired
     private AppealDAO appealDao;
+
+    static int CLINIC_COLUMN_COUNT = 15;
+    static int HOSPITAL_COLUMN_COUNT = 20;
 
     JsonParser parser = new JsonParser();
     String templateDir = "excel";
@@ -544,6 +548,243 @@ public class RemarkController {
                 out.close();
             }
         }
+    }
+
+
+    @RequestMapping("clinic")
+    public void clinic(HttpServletResponse response, @RequestParam(value = "sampleBatchID") int sampleBatchID) throws IOException {
+        List<HashMap<String, Object>> list = sampleDao.getSampleList(sampleBatchID, 1, 0, 10000);
+
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("limit", 1);
+        param.put("sampleBatchID", sampleBatchID);
+        SampleBatch sampleBatch = sampleDao.getSampleBatchList(param).get(0);
+        HashMap<String, Object> statBatch = sampleDao.statSampleBatch(sampleBatchID);
+        HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "dp.xls"));
+        //String  downFileName = "门诊处方评价表.xls";
+        HSSFSheet sheet = wb.getSheet("Sheet1");
+        HSSFCell hospitalName = sheet.getRow(1).getCell(2);
+        HSSFCell usernameCell = sheet.getRow(2).getCell(2);
+        HSSFCell dateCell = sheet.getRow(2).getCell(13 - sampleBatch.getType());
+        hospitalName.setCellValue(dictService.getDictByNo("00011001").getValue());
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            usernameCell.setCellValue(((UserDetails) principal).getUsername());
+        }
+
+        // int lm = sampleBatch.getType() == 1 ? 15 : 13;
+        //logger.debug("DateUtils.getDateDayFormat()=" + DateUtils.getDateDayFormat());
+        dateCell.setCellValue(DateUtils.getDateDayFormat());
+        NumberFormat currencyDisplay = DataFormat.getInstance().getCurrencyEdit();
+
+        sheet.shiftRows(5, sheet.getLastRowNum(), list.size(), false, false);
+        for (int i = 0; i < list.size(); i++) {
+            HashMap<String, Object> row = list.get(i);
+            HSSFRow aRow = sheet.createRow(5 + i);
+            aRow.setHeight((short) 380);
+            for (int m = 0; m < CLINIC_COLUMN_COUNT; m++) {
+                HSSFCell cell = aRow.createCell(m);//getCell 、createCell
+                HSSFCell sampleCell = sheet.getRow(4).getCell(m);
+                cell.setCellStyle(sampleCell.getCellStyle());
+                cell.setCellType(sampleCell.getCellType());
+            }
+            aRow.getCell(0).setCellValue(i + 1);
+            aRow.getCell(1).setCellValue(DateUtils.formatDate((Timestamp) row.get("clinicDate"), "yyyyMMdd"));
+            aRow.getCell(2).setCellValue((String) row.get("age"));
+            aRow.getCell(3).setCellValue((String) row.get("diagnosis"));
+            aRow.getCell(4).setCellValue((Integer) row.get("drugNum"));
+            aRow.getCell(5).setCellValue((Integer) row.get("antiNum") == 0 || row.get("antiNum") == null ? 0 : 1);
+            aRow.getCell(6).setCellValue((Integer) row.get("injectionNum") > 0 ? 1 : 0);
+            aRow.getCell(7).setCellValue((Integer) row.get("baseDrugNum"));
+            //columnRow.getCell(8).setCellValue((Integer) row.get("generalNameNum"));废，电脑处方，没有通用名说法
+            aRow.getCell(8).setCellValue((Integer) row.get("drugNum"));
+            aRow.getCell(9).setCellValue(currencyDisplay.format(((BigDecimal) row.get("money")).floatValue()));
+            aRow.getCell(10).setCellValue((String) row.get("doctorName"));
+            // if (sampleBatch.getType() == 1) {
+            aRow.getCell(11).setCellValue((String) row.get("apothecaryName"));
+            aRow.getCell(12).setCellValue((String) row.get("confirmName"));
+            aRow.getCell(13).setCellValue(row.get("rational") == null || (Short) row.get("rational") == 0 ? 1 : 0);
+            aRow.getCell(14).setCellValue((String) row.get("disItem"));
+            /* } else {
+                aRow.getCell(11).setCellValue((Short) row.get("rational"));
+                aRow.getCell(12).setCellValue((String) row.get("disItem"));
+            }*/
+        }
+
+        sheet.shiftRows(5, sheet.getLastRowNum(), -1, true, false);//删除一行，这行是占位设置单元格样式的
+        //统计、平均
+        // 输出列头
+        HSSFCellStyle st = wb.createCellStyle();
+        st.setBorderBottom(BorderStyle.THIN);
+        st.setBorderLeft(BorderStyle.THIN);
+        st.setBorderRight(BorderStyle.THIN);
+        st.setBorderTop(BorderStyle.THIN);
+        HSSFFont font = wb.createFont();
+        font.setFontHeightInPoints((short) 8);
+        font.setFontName("宋体");
+        st.setFont(font);
+
+        HSSFRow totalRow = sheet.createRow(4 + list.size());
+        HSSFRow aveRow = sheet.createRow(5 + list.size());
+        HSSFRow percentRow = sheet.createRow(6 + list.size());
+
+        for (int m = 0; m < CLINIC_COLUMN_COUNT; m++) {
+            HSSFCell cell = totalRow.createCell(m);
+            cell.setCellStyle(st);
+            cell = aveRow.createCell(m);
+            cell.setCellStyle(st);
+            cell = percentRow.createCell(m);
+            cell.setCellStyle(st);
+        }
+
+        NumberFormat numberFormat = NumberFormat.getNumberInstance();
+        totalRow.getCell(0).setCellValue("统计");
+        totalRow.getCell(4).setCellValue("A=" + statBatch.get("totalDrugNum"));
+        totalRow.getCell(5).setCellValue("C=" + statBatch.get("antiNum"));
+        totalRow.getCell(6).setCellValue("E=" + statBatch.get("injectionNum"));
+        totalRow.getCell(7).setCellValue("G=" + statBatch.get("baseDrugNum"));
+        totalRow.getCell(8).setCellValue("I=" + statBatch.get("totalDrugNum"));
+        totalRow.getCell(9).setCellValue("K=" + statBatch.get("totalMoney"));
+        totalRow.getCell(13).setCellValue("O=" + statBatch.get("rationalNum"));
+
+        // NumberFormat percentDisplay = DataFormat.getPercentDisplay();
+
+        numberFormat.setMaximumFractionDigits(1);
+        numberFormat.setMinimumFractionDigits(1);
+        /*  logger.debug("statBatch.get(\"totalDrugNum\") =" + statBatch.get("totalDrugNum"));
+      logger.debug("statBatch.get(\"rxNum\")=" + statBatch.get("rxNum"));
+      logger.debug("aveRow.getCell(4)=" + aveRow.getCell(4));*/
+        aveRow.getCell(0).setCellValue("平均");
+        aveRow.getCell(4).setCellValue("B=" + numberFormat.format((Integer) statBatch.get("totalDrugNum") * 1.0 / (Integer) statBatch.get("rxNum")));
+        aveRow.getCell(9).setCellValue("L=" + numberFormat.format(((BigDecimal) statBatch.get("totalMoney")).doubleValue() / (Integer) statBatch.get("rxNum")));
+        percentRow.getCell(0).setCellValue("%");
+        percentRow.getCell(5).setCellValue("D=" + numberFormat.format((Integer) statBatch.get("antiNum") * 100.0 / list.size()));
+        percentRow.getCell(6).setCellValue("F=" + numberFormat.format((Integer) statBatch.get("injectionNum") * 100.0 / list.size()));
+        percentRow.getCell(7).setCellValue("H=" + numberFormat.format((Integer) statBatch.get("baseDrugNum") * 100.0 / (Integer) statBatch.get("totalDrugNum")));
+        percentRow.getCell(8).setCellValue("J=" + numberFormat.format((Integer) statBatch.get("totalDrugNum") * 100.0 / (Integer) statBatch.get("totalDrugNum")));
+        //numberFormat.setMaximumFractionDigits(0);
+        //todo 出现空指针错误， update Clinic set rational=1 where rational is null
+        //已完成二院的修改
+        aveRow.getCell(13).setCellValue("P=" + numberFormat.format((Integer) statBatch.get("rationalNum") * 100.0 / (Integer) statBatch.get("rxNum")));
+
+        /*tempFilename = "dp" + (int) (Math.random() * 1000000) + ".xls";
+        FileOutputStream file = new FileOutputStream(DeployRunning.getDir() + downloadDir + File.separator + tempFilename);
+        wb.write(file);
+        file.close(); */
+        OutputStream out = null;
+        try {
+            // response.setContentType("image/jpeg;charset=UTF-8");
+            response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+            response.setHeader("Content-Disposition", "attachment; filename*=utf-8'zh_cn'" +
+                    java.net.URLEncoder.encode("门诊处方评价表_", "UTF-8") + sampleBatchID + ".xls");//chrome 、 firefox都正常
+            out = response.getOutputStream(); // 输出到文件流
+            wb.write(out);
+            out.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (out != null) {
+                out.close();
+            }
+        }
+    }
+
+    @RequestMapping("hospital")
+    public void hospital(HttpServletResponse response, @RequestParam(value = "sampleBatchID") int sampleBatchID) throws IOException {
+
+        List<HashMap<String, Object>> list = sampleDao.getSampleList(sampleBatchID, 2, 0, 10000);
+
+      /*  Map<String, Object> param = new HashMap< >();
+        param.put("limit", 1);
+        param.put("sampleBatchID", sampleBatchID);*/
+      //  SampleBatch sampleBatch = sampleDao.getSampleBatchList(param).get(0);
+        SampleBatch batch = sampleDao.getSampleBatch(sampleBatchID);
+        HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "hospital.xls"));
+        HSSFSheet sheet = wb.getSheet("Sheet1");
+        if (batch.getDoctor() != null) {//填写医生
+            HSSFCell doctorCell = sheet.getRow(1).getCell(1);
+            doctorCell.setCellValue(batch.getDoctor());
+        }
+        HSSFCell dateCell = sheet.getRow(1).getCell(15);//填写日期为输出当天
+        dateCell.setCellValue(DateUtils.getDateDayFormat());
+
+        // insertRow(sheet, 4, list.size());//插入行
+
+        sheet.shiftRows(5, sheet.getLastRowNum(), list.size(), true, true);      //插入行
+        for (int i = 0; i < list.size(); i++) {
+            HashMap<String, Object> row = list.get(i);
+            HSSFRow aRow = sheet.createRow(5 + i);
+            for (int m = 0; m < HOSPITAL_COLUMN_COUNT; m++) {
+                HSSFCell cell = aRow.createCell(m);
+                HSSFCell sampleCell = sheet.getRow(4).getCell(m);
+                cell.setCellStyle(sampleCell.getCellStyle());
+                cell.setCellType(sampleCell.getCellType());
+            }
+            Short antiNum = (Short) row.get("field1_1");
+            if (antiNum == null && row.get("concurAntiNum") != null)
+                antiNum = ((Number) row.get("concurAntiNum")).shortValue();
+            else if (antiNum == null)
+                antiNum = 0;
+            aRow.getCell(0).setCellValue((String) row.get("patientNo"));
+            aRow.getCell(1).setCellValue(getRoman((Short) row.get("field1_2")) + "(" + antiNum + ")");
+            aRow.getCell(2).setCellValue(string(row.get("field2_2")) + "/" + getTrueFalse(row.get("field2_1")));
+            aRow.getCell(3).setCellValue(getTrueFalse(row.get("field3")));
+            aRow.getCell(4).setCellValue(getTrueFalse(row.get("field4")));
+            aRow.getCell(5).setCellValue(getTrueFalse(row.get("field5")));
+            aRow.getCell(6).setCellValue(getTrueFalse(row.get("field6")));
+            aRow.getCell(7).setCellValue(getTrueFalse(row.get("field7")));
+            aRow.getCell(8).setCellValue(getTrueFalse(row.get("field8")));
+            aRow.getCell(9).setCellValue(getTrueFalse(row.get("field9")));
+            aRow.getCell(10).setCellValue(getTrueFalse(row.get("field10")));
+            aRow.getCell(11).setCellValue(getTrueFalse(row.get("field11")));
+            aRow.getCell(12).setCellValue(getTrueFalse(row.get("field12")));
+            aRow.getCell(13).setCellValue(getTrueFalse(row.get("field13")));
+            aRow.getCell(14).setCellValue(getTrueFalse(row.get("field14")));
+            aRow.getCell(15).setCellValue(getTrueFalse(row.get("field15")));
+            aRow.getCell(16).setCellValue(getTrueFalse(row.get("field16")));
+            aRow.getCell(17).setCellValue((String) row.get("diagnosis"));
+            aRow.getCell(18).setCellValue((String) row.get("result"));
+            aRow.getCell(19).setCellValue(getTrueFalse(row.get("rational")));
+        }
+        sheet.shiftRows(5, sheet.getLastRowNum(), -1, true, false);//删除一行 ，这行是占位设置单元格样式的
+
+        OutputStream out = null;
+        try {
+            // response.setContentType("image/jpeg;charset=UTF-8");
+            response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+            response.setHeader("Content-Disposition", "attachment; filename*=utf-8'zh_cn'" +
+                    java.net.URLEncoder.encode("住院医嘱调查统计表_", "UTF-8") + sampleBatchID + ".xls");//chrome 、 firefox都正常
+            out = response.getOutputStream(); // 输出到文件流
+            wb.write(out);
+            out.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (out != null) {
+                out.close();
+            }
+        }
+    }
+
+    private String getTrueFalse(Object obj) {
+        if (obj == null) return "";
+        else if (obj instanceof Number)
+            return 1 == ((Number) obj).intValue() ? "√" : "×";
+
+        return obj.toString();
+    }
+
+    private String getRoman(Short value) {
+        if (value == null) return "";
+        String roman[] = {"", "Ⅰ", "Ⅱ", "Ⅲ"};
+        if (value < 4)
+            return roman[value];
+        else return "";
+    }
+
+    private String string(Object obj) {
+        if (obj == null) return "";
+        else return obj.toString();
     }
 
     //抗菌药调查

@@ -2,9 +2,9 @@ package com.zcreate.remark.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.zcreate.remark.dao.DrugRecordsMapper;
 import com.zcreate.review.dao.DailyDAO;
 import com.zcreate.review.dao.StatDAO;
-import com.zcreate.review.logic.AntibiosisService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +25,11 @@ public class AntiController {
     @Autowired
     private StatDAO statDao;
     @Autowired
+    private DrugRecordsMapper drugRecordsMapper;
+   /*@Autowired
     private DailyDAO dailyDao;
     @Autowired
-    private AntibiosisService antibiosisService;
+    private AntibiosisService antibiosisService;*/
 
     Map<String, Object> retMap;
     private Gson gson = new GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd HH:mm").create();
@@ -38,18 +40,25 @@ public class AntiController {
     public String antiDrug(
             @RequestParam(value = "quarter") String quarter,
             @RequestParam(value = "month") String month,
+            @RequestParam(value = "table", defaultValue = "0") Integer table,
             @RequestParam(value = "draw", required = false) Integer draw) {
         HashMap<String, Object> param = new HashMap<>();
         if (!"".equals(quarter)) {
             String[] date = quarter.split("-");
-            param.put("year", Integer.parseInt(date[0]));
+            param.put("tableName", "DrugRecords_" + date[0]);
+            //param.put("year", Integer.parseInt(date[0]));
             param.put("quarter", Integer.parseInt(date[1]));
         } else if (!"".equals(month)) {
             String[] date = month.split("-");
-            param.put("year", Integer.parseInt(date[0]));
+            param.put("tableName", "DrugRecords_" + date[0]);
+           // param.put("year", Integer.parseInt(date[0]));
             param.put("month", Integer.parseInt(date[1]));
         }
-        List<HashMap<String, Object>> result = antibiosisService.antiDrug(param);
+        List<HashMap<String, Object>> result;
+        if (table == 1)
+            result = statDao.antiDrug(param);
+        else
+            result = drugRecordsMapper.antiDrug(param);
 
         retMap = new HashMap<>();
         retMap.put("draw", draw);

@@ -12,6 +12,7 @@
 <%--<script src="../assets/js/jquery.validate.min.js"></script>--%>
 <script src="../components/moment/moment.min.js"></script>
 <script src="../components/bootstrap-daterangepicker/daterangepicker.js"></script>
+<script src="../components/bootstrap-daterangepicker/daterangepicker.zh-CN.js"></script>
 <link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>
 <!-- bootstrap & fontawesome -->
 
@@ -148,12 +149,13 @@
             'cancelClass': 'btn-sm btn-default',
             startDate: startDate,
             endDate: endDate,
-            locale: {
-                format: 'YYYY-MM-DD',
-                separator: ' ～ ',
-                applyLabel: '确定',
-                cancelLabel: '取消'
-            }
+            ranges: {
+                '本月': [moment().startOf('month')],
+                '上月': [moment().month(moment().month() - 1).startOf('month'),  moment().month(moment().month() - 1).endOf('month')],
+                '本季': [moment().startOf('quarter')],
+                '上季': [moment().quarter(moment().quarter() - 1).startOf('month'),  moment().quarter(moment().quarter() - 1).endOf('quarter')]
+            },
+            locale: locale
         }, function (start, end, label) {
             startDate = start;
             endDate = end;
@@ -238,12 +240,11 @@
                 'cancelClass': 'btn-sm btn-default',
                 startDate: calcStartDate, //设置开始日期
                 endDate: calcEndDate, //设置结束器日期
-                locale: {
-                    format: 'YYYY-MM-DD',
-                    separator: ' ～ ',
-                    applyLabel: '确定',
-                    cancelLabel: '取消'
-                }
+                ranges: {
+                    '本月': [moment().startOf('month')],
+                    '上月': [moment().month(moment().month() - 1).startOf('month'),  moment().month(moment().month() - 1).endOf('month')]
+                },
+                locale: locale
             }, function (start, end, label) {
                 calcStartDate = start;
                 calcEndDate = end;

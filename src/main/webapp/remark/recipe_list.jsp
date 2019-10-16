@@ -13,6 +13,7 @@
 <script src="../components/bootstrap-timepicker/js/bootstrap-timepicker.js"></script>
 <script src="../components/moment/moment.min.js"></script>
 <script src="../components/bootstrap-daterangepicker/daterangepicker.js"></script>
+<script src="../components/bootstrap-daterangepicker/daterangepicker.zh-CN.js"></script>
 <link rel="stylesheet" href="../components/bootstrap-datepicker/css/bootstrap-datepicker3.css"/>
 <link rel="stylesheet" href="../components/bootstrap-timepicker/css/bootstrap-timepicker.css"/>
 <link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>
@@ -24,7 +25,7 @@
         var sampleBatchID = $.getUrlParam("sampleBatchID");
         var remarkType = $.getUrlParam("remarkType");
 
-        $("#batchName").text( decodeURI($.getUrlParam("batchName")));
+        $("#batchName").text(decodeURI($.getUrlParam("batchName")));
 
         var url = "/remark/listDetails.jspa?sampleBatchID=" + sampleBatchID;
         //var editor = new $.fn.dataTable.Editor({});
@@ -120,23 +121,26 @@
                  window.location.href = "index.jspa?content=/admin/buyRecord.jsp&menuID=3";
              });*/
         });
-        $("#dt").resize(function(){
+        $("#dt").resize(function () {
             myTable.columns.adjust();
         });
 
         //$.fn.dataTable.Buttons.swfPath = "components/datatables.net-buttons-swf/index.swf"; //in Ace demo ../components will be replaced by correct assets path
-        /*   $.fn.dataTable.Buttons.defaults.dom.container.className = 'dt-buttons btn-overlap btn-group btn-overlap';
+        $.fn.dataTable.Buttons.defaults.dom.container.className = 'dt-buttons btn-overlap btn-group btn-overlap';
 
-           new $.fn.dataTable.Buttons(myTable, {
-               buttons: [
-                   {
-                       "text": "<i class='glyphicon glyphicon-plus  bigger-110 red'></i>新增 ",
-                       "className": "btn btn-white btn-primary btn-bold"
-                   }
-               ]
-           });
-           myTable.buttons().container().appendTo($('.tableTools-container'));*/
-
+        new $.fn.dataTable.Buttons(myTable, {
+            buttons: [
+                {
+                    "text": "<i class='fa fa-file-excel-o  bigger-110 red'></i>导出调查表",
+                    "className": "btn btn-xs btn-white btn-primary"
+                }
+            ]
+        });
+        myTable.buttons().container().appendTo($('.tableTools-container'));
+        myTable.button(0).action(function (e, dt, button, config) {
+            e.preventDefault();
+            window.location.href = "remark/hospital.jspa?sampleBatchID=" + sampleBatchID;
+        });
 
         //todo 统一到一个对话框
         function showDialog(title, content) {

@@ -12,6 +12,7 @@
 <script src="../assets/js/jquery.validate.min.js"></script>
 <script src="../components/moment/moment.min.js"></script>
 <script src="../components/bootstrap-daterangepicker/daterangepicker.js"></script>
+<script src="../components/bootstrap-daterangepicker/daterangepicker.zh-CN.js"></script>
 <script src="../components/typeahead.js/dist/typeahead.bundle.min.js"></script>
 <script src="../components/typeahead.js/handlebars.js"></script>
 
@@ -129,12 +130,15 @@
             'cancelClass': 'btn-sm btn-default',
             startDate: startDate,
             endDate: endDate,
-            locale: {
-                format: 'YYYY-MM-DD',
-                separator: ' ～ ',
-                applyLabel: '确定',
-                cancelLabel: '取消'
-            }
+            ranges: {
+                '本月': [moment().startOf('month')],
+                '上月': [moment().month(moment().month() - 1).startOf('month'),  moment().month(moment().month() - 1).endOf('month')],
+                '本季': [moment().startOf('quarter')],
+                '上季': [moment().quarter(moment().quarter() - 1).startOf('month'),  moment().quarter(moment().quarter() - 1).endOf('quarter')],
+                '今年': [moment().startOf('year')],
+                '去年':  [moment().year(moment().year() - 1).startOf('year'),  moment().year(moment().year() - 1).endOf('year')]
+            },
+            locale: locale
         }, function (start, end, label) {
             startDate = start;
             endDate = end;

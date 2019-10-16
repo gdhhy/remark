@@ -12,6 +12,7 @@
 <%--<script src="../assets/js/jquery.validate.min.js"></script>--%>
 <script src="../components/moment/moment.min.js"></script>
 <script src="../components/bootstrap-daterangepicker/daterangepicker.js"></script>
+<script src="../components/bootstrap-daterangepicker/daterangepicker.zh-CN.js"></script>
 <script src="../components/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
 <script src="../components/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>
 

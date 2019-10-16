@@ -2,9 +2,12 @@ package com.zcreate.remark.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.zcreate.ReviewConfig;
+import com.zcreate.remark.dao.DrugRecordsMapper;
 import com.zcreate.remark.util.ParamUtils;
 import com.zcreate.review.dao.DailyDAO;
 import com.zcreate.review.dao.StatDAO;
+import com.zcreate.review.dao.StatDAOImpl;
 import com.zcreate.review.logic.StatService;
 import com.zcreate.util.DateUtils;
 import com.zcreate.util.StatMath;
@@ -29,8 +32,13 @@ public class SunningController {
     @Autowired
     private DailyDAO dailyDao;
     @Autowired
+    private DrugRecordsMapper drugRecordsMapper;
+    @Autowired
     private StatService statService;
     private Gson gson = new GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd HH:mm").create();
+    @Autowired
+    private ReviewConfig reviewConfig;
+
 
     //药品分析（天） 按科室
     @ResponseBody
@@ -89,13 +97,14 @@ public class SunningController {
             @RequestParam(value = "fromDate") String fromDate,
             @RequestParam(value = "toDate") String toDate,
             @RequestParam(value = "type", required = false, defaultValue = "-1") Integer type,
+            @RequestParam(value = "table", required = false, defaultValue = "0") Integer table,
             @RequestParam(value = "mental", required = false, defaultValue = "false") Boolean mental,
             @RequestParam(value = "assist", required = false, defaultValue = "false") Boolean assist,
             @RequestParam(value = "draw", required = false) Integer draw,
             @RequestParam(value = "start", required = false, defaultValue = "0") int start,
             @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
 
-        HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, department, type);
+        HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, department, type, "DrugRecords");
         param.put("start", start);
         param.put("limit", limit);
         param.put("likeHealthNo", healthNo);
@@ -108,7 +117,12 @@ public class SunningController {
         param.put("assist", assist);
         param.put("mental", mental);
         //log.debug("param:" + param);
-        List<HashMap<String, Object>> result = statDao.statByMedicine(param); //取全部
+        param.put("prefix", reviewConfig.getPrefixRBAC());
+        List<HashMap<String, Object>> result;
+        if (table == 1)
+            result = statDao.statByMedicine(param); /*取全部*/
+        else
+            result = drugRecordsMapper.statByMedicine(param); //取全部
 
         //todo 移动到外面计算
         Date dateTo = null;
