@@ -134,7 +134,7 @@
 
             <ul class="submenu">
                 <li class="">
-                    <a href="index.jspa?content=/remark/sample.jsp&menuID=20" id="20">
+                    <a href="index.jspa?content=/sunning/summary.jsp&menuID=20" id="20">
                         <!--<i class="menu-icon fa fa-user"></i>-->
                         <i class="menu-icon fa fa-caret-right"></i>
                         <span class="menu-text">用药概况</span>

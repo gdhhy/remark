@@ -3,7 +3,6 @@ package com.zcreate.remark.controller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.zcreate.remark.dao.DrugRecordsMapper;
-import com.zcreate.review.dao.DailyDAO;
 import com.zcreate.review.dao.StatDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,12 +44,12 @@ public class AntiController {
         HashMap<String, Object> param = new HashMap<>();
         if (!"".equals(quarter)) {
             String[] date = quarter.split("-");
-            param.put("tableName", "DrugRecords_" + date[0]);
+            param.put("DrugRecordTable", "DrugRecords_" + date[0]);
             //param.put("year", Integer.parseInt(date[0]));
             param.put("quarter", Integer.parseInt(date[1]));
         } else if (!"".equals(month)) {
             String[] date = month.split("-");
-            param.put("tableName", "DrugRecords_" + date[0]);
+            param.put("DrugRecordTable", "DrugRecords_" + date[0]);
            // param.put("year", Integer.parseInt(date[0]));
             param.put("month", Integer.parseInt(date[1]));
         }

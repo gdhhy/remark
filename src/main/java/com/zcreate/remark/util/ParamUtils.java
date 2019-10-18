@@ -61,7 +61,7 @@ public class ParamUtils {
             cal.add(Calendar.DATE, 1);
             param.put("toDate", cal.getTime());
         }
-        param.put("tableName", tablePrefix + "_" + fromDate.substring(0, 4));
+        param.put("DrugRecordTable", tablePrefix + "_" + fromDate.substring(0, 4));
 
         return param;
     }

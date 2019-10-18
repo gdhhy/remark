@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -39,6 +40,18 @@ public class SunningController {
     @Autowired
     private ReviewConfig reviewConfig;
 
+    //@ResponseBody
+    @RequestMapping(value = "summary", method = RequestMethod.GET)
+    public String summary(@RequestParam(value = "fromDate") String fromDate,
+                          @RequestParam(value = "toDate") String toDate,
+                          @RequestParam(value = "table", required = false, defaultValue = "0") Integer table,
+                          @RequestParam(value = "department", defaultValue = "") String department,
+                          @RequestParam(value = "type", defaultValue = "0") Integer type, ModelMap model) {
+        HashMap<String, Object> stat;
+        stat = statService.summary(fromDate, toDate, department, type, table);
+        model.addAttribute("stat", stat);
+        return "/sunning/summary_content";
+    }
 
     //药品分析（天） 按科室
     @ResponseBody

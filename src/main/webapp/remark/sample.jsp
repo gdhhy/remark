@@ -310,7 +310,6 @@
                         $("#loadingModal").modal('show');
                     },
                     complete: function () {
-                        console.log("执行complete完成");
                         //$("#submit").removeAttr("disabled");
                         //$('#dialog-loading').dialog("close");
                         $("#loadingModal").modal('hide');
@@ -507,9 +506,9 @@
         }
 
         function showSampleResult(result) {
-            console.log("rxID:" + result.sampleBatch.ids);
+            /*console.log("rxID:" + result.sampleBatch.ids);
             console.log("serialize():" + result.sampleBatch.ids);
-            console.log("type:" + result.sampleBatch.type);
+            console.log("type:" + result.sampleBatch.type);*/
             if (result.sampleBatch.type === 2)
                 $('#dynamic-table2').DataTable({
                     // bAutoWidth: false,

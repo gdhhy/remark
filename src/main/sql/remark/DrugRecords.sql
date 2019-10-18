@@ -66,7 +66,6 @@ CREATE NONCLUSTERED INDEX  DrugRecords_2015_dispensingDate
     ON [dbo].[DrugRecords_2015] ([dispensingDate])
     INCLUDE ([dispensingNo],[invoiceNo],[goodsID],[quantity],[amount]);
 
-
 CREATE NONCLUSTERED INDEX  DrugRecords_2015_dispensingDate2
     ON [dbo].[DrugRecords_2015] ([dispensingDate])
     INCLUDE ([dispensingNo],[invoiceNo],[department],[goodsID],[quantity],[amount]);
@@ -74,7 +73,35 @@ CREATE NONCLUSTERED INDEX  DrugRecords_2015_dispensingDate2
 CREATE NONCLUSTERED INDEX  DrugRecords_goodsNo
     ON [dbo].[DrugRecords_2015] ([goodsNo])
     INCLUDE ([dispensingDate],[dispensingNo],[invoiceNo],[quantity],[amount],[adviceType])
+--用药概况
+CREATE NONCLUSTERED INDEX DrugRecords_2015_dispensingDate3
+    ON [dbo].[DrugRecords_2015] ([dispensingDate])
+    INCLUDE ([dispensingNo],[goodsNo],[adviceType]);
 
+CREATE NONCLUSTERED INDEX RecipeItem_serialNo
+    ON [dbo].[RecipeItem] ([serialNo])
+    INCLUDE ([medicineNo]);
+CREATE NONCLUSTERED INDEX  Recipe_outDate
+    ON [dbo].[Recipe] ([outDate])
+    INCLUDE ([serialNo]);
+
+CREATE NONCLUSTERED INDEX  IX_RxDetail_PrescribeDate2
+    ON [dbo].[RxDetail] ([prescribeDate])
+    INCLUDE ([serialNo],[dosage]);
+
+
+CREATE NONCLUSTERED INDEX  IX_RxDetail_PrescribeDate3
+    ON [dbo].[RxDetail] ([prescribeDate])
+    INCLUDE ([serialNo],[medicineNo]);
+
+CREATE NONCLUSTERED INDEX IX_RxDetail_medicineNo_PrescribeDate3
+    ON [dbo].[RxDetail] ([medicineNo],[prescribeDate])
+    INCLUDE ([serialNo]);
+
+
+CREATE NONCLUSTERED INDEX IX_Rx_clinicType_prescribeDate
+    ON [dbo].[Rx] ([clinicType],[prescribeDate])
+    INCLUDE ([serialNo]);
 
 SELECT top 0 * INTO DrugRecords_2019 FROM DrugRecords_2014;
 
