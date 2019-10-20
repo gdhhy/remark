@@ -120,14 +120,14 @@
                 language: {
                     url: '../components/datatables/datatables.chinese.json'
                 },
-                "ajax": {
-                    url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), false, false, ""),
+               /* "ajax": {
+                     url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), false, false, ""),
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
                                 delete d[key];
                     }
-                },
+                },*/
 
                 // "processing": true,
                 //"serverSide": true,
@@ -274,7 +274,7 @@
                         });
                         $('#dialog-title2').text(chnName + " - 按科室汇总");
                         $('#showDepartDoctorDialog').modal();
-                        console.log("i=" + i);
+                        //console.log("i=" + i);
                     }
                 },
                 error: function (response, textStatus) {/*能够接收404,500等错误*/

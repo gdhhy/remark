@@ -443,6 +443,9 @@
                                     <option value="ADMIN">管理员</option>
                                     <option value="USER">普通用户</option>
                                     <option value="DEVELOP">系统开发</option>
+                                    <c:if test="${user.userID<10}">
+                                        <option value="DRUGDATA">用药数据</option>
+                                    </c:if>
                                 </select>
                             </div>
                         </div>

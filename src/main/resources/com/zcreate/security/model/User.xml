@@ -44,7 +44,7 @@
     <update id="updateUser" flushCache="true" >
         update sys_user
         <set>
-            updatetime=now(),
+            updatetime=GETDATE(),
             <if test="@com.zcreate.util.Ognl@isNotEmpty(pojo.password)">password = #{pojo.password:VARCHAR},</if>
             <if test="pojo.accountNonLocked != null">accountnonlocked = #{pojo.accountNonLocked:BIT},</if>
             <if test="pojo.name != null">name = #{pojo.name:VARCHAR},</if>

@@ -1,5 +1,4 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <div id="sidebar" class="sidebar responsive ace-save-state">
     <script type="text/javascript">
@@ -175,7 +174,7 @@
             </ul>
         </li>
         <%--<sec:authentication property="principal.username"/>--%>
-        <sec:authorize access="hasRole('ADMIN2')">
+        <sec:authorize access="hasAuthority('ADMIN2')">
             <li>
                 <a href="index.jspa?content=/appeal/checkRecord.jsp&menuID=2" id="2">
                     <i class="menu-icon fa fa-picture-o"></i>
@@ -265,7 +264,7 @@
             <ul class="submenu">
                 <sec:authorize access="hasAuthority('ADMIN')">
                 <li class="">
-                    <a href="index.jspa?content=/admin/users.jsp&menuID=4" id="4">
+                    <a href="index.jspa?content=users.jspa&menuID=4" id="4">
                         <i class="menu-icon fa fa-caret-right"></i>
                         <i class="fa fa-user"></i>
                         <span class="menu-text">用户管理</span>

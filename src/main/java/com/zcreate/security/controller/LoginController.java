@@ -111,6 +111,17 @@ public class LoginController {
 
         return "/admin/navbar";
     }
+    @RequestMapping(value = "/users", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String users( ModelMap model) {
+        String loginname=getPrincipal();
+
+        Map<String, Object> param = new HashMap<>();
+        param.put("loginname", loginname);
+        User user = userMapper.getUser(param);
+        model.addAttribute("user",user);
+
+        return "/admin/users";
+    }
 
    /* @RequestMapping(value = "/admin/menu", method = RequestMethod.GET)
     public ModelAndView menu() {

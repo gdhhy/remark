@@ -7,13 +7,16 @@ import com.zcreate.remark.dao.DrugRecordsMapper;
 import com.zcreate.remark.util.ParamUtils;
 import com.zcreate.review.dao.DailyDAO;
 import com.zcreate.review.dao.StatDAO;
-import com.zcreate.review.dao.StatDAOImpl;
 import com.zcreate.review.logic.StatService;
 import com.zcreate.util.DateUtils;
 import com.zcreate.util.StatMath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -65,7 +68,8 @@ public class SunningController {
             @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
         HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, null);
         param.put("medicineNo", medicineNo);
-        List<HashMap<String, Object>> result = statDao.statMedicineGroupByDepart(param);
+        List<HashMap<String, Object>> result = drugRecordsMapper.statMedicineGroupByDepart(param);
+        //List<HashMap<String, Object>> result = statDao.statMedicineGroupByDepart(param);
         StatMath.sumAndCalcRatio(result, "amount", "ratio");
 
         Map<String, Object> retMap = new HashMap<>();
@@ -88,8 +92,21 @@ public class SunningController {
             @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
         HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, null);
         param.put("medicineNo", medicineNo);
-        List<HashMap<String, Object>> result = dailyDao.getDoctorListByMedicine(param);
+        //List<HashMap<String, Object>> result = dailyDao.getDoctorListByMedicine(param);
+        List<HashMap<String, Object>> result = drugRecordsMapper.queryDoctorByMedicine(param);
         StatMath.sumAndCalcRatio(result, "amount", "ratio");
+        boolean viewDoctorNum = false;
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            viewDoctorNum = ((UserDetails) principal).getAuthorities().contains(new SimpleGrantedAuthority("DRUGDATA"));
+        }
+
+        /*log.debug("DRUGDATA=" + viewDoctorNum); */
+        if (!viewDoctorNum)
+            for (HashMap<String, Object> aMap : result) {
+                aMap.put("amount", "-");
+                aMap.put("quantity", "-");
+            }
 
         Map<String, Object> retMap = new HashMap<>();
         retMap.put("draw", draw);
@@ -117,7 +134,7 @@ public class SunningController {
             @RequestParam(value = "start", required = false, defaultValue = "0") int start,
             @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
 
-        HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, department, type, "DrugRecords");
+        HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, department, type);
         param.put("start", start);
         param.put("limit", limit);
         param.put("likeHealthNo", healthNo);

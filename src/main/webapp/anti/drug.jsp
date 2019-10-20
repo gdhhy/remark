@@ -62,7 +62,7 @@
                 language: {
                     url: '../components/datatables/datatables.chinese.json'
                 },
-                "ajax": {
+                "ajax": {//首次不想加载，因此注释
                     url: url.format(month.format("YYYY-MM"), ""),
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)

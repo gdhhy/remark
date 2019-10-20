@@ -44,12 +44,12 @@ public class AntiController {
         HashMap<String, Object> param = new HashMap<>();
         if (!"".equals(quarter)) {
             String[] date = quarter.split("-");
-            param.put("DrugRecordTable", "DrugRecords_" + date[0]);
+            param.put("DrugRecordsTable", "DrugRecords_" + date[0]);
             //param.put("year", Integer.parseInt(date[0]));
             param.put("quarter", Integer.parseInt(date[1]));
         } else if (!"".equals(month)) {
             String[] date = month.split("-");
-            param.put("DrugRecordTable", "DrugRecords_" + date[0]);
+            param.put("DrugRecordsTable", "DrugRecords_" + date[0]);
            // param.put("year", Integer.parseInt(date[0]));
             param.put("month", Integer.parseInt(date[1]));
         }
