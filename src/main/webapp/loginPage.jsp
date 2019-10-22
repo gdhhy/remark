@@ -47,9 +47,9 @@
     <script type="text/javascript">
         jQuery(function ($) {
             var lastContent = $.getReferrerUrlParam("content");
-            var thisContent = $.getUrlParam("content");
-            console.log("last:"+lastContent);
-            console.log("this:"+thisContent);
+            //var thisContent = $.getUrlParam("content");
+            /*console.log("last:" + lastContent);
+            console.log("this:" + thisContent);*/
 
             $.cookie('firstContent', lastContent);
         })
@@ -124,6 +124,8 @@
                                             <div class="space-4"></div>
                                         </fieldset>
                                     </form>
+                                    <br/>
+                                    <div class="light-grey center"> 建议使用浏览器Chrome，点击<a href="soft/Chrome_Google_v49.0.2623.112.exe">下载</a>。</div>
                                 </div><!-- /widget-main -->
                             </div><!-- /widget-body -->
                         </div><!-- /login-box -->
@@ -142,7 +144,7 @@
                                     </p><br/><br/>
 
                                     <div class="clearfix">
-                                        <button type="button" class="width-35 pull-right btn btn-sm btn-danger" onclick="location='index.jspa'">
+                                        <button type="button" class="width-35 pull-right btn btn-sm btn-danger" onclick="location='${mainUrl}'">
                                             <i class="icon-lightbulb"></i>
                                             进入
                                         </button>
@@ -180,6 +182,7 @@
         jQuery('.widget-box.visible').removeClass('visible');
         jQuery('#' + id).addClass('visible');
     }
+
     $(function () {
         $('#password').bind('keypress', function (event) {
             if (event.keyCode === 13)

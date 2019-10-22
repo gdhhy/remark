@@ -1,12 +1,11 @@
 package com.zcreate.security.controller;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.zcreate.security.dao.UserMapper;
 import com.zcreate.security.pojo.User;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -28,10 +27,11 @@ import java.util.*;
 @RequestMapping("/")
 public class LoginController {
     @Autowired
-    private JdbcTokenRepositoryImpl jdbcTokenRepository; @Autowired
+    private JdbcTokenRepositoryImpl jdbcTokenRepository;
+    @Autowired
     private UserMapper userMapper;
 
-    private Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+    //private Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 
     Logger logger = Logger.getLogger(LoginController.class);
     @Resource
@@ -57,6 +57,13 @@ public class LoginController {
                 logger.debug("已登录");
                 model.addAttribute("loginSucceed", true);
                 model.addAttribute("loginName", ((UserDetails) principal).getUsername());
+                if (((UserDetails) principal).getAuthorities().contains(new SimpleGrantedAuthority("DOCTOR"))) {
+                 /*   User user = userMapper.getUserByLoginname(((UserDetails) principal).getUsername());
+                    model.addAttribute("user", user);
+                    model.addAttribute("hospitalName", configs.getProperty("hospitalName"));*/
+                    model.addAttribute("mainUrl", "ext5/doctor/index.jspa");
+                } else
+                    model.addAttribute("mainUrl", "index.jspa");
             }
         }
         if (error != null) {
@@ -67,6 +74,7 @@ public class LoginController {
         /*model.addAttribute("systemTitle2", "系统登录");*/
         return "/loginPage";
     }
+
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index(@RequestParam(value = "content", defaultValue = "/admin/hello.html") String contentUrl, ModelMap model) {
         model.addAttribute("content", contentUrl);
@@ -78,12 +86,12 @@ public class LoginController {
         }
     }
 
-   /* @RequestMapping(value = "/menu", method = RequestMethod.GET)
-    public String menu(ModelMap model) {
-        //model.addAttribute("user", getPrincipal());
-        return "/admin/sidebar";
-    }
-*/
+    /* @RequestMapping(value = "/menu", method = RequestMethod.GET)
+     public String menu(ModelMap model) {
+         //model.addAttribute("user", getPrincipal());
+         return "/admin/sidebar";
+     }
+ */
     private List<com.zcreate.security.pojo.Function> findChildFunction(List<com.zcreate.security.pojo.Function> roleFuncs, com.zcreate.security.pojo.Function parent) throws Exception {
         List<com.zcreate.security.pojo.Function> child = new ArrayList<>();
         for (int k = roleFuncs.size() - 1; k >= 0; k--) {
@@ -102,23 +110,24 @@ public class LoginController {
 
     @RequestMapping(value = "/navbar", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String navbar(ModelMap model) {
-        String loginname=getPrincipal();
+        String loginname = getPrincipal();
 
         Map<String, Object> param = new HashMap<>();
         param.put("loginname", loginname);
         User user = userMapper.getUser(param);
-        model.addAttribute("user",user);
+        model.addAttribute("user", user);
 
         return "/admin/navbar";
     }
+
     @RequestMapping(value = "/users", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public String users( ModelMap model) {
-        String loginname=getPrincipal();
+    public String users(ModelMap model) {
+        String loginname = getPrincipal();
 
         Map<String, Object> param = new HashMap<>();
         param.put("loginname", loginname);
         User user = userMapper.getUser(param);
-        model.addAttribute("user",user);
+        model.addAttribute("user", user);
 
         return "/admin/users";
     }
@@ -146,10 +155,10 @@ public class LoginController {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (principal instanceof UserDetails) {
-            logger.debug("UserDetails");
+            //logger.debug("UserDetails");
             userName = ((UserDetails) principal).getUsername();
         } else {
-            logger.debug("principal:" + principal);
+            //logger.debug("principal:" + principal);
             userName = principal.toString();
         }
         return userName;

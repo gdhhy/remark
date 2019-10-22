@@ -209,7 +209,7 @@
 
                     <b class="arrow"></b>
                 </li>
-                <li class="">
+              <%--  <li class="">
                     <a href="index.jspa?content=/admin/roles.jsp&menuID=31" id="31">
                         <!--<i class="menu-icon fa 	fa-certificate"></i>-->
                         <i class="menu-icon fa fa-caret-right"></i>
@@ -226,7 +226,7 @@
                     </a>
 
                     <b class="arrow"></b>
-                </li>
+                </li>--%>
             </ul>
         </li>
         <li>

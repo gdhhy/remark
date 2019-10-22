@@ -36,9 +36,9 @@ public class SecurityProvider implements AuthenticationProvider {
         logger.debug("authentication:"+ ((WebAuthenticationDetails)authentication.getDetails()).getRemoteAddress());*/
         param.put("loginname", authentication.getName());
         User user = userMapper.getUser(param);
-        if (user == null) {
+       /* if (user == null) {
             throw new UsernameNotFoundException("用户名不存在");
-        }
+        }*/
         if (user.getFailureLogin() > 4) {
             user.setFailureLogin(user.getFailureLogin() + 1);
             userMapper.loginUpdateUser(user);
@@ -51,7 +51,7 @@ public class SecurityProvider implements AuthenticationProvider {
             userMapper.loginUpdateUser(user);
             throw new BadCredentialsException("密码错误");
         }
-        if (user.getAuthorities().size() == 0) {
+        if (user.getAuthorities() == null || user.getAuthorities().size() == 0) {
             throw new AuthenticationCredentialsNotFoundException("未设置授权");
         }
         //todo 用户锁定、登录IP 限制等等

@@ -14,6 +14,10 @@ import java.util.Map;
 public interface UserMapper {
     User getUser(@Param("param") Map<String, Object> param);
 
+    User getUserByID(@Param("userID") int userID);
+
+    User getUserByLoginname(@Param("loginname") String loginname);
+
     List<User> selectUser(@Param("param") Map<String, Object> param);
 
     int insertUser(@Param("pojo") User user);

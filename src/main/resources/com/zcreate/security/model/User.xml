@@ -35,6 +35,16 @@
         </where>
         ORDER BY orderID
     </select>
+    <select id="getUserByID"  parameterType="int" resultMap="UserResult">
+        SELECT userid, loginname, password, accountnonlocked, name, link, createdate, note, groupid,roles, orderid, expireddate, lockedip,
+               lockedloginip, lastlogintime, lastloginip, allowsynlogin, failurelogin, succeedlogin
+        FROM sys_user WHERE userID = #{userID:INTEGER}
+    </select>
+    <select id="getUserByLoginname"  parameterType="string" resultMap="UserResult">
+        SELECT userid, loginname, password, accountnonlocked, name, link, createdate, note, groupid,roles, orderid, expireddate, lockedip,
+               lockedloginip, lastlogintime, lastloginip, allowsynlogin, failurelogin, succeedlogin
+        FROM sys_user WHERE loginname = #{loginname:VARCHAR}
+    </select>
     <select id="selectUser" resultMap="UserResult">
         SELECT userid, loginname, password, accountnonlocked, name, link, createdate, note, groupid,roles, orderid, expireddate, lockedip,
                lockedloginip,lastlogintime, lastloginip, allowsynlogin, failurelogin, succeedlogin

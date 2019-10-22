@@ -29,7 +29,7 @@
                     {"data": "loginName", "sClass": "center"},
                     {"data": "name", "sClass": "center", "defaultContent": ""},
                     {"data": "roles", "sClass": "center", "defaultContent": ""},
-                    {"data": "createDate", "sClass": "center"},
+                    {"data": "createDate", "sClass": "center",defaultContent:""},
                     {"data": "lastLoginTime", "sClass": "center", "defaultContent": ""},
                     {"data": "lastLoginIP", "sClass": "center", "defaultContent": ""},
                     {"data": "failureLogin", "sClass": "center", "defaultContent": ""},
@@ -441,7 +441,8 @@
                                 <select class="chosen-select" id="form-roles" data-placeholder="选择角色" name="roles" multiple>
                                     <option value=""></option>
                                     <option value="ADMIN">管理员</option>
-                                    <option value="USER">普通用户</option>
+                                    <option value="REVIEW">处方点评</option>
+                                    <option value="DOCTOR">医生</option>
                                     <option value="DEVELOP">系统开发</option>
                                     <c:if test="${user.userID<10}">
                                         <option value="DRUGDATA">用药数据</option>

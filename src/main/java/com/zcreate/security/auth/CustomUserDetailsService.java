@@ -37,12 +37,12 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("用户名不存在！");
         }
-        logger.debug("user:" + user.getUsername());
+       /* logger.debug("user:" + user.getUsername());
 
         logger.debug("User : " + user);
         logger.debug("User.isAccountNonExpired(): " + user.isAccountNonExpired());
         logger.debug("User.isAccountNonLocked(): " + user.isAccountNonLocked());
-        logger.debug("User.isCredentialsNonExpired(): " + user.isCredentialsNonExpired());
+        logger.debug("User.isCredentialsNonExpired(): " + user.isCredentialsNonExpired());*/
         //return user;
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
                 user.isEnabled(), user.isAccountNonExpired(), user.isCredentialsNonExpired(), user.isAccountNonLocked(),

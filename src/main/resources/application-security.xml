@@ -46,7 +46,7 @@
         <beans:property name="useReferer" value="true"/>
     </beans:bean>
     <beans:bean id="jdbcTokenRepository" class="org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl">
-        <beans:property name="dataSource" ref="securityDS"/>
+        <beans:property name="dataSource" ref="reviewDataSource"/>
     </beans:bean>
 
     <!-- 被认证请求向登录界面跳转采用forward方式 -->
