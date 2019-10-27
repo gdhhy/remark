@@ -52,8 +52,8 @@
     jQuery(function ($) {
         var startDate = moment().month(moment().month() - 1).startOf('month');
         var endDate = moment().month(moment().month() - 1).endOf('month');
-        var table = $.getUrlParam("table") ==null? 0:$.getUrlParam("table");
-        var url = "/sunning/statMedicine.jspa?fromDate={0}&toDate={1}&assist={2}&mental={3}&medicineNo={4}&table="+table;
+        var table = $.getUrlParam("table") == null ? 0 : $.getUrlParam("table");
+        var url = "/sunning/statMedicine.jspa?fromDate={0}&toDate={1}&assist={2}&mental={3}&medicineNo={4}&table=" + table;
 
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');
@@ -71,6 +71,8 @@
                     {"data": "patient", "sClass": "center"},
                     {"data": "amountRatio", "sClass": "center"},
                     {"data": "patientRatio", "sClass": "center"},
+                    {"data": "topDepartment", "sClass": "center"},
+                    {"data": "topDoctor", "sClass": "center"},
                     {"data": "medicineNo", "sClass": "center"}
                 ],
                 'columnDefs': [
@@ -99,8 +101,10 @@
                             return (data * 100).toFixed(3) + "%";
                         }
                     },
+                    {"orderable": false, "targets": 8, title: '排名前三科室'},
+                    {"orderable": false, "targets": 9, title: '排名前三医生'},
                     {
-                        'targets': 8, 'searchable': false, 'orderable': false, width: 110, title: '走势/科室/医生',
+                        'targets': 10, 'searchable': false, 'orderable': false, width: 110, title: '走势/科室/医生',
                         render: function (data, type, row, meta) {
                             var jsp = row['type'] === 1 ? "clinic_list.jsp" : "recipe_list.jsp";
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
@@ -120,14 +124,14 @@
                 language: {
                     url: '../components/datatables/datatables.chinese.json'
                 },
-               /* "ajax": {
-                     url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), false, false, ""),
-                    "data": function (d) {//删除多余请求参数
-                        for (var key in d)
-                            if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
-                                delete d[key];
-                    }
-                },*/
+                /* "ajax": {
+                      url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), false, false, ""),
+                     "data": function (d) {//删除多余请求参数
+                         for (var key in d)
+                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
+                                 delete d[key];
+                     }
+                 },*/
 
                 // "processing": true,
                 //"serverSide": true,

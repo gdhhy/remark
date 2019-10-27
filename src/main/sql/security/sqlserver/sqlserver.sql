@@ -25,6 +25,23 @@ CREATE TABLE sys_user
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
+
+
+set IDENTITY_INSERT sys_user on;
+insert into sys_user (userID,loginName,password,accountNonLocked,name,
+                      createDate,note,expiredDate,lockedIP,lockedLoginIP,lastLoginTime,
+                      lastLoginIP,allowSynLogin,failureLogin,succeedLogin )
+select   A.userID,A.userName,'a7bd3162f5a68d6fdab8a279fb1865c07d539f30',1,A.name,
+         A.createDate,roleName=STUFF((SELECT ','+C.name FROM rbac..Sys_UserRole B  left join rbac..Sys_Role C on B.roleID=C.roleID WHERE B.userID=A.userID FOR XML PATH('')), 1, 1, ''),
+         A.dimissionDate,A.loginIP,A.isLimitIP,A.lastLoginTime,
+         A.lastLoginIP,1,A.failureLogin,A.succeedLogin
+from rbac..Sys_User A  ;
+set IDENTITY_INSERT sys_user off;
+update  "dbo"."sys_user" set roles='REVIEW' where note like '%药剂%';
+update  "dbo"."sys_user" set roles='ADMIN' where  userid in(102);
+update  "dbo"."sys_user" set roles='DEVELOP' where  userid in(1);
+update  "dbo"."sys_user" set roles='DOCTOR' where note ='医生';
+
 INSERT INTO "dbo"."sys_user" (loginName, password, accountNonLocked, name, link, createDate, note, groupID, orderID, expiredDate, lockedIP, lockedLoginIP, lastLoginTime,
                               lastLoginIP,
                               allowSynLogin, failureLogin, succeedLogin, updateTime, roles)

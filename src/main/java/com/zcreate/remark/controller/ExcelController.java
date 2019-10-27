@@ -44,6 +44,7 @@ public class ExcelController {
     @Autowired
     private DictService dictService;
     String templateDir = "template";
+
     //药品分析（天）
     //@ResponseBody
     @RequestMapping(value = "statMedicine", method = RequestMethod.GET/*, produces = "text/html;charset=UTF-8"*/)
@@ -62,7 +63,7 @@ public class ExcelController {
             row.put("patientRatio", DataFormat.getInstance().getPercentDisplayFormat().format(row.get("patientRatio")));
         }
 
-        String[] prop = {"no", "chnName", "spec", "producer", "dealer", "quantity", "amount", "patient", "amountRatio", "patientRatio"};
+        String[] prop = {"no", "chnName", "spec", "producer", "dealer", "quantity", "amount", "patient", "amountRatio", "patientRatio", "topDepartment", "topDoctor"};
 
         HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "medicine.xls"));
 
@@ -88,8 +89,8 @@ public class ExcelController {
 
     @RequestMapping(value = "antiDrug", method = RequestMethod.GET)
     public void antiDrug(HttpServletResponse response,
-            @RequestParam(value = "quarter", required = false, defaultValue = "") String quarter,
-            @RequestParam(value = "month", required = false, defaultValue = "") String month) throws Exception {
+                         @RequestParam(value = "quarter", required = false, defaultValue = "") String quarter,
+                         @RequestParam(value = "month", required = false, defaultValue = "") String month) throws Exception {
         HashMap<String, Object> param = new HashMap<>();
         String chnPeriod = "";
         String[] prop;

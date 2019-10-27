@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Drug">
+    <cache eviction="LRU" readOnly="false" flushInterval="86400000" size="1000"/>
+    <resultMap id="RecordResult" type="com.zcreate.review.model.Drug">
+        <result column="drugID" jdbcType="INTEGER" property="drugID"/>
+        <result column="pinyin" jdbcType="VARCHAR" property="pinyin"/>
+        <result column="healthNo" jdbcType="VARCHAR" property="healthNo"/>
+        <result column="chnName" jdbcType="VARCHAR" property="chnName"/>
+        <result column="engName" jdbcType="VARCHAR" property="engName"/>
+        <result column="packUnit" jdbcType="VARCHAR" property="packUnit"/>
+        <!-- <result column="dose" jdbcType="VARCHAR" property="dose"/>-->
+        <result column="gravida" jdbcType="INTEGER" property="gravida"/>
+        <result column="lactation" jdbcType="INTEGER" property="lactation"/>
+        <result column="oldFolks" jdbcType="INTEGER" property="oldFolks"/>
+        <result column="children" jdbcType="INTEGER" property="children"/>
+        <result column="maxEffectiveDose" jdbcType="FLOAT" property="maxEffectiveDose"/>
+        <result column="maxDose" jdbcType="FLOAT" property="maxDose"/>
+        <result column="measureUnit" jdbcType="VARCHAR" property="measureUnit"/>
+        <result column="frequency" jdbcType="VARCHAR" property="frequency"/>
+        <result column="liver" jdbcType="INTEGER" property="liver"/>
+        <result column="kidney" jdbcType="INTEGER" property="kidney"/>
+        <result column="base" jdbcType="INTEGER" property="base"/>
+        <result column="general" jdbcType="INTEGER" property="general"/>
+        <result column="ddd" jdbcType="FLOAT" property="ddd"/>
+        <result column="adjuvantDrug" jdbcType="INTEGER" property="adjuvantDrug"/>
+
+        <result column="antiClass" jdbcType="INTEGER" property="antiClass"/>
+        <result column="drugtype" jdbcType="VARCHAR" property="drugtype"/>
+        <!-- <result column="instructionID" jdbcType="INTEGER" property="instructionID"/>-->
+        <result column="memo" jdbcType="VARCHAR" property="memo"/>
+        <result column="updateTime" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="updateUser" jdbcType="VARCHAR" property="updateUser"/>
+        <!--<result column="instructionName" jdbcType="VARCHAR" property="instructionName"/>-->
+        <result column="healthName" jdbcType="VARCHAR" property="healthName"/>
+        <result column="incompNum" jdbcType="INTEGER" property="incompNum"/>
+        <result column="valid" jdbcType="BOOLEAN" property="valid"/>
+        <result column="deployLocation" jdbcType="VARCHAR" property="deployLocation"/>
+        <collection property="drugDose" select="Drug.selectDrugDose" column="drugID"/>
+    </resultMap>
+    <resultMap id="DrugDoseRecord" type="com.zcreate.review.model.DrugDose">
+        <result column="drugDoseID" jdbcType="INTEGER" property="drugDoseID"/>
+        <result column="drugID" jdbcType="INTEGER" property="drugID"/>
+        <result column="route" jdbcType="VARCHAR" property="route"/>
+        <result column="dose" jdbcType="VARCHAR" property="dose"/>
+        <result column="instructionID" jdbcType="INTEGER" property="instructionID"/>
+        <result column="instructionName" jdbcType="VARCHAR" property="instructionName"/>
+        <result column="instructCount" jdbcType="INTEGER" property="instructCount"/>
+    </resultMap>
+    <sql id="queryWhere">
+        <where>
+            <if test="drugID > 0">AND drugID=#{drugID}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(live)">AND valid=1</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(chnName)">AND chnName LIKE '%${chnName}%'</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(liveChnName)">AND chnName LIKE '${liveChnName}%'</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(livePinyin)">AND pinyin LIKE '${livePinyin}%'</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(antiClass)">
+                <if test="antiClass == 0">AND antiClass>=1</if>
+                <if test="antiClass > 0">AND antiClass = #{antiClass}</if>
+            </if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(notMatchInstruction)">AND drugID in(select drugID FROM DrugDose WHERE instructionID is null )</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(matchInstruction)">AND drugID in(select drugID FROM DrugDose WHERE instructionID is not null )</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(pinyin)">AND pinyin=#{pinyin}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(healthNo)">AND healthNo=#{healthNo}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(engName)">AND engName=#{engName}</if>
+            <if test="hasInteract > 0">AND drugID in (select drugID from tmpIncompatibility where num>0)</if>
+            <if test="linkMe > 0">AND drugID in (SELECT matchDrugID FROM medicine where matchDrugID>0)</if>
+        </where>
+    </sql>
+    <select id="selectDrug" parameterType="int" resultMap="RecordResult" useCache="false">
+        SELECT drugID,pinyin,healthNo,chnName,engName,packUnit,gravida,lactation,oldFolks,children,maxEffectiveDose,maxDose,measureUnit,frequency,
+               liver,kidney,base,general,ddd,adjuvantDrug,antiClass,drugtype,memo,updateTime,updateUser,valid,deployLocation
+        FROM Drug
+        WHERE drugID = #{drugID:INTEGER}
+    </select>
+    <select id="queryDrug" parameterType="java.util.Map" resultMap="RecordResult" useCache="false">
+        SELECT distinct D.*, H.chnName healthName,T.num incompNum FROM
+        ( SELECT TOP ${limit} drugID,pinyin,healthNo,rtrim(chnName) chnName,engName,packUnit,gravida,lactation,oldFolks,children,maxEffectiveDose,maxDose,
+        measureUnit,frequency,liver,kidney,base,general,ddd,adjuvantDrug,antiClass,drugtype,memo,updateTime,updateUser,valid,deployLocation FROM
+        (SELECT * FROM Drug
+        <include refid="queryWhere"/>
+        ) A
+        <if test="start != null  and start > 0">
+            WHERE ${orderField} &lt; ( SELECT min(${orderField}) FROM (SELECT TOP ${start} ${orderField} FROM Drug
+            <include refid="queryWhere"/>
+            ORDER BY ${orderField} DESC)AS T)
+        </if>
+        ORDER BY ${orderField} DESC ) D
+        LEFT JOIN Health H ON H.healthNo=D.healthNo
+        LEFT JOIN tmpIncompatibility T ON T.drugID=D.drugID
+        ORDER BY D.${orderField} DESC
+    </select>
+    <select id="queryDrugCount" parameterType="java.util.Map" resultType="int">
+        SELECT count(drugID) FROM Drug
+        <include refid="queryWhere"/>
+    </select>
+    <insert id="insertDrug" parameterType="com.zcreate.review.model.Drug" flushCache="true">
+        INSERT INTO Drug (pinyin,healthNo,chnName,engName,packUnit,gravida,lactation,oldFolks,children,maxEffectiveDose,maxDose,
+        measureUnit,frequency,liver,kidney,base,general,ddd,adjuvantDrug,antiClass,drugtype,memo,valid,deployLocation)
+        VALUES (#{pinyin:VARCHAR}, #{healthNo:VARCHAR}, #{chnName:VARCHAR}, #{engName:VARCHAR}, #{packUnit:VARCHAR},
+        #{gravida:INTEGER}, #{lactation:INTEGER}, #{oldFolks:INTEGER}, #{children:INTEGER}, #{maxEffectiveDose:FLOAT}, #{maxDose:FLOAT},
+        #{measureUnit:VARCHAR}, #{frequency:VARCHAR}, #{liver:INTEGER}, #{kidney:INTEGER}, #{base:INTEGER}, #{general:INTEGER}, #{ddd:FLOAT},
+        #{adjuvantDrug:INTEGER}, #{antiClass:INTEGER}, #{drugtype:VARCHAR}, #{memo:VARCHAR}, 1, #{deployLocation:VARCHAR})
+        <selectKey resultType="int" order="AFTER" keyProperty="drugID">
+            SELECT @@IDENTITY AS drugID
+        </selectKey>
+    </insert>
+    <update id="updateDrugByPrimaryKeySelective" parameterType="com.zcreate.review.model.Drug" flushCache="true">
+        UPDATE Drug
+        <set>
+            updateTime = getdate(),
+            <if test="pinyin != null">pinyin = #{pinyin:VARCHAR},</if>
+            <if test="healthNo != null">healthNo = #{healthNo:VARCHAR},</if>
+            <if test="chnName != null">chnName = #{chnName:VARCHAR},</if>
+            <if test="engName != null">engName = #{engName:VARCHAR},</if>
+            <if test="packUnit != null">packUnit = #{packUnit:VARCHAR},</if>
+            <if test="gravida != null">gravida = #{gravida:INTEGER},</if>
+            <if test="lactation != null">lactation = #{lactation:INTEGER},</if>
+            <if test="oldFolks != null">oldFolks = #{oldFolks:INTEGER},</if>
+            <if test="children != null">children = #{children:INTEGER},</if>
+            <if test="maxEffectiveDose != null">maxEffectiveDose = #{maxEffectiveDose:FLOAT},</if>
+            <if test="maxDose != null">maxDose = #{maxDose:FLOAT},</if>
+            <if test="measureUnit != null">measureUnit = #{measureUnit:VARCHAR},</if>
+            <if test="frequency != null">frequency = #{frequency:VARCHAR},</if>
+            <if test="liver != null">liver = #{liver:INTEGER},</if>
+            <if test="kidney != null">kidney = #{kidney:INTEGER},</if>
+            <if test="base != null">base = #{base:INTEGER},</if>
+            <if test="general != null">general = #{general:INTEGER},</if>
+            <if test="ddd != null">ddd = #{ddd:FLOAT},</if>
+            <if test="adjuvantDrug != null">adjuvantDrug = #{adjuvantDrug:INTEGER},</if>
+            <if test="antiClass != null">antiClass = #{antiClass:INTEGER},</if>
+            <if test="drugtype != null">drugtype = #{drugtype:VARCHAR},</if>
+            <if test="memo != null">memo = #{memo:VARCHAR},</if>
+            <if test="updateUser != null">updateUser = #{updateUser:VARCHAR},</if>
+        </set>
+        WHERE drugID = #{drugID:INTEGER}
+    </update>
+    <delete id="deleteDrug" parameterType="int" flushCache="true">
+        DELETE
+        FROM Drug
+        WHERE drugID = #{drugID}
+    </delete>
+    <update id="invalidDrug" parameterType="int" flushCache="true">
+        UPDATE Drug
+        set valid=0
+        WHERE drugID = #{drugID}
+    </update>
+    <update id="restoreDrug" parameterType="int" flushCache="true">
+        UPDATE Drug
+        set valid=1
+        WHERE drugID = #{drugID}
+    </update>
+    <!--Incompatibility move from Incompatibility.xml -->
+    <sql id="queryWhere3">
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(drugID)">AND drugID=#{drugID}</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(chnName)">AND chnName=#{chnName}</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(liveChnName)">AND chnName LIKE '${liveChnName}%'</if>
+    </sql>
+    <insert id="createTmpIncompatibility" flushCache="true">
+        INSERT INTO tmpIncompatibility(drugID, chnName, dose, num)
+        SELECT M.drugID,
+               M.chnName,
+               M.dose,
+               CASE
+                   WHEN A.num IS NOT null THEN A.num
+                   ELSE 0 END num
+        FROM (
+                 SELECT drugID,
+                        count(u.actionDrugID) num
+                 FROM (
+                          SELECT M.drugID,
+                                 A.drugID2 actionDrugID
+                          FROM Drug M
+                                   INNER JOIN incompatibility A ON M.drugID = A.drugID1
+                          WHERE drugID2 IN (SELECT drugID FROM Drug)
+                          UNION
+                          SELECT M.drugID,
+                                 A.drugID1 actionDrugID
+                          FROM Drug M
+                                   INNER JOIN incompatibility A ON M.drugID = A.drugID2
+                          WHERE drugID1 IN (SELECT drugID FROM Drug)) U
+                 GROUP BY drugID
+             ) A
+                 RIGHT JOIN Drug M ON A.drugID = M.drugID
+        ORDER BY M.drugID DESC
+    </insert>
+    <update id="truncateTmpIncompatibility">
+        TRUNCATE TABLE tmpIncompatibility
+    </update>
+    <select id="queryIncompatibilityList" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT TOP ${limit} * FROM tmpIncompatibility WHERE drugID IN(SELECT drugID FROM Drug ) and num>0
+        <include refid="queryWhere3"/>
+        <if test="start!=null and start > 0">
+            AND drugID &lt; ( SELECT min(drugID) FROM (SELECT TOP ${start} drugID FROM tmpIncompatibility WHERE drugID IN(SELECT drugID FROM Drug) and num>0
+            <include refid="queryWhere3"/>
+            ORDER BY drugID DESC ) A)
+        </if>
+        ORDER BY drugID DESC
+    </select>
+    <select id="queryIncompatibilityCount" parameterType="java.util.Map" resultType="int">
+        SELECT count(*) FROM tmpIncompatibility WHERE drugID IN(SELECT drugID FROM Drug ) and num>0
+        <include refid="queryWhere3"/>
+    </select>
+    <select id="selectIncompatibilityByDrugID" parameterType="int" resultType="java.util.HashMap">
+        SELECT A.incompatibilityID,
+               A.drugID1,
+               M1.chnName chnName1,
+               A.drugID2,
+               M2.chnName chnName2,
+               A.level,
+               A.inBody,
+               A.result,
+               A.mechanism,
+               A.source,
+               A.updateTime,
+               A.warning
+        FROM Incompatibility A
+                 INNER JOIN Drug M1 ON M1.drugID = A.drugID1
+                 INNER JOIN Drug M2 ON M2.drugID = A.drugID2
+        WHERE M1.drugID = #{drugID}
+           OR M2.drugID = #{drugID}
+    </select>
+    <insert id="insertIncompatibility" parameterType="com.zcreate.review.model.Incompatibility" flushCache="true">
+        INSERT INTO Incompatibility (drugID1, drugID2, level, inBody, result, mechanism, source, warning)
+        VALUES (#{drugID1:VARCHAR}, #{drugID2:VARCHAR}, #{level:VARCHAR}, #{inBody:VARCHAR}, #{result:VARCHAR}, #{mechanism:VARCHAR}, #{source:VARCHAR}, #{warning:INTEGER})
+    </insert>
+    <update id="updateIncompatibility" parameterType="com.zcreate.review.model.Incompatibility" flushCache="true">
+        UPDATE Incompatibility
+        <set>
+            updateTime = getdate(),
+            <if test="drugID1 != null">drugID1 = #{drugID1:VARCHAR},</if>
+            <if test="drugID2 != null">drugID2 = #{drugID2:VARCHAR},</if>
+            <if test="level != null">LEVEL = #{level:VARCHAR},</if>
+            <if test="inBody != null">inBody = #{inBody:VARCHAR},</if>
+            <if test="result != null">result = #{result:VARCHAR},</if>
+            <if test="mechanism != null">mechanism = #{mechanism:VARCHAR},</if>
+            <if test="source != null">SOURCE = #{source:VARCHAR},</if>
+            <if test="warning != null">warning = #{warning:INTEGER},</if>
+        </set>
+        WHERE incompatibilityID = #{incompatibilityID:INTEGER}
+    </update>
+    <delete id="deleteIncompatibility" parameterType="int" flushCache="true">
+        DELETE
+        FROM Incompatibility
+        WHERE incompatibilityID = #{incompatibilityID}
+    </delete>
+    <select id="queryByClinicID"  parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT I.incompatibilityID,
+               I.result,
+               M1.rxDetailID     itemID1,
+               M2.rxDetailID     itemID2,
+               rtrim(M1.chnName) medicineName1,
+               rtrim(M2.chnName) medicineName2
+        FROM Incompatibility I,
+             (SELECT R.clinicID, R.rxDetailID, R.medicineNo, M.chnName, M.matchDrugID
+              FROM ${RxDetailTable} R,
+                   Medicine M
+              WHERE R.medicineNo = M.medicineNo
+                AND R.clinicID = #{clinicID:INTEGER}) M1,
+             (SELECT R.clinicID, R.rxDetailID, R.medicineNo, M.chnName, M.matchDrugID
+              FROM ${RxDetailTable} R,
+                   Medicine M
+              WHERE R.medicineNo = M.medicineNo
+                AND R.clinicID = #{clinicID:INTEGER}) M2
+        WHERE I.drugID1 = M1.matchDrugID
+          AND I.drugID2 = M2.matchDrugID
+    </select>
+    <select id="queryBySerialNo"  parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT I.incompatibilityID,
+               P.result,
+               I.itemID1,
+               I.itemID2,
+               rtrim(M1.chnName) medicineName1,
+               rtrim(M2.chnName) medicineName2
+        FROM RxIncompatibility I,
+             Incompatibility P,
+             (SELECT R.serialNo, R.recipeItemID, R.medicineNo, M.chnName, M.matchDrugID
+              FROM ${RecipeItemTable} R,
+                   Medicine M
+              WHERE R.medicineNo = M.medicineNo
+                AND R.serialNo = #{serialNo:VARCHAR}) M1,
+             (SELECT R.serialNo, R.recipeItemID, R.medicineNo, M.chnName, M.matchDrugID
+              FROM ${RecipeItemTable}  R,
+                   Medicine M
+              WHERE R.medicineNo = M.medicineNo
+                AND R.serialNo = #{serialNo:VARCHAR}) M2
+        WHERE I.itemID1 = M1.recipeItemID
+          AND I.itemID2 = M2.recipeItemID
+          AND P.incompatibilityID = I.incompatibilityID
+    </select>
+    <sql id="queryWhere2">
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(clinicDateFrom)">
+            AND D.clinicDate >= #{clinicDateFrom:VARCHAR}
+        </if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(clinicDateTo)">
+            AND D.clinicDate &lt; #{clinicDateTo:TIMESTAMP}
+        </if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(recipeDateFrom)">
+            AND I.objectID IN (SELECT DISTINCT serialNo FROM ${RecipeItemTable}  WHERE recipeDate >= #{recipeDateFrom:VARCHAR}
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(recipeDateTo)">
+                AND recipeDate &lt; #{recipeDateTo:TIMESTAMP}
+            </if>)
+        </if>
+
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(drugID)">
+            AND I.incompatibilityID IN(SELECT DISTINCT incompatibilityID FROM Incompatibility WHERE
+            drugID1 IN(SELECT matchDrugID FROM Medicine WHERE medicineNo=#{drugID:VARCHAR}) OR
+            drugID2 IN(SELECT matchDrugID FROM Medicine WHERE medicineNo=#{drugID:VARCHAR}) )
+        </if>
+    </sql>
+    <!--分页没有标识id，做不到，一次新读入-->
+    <select id="queryHasInterClinic" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT A.incompatibilityID,I.result,I.level,I.inBody, rtrim(M1.chnName) chnName1, rtrim(M2.chnName) chnName2,A.num ,A.useNum,i.warning
+        FROM incompatibility I
+        LEFT JOIN Drug M1 ON M1.drugID=I.drugID1 LEFT JOIN Drug M2 ON M2.drugID=I.drugID2,
+        (SELECT incompatibilityID,count(DISTINCT I.objectID) num,count(I.objectID) useNum FROM Clinic D,RxIncompatibility I WHERE D.clinicID=I.objectID AND I.type=1
+        <include refid="queryWhere2"/>
+        GROUP BY incompatibilityID) A
+        WHERE I.incompatibilityID=A.incompatibilityID ORDER BY A.num DESC
+    </select>
+    <!--分页没有标识id，做不到，一次新读入-->
+    <select id="queryHasInterRecipe" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT A.incompatibilityID,I.result,I.level,I.inBody, rtrim(M1.chnName) chnName1, rtrim(M2.chnName) chnName2,A.num,A.useNum,i.warning
+        FROM incompatibility I
+        LEFT JOIN Drug M1 ON M1.drugID=I.drugID1 LEFT JOIN Drug M2 ON M2.drugID=I.drugID2,
+        (SELECT incompatibilityID,count(DISTINCT I.objectID) num,count(I.objectID) useNum FROM Recipe D,RxIncompatibility I WHERE D.serialNo=I.objectID AND I.type=2
+        <include refid="queryWhere2"/>
+        GROUP BY incompatibilityID) A
+        WHERE I.incompatibilityID=A.incompatibilityID ORDER BY A.num DESC
+    </select>
+    <select id="getIncompatibility" parameterType="int" resultType="java.util.HashMap">
+        SELECT I.*,
+               rtrim(M1.chnName) chnName1,
+               rtrim(M2.chnName) chnName2
+        FROM incompatibility I
+                 LEFT JOIN Drug M1 ON I.drugID1 = M1.drugID
+                 LEFT JOIN Drug M2 ON I.drugID2 = M2.drugID
+        WHERE incompatibilityID = #{incompatibilityID}
+    </select>
+    <!-- DrugDose-->
+    <insert id="insertDrugDose" parameterType="com.zcreate.review.model.DrugDose">
+        INSERT INTO DrugDose (drugID,route,dose,instructionID,instructionName)
+        values(#{drugID:INTEGER},#{route:VARCHAR},#{dose:VARCHAR},#{instructionID:INTEGER},#{instructionName:VARCHAR})
+        <selectKey resultType="int" order="AFTER" keyProperty="drugID">
+            SELECT @@IDENTITY AS drugDoseID
+        </selectKey>
+    </insert>
+    <update id="updateDrugDose" parameterType="com.zcreate.review.model.DrugDose">
+        UPDATE DrugDose
+        <set>
+            <if test="drugID != null">drugID = #{drugID:INTEGER},</if>
+            <if test="dose != null">dose = #{dose:VARCHAR},</if>
+            <if test="route != null">route = #{route:VARCHAR},</if>
+            <if test="instructionID != null">instructionID = #{instructionID:INTEGER},</if>
+            <if test="instructionName != null">instructionName = #{instructionName:VARCHAR},</if>
+        </set>
+        WHERE drugDoseID = #{drugDoseID:INTEGER}
+    </update>
+    <delete id="deleteDrugDose" parameterType="int" flushCache="true">
+        DELETE
+        FROM DrugDose
+        WHERE drugDoseID = #{drugDoseID}
+    </delete>
+    <select id="selectDrugDose" resultMap="DrugDoseRecord" parameterType="int">
+        SELECT A.drugDoseID, A.drugID, A.route, A.dose, A.instructionID, C.chnName intructionName, B.cc instructCount
+        from   DrugDose A ,Instruction C ,(	select  generalInstrID,count(generalInstrID) cc from Instruction where  hasInstruction=1 group by generalInstrID)B
+        where A.InstructionID=C.instructionID and C.generalInstrID=B.generalInstrID
+        and  A.drugID = #{drugID:INTEGER}
+    </select>
+    <!--alter table DrugDose add instructCount int default 0;
+	update DrugDose set instructCount=0;
+		update DrugDose  set instructCount=B.cc
+	from   DrugDose A ,Instruction C ,(	select  generalInstrID,count(generalInstrID) cc from Instruction where  hasInstruction=1 group by generalInstrID)B
+	where A.InstructionID=C.instructionID and C.generalInstrID=B.generalInstrID-->
+</mapper>

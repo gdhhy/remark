@@ -67,9 +67,15 @@
     <!--todo 翁源Medicine.goodsID 有null值，需要查找原因，否则统计误差大-->
     <!--WHEN len(T.dispensingNo)>=10 THEN-->
     <select id="statByMedicine" parameterType="java.util.Map" resultType="java.util.HashMap">
-        SELECT M.medicineNo,M.no,M.chnName,M.spec,M.producer,M.dealer,A.amount,A.patient,A.quantity FROM Medicine M,
+        SELECT M.medicineNo,M.no,M.chnName,M.spec,M.producer,M.dealer,A.amount,A.patient,A.quantity,A.topDepartment,A.topDoctor FROM Medicine M,
         (SELECT T.goodsID,sum(T.amount) amount,sum(T.quantity) quantity,
-        count(DISTINCT CASE WHEN len(T.dispensingNo) &lt; 10 THEN T.invoiceNo ELSE T.dispensingNo END) patient
+        count(DISTINCT CASE WHEN len(T.dispensingNo) &lt; 10 THEN T.invoiceNo ELSE T.dispensingNo END) patient,
+        stuff((select top 3 ','+department from  ${DrugRecordsTable}   where  dispensingDate >=  #{fromDate:TIMESTAMP}
+                AND  dispensingDate &lt;  #{toDate:TIMESTAMP} and  goodsID=T.goodsID
+        group by department order by sum(amount) desc FOR XML PATH('')), 1, 1, '') topDepartment,
+        stuff((select top 3 ','+doctorName from  ${DrugRecordsTable}   where  dispensingDate >=  #{fromDate:TIMESTAMP}
+                AND  dispensingDate &lt;  #{toDate:TIMESTAMP} and  goodsID=T.goodsID
+        group by  doctorName order by sum(amount) desc FOR XML PATH('')), 1, 1, '') topDoctor
         FROM ${DrugRecordsTable} T LEFT JOIN rbac..Dict R ON R.name=T.department AND R.parentID=108
         <include refid="queryWhere"/>
         GROUP BY goodsID) A

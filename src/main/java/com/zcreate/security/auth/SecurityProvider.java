@@ -36,9 +36,9 @@ public class SecurityProvider implements AuthenticationProvider {
         logger.debug("authentication:"+ ((WebAuthenticationDetails)authentication.getDetails()).getRemoteAddress());*/
         param.put("loginname", authentication.getName());
         User user = userMapper.getUser(param);
-       /* if (user == null) {
+        if (user == null) {
             throw new UsernameNotFoundException("用户名不存在");
-        }*/
+        }
         if (user.getFailureLogin() > 4) {
             user.setFailureLogin(user.getFailureLogin() + 1);
             userMapper.loginUpdateUser(user);

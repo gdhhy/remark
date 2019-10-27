@@ -247,10 +247,10 @@ public class SampleController {
 
     @ResponseBody //带这个返回json，不带返回jsp视图
     @RequestMapping(value = "getRecipeItemList", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
-    public String getRecipeItemList(@RequestParam(value = "serialNo") String serialNo,
+    public String getRecipeItemList(@RequestParam(value = "serialNo") String serialNo,@RequestParam(value = "year") String year,
                                     @RequestParam(value = "longAdvice", defaultValue = "1") int longAdvice) {
         //      log.debug("getRecipeItemList");
-        List<RecipeItem> adviceList = reviewService.getRecipeItemList(serialNo, longAdvice);
+        List<RecipeItem> adviceList = reviewService.getRecipeItemList(serialNo, longAdvice,year);
 //   log.debug("getRecipeItemList2");
         return wrap(adviceList);
     }
