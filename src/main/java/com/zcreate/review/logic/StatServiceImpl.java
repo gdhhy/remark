@@ -81,7 +81,6 @@ public class StatServiceImpl implements StatService {
     }
 
 
-
     public List<HashMap<String, Object>> getMedicineByHealthNo(String fromDate, String toDate, String healthNo,
                                                                String department, int type) {
         HashMap<String, Object> param = produceMap(fromDate, toDate, department, type);
@@ -93,7 +92,7 @@ public class StatServiceImpl implements StatService {
     }
 
     public List<HashMap<String, Object>> statByHealthNo(int start, int limit, String fromDate, String toDate,
-                                                        String healthNo, String medicineNo, String department, int type, boolean assist, boolean mental) {
+                                                        String healthNo, String medicineNo, String department, int type, boolean top3, String special) {
         HashMap<String, Object> param = produceMap(fromDate, toDate, department, type);
         param.put("start", start);
         param.put("limit", limit);
@@ -104,14 +103,23 @@ public class StatServiceImpl implements StatService {
         else
             param.put("likeMedicineName", medicineNo);
 
-        param.put("assist", assist);
-        param.put("mental", mental);
+        if ("assist".equals(special))
+            param.put("assist", true);
+        if ("mental".equals(special))
+            param.put("mental", true);
+        if ("base1".equals(special))
+            param.put("baseType", 1);
+        if ("base2".equals(special))
+            param.put("base", 2);
+        if ("base3".equals(special))
+            param.put("base", 3);
+        param.put("top3", top3);
         List<HashMap<String, Object>> result;
         /*if ((department == null || "".equals(department)) && type <= 0)//无科室、全院
             result = statDao.dailyMedicine(param); //分页取
         else*/
         result = drugRecordsMapper.statByMedicine(param); //取全部
-        logger.debug("result.size()=" + result.size());
+        //logger.debug("result.size()=" + result.size());
         param.remove("likeHealthNo");
         param.remove("assist");
         param.remove("mental");

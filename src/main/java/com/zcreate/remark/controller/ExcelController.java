@@ -33,10 +33,10 @@ import java.util.regex.Pattern;
 @RequestMapping("/excel")
 public class ExcelController {
     private static Logger logger = LoggerFactory.getLogger(SunningController.class);
-    @Autowired
-    private StatDAO statDao;
-    @Autowired
-    private DailyDAO dailyDao;
+    /* @Autowired
+     private StatDAO statDao;
+     @Autowired
+     private DailyDAO dailyDao;*/
     @Autowired
     private StatService statService;
     @Autowired
@@ -53,17 +53,17 @@ public class ExcelController {
             @RequestParam(value = "medicineNo", required = false, defaultValue = "") String medicineNo,
             @RequestParam(value = "department", required = false, defaultValue = "") String department,
             @RequestParam(value = "healthNo", required = false, defaultValue = "") String healthNo,
+            @RequestParam(value = "special", required = false, defaultValue = "") String special,
+            @RequestParam(value = "top3", required = false, defaultValue = "false") Boolean top3,
             @RequestParam(value = "fromDate") String fromDate,
             @RequestParam(value = "toDate") String toDate,
             @RequestParam(value = "type", required = false, defaultValue = "-1") Integer type) throws Exception {
-
-
-        List<HashMap<String, Object>> result = statService.statByHealthNo(0, 3000, fromDate, toDate, healthNo, medicineNo, department, type, false, false);
+        List<HashMap<String, Object>> result = statService.statByHealthNo(0, 3000, fromDate, toDate, healthNo, medicineNo, department, type, top3, special);
         for (HashMap<String, Object> row : result) {
             row.put("patientRatio", DataFormat.getInstance().getPercentDisplayFormat().format(row.get("patientRatio")));
         }
 
-        String[] prop = {"no", "chnName", "spec", "producer", "dealer", "quantity", "amount", "patient", "amountRatio", "patientRatio", "topDepartment", "topDoctor"};
+        String[] prop = {"no", "chnName", "spec", "dose", "base", "minUnit", "minOfpack", "producer", "dealer", "quantity", "amount", "patient", "amountRatio", "patientRatio", "topDepartment", "topDoctor"};
 
         HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "medicine.xls"));
 

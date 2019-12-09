@@ -53,12 +53,12 @@
         var startDate = moment().month(moment().month() - 1).startOf('month');
         var endDate = moment().month(moment().month() - 1).endOf('month');
         var table = $.getUrlParam("table") == null ? 0 : $.getUrlParam("table");
-        var url = "/sunning/statMedicine.jspa?fromDate={0}&toDate={1}&assist={2}&mental={3}&medicineNo={4}&table=" + table;
-
+        var url = "/sunning/statMedicine.jspa?fromDate={0}&toDate={1}&top3={2}&special={3}&medicineNo={4}&table=" + table;
+        var baseChn = ["", "基药", "国基", "省基"];
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');
         var myTable = dynamicTable
-        //.wrap("<div class='dataTables_borderWrap' />") //if you are applying horizontal scrolling (sScrollX)
+            //.wrap("<div class='dataTables_borderWrap' />") //if you are applying horizontal scrolling (sScrollX)
             .DataTable({
                 bAutoWidth: false,
                 bProcessing: true,
@@ -66,13 +66,15 @@
                     {"data": "medicineNo", "sClass": "center"},
                     {"data": "chnName", "sClass": "center"},
                     {"data": "spec", "sClass": "center"},
+                    {"data": "base", "sClass": "center"},
+                    {"data": "minOfpack", "sClass": "center", defaultContent: ''},
                     {"data": "quantity", "sClass": "center"},
                     {"data": "amount", "sClass": "center"},//4
                     {"data": "patient", "sClass": "center"},
                     {"data": "amountRatio", "sClass": "center"},
                     {"data": "patientRatio", "sClass": "center"},
-                    {"data": "topDepartment", "sClass": "center"},
-                    {"data": "topDoctor", "sClass": "center"},
+                    {"data": "topDepartment", "sClass": "center", defaultContent: ''},
+                    {"data": "topDoctor", "sClass": "center", defaultContent: ''},
                     {"data": "medicineNo", "sClass": "center"}
                 ],
                 'columnDefs': [
@@ -83,28 +85,35 @@
                     },
                     {"orderable": false, "targets": 1, title: '药品名称'},
                     {"orderable": false, "targets": 2, title: '规格'},
-                    {"orderable": false, "targets": 3, title: '数量'},
                     {
-                        "orderable": false, "targets": 4, title: '金额', render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 3, title: '基药'/*, render: function (data, type, row, meta) {
+                            if (data >= 0 && data <= 3) return baseChn[data];
+                            return "";
+                        }*/
+                    },
+                    {"orderable": false, "targets": 4, title: '包装转换比'},
+                    {"orderable": false, "targets": 5, title: '数量'},
+                    {
+                        "orderable": false, "targets": 6, title: '金额', render: function (data, type, row, meta) {
                             if (data === "-") return "未授权";
                             return data.toFixed(2);
                         }
                     },
-                    {"orderable": false, "targets": 5, title: '病人数'},
+                    {"orderable": false, "targets": 7, title: '病人数'},
                     {
-                        "orderable": false, "targets": 6, title: '金额占全院', render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 8, title: '金额占全院', render: function (data, type, row, meta) {
                             return (data * 100).toFixed(3) + "%";
                         }
                     },
                     {
-                        "orderable": false, "targets": 7, title: '病人占全院', render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 9, title: '病人占全院', render: function (data, type, row, meta) {
                             return (data * 100).toFixed(3) + "%";
                         }
                     },
-                    {"orderable": false, "targets": 8, title: '排名前三科室'},
-                    {"orderable": false, "targets": 9, title: '排名前三医生'},
+                    {"orderable": false, "targets": 10, title: '排名前三科室'},
+                    {"orderable": false, "targets": 11, title: '排名前三医生'},
                     {
-                        'targets': 10, 'searchable': false, 'orderable': false, width: 110, title: '走势/科室/医生',
+                        'targets': 12, 'searchable': false, 'orderable': false, width: 110, title: '走势/科室/医生',
                         render: function (data, type, row, meta) {
                             var jsp = row['type'] === 1 ? "clinic_list.jsp" : "recipe_list.jsp";
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
@@ -124,17 +133,17 @@
                 language: {
                     url: '../components/datatables/datatables.chinese.json'
                 },
-                /* "ajax": {
-                      url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), false, false, ""),
-                     "data": function (d) {//删除多余请求参数
-                         for (var key in d)
-                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
-                                 delete d[key];
-                     }
-                 },*/
+                "ajax": {
+                    url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), false, '', ""),
+                    "data": function (d) {//删除多余请求参数
+                        for (var key in d)
+                            if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
+                                delete d[key];
+                    }
+                },
 
                 // "processing": true,
-                //"serverSide": true,
+                "serverSide": true,
                 select: {
                     style: 'single'
                 }
@@ -189,18 +198,22 @@
         }
 
         $('.btn-success').click(function () {
-            var mental = $('#mental').is(':checked');
-            var assist = $('#assist').is(':checked');
+            var special = $('#special').val();
+            var top3 = $('#top3').is(':checked');
             var medicineNo = $('#form-medicineNo').val();
             // console.log("medicine:" + medicineNo);
-            //console.log('url=' + url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), assist, mental, medicineNo));
+            //console.log('url=' + url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), top3, mental, medicineNo));
             if (startDate.year() !== endDate.year())
                 showDialog("日期错误", "查询日期不能跨年！");
             else
-                myTable.ajax.url(url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), assist, mental, medicineNo)).load();
+                myTable.ajax.url(url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), top3, special, medicineNo)).load();
         });
         $('.btn-info').click(function () {
-            window.location.href = "/excel/statMedicine.jspa?fromDate={0}&toDate={1}".format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"));
+            var special = $('#special').val();
+            var top3 = $('#top3').is(':checked');
+            var medicineNo = $('#form-medicineNo').val();
+            window.location.href = "/excel/statMedicine.jspa?fromDate={0}&toDate={1}&top3={2}&special={3}&medicineNo={4}"
+                .format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), top3, special, medicineNo);
         });
         //https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
         $('#form-medicine').typeahead({hint: true},
@@ -384,15 +397,27 @@
                        data-date-format="YYYY-MM-DD"/>
                 <span class="input-group-addon"><i class="fa fa-calendar bigger-100"></i></span>
             </div>&nbsp;&nbsp;&nbsp;
-
-            辅助：
+            <label>选项：</label>
+            <select class="chosen-select form-control" id="special" data-placeholder="选择职业">
+                <option value="all">全部</option>
+                <option value="base1">基药</option>
+                <option value="base2">国基</option>
+                <option value="base3">省基</option>
+                <option value="assist">辅助</option>
+                <option value="mental">精神</option>
+            </select>&nbsp;&nbsp;&nbsp;
+            <%--  辅助：
+              <div class="input-group">
+                  <input type="checkbox" id="assist">&nbsp;&nbsp;&nbsp;
+              </div>
+              精神：
+              <div class="input-group">
+                  <input type="checkbox" id="mental">&nbsp;&nbsp;&nbsp;
+              </div>--%>
+            <label>前三：</label>
             <div class="input-group">
-                <input type="checkbox" id="assist">&nbsp;&nbsp;&nbsp;
-            </div>
-            精神：
-            <div class="input-group">
-                <input type="checkbox" id="mental">&nbsp;&nbsp;&nbsp;
-            </div>
+                <input type="checkbox" id="top3">&nbsp;&nbsp;&nbsp;
+            </div>&nbsp;&nbsp;&nbsp;
 
             <button type="button" class="btn btn-sm btn-success">
                 查询

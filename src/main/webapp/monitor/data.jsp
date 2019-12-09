@@ -35,15 +35,18 @@
                     {"data": "monitorID", "sClass": "center"},
                     {"data": "dataDate", "sClass": "center", orderable: false},
                     {"data": "clinicCount", "sClass": "center", orderable: false},
-                    {"data": "rxDetailCount", "sClass": "center", orderable: false},
-                    {"data": "rxCount", "sClass": "center", orderable: false},//4
-                    {"data": "lydCount", "sClass": "center", orderable: false},
-                    {"data": "lydmxCount", "sClass": "center", orderable: false},
-                    {"data": "recipeCount", "sClass": "center", orderable: false},
-                    {"data": "recipeItemCount", "sClass": "center", orderable: false},
-                    {"data": "doctorCount", "sClass": "center", orderable: false},//9
+                    {"data": "rxDetailCount", "sClass": "center", orderable: false,defaultContent:''},
+                    {"data": "rxDetailYearCount", "sClass": "center", orderable: false,defaultContent:''},//4
+                    {"data": "rxCount", "sClass": "center", orderable: false},
+                    {"data": "lydCount", "sClass": "center", orderable: false,defaultContent:''},
+                    {"data": "lydmxCount", "sClass": "center", orderable: false,defaultContent:''},
+                    {"data": "drugRecordsCount", "sClass": "center", orderable: false,defaultContent:''},
+                    {"data": "recipeCount", "sClass": "center", orderable: false},//9
+                    {"data": "recipeItemCount", "sClass": "center", orderable: false,defaultContent:''},
+                    {"data": "recipeItemYearCount", "sClass": "center", orderable: false,defaultContent:''},
+                    {"data": "doctorCount", "sClass": "center", orderable: false},
                     {"data": "medicineCount", "sClass": "center", orderable: false},
-                    {"data": "surgeryCount", "sClass": "center", orderable: false},
+                    {"data": "surgeryCount", "sClass": "center", orderable: false},//14
                     {"data": "updateTime", "sClass": "center", orderable: false},
                     {"data": "dataDate", "sClass": "center", orderable: false},
                 ],
@@ -159,6 +162,9 @@
         }, function (start, end, label) {
             startDate = start;
             endDate = end;
+        }).css("min-width", "210px").next("i").click(function () {
+            // 对日期的i标签增加click事件，使其在鼠标点击时可以拉出日期选择
+            $(this).parent().find('input').click();
         }).next().on(ace.click_event, function () {
             $(this).prev().focus();
         });
@@ -372,11 +378,14 @@
                             <th style="text-align: center">数据日期</th>
                             <th style="text-align: center">处方</th>
                             <th style="text-align: center">处方明细</th>
+                            <th style="text-align: center">处方年明细</th>
                             <th style="text-align: center">原始处方</th>
                             <th style="text-align: center">药房领用单</th>
                             <th style="text-align: center">药房明细</th>
+                            <th style="text-align: center">药房年明细</th>
                             <th style="text-align: center">出院病人</th>
                             <th style="text-align: center">住院医嘱</th>
+                            <th style="text-align: center">住院年医嘱</th>
                             <th style="text-align: center">医生</th>
                             <th style="text-align: center">药品</th>
                             <th style="text-align: center">手术数</th>

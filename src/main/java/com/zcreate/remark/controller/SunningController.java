@@ -127,9 +127,11 @@ public class SunningController {
             @RequestParam(value = "fromDate") String fromDate,
             @RequestParam(value = "toDate") String toDate,
             @RequestParam(value = "type", required = false, defaultValue = "-1") Integer type,
-            @RequestParam(value = "table", required = false, defaultValue = "0") Integer table,
-            @RequestParam(value = "mental", required = false, defaultValue = "false") Boolean mental,
-            @RequestParam(value = "assist", required = false, defaultValue = "false") Boolean assist,
+            //@RequestParam(value = "table", required = false, defaultValue = "0") Integer table,
+            @RequestParam(value = "special", required = false, defaultValue = "") String special,
+            @RequestParam(value = "top3", required = false, defaultValue = "false") Boolean top3,
+          /*  @RequestParam(value = "mental", required = false, defaultValue = "false") Boolean mental,
+            @RequestParam(value = "assist", required = false, defaultValue = "false") Boolean assist,*/
             @RequestParam(value = "draw", required = false) Integer draw,
             @RequestParam(value = "start", required = false, defaultValue = "0") int start,
             @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
@@ -144,15 +146,24 @@ public class SunningController {
         else
             param.put("likeMedicineName", medicineNo);
 
-        param.put("assist", assist);
-        param.put("mental", mental);
+        if ("assist".equals(special))
+            param.put("assist", true);
+        if ("mental".equals(special))
+            param.put("mental", true);
+        if ("base1".equals(special))
+            param.put("baseType", 1);
+        if ("base2".equals(special))
+            param.put("base", 2);
+        if ("base3".equals(special))
+            param.put("base", 3);
+        param.put("top3", top3);
         //log.debug("param:" + param);
         param.put("prefix", reviewConfig.getPrefixRBAC());
         List<HashMap<String, Object>> result;
-        if (table == 1)
-            result = statDao.statByMedicine(param); /*取全部*/
-        else
-            result = drugRecordsMapper.statByMedicine(param); //取全部
+       /* if (table == 1)
+            result = statDao.statByMedicine(param); *//*取全部*//*
+        else*/
+        result = drugRecordsMapper.statByMedicine(param); //取全部
 
         //todo 移动到外面计算
         Date dateTo = null;

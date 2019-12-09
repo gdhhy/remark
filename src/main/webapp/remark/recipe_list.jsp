@@ -51,7 +51,7 @@
                     {"data": "masterDoctorName", "sClass": "center"},
                     {"data": "rational", "sClass": "center"},
                     {"data": "disItem", "sClass": "center"},
-                    {"data": "detailID", "sClass": "center"}//14
+                    {"data": "recipeID", "sClass": "center"}//14
                 ],
 
                 'columnDefs': [

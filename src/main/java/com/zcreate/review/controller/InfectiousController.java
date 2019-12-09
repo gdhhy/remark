@@ -2,12 +2,14 @@ package com.zcreate.review.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.zcreate.ReviewConfig;
 import com.zcreate.rbac.web.DeployRunning;
 import com.zcreate.review.dao.InfectiousDAO;
 import com.zcreate.review.dao.PatientInfoDAO;
 import com.zcreate.review.model.Contagion;
 import com.zcreate.review.model.Infectious;
 import com.zcreate.review.model.PatientInfo;
+import com.zcreate.security.pojo.User;
 import com.zcreate.util.DateJsonValueProcessor;
 import com.zcreate.util.DateUtils;
 import net.sf.jasperreports.engine.JasperExportManager;
@@ -26,6 +28,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletOutputStream;
@@ -42,7 +45,7 @@ import java.util.zip.ZipOutputStream;
 
 //update Sys_Role set homepage='ext5/doctor/index.jspx' where roleNo in('infectious','contagion');
 @Controller
-@RequestMapping("/spring/infectious")
+@RequestMapping("/infectious")
 public class InfectiousController {
     private static String jasperDir = "WEB-INF" + File.separator + "classes" + File.separator + "jasperreport" + File.separator;
     static Logger logger = Logger.getLogger(InfectiousController.class);
@@ -50,6 +53,9 @@ public class InfectiousController {
     private InfectiousDAO infectiousDao;
     @Autowired
     private PatientInfoDAO patientInfoDao;
+    @Autowired
+    private ReviewConfig reviewConfig;
+
     private String check = "√", uncheck = "□";
     private JsonConfig jsonConfig;
 
@@ -62,7 +68,6 @@ public class InfectiousController {
     //private OrgService orgService;
 
 
-
     @ResponseBody
     @RequestMapping(value = "getInfectiousList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String getInfectiousList(@RequestParam(value = "fromDate", required = false) String fromDate,
@@ -71,17 +76,18 @@ public class InfectiousController {
                                     @RequestParam(value = "queryField", required = false) String queryField,
                                     @RequestParam(value = "start", required = false, defaultValue = "0") int start,
                                     @RequestParam(value = "limit", required = false, defaultValue = "100") int limit,
-                                    @RequestParam(value = "workflowState", required = false, defaultValue = "-1") int workflowState ) {
+                                    @RequestParam(value = "workflowState", required = false, defaultValue = "-1") int workflowState) {
         //ModelAndView modelView = new ModelAndView();
-        Map<String, Object> modelMap = new HashMap<>();
+        //Map<String, Object> modelMap = new HashMap<>();
         Map<String, Object> param = new HashMap<>();
+
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserDetails) {
-            UserDetails ud = (UserDetails) principal;
+            User ud = (User) principal;
 
             if (!ud.getAuthorities().contains(new SimpleGrantedAuthority("INFECTIOUS")) &&
                     !ud.getAuthorities().contains(new SimpleGrantedAuthority("protect")))
-                param.put("doctorUserID",ud.getUsername());
+                param.put("doctorUserID", ud.getUserID());
            /* if (!role.getRoleNo().equals("infectious") && !role.getRoleNo().equals("protect"))
                 param.put("doctorUserID", authToken.getUserID());*/
             else
@@ -96,15 +102,14 @@ public class InfectiousController {
             param.put("start", start);*/
 
             List<Infectious> infectiousList = infectiousDao.getInfectiousList(param);
-
-            modelMap.put("success", true);
+            return wrap(infectiousList);
+           /* modelMap.put("success", true);
             modelMap.put("totalCount", infectiousList.size());
-            modelMap.put("infectious", infectiousList.subList(start, Math.min(start + limit, infectiousList.size())));//todo pass param into sql
+            modelMap.put("infectious", infectiousList.subList(start, Math.min(start + limit, infectiousList.size())));//todo pass param into sql*/
         }
-
+        return wrap(new ArrayList());
         /*modelView.addAllObjects(modelMap);*/
         //System.out.println("gson.toJson(modelMap) = " + gson.toJson(modelMap));
-        return gson.toJson(modelMap);
     }
 
     @ResponseBody
@@ -112,12 +117,29 @@ public class InfectiousController {
     public String getInfectious(@RequestParam Integer infectiousID) {
         Map<String, Object> modelMap = new HashMap<>();
 
-        HashMap infectiousList = infectiousDao.getInfectious(infectiousID);
+        HashMap infectious = infectiousDao.getInfectious(infectiousID);
 
         modelMap.put("success", true);
-        modelMap.put("infectious", infectiousList);
+        modelMap.put("infectious", infectious);
 
         return gson.toJson(modelMap);
+    }
+
+    @RequestMapping(value = "/newInfectious", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String newInfectious(ModelMap model) {
+        Infectious infectious = new Infectious();
+        infectious.setFillTime(DateUtils.formatSqlDateTime(new Date()));
+        infectious.setReportUnit( reviewConfig.getHospitalName());
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            infectious.setDoctorUserID(((User) principal).getUserID());
+            infectious.setReportDoctor(((User) principal).getName());
+            infectious.setDoctorPhone(((User) principal).getLink().getAsString());
+        }
+        model.addAttribute("success", true);
+        model.addAttribute("infectious", infectious);
+
+        return "/infectious/infectious";
     }
 
     public JasperPrint getContagionJasperPrint(HashMap<String, Object> contagion) throws Exception {
@@ -181,7 +203,7 @@ public class InfectiousController {
     }
 
     @RequestMapping(value = "getContagionPDF", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public void getContagionPDF(@RequestParam Integer contagionID,  HttpServletRequest request, HttpServletResponse response) {
+    public void getContagionPDF(@RequestParam Integer contagionID, HttpServletRequest request, HttpServletResponse response) {
         HashMap<String, Object> contagion = infectiousDao.getContagion(contagionID);
         try {
             JasperPrint print = getContagionJasperPrint(contagion);
@@ -201,7 +223,7 @@ public class InfectiousController {
     }
 
     @RequestMapping(value = "getContagionPDFs", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public void getContagionPDFs(@RequestParam String contagionIDs,  HttpServletRequest request, HttpServletResponse response) {
+    public void getContagionPDFs(@RequestParam String contagionIDs, HttpServletRequest request, HttpServletResponse response) {
         JSONArray IDs = JSONArray.fromObject(contagionIDs);
         try { //创建zip输出流
             request.setCharacterEncoding("UTF-8");
@@ -231,7 +253,7 @@ public class InfectiousController {
     }
 
     @RequestMapping(value = "getInfectiousPDFs", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public void getInfectiousPDFs(@RequestParam String infectiousIDs,  HttpServletRequest request, HttpServletResponse response) {
+    public void getInfectiousPDFs(@RequestParam String infectiousIDs, HttpServletRequest request, HttpServletResponse response) {
         JSONArray IDs = JSONArray.fromObject(infectiousIDs);
         //logger.debug("IDs=" + IDs.toString());
 
@@ -418,7 +440,7 @@ public class InfectiousController {
                                    @RequestParam(value = "limit", required = false, defaultValue = "100") int limit,
                                    @RequestParam(value = "workflowState", required = false, defaultValue = "-1") int workflowState,
                                    HttpSession session) {
-        Map<String, Object> modelMap = new HashMap<>();
+        // Map<String, Object> modelMap = new HashMap<>();
         Map<String, Object> param = new HashMap<>();
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserDetails) {
@@ -426,7 +448,7 @@ public class InfectiousController {
 
             if (!ud.getAuthorities().contains(new SimpleGrantedAuthority("INFECTIOUS")) &&
                     !ud.getAuthorities().contains(new SimpleGrantedAuthority("protect"))) {
-                param.put("doctorUserID",ud.getUsername());
+                param.put("doctorUserID", ud.getUsername());
             }
            /* if (!role.getRoleNo().equals("infectious") && !role.getRoleNo().equals("protect"))
                 param.put("doctorUserID", authToken.getUserID());*/
@@ -442,12 +464,24 @@ public class InfectiousController {
 
             List<Contagion> infectiousList = infectiousDao.getContagionList(param);
 
-            modelMap.put("success", true);
+            return wrap(infectiousList);
+           /* modelMap.put("success", true);
             modelMap.put("totalCount", infectiousList.size());
-            modelMap.put("contagion", infectiousList.subList(start, Math.min(start + limit, infectiousList.size())));
+            modelMap.put("contagion", infectiousList.subList(start, Math.min(start + limit, infectiousList.size())));*/
+
         }
 
-        return gson.toJson(modelMap);
+        return wrap(new ArrayList());
+        //return gson.toJson(modelMap);
+    }
+
+    public String wrap(List list) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("data", list);
+
+        result.put("iTotalRecords", list.size());
+        result.put("iTotalDisplayRecords", list.size());
+        return gson.toJson(result);
     }
 
     @ResponseBody
@@ -489,7 +523,6 @@ public class InfectiousController {
     @ResponseBody
     @RequestMapping(value = "saveInfectious", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
     public String saveInfectious(@RequestBody Infectious infectious) {
-        // BytesToNameCanonicalizer.Bucket ss;
         Map<String, Object> modelMap = new HashMap<>();
         try {
             if (infectious.getWorkflow() % 10 == 2) infectious.setWorkflow(infectious.getWorkflow() + 8);

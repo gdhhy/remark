@@ -39,19 +39,19 @@ import java.util.*;
 @Controller
 @RequestMapping("/remark")
 public class RemarkController {
-    private static Logger log = LoggerFactory.getLogger(SampleController.class);
+    private static Logger log = LoggerFactory.getLogger(RemarkController.class);
     @Autowired
     private ReviewService reviewService;
     @Autowired
     private SampleDAO sampleDao;
 
-    private Gson gson = new GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd HH:mm").create();
+    private Gson gson = new GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd HH: mm").create();
 
     @Autowired
     private ReviewConfig reviewConfig;
 
-    @Autowired
-    private static String deployDir = DeployRunning.getDir();
+    /*@Autowired
+    private static String deployDir = DeployRunning.getDir();*/
     @Autowired
     private DictService dictService;
     @Autowired

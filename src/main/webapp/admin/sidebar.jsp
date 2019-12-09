@@ -231,6 +231,39 @@
         </li>
         <li>
             <a href="#" class="dropdown-toggle">
+                <i class="menu-icon fa  fa-upload"></i>
+
+                <span class="menu-text"> 上报数据 </span>
+
+                <b class="arrow fa fa-angle-down"></b>
+            </a>
+
+            <b class="arrow"></b>
+
+            <ul class="submenu">
+                <li class="">
+                    <a href="index.jspa?content=/infectious/infectious_list.jsp&menuID=50" id="50">
+                        <!--<i class="menu-icon fa fa-user"></i>-->
+                        <i class="menu-icon fa fa-bug"></i>
+                        <span class="menu-text">传染病上报</span>
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+                <li class="">
+                    <a href="index.jspa?content=/sunning/medicine_day.jsp&menuID=51" id="51">
+
+                        <!--<i class="menu-icon fa 	fa-certificate"></i>-->
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        <span class="menu-text">感染病上报</span>
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="#" class="dropdown-toggle">
                 <i class="menu-icon glyphicon glyphicon-adjust "></i>
                 <span class="menu-text">基础数据 </span>
 

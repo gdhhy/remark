@@ -10,7 +10,7 @@ alter PROCEDURE importRecipeItem(@logID INT)
         @startTime                DATETIME
     BEGIN
 
-        --HIS_MZCFMX = > RecipeItem
+        --his_yz_bm = > RecipeItem
         SELECT @startTime = getdate(), @deleteRecipeItemRowCount = -1, @insertRowCount = -1;
         --启动事务
         --SET XACT_ABORT ON;
@@ -20,7 +20,7 @@ alter PROCEDURE importRecipeItem(@logID INT)
         /*--todo insert into MOnitorTaskDetail (tableName,lastID) values('review..RecipeItemTable',0);*/
         SELECT @maxLastID = max(yz_id) FROM review_import.dbo.his_yz_bm;
 
-        select @RecipeItemTable = 'RecipeItem_' + cast(DATEPART(year, max(rq)) as varchar) from review_import.dbo.HIS_MZCFMX;
+        select @RecipeItemTable = 'RecipeItem_' + cast(DATEPART(year, max(kyzsj)) as varchar) from review_import.dbo.his_yz_bm;
         if object_id(@RecipeItemTable, N'U') is null
             begin
                 exec sp_copy_table 'RecipeItem_2015', @RecipeItemTable;-- todo remove _2015
