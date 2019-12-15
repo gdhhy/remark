@@ -1,21 +1,20 @@
 package com.zcreate.review.model;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 
 /**
  * Created by hhy on 2015/5/7.
  */
 public class Infectious implements Serializable {
-    private Integer infectiousID;
-    private Integer objectType; //1门诊，2：住院
+    private int infectiousID;
+    private int objectType; //1门诊，2：住院
     private String serialNo;//门诊号或住院号
     private String reportNo;
-    private Integer reportType;
+    private int reportType;
     private String patientName;
     private String patientParent;
     private String idCardNo;
-    private Integer boy;
+    private int boy;
     private String birthday;
     private String age;
     private String ageUnit;
@@ -23,21 +22,21 @@ public class Infectious implements Serializable {
     private String linkPhone;
     private String belongTo;
     private String address;
-    private String occupation;
+    private int occupation;//change int
     private String occupationElse;
-    private Integer caseClass;
+    private int caseClass;
     private String accidentDate;
     private String diagnosisDate;
     private String diagnosisHour;
     private String deathDate;
-    private Integer infectiousClass;
+    private int infectiousClass;
     private String infectiousName;
     private String correctName;
     private String cancelCause;
     private String reportUnit;
     private String doctorPhone;
     private String reportDoctor;
-    private Integer doctorUserID;
+    private int doctorUserID;
     private String memo;
     //传染病增加
     private String marital;
@@ -46,7 +45,7 @@ public class Infectious implements Serializable {
     private String education;
     private String venerismHis;
     private String registerAddr;
-    private Integer touchHis;
+    private int touchHis;
     private String touchElse;
     private String infectRoute;
     private String sampleSource;
@@ -56,23 +55,23 @@ public class Infectious implements Serializable {
     private String checkUnit;
 
     private String fillTime;
-    private Integer workflow;//0：新建编辑，1，提交， 2，退回（可重新编辑提交），3，接受（完毕） mode 4
+    private int workflow=0;//0：新建编辑，1，提交， 2，退回（可重新编辑提交），3，接受（完毕） mode 4
     private String workflowChn;
     private String workflowNote;
 
-    public Integer getInfectiousID() {
+    public int getInfectiousID() {
         return infectiousID;
     }
 
-    public void setInfectiousID(Integer infectiousID) {
+    public void setInfectiousID(int infectiousID) {
         this.infectiousID = infectiousID;
     }
 
-    public Integer getObjectType() {
+    public int getObjectType() {
         return objectType;
     }
 
-    public void setObjectType(Integer objectType) {
+    public void setObjectType(int objectType) {
         this.objectType = objectType;
     }
 
@@ -100,11 +99,11 @@ public class Infectious implements Serializable {
         this.reportNo = reportNo;
     }
 
-    public Integer getReportType() {
+    public int getReportType() {
         return reportType;
     }
 
-    public void setReportType(Integer reportType) {
+    public void setReportType(int reportType) {
         this.reportType = reportType;
     }
 
@@ -132,11 +131,11 @@ public class Infectious implements Serializable {
         this.idCardNo = idCardNo;
     }
 
-    public Integer getBoy() {
+    public int getBoy() {
         return boy;
     }
 
-    public void setBoy(Integer boy) {
+    public void setBoy(int boy) {
         this.boy = boy;
     }
 
@@ -196,11 +195,11 @@ public class Infectious implements Serializable {
         this.address = address;
     }
 
-    public String getOccupation() {
+    public int getOccupation() {
         return occupation;
     }
 
-    public void setOccupation(String occupation) {
+    public void setOccupation(int occupation) {
         this.occupation = occupation;
     }
 
@@ -212,11 +211,11 @@ public class Infectious implements Serializable {
         this.occupationElse = occupationElse;
     }
 
-    public Integer getCaseClass() {
+    public int getCaseClass() {
         return caseClass;
     }
 
-    public void setCaseClass(Integer caseClass) {
+    public void setCaseClass(int caseClass) {
         this.caseClass = caseClass;
     }
 
@@ -252,11 +251,11 @@ public class Infectious implements Serializable {
         this.deathDate = deathDate;
     }
 
-    public Integer getInfectiousClass() {
+    public int getInfectiousClass() {
         return infectiousClass;
     }
 
-    public void setInfectiousClass(Integer infectiousClass) {
+    public void setInfectiousClass(int infectiousClass) {
         this.infectiousClass = infectiousClass;
     }
 
@@ -300,11 +299,11 @@ public class Infectious implements Serializable {
         this.reportDoctor = reportDoctor;
     }
 
-    public Integer getDoctorUserID() {
+    public int getDoctorUserID() {
         return doctorUserID;
     }
 
-    public void setDoctorUserID(Integer doctorUserID) {
+    public void setDoctorUserID(int doctorUserID) {
         this.doctorUserID = doctorUserID;
     }
 
@@ -324,11 +323,11 @@ public class Infectious implements Serializable {
         this.fillTime = fillTime;
     }
 
-    public Integer getWorkflow() {
+    public int getWorkflow() {
         return workflow;
     }
 
-    public void setWorkflow(Integer workflow) {
+    public void setWorkflow(int workflow) {
         this.workflow = workflow;
     }
 
@@ -396,11 +395,11 @@ public class Infectious implements Serializable {
         this.registerAddr = registerAddr;
     }
 
-    public Integer getTouchHis() {
+    public int getTouchHis() {
         return touchHis;
     }
 
-    public void setTouchHis(Integer touchHis) {
+    public void setTouchHis(int touchHis) {
         this.touchHis = touchHis;
     }
 

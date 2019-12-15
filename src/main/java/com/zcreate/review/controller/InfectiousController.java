@@ -112,17 +112,13 @@ public class InfectiousController {
         //System.out.println("gson.toJson(modelMap) = " + gson.toJson(modelMap));
     }
 
-    @ResponseBody
     @RequestMapping(value = "getInfectious", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public String getInfectious(@RequestParam Integer infectiousID) {
-        Map<String, Object> modelMap = new HashMap<>();
+    public String getInfectious(@RequestParam(value = "infectiousID" ) Integer infectiousID,ModelMap model) {
+        //ModelMap modelMap = new ModelMap();
+        model.addAttribute("success", true);
+        model.addAttribute("infectious", infectiousDao.getInfectious(infectiousID));
 
-        HashMap infectious = infectiousDao.getInfectious(infectiousID);
-
-        modelMap.put("success", true);
-        modelMap.put("infectious", infectious);
-
-        return gson.toJson(modelMap);
+        return "/infectious/infectious";
     }
 
     @RequestMapping(value = "/newInfectious", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
@@ -134,6 +130,7 @@ public class InfectiousController {
         if (principal instanceof UserDetails) {
             infectious.setDoctorUserID(((User) principal).getUserID());
             infectious.setReportDoctor(((User) principal).getName());
+            if(((User) principal).getLink()!=null)
             infectious.setDoctorPhone(((User) principal).getLink().getAsString());
         }
         model.addAttribute("success", true);
@@ -522,7 +519,7 @@ public class InfectiousController {
 
     @ResponseBody
     @RequestMapping(value = "saveInfectious", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
-    public String saveInfectious(@RequestBody Infectious infectious) {
+    public String saveInfectious(@RequestBody  Infectious infectious) {
         Map<String, Object> modelMap = new HashMap<>();
         try {
             if (infectious.getWorkflow() % 10 == 2) infectious.setWorkflow(infectious.getWorkflow() + 8);

@@ -28,12 +28,12 @@
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');
         var myTable = dynamicTable
-        //.wrap("<div class='dataTables_borderWrap' />")   //if you are applying horizontal scrolling (sScrollX)
+            //.wrap("<div class='dataTables_borderWrap' />")   //if you are applying horizontal scrolling (sScrollX)
             .DataTable({
                 bAutoWidth: false,
                 //paging: false,
                 "columns": [
-                    {"data": 'infectionsID'},
+                    {"data": 'infectiousID'},
                     {"data": 'reportType', "sClass": "center"},
                     {"data": 'patientName', "sClass": "center"},
                     {"data": 'serialNo', "sClass": "center"},
@@ -44,7 +44,7 @@
                     {"data": 'reportDoctor', "sClass": "center"},
                     {"data": 'workflowChn', "sClass": "center"},//9
                     {"data": 'workflowNote', "sClass": "center"},
-                    {"data": 'infectionsID'}
+                    {"data": 'infectiousID'}
                     /*
                      {"data": 'reportNo', "sClass": "center"},
                      {"data": 'patientParent', "sClass": "center"},
@@ -90,21 +90,25 @@
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     },
-                    {"orderable": false, "targets": 1, title: '报告类型', width: 70},
+                    {
+                        "orderable": false, "targets": 1, title: '报告类型', width: 70, render: function (data, type, row, meta) {
+                            if (data === 1) return "初次报告";
+                            return "订正报告";
+                        }
+                    },
                     {"orderable": false, "targets": 2, title: '患者姓名', width: 70},
                     {"orderable": false, "targets": 3, title: '住院/门诊号', width: 90},
                     {"orderable": false, "targets": 4, title: '年龄', width: 50},
                     {"orderable": false, "targets": 5, title: '职业'},
                     {"orderable": false, "targets": 6, title: '传染病名'},
-                    {"orderable": false, "targets": 7, title: '报告日期', width: 70},
+                    {"orderable": false, "targets": 7, title: '报告日期', width: 160},
                     {"orderable": false, "targets": 8, title: '报告人'},
                     {"orderable": false, "targets": 9, title: '状态'},
                     {"orderable": false, "targets": 10, title: '退回消息', defaultContent: ''},
                     {
                         "orderable": false, "targets": 11, title: '操作', render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
-                                /*'<a class="hasDetail" href="#" data-Url="/index.jspa?content=/remark/viewRecipe.jspa&recipeID={0}">'.format(data) +*/
-                                '<a class="hasDetail" href="#" data-Url="/remark/viewRecipe{0}.jspa?recipeID={1}&batchID={2}">'.format(remarkType, data, sampleBatchID) +
+                                '<a class="hasDetail" href="#" data-Url="/index.jspa?content=/infectious/getInfectious.jspa?infectiousID={0}">'.format( data) +
                                 '<i class="ace-icon glyphicon glyphicon-pencil  bigger-130"></i>' +
                                 '</a>' +
                                 '</div>';
@@ -184,6 +188,7 @@
                     "className": "btn btn-xs btn-white btn-primary"
                 }, {
                     "text": "<i class='fa fa-clone  bigger-110 red'></i>空白",
+                    //todo
                     "className": "btn btn-xs btn-white btn-primary"
                 }, {
                     "text": "<i class='fa fa-arrow-up  bigger-110 red'></i>提交",
@@ -192,9 +197,9 @@
             ]
         });
         myTable.buttons().container().appendTo($('.tableTools-container'));
-        myTable.button(0).action(function (e, dt, button, config) {
+        myTable.button(1).action(function (e, dt, button, config) {
             e.preventDefault();
-            window.location.href = "remark/hospital.jspa?sampleBatchID=" + sampleBatchID;
+            window.open("index.jspa?content=/infectious/newInfectious.jspa&menuID=50");
         });
 
         //todo 统一到一个对话框
@@ -228,10 +233,10 @@
     <!-- #section:basics/content.searchbox -->
     <div class="nav-search" id="nav-search">
         <form class="form-search">
-								<span class="input-icon">
-									<input type="text" placeholder="Search ..." class="nav-search-input" id="nav-search-input" autocomplete="off"/>
-									<i class="ace-icon fa fa-search nav-search-icon"></i>
-								</span>
+            <span class="input-icon">
+                <input type="text" placeholder="Search ..." class="nav-search-input" id="nav-search-input" autocomplete="off"/>
+                <i class="ace-icon fa fa-search nav-search-icon"></i>
+            </span>
         </form>
     </div><!-- /.nav-search -->
 

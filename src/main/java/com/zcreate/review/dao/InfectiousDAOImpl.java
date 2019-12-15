@@ -1,9 +1,7 @@
 package com.zcreate.review.dao;
 
-import com.zcreate.ReviewConfig;
 import com.zcreate.review.model.Contagion;
 import com.zcreate.review.model.Infectious;
-import com.zcreate.review.model.RecipeItemReview;
 import org.mybatis.spring.support.SqlSessionDaoSupport;
 
 import java.io.Serializable;
@@ -21,7 +19,7 @@ public class InfectiousDAOImpl extends SqlSessionDaoSupport implements Infectiou
     @Override
     public int saveInfectious(Infectious infectious) {
         int affectedRowCount;
-        if (infectious.getInfectiousID() != null && infectious.getInfectiousID() > 0) {
+        if ( infectious.getInfectiousID() > 0) {
             affectedRowCount = getSqlSession().update("Infectious.updateInfectious", infectious);
 
         } else

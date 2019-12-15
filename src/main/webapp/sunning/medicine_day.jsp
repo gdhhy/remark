@@ -67,7 +67,7 @@
                     {"data": "chnName", "sClass": "center"},
                     {"data": "spec", "sClass": "center"},
                     {"data": "base", "sClass": "center"},
-                    {"data": "minOfpack", "sClass": "center", defaultContent: ''},
+                    /*{"data": "minOfpack", "sClass": "center", defaultContent: ''},*/
                     {"data": "quantity", "sClass": "center"},
                     {"data": "amount", "sClass": "center"},//4
                     {"data": "patient", "sClass": "center"},
@@ -86,34 +86,31 @@
                     {"orderable": false, "targets": 1, title: '药品名称'},
                     {"orderable": false, "targets": 2, title: '规格'},
                     {
-                        "orderable": false, "targets": 3, title: '基药'/*, render: function (data, type, row, meta) {
-                            if (data >= 0 && data <= 3) return baseChn[data];
-                            return "";
-                        }*/
+                        "orderable": false, "targets": 3, title: '基药'
                     },
-                    {"orderable": false, "targets": 4, title: '包装转换比'},
-                    {"orderable": false, "targets": 5, title: '数量'},
+                    /*{"orderable": false, "targets": 4, title: '包装转换比'},*/
+                    {"orderable": false, "targets": 4, title: '数量'},
                     {
-                        "orderable": false, "targets": 6, title: '金额', render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 5, title: '金额', render: function (data, type, row, meta) {
                             if (data === "-") return "未授权";
                             return data.toFixed(2);
                         }
                     },
-                    {"orderable": false, "targets": 7, title: '病人数'},
+                    {"orderable": false, "targets": 6, title: '病人数'},
                     {
-                        "orderable": false, "targets": 8, title: '金额占全院', render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 7, title: '金额占全院', render: function (data, type, row, meta) {
                             return (data * 100).toFixed(3) + "%";
                         }
                     },
                     {
-                        "orderable": false, "targets": 9, title: '病人占全院', render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 8, title: '病人占全院', render: function (data, type, row, meta) {
                             return (data * 100).toFixed(3) + "%";
                         }
                     },
-                    {"orderable": false, "targets": 10, title: '排名前三科室'},
-                    {"orderable": false, "targets": 11, title: '排名前三医生'},
+                    {"orderable": false, "targets": 9, title: '排名前三科室'},
+                    {"orderable": false, "targets": 10, title: '排名前三医生'},
                     {
-                        'targets': 12, 'searchable': false, 'orderable': false, width: 110, title: '走势/科室/医生',
+                        'targets': 11, 'searchable': false, 'orderable': false, width: 110, title: '走势/科室/医生',
                         render: function (data, type, row, meta) {
                             var jsp = row['type'] === 1 ? "clinic_list.jsp" : "recipe_list.jsp";
                             return '<div class="hidden-sm hidden-xs action-buttons">' +

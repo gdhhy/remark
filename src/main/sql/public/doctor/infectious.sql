@@ -21,8 +21,8 @@ CREATE TABLE Infectious (
   occupationElse  VARCHAR(20)   DEFAULT '', --职业(其它）
   caseClass       INT,
   accidentDate    VARCHAR(10), --发病日期
-  diagnosisDate   VARCHAR(10), --诊断日期
-  diagnosisHour   VARCHAR(10), --诊断时间，小时
+  diagnosisDate   VARCHAR(15), --诊断日期
+--  diagnosisHour   VARCHAR(10), --诊断时间，小时
   deathDate       VARCHAR(10), --死亡日期
   infectiousClass INT, --0-3:甲乙丙，其它
   infectiousName  VARCHAR(100),
