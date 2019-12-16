@@ -9,6 +9,7 @@
 <script src="../js/resize.js"></script>
 <script src="../js/jquery.cookie.min.js"></script>
 <script src="../assets/js/jquery.validate.min.js"></script>
+<script src="../assets/js/jquery.validate.messages_cn.js"></script>
 <script src="../components/moment/moment.min.js"></script>
 <script src="../components/bootstrap-daterangepicker/daterangepicker.js"></script>
 <script src="../components/bootstrap-daterangepicker/daterangepicker.zh-CN.js"></script>
@@ -92,6 +93,7 @@
             $.each(kk, function (index, value) {
                 $("#infectiousName").append("<option value='{0}'>{1}</option>".format(value, value));
             });
+            $('#vdBox').collapse('hide');
         });
         $.each(infectious${infectious.infectiousClass}, function (index, value) {
             $("#infectiousName").append("<option value='{0}' {1}>{2}</option>".format(value, '${infectious.infectiousName}' === value ? 'selected' : '', value));
@@ -111,19 +113,36 @@
             $('#vdBox').collapse('hide');
         });
 
-        $('#vdBox').collapse('hide');//默认关闭
+        $('#vdBox').addClass("collapse");//默认关闭
         for (var k = 0; k < venerism.length; k++) {
-            if (venerism[k] === '${infectious.infectiousName}' || '${infectious.infectiousName}'.startsWith(venerism[k]))
+            if ('${infectious.infectiousName}' !== '' && (venerism[k] === '${infectious.infectiousName}' || '${infectious.infectiousName}'.startsWith(venerism[k])))
                 $('#vdBox').collapse('show');
         }
+
         //性病打开vdBox -- 结束
 
-        //多选项，按位于
+        //接触史 多选项，按位于
         $("#touchHis option").each(function () {
             if (($(this).val() & ${infectious.touchHis}) === parseInt($(this).val()))
                 $(this).attr("selected", "selected");
         });
         $("#touchHis").trigger("chosen:updated");
+        //多选项 结束
+
+        //民族其他选项
+        $("input[name=nation]").click(function () {
+            if ($(this).val() === "2")
+                $('#nationElse').removeClass("hidden");
+            else
+                $('#nationElse').addClass("hidden");
+        });
+        //职业其他选项
+        $('#occupation').on('change', function (e) {
+            if ($(this).val() === "18")
+                $('#occupationElse').removeClass("hidden");
+            else
+                $('#occupationElse').addClass("hidden");
+        });
 
         //todo 统一到一个对话框
         function showDialog(title, content) {
@@ -140,52 +159,6 @@
             });
         }
 
-        /*$('.btn-save').click(function () {
-            var json = {};
-            json.infectiousID = $('#infectiousID').val();
-            json.objectType = $('#objectType').val();
-            json.serialNo = $('#serialNo').val();
-            json.reportNo = $('#reportNo').val();
-            json.boy = $('input:radio[name="boy"]:checked').val();
-            json.birthday = $('#birthday').val();
-            json.age = $('#age').val();
-            json.ageUnit = $('input:radio[name="ageUnit"]:checked').val();
-            json.workplace = $('#workplace').val();
-            json.linkPhone = $('#linkPhone').val();
-            json.belongTo = $('input:radio[name="belongTo"]:checked').val();
-            json.address = $('#address').val();
-            json.occupation = $('#occupation').val();
-            json.occupationElse = $('#occupationElse').val();
-            json.caseClass = $('input:radio[name="caseClass1"]:checked').val() + $('input:radio[name="caseClass2"]:checked').val();
-            json.accidentDate = $('#accidentDate').val();
-            json.diagnosisDate = $('#diagnosisDate').val();
-            json.deathDate = $('#deathDate').val();
-            json.infectiousClass = $('#infectiousClass').val();
-            json.infectiousName = $('#infectiousName').val();
-            json.correctName = $('#correctName').val();
-            json.cancelCause = $('#cancelCause').val();
-            json.reportUnit = ' ';
-
-            $.ajax({
-                type: "POST",
-                url: 'saveInfectious.jspa',
-                data: JSON.stringify(json),
-                contentType: "application/json; charset=utf-8",
-                cache: false,
-                success: function (response, textStatus) {
-                    showDialog(response.success ? "保存成功" : "保存失败", response.message);
-                    if (response.success) {
-                        $('.btn-info').removeClass("hidden");
-                        json.recipeReviewID = response.recipeReviewID;
-                    }
-                },
-                error: function (response, textStatus) {/!*能够接收404,500等错误*!/
-                    showDialog("请求状态码：" + response.status, response.responseText);
-                },
-            });
-        });*/
-        /** 表单序列化成json字符串的方法  */
-
         var infectiousForm = $('#infectiousForm');
         infectiousForm.validate({
             errorElement: 'div',
@@ -198,11 +171,11 @@
             },
 
             highlight: function (e) {
-                $(e).closest('.form-group').removeClass('has-info').addClass('has-error');
+                $(e).closest('.control-label').removeClass('has-info').addClass('has-error');
             },
 
             success: function (e) {
-                $(e).closest('.form-group').removeClass('has-error');//.addClass('has-info');
+                $(e).closest('.control-label').removeClass('has-error');//.addClass('has-info');
                 $(e).remove();
             },
 
@@ -296,7 +269,7 @@
     <div class="row">
         <div class="col-xs-12">
             <!-- PAGE CONTENT BEGINS -->
-            <form class="form-horizontal" id="infectiousForm" name="infectiousForm">
+            <form class="form-horizontal form-inline" id="infectiousForm" name="infectiousForm">
                 <div class="row">
                     <label class="col-sm-1 control-label no-padding-right" for="reportNo"> 卡片编号 </label>
                     <div class="col-sm-4">
@@ -324,14 +297,16 @@
                         <div class="widget-body ">
                             <div class="widget-main" style="padding-top: 0;padding-bottom:0">
                                 <div class="row">
-                                    <label class=" col-sm-1  control-label no-padding-right red2" for="patientName"> 患者姓名 </label>
+                                    <div class="col-sm-6 form-group">
+                                        <label class="col-sm-2  control-label no-padding-right no-padding-left red2" for="patientName">&nbsp;&nbsp;&nbsp;患者姓名 </label>
 
-                                    <div class="col-sm-4">
-                                        <input type="text" id="patientName" name="patientName" placeholder="患者姓名" value="${infectious.patientName}"/>
+                                        <div class="col-sm-8">
+                                            <input type="text" id="patientName" name="patientName" placeholder="患者姓名" value="${infectious.patientName}"/>
+                                        </div>
                                     </div>
                                     <label class=" col-sm-2 control-label no-padding-right" for="patientParent"> 患儿家长姓名 </label>
 
-                                    <div class="col-sm-5">
+                                    <div class="col-sm-2 col-lg-1">
                                         <input type="text" id="patientParent" name="patientParent" placeholder="患儿家长姓名" value="${infectious.patientParent}"/>
                                     </div>
                                 </div>
@@ -456,14 +431,13 @@
                                 <div class="row">
                                     <label class="col-sm-1  control-label no-padding-right light-red" for="address"> 现住址 </label>
 
-                                    <div class="col-sm-11">
+                                    <div class="col-sm-10">
                                         <input type="text" id="address" name="address" placeholder="现住址" style="width: 100%" value="${infectious.address}"/>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <label class="col-sm-1 control-label no-padding-right  light-red"> 患者职业 </label>
-
-                                    <div class="col-sm-5">
+                                    <div class="col-sm-2">
                                         <select class="chosen-select form-control" id="occupation" name="occupation" data-placeholder="选择职业">
                                             <option value="1"<c:if test='${infectious.occupation==1}'> selected</c:if>>幼托儿童</option>
                                             <option value="2"<c:if test='${infectious.occupation==2}'> selected</c:if>>散居儿童</option>
@@ -485,62 +459,10 @@
                                             <option value="18"<c:if test='${infectious.occupation==18}'> selected</c:if>>其他</option>
                                         </select>
                                     </div>
-                                    <%--<label class="col-sm-1  control-label no-padding-right" for="occupationElse"> 其他 </label>--%>
-
-                                    <div class="col-sm-5">
-                                        <input type="text" id="occupationElse" name="occupationElse" placeholder="其他职业" style="width: 100%" value="${infectious.occupationElse}"/>
+                                    <div class="col-sm-3">
+                                        <input type="text" id="occupationElse"<c:if test='${infectious.occupation!=18}'> class="hidden"</c:if> name="occupationElse"
+                                               placeholder="其他职业" style="width: 100%" value="${infectious.occupationElse}"/>
                                     </div>
-                                    <%--<div class="col-sm-11">
-                                        <div class="radio col-sm-2">
-                                            <label style="white-space: nowrap">
-                                                <input name="belongTo" type="radio" class="ace" checked value="1"/>
-                                                <span class="lbl">幼托儿童</span>
-                                            </label>
-                                        </div>
-
-                                        <div class="radio col-sm-2">
-                                            <label style="white-space: nowrap">
-                                                <input name="belongTo" type="radio" class="ace" value="2"/>
-                                                <span class="lbl">散居儿童</span>
-                                            </label>
-                                        </div>
-                                        <div class="radio col-sm-2">
-                                            <label style="white-space: nowrap">
-                                                <input name="belongTo" type="radio" class="ace" value="4"/>
-                                                <span class="lbl">学生（大中小学）</span>
-                                            </label>
-                                        </div>
-                                        <div class="radio col-sm-2">
-                                            <label style="white-space: nowrap">
-                                                <input name="belongTo" type="radio" class="ace" value="8"/>
-                                                <span class="lbl">教师</span>
-                                            </label>
-                                        </div>
-                                        <div class="radio col-sm-2">
-                                            <label style="white-space: nowrap">
-                                                <input name="belongTo" type="radio" class="ace" value="16"/>
-                                                <span class="lbl">保育员及保姆</span>
-                                            </label>
-                                        </div>
-                                        <div class="radio col-sm-2">
-                                            <label style="white-space: nowrap">
-                                                <input name="belongTo" type="radio" class="ace" value="32"/>
-                                                <span class="lbl">餐饮食品业</span>
-                                            </label>
-                                        </div>
-                                        <div class="radio col-sm-2">
-                                            <label style="white-space: nowrap">
-                                                <input name="belongTo" type="radio" class="ace" value="32"/>
-                                                <span class="lbl">商业服务</span>
-                                            </label>
-                                        </div>
-                                        <div class="radio col-sm-2">
-                                            <label style="white-space: nowrap">
-                                                <input name="belongTo" type="radio" class="ace" value="32"/>
-                                                <span class="lbl">医务人员</span>
-                                            </label>
-                                        </div>
-                                    </div>--%>
                                 </div>
                                 <div class="row">
                                     <label class="col-sm-1 control-label no-padding-right red2"> 病例分类 </label>
@@ -695,7 +617,7 @@
                                         <label class="col-sm-2 control-label no-padding-right "> 民族 </label>
                                         <div class="radio col-sm-2">
                                             <label style="white-space: nowrap">
-                                                <input name="nation" type="radio" class="ace" value="1" <c:if test='${infectious.nation==1}'> checked</c:if>/>
+                                                <input name="nation" type="radio" class="ace" value="汉族" <c:if test='${infectious.nation==1}'> checked</c:if>/>
                                                 <span class="lbl">汉族</span>
                                             </label>
                                         </div>
@@ -707,7 +629,8 @@
                                             </label>
                                         </div>
                                         <div class=" col-sm-5">
-                                            <input type="text" id="nationElse" name="nationElse" placeholder="其他民族" style="width: 100%" value="${infectious.nationElse}"/>
+                                            <input type="text" id="nationElse"<c:if test='${infectious.nation!=2}'> class="hidden"</c:if> name="nationElse" placeholder="其他民族"
+                                                   style="width: 100%" value="${infectious.nationElse}"/>
                                         </div>
                                     </div>
                                 </div>

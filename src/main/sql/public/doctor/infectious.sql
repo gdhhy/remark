@@ -100,7 +100,7 @@ alter table infectious add education varchar(20);
 alter table infectious add venerismHis varchar(20);
 alter table infectious add registerAddr varchar(255);
 alter table infectious add touchHis int;
-alter table infectious add touchElse varchar(100);
+--alter table infectious add touchElse varchar(100);
 alter table infectious add infectRoute varchar(20);
 alter table infectious add sampleSource varchar(100);
 alter table infectious add conclusion varchar(100);

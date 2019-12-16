@@ -40,7 +40,7 @@ public class Infectious implements Serializable {
     private String memo;
     //传染病增加
     private String marital;
-    private String nation;
+    private int nation;
     private String nationElse;
     private String education;
     private String venerismHis;
@@ -355,11 +355,11 @@ public class Infectious implements Serializable {
         this.marital = marital;
     }
 
-    public String getNation() {
+    public int getNation() {
         return nation;
     }
 
-    public void setNation(String nation) {
+    public void setNation(int nation) {
         this.nation = nation;
     }
 
