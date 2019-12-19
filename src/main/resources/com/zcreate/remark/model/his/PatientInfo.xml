@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="PatientInfo">
+    <cache eviction="LRU" readOnly="false" flushInterval="60000" size="1000"/>
+    <sql id="queryWhereClinic">
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(patientName)">AND A.name LIKE '%${patientName}%'</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(serialNo)">AND A.MzRegNo LIKE '${serialNo}%'</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(timeFrom)">AND A.regTime >= #{timeFrom:VARCHAR}</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(timeTo)">AND A.regTime &lt; #{timeTo:VARCHAR}</if>
+    </sql>
+    <sql id="queryWhereHospital">
+        <where>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(patientName)">AND A.Name LIKE '%${patientName}%'</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(serialNo)">AND A.HospNo LIKE '%${serialNo}'</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(timeFrom)">AND A.outTime >= #{timeFrom:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(timeTo)">AND A.outTime &lt; #{timeTo:VARCHAR}</if>
+        </where>
+    </sql>
+    <!--门诊病人列表-->
+    <select id="selectClinicPatient" resultType="java.util.Map" parameterType="java.util.Map">
+        select top 100 A.ID,A.PatID,A.MzRegNo '门诊号',A.cardNo,convert(varchar(16),A.regTime,120) '挂号时间',A.Name '姓名',case A.Sex when 'M' then '男' else '女' end '性别',
+        A.AgeString '年龄',A.F3 '诊断', B.name '接诊科室',C.name '医生姓名'
+        from OuHosInfo A
+        left join BsLocation B on A.diagnDept =B.ID
+        left join BsDoctor C on A.doctorID=C.id
+        where B.name not like '%体检%' and B.name not like '%拓展部%'
+        <include refid="queryWhereClinic"/>
+        order by A.regTime desc
+    </select>
+    <!--  <select id="selectClinicPatientCount" resultType="java.util.Map" parameterType="java.util.Map">
+          select  count(A.MzRegNo)
+          from OuHosInfo A
+          left join BsLocation B on A.diagnDept =B.ID
+          where B.name not like '%体检%' and B.name not like '%拓展部%'
+          <include refid="queryWhereClinic"/>
+      </select>-->
+    <!--住院病人列表-->
+    <select id="selectHospitalPatient" resultType="java.util.Map" parameterType="java.util.Map">
+        select top 100 A.ID,A.PatID ,A.HospNo '住院号',A.inTime '入院时间',A.outTime '出院时间',A.Name '姓名',case A.Sex when 'M' then '男' else '女' end '性别',
+        A.AgeString '年龄', B.name '当前科室',
+        case A.LsInStatus when 1 then '等待住院' when 2 then '在院' when 3 then '出院' when 4 then '请假' else '待出院' end '住院状态', C.name '医生姓名',
+        stuff((select distinct ','+IllDesc from InHosMzIll where HospId=A.id for XML PATH('')),1,1,'') '诊断',
+        datediff(day,A.inTime,A.outTime) '住院天数'
+        from InHosInfo A
+        left join BsLocation B on A.locationID =B.ID
+        left join BsDoctor C on A.doctorID=C.id
+        <include refid="queryWhereHospital"/>
+        order by A.inTime desc
+    </select>
+    <select id="selectPatient" resultType="java.util.Map" parameterType="int">
+        SELECT A.ID,
+               InPatNo,
+               CardNo,
+               A.Name,
+               Sex,
+               BirthDate,
+               LsMarriage,
+               BloodGroup,
+               XNo,
+               NationId,
+               CountryId,
+               ProvinceId,
+               RegionId,
+               AreaId,
+               Native,
+               Residence,
+               IsOversea,
+               PassTime,
+               Company,
+               Occupation,
+               Mobile,
+               Email,
+               Phone,
+               WorktypeId,
+               PatTypeId,
+               CertificateId,
+               Sensitive,
+               IdCardNo,
+               isBaby,
+               MotherPatId,
+               MedicareNo,
+               AccountNo,
+               PhoneWork,
+               AddressWork,
+               PostCodeWork,
+               AreaCodeWork,
+               PhoneHome,
+               AddressHome,
+               PostCodeHome,
+               AreaCodeHome,
+               LinkmanName,
+               RelationId,
+               LinkmanPost,
+               LinkmanArea,
+               LinkmanAddress,
+               LinkmanPhone,
+               FamilyId,
+               isHouseMaster,
+               RelaMasterId,
+               LsCensus,
+               CommitteeId,
+               PoliceStationId,
+               LevelId,
+               Height,
+               Weight,
+               Circumference,
+               Waistline,
+               Sternline,
+               LsSport,
+               LsSportTime,
+               LsSportType,
+               LsBitHabit,
+               SleepHour,
+               LsSleepTrouble,
+               SmokeHistory,
+               DrinkHistory,
+               OtherHabit,
+               OperTime,
+               OperID,
+               A.IsActive,
+               InActiveReason,
+               InActiveTime,
+               InActiveOperID,
+               A.F1,
+               A.F2,
+               A.F3,
+               A.F4,
+               A.IconIndex,
+               PhotoFolder,
+               RoadId,
+               PersonHistory,
+               Password,
+               IsWeCharBind,
+               LoginId,
+               Account,
+               F5,
+               F6,
+               Age,
+               AgeString,
+               SBCARDNO,
+               SgSbCardId,
+               SpecificNo,
+               TipsNurse,B.Name Occupation
+        FROM  BsPatient A left join BsWorkType B on A.WorktypeId=B.ID
+        where A.ID = #{PatID:INTEGER}
+    </select>
+
+</mapper>

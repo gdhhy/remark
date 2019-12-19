@@ -14,14 +14,24 @@
 <script src="../components/moment/moment.min.js"></script>
 <script src="../components/bootstrap-daterangepicker/daterangepicker.js"></script>
 <script src="../components/bootstrap-daterangepicker/daterangepicker.zh-CN.js"></script>
+<script src="../components/datatables/dataTables.select.min.js"></script>
+<!-- page specific plugin scripts --><%--
+<script src="../components/jquery-ui/jquery-ui.js"></script>
+<script src="../assets/js/jquery.ui.touch-punch.min.js"></script>--%>
+
 <link rel="stylesheet" href="../components/bootstrap-datepicker/css/bootstrap-datepicker3.css"/>
 <link rel="stylesheet" href="../components/bootstrap-timepicker/css/bootstrap-timepicker.css"/>
 <link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>
+<link rel="stylesheet" href="../components/datatables/select.dataTables.css"/>
+<%--<link rel="stylesheet" href="../components/jquery-ui/jquery-ui.css" />--%>
+<%--<link rel="stylesheet" href="../components/font-awesome-4.7.0/css/font-awesome.min.css"/>--%>
 
 <script type="text/javascript">
     jQuery(function ($) {
         var startDate = moment().month(moment().month() - 1).startOf('month');
         var endDate = moment().month(moment().month() - 1).endOf('month');
+
+        var timeFrom = '', timeTo = '';
 
         var url = "/infectious/getInfectiousList.jspa";
         //var editor = new $.fn.dataTable.Editor({});
@@ -108,7 +118,7 @@
                     {
                         "orderable": false, "targets": 11, title: '操作', render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
-                                '<a class="hasDetail" href="#" data-Url="/index.jspa?content=/infectious/getInfectious.jspa?infectiousID={0}">'.format( data) +
+                                '<a class="hasDetail" href="#" data-Url="/index.jspa?content=/infectious/getInfectious.jspa?infectiousID={0}">'.format(data) +
                                 '<i class="ace-icon glyphicon glyphicon-pencil  bigger-130"></i>' +
                                 '</a>' +
                                 '</div>';
@@ -174,6 +184,30 @@
         }).next().on(ace.click_event, function () {
             $(this).prev().focus();
         });
+
+        $('#dateRange').daterangepicker({
+            'applyClass': 'btn-sm btn-success',
+            'cancelClass': 'btn-sm btn-default',
+            ranges: {
+                '本月': [moment().startOf('month')],
+                '上月': [moment().month(moment().month() - 1).startOf('month'), moment().month(moment().month() - 1).endOf('month')],
+                '本季': [moment().startOf('quarter')],
+                '上季': [moment().quarter(moment().quarter() - 1).startOf('month'), moment().quarter(moment().quarter() - 1).endOf('quarter')],
+                '今年': [moment().startOf('year')],
+                '去年': [moment().year(moment().year() - 1).startOf('year'), moment().year(moment().year() - 1).endOf('year')]
+            },
+            autoUpdateInput: false, //关闭自动赋值，使初始值为空
+            locale: locale
+        }, function (start, end, label) {
+            timeFrom = moment(start).format('YYYY-MM-DD');
+            timeTo = moment(end).format('YYYY-MM-DD');
+            this.autoUpdateInput = true;//选完日期后打开自动赋值
+        }).css("min-width", "170px").next("i").click(function () {
+            // 对日期的i标签增加click事件，使其在鼠标点击时可以拉出日期选择
+            $(this).parent().find('input').click();
+        }).next().on(ace.click_event, function () {
+            $(this).prev().focus();
+        });
         $('#queryItem').on('change', function (e) {//console.log("value:" +  this.options[this.selectedIndex].innerHTML );
             $('#queryField').attr("placeholder", this.options[this.selectedIndex].innerHTML);
         });
@@ -186,38 +220,212 @@
                 {
                     "text": "<i class='fa fa-plus-square-o bigger-110 red'></i>报告传染病",
                     "className": "btn btn-xs btn-white btn-primary"
-                }, {
+                }, /*{
                     "text": "<i class='fa fa-clone  bigger-110 red'></i>空白",
-                    //todo
                     "className": "btn btn-xs btn-white btn-primary"
-                }, {
+                },*/ {
                     "text": "<i class='fa fa-arrow-up  bigger-110 red'></i>提交",
                     "className": "btn btn-xs btn-white btn-primary"
                 }
             ]
         });
         myTable.buttons().container().appendTo($('.tableTools-container'));
-        myTable.button(1).action(function (e, dt, button, config) {
-            e.preventDefault();
-            window.open("index.jspa?content=/infectious/newInfectious.jspa&menuID=50");
+        /*  myTable.button(1).action(function (e, dt, button, config) {
+              e.preventDefault();
+              window.open("index.jspa?content=/infectious/newInfectious.jspa&menuID=50");
+          });*/
+        myTable.button(0).action(function (e, dt, button, config) {
+            showSampleDialog();
         });
 
-        //todo 统一到一个对话框
-        function showDialog(title, content) {
-            $("#errorText").html(content);
-            $("#dialog-error").removeClass('hide').dialog({
+        /* //todo 统一到一个对话框
+         function showDialog(title, content) {
+             $("#errorText").html(content);
+             $("#dialog-error").removeClass('hide').dialog({
+                 modal: true,
+                 width: 600,
+                 title: title,
+                 buttons: [{
+                     text: "确定", "class": "btn btn-primary btn-xs", click: function () {
+                         $(this).dialog("close");
+                     }
+                 }]
+             });
+         }*/
+        var patientTable;
+        var choosePatient;
+
+//新
+        function showSampleDialog() {
+            var queryDialog = $("#dialog-edit").removeClass('hide').dialog({
+                resizable: false,
+                /*padding:'0 0',*/
+                margin: 0,
+                width: 900,
+                height: 600,
                 modal: true,
-                width: 600,
-                title: title,
-                buttons: [{
-                    text: "确定", "class": "btn btn-primary btn-xs", click: function () {
-                        $(this).dialog("close");
+                title: "选择病人填写传染病报告",
+                buttons: [
+                    {
+                        html: "<i class='ace-icon fa fa-check  bigger-110'></i>&nbsp;选择",
+                        "class": "btn disabled btn-primary btn-minier ",
+                        click: function () {
+                            console.log("choosePatient:" + choosePatient["PatID"]);
+                            window.open("index.jspa?content=/infectious/newInfectious.jspa&menuID=50&patientID=" + choosePatient["PatID"]);
+                            $(this).dialog("close");
+                        }
+                    }, {
+                        html: "<i class='ace-icon  fa fa-square bigger-110'></i>&nbsp;空白填写",
+                        "class": "btn btn-info btn-minier",
+                        click: function () {
+                            window.open("index.jspa?content=/infectious/newInfectious.jspa&menuID=50");
+                            $(this).dialog("close");
+                        }
+                    }, {
+                        html: "<i class='ace-icon fa fa-times bigger-110'></i>&nbsp; 取消",
+                        "class": "btn btn-minier",
+                        click: function () {
+                            $(this).dialog("close");
+                        }
                     }
-                }]
-            });
+                ]
+            });//.siblings('div.ui-dialog-titlebar').remove();
         }
 
+        $('#queryPatient').click(function () {
 
+            if ($('#form-type').val() === '2') {
+                $('#dt3').addClass("hide");
+                $('#dt2').removeClass("hide");
+                patientTable = $('#dynamic-table2').DataTable({
+                    bAutoWidth: false,
+                    paging: true,
+                    searching: false,
+
+                    ordering: false,
+                    "destroy": true,
+                    "columns": [
+                        {"data": "PatID"},
+                        /*{"data": "ID"},*/
+                        {"data": "住院号", "sClass": "center"},
+                        {"data": "入院时间", "sClass": "center"},
+                        {"data": "出院时间", "sClass": "center"},
+                        {"data": "姓名", "sClass": "center"},
+                        {"data": "性别", "sClass": "center"},
+                        {"data": "年龄", "sClass": "center"},
+                        {"data": "诊断", "sClass": "center"},
+                        {"data": "当前科室", "sClass": "center"},
+                        {"data": "医生姓名", "sClass": "center"}
+                    ],
+
+                    'columnDefs': [
+                        {
+                            targets: 0, data: null, defaultContent: '', orderable: false, className: 'select-checkbox', render: function () {
+                                return "";
+                            }
+                        },
+                        {"orderable": false, "targets": 1, title: '住院号', width: 70},
+                        {"orderable": false, "targets": 2, title: '入院日期', width: 120},
+                        {"orderable": false, "targets": 3, title: '出院日期', width: 120, defaultContent: ''},
+                        {"orderable": false, "targets": 4, title: '姓名', width: 80},
+                        {"orderable": false, "targets": 5, title: '性别', width: 45},
+                        {"orderable": false, "targets": 6, title: '年龄', width: 60},
+                        {"orderable": false, "targets": 7, title: '诊断', width: 150},
+                        {"orderable": false, "targets": 8, title: '当前科室', defaultContent: '', width: 120},
+                        {"orderable": false, "targets": 9, title: '主管医生', defaultContent: '', width: 80}],
+                    select: {
+                        style: 'os',
+                        selector: 'td:first-child'
+                    },
+                    "aaSorting": [],
+                    language: {
+                        url: '../components/datatables/datatables.chinese.json'
+                    },
+                    "ajax": {
+                        url: "/infectious/getHospitalPatient.jspa?queryItem=patientName&queryField=" + $('#patientName').val() +
+                            "&timeFrom=" + timeFrom + "&timeTo=" + timeTo,
+                        "data": function (d) {//删除多余请求参数
+                            for (var key in d)
+                                if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
+                                    delete d[key];
+                        }
+                    }
+                });
+            } else {
+                $('#dt2').addClass("hide");
+                $('#dt3').removeClass("hide");
+
+                patientTable = $('#dynamic-table3').DataTable({
+                    bAutoWidth: false,
+                    paging: true,
+                    searching: false,
+
+                    ordering: false,
+                    "destroy": true,
+                    "columns": [
+                        {"data": "PatID"},
+                        /*{"data": "ID"},*/
+                        {"data": "cardNo"},
+                        {"data": "挂号时间", "sClass": "center"},
+                        {"data": "姓名", "sClass": "center"},
+                        {"data": "性别", "sClass": "center"},
+                        {"data": "年龄", "sClass": "center"},
+                        {"data": "诊断", "sClass": "center"},
+                        {"data": "接诊科室", "sClass": "center"},
+                        {"data": "医生姓名", "sClass": "center"}
+                    ],
+
+                    'columnDefs': [
+                        {
+                            targets: 0, data: null, defaultContent: '', orderable: false, className: 'select-checkbox', render: function () {
+                                return "";
+                            }
+                        },
+                        /*  {
+                              "orderable": false, "targets": 1, width: 15, render: function (data, type, row, meta) {
+                                  return meta.row + 1 + meta.settings._iDisplayStart;
+                              }
+                          },*/
+                        {"orderable": false, "targets": 1, title: '卡号', width: 105},
+                        {"orderable": false, "targets": 2, title: '挂号时间', width: 120},
+                        {"orderable": false, "targets": 3, title: '姓名'},
+                        {"orderable": false, "targets": 4, title: '性别', width: 45},
+                        {"orderable": false, "targets": 5, title: '年龄', width: 60},
+                        {"orderable": false, "targets": 6, title: '诊断', width: 150},
+                        {"orderable": false, "targets": 7, title: '接诊科室'},
+                        {"orderable": false, "targets": 8, title: '医生姓名', width: 80}
+                    ], select: {
+                        style: 'os',
+                        selector: 'td:first-child'
+                    },
+                    "aaSorting": [],
+                    language: {
+                        url: '../components/datatables/datatables.chinese.json'
+                    },
+                    "ajax": {
+                        url: "/infectious/getClinicPatient.jspa?queryItem=patientName&queryField=" + $('#patientName').val() +
+                            "&timeFrom=" + timeFrom + "&timeTo=" + timeTo,
+                        "data": function (d) {//删除多余请求参数
+                            for (var key in d)
+                                if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
+                                    delete d[key];
+                        }
+                    }
+                });
+            }
+
+
+            patientTable.on('select', function (e, dt, type, indexes) {
+                $('.ui-dialog-buttonpane').find('button:contains("选择")').removeAttr("disabled");
+                $('.ui-dialog-buttonpane').find('button:contains("空白")').attr("disabled", "disabled");
+                choosePatient = patientTable.rows({selected: true}).data()[0];
+                //console.log("choose:"+JSON.stringify(choosePatient));
+            }).on('deselect', function (e, dt, type, indexes) {
+                $('.ui-dialog-buttonpane').find('button:contains("选择")').attr("disabled", "disabled");
+                $('.ui-dialog-buttonpane').find('button:contains("空白")').removeAttr("disabled");
+                choosePatient = null;
+            });
+        });
     })
 </script>
 <!-- #section:basics/content.breadcrumbs -->
@@ -327,3 +535,100 @@
     </div><!-- /.row -->
 </div>
 <!-- /.page-content -->
+<div id="dialog-edit" class="hide no-padding ">
+    <!-- /section:basics/content.breadcrumbs -->
+    <div class="page-content ">
+        <div class="page-header">
+            <form class="form-search form-inline">
+                <div class="input-group">
+                    <label class="  control-label no-padding-right" for="form-type">门诊住院：</label>
+
+                    <select id="form-type" class="chosen-select" data-placeholder="门诊住院">
+                        <option value="1" selected>门诊</option>
+                        <option value="2">住院</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label>&nbsp;&nbsp;&nbsp;患者姓名：</label>
+                    <input class="nav-search-input  ace " type="text" id="patientName"
+                           style="width: 100px;font-size: 9px;color: black"
+                           placeholder="患者姓名"/>
+                </div>
+
+                <label>&nbsp;&nbsp;门诊日期：</label>
+                <!-- #section:plugins/date-time.datepicker -->
+                <div class="input-group">
+                    <input class="form-control nav-search-input" id="dateRange"
+                           style="color: black "
+                           data-date-format="YYYY-MM-DD"/>
+                    <span class="input-group-addon"><i class="fa fa-calendar bigger-100"></i></span>
+                </div>&nbsp;&nbsp;&nbsp;
+
+                <button type="button" class="btn btn-sm btn-success" id="queryPatient">
+                    查询
+                    <i class="ace-icon glyphicon glyphicon-search icon-on-right bigger-100"></i>
+                </button>
+            </form>
+        </div>
+
+        <div class="row ">
+            <div class="col-xs-12">
+
+                <div class="row">
+
+                    <div class="col-xs-12">
+                        <div class="table-header">
+                            病人列表
+                        </div>
+
+                        <!-- div.table-responsive -->
+
+                        <!-- div.dataTables_borderWrap -->
+                        <div id="dt2">
+                            <table id="dynamic-table2" class="table table-striped table-bordered table-hover">
+                            </table>
+                        </div>
+                        <div id="dt3">
+                            <table id="dynamic-table3" class="table table-striped table-bordered table-hover">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PAGE CONTENT ENDS -->
+            </div><!-- /.col -->
+        </div><!-- /.row -->
+    </div>
+</div>
+<div class="widget-box widget-color-orange  hide" style=" padding: 0;margin: 0;" id="boxDialog">
+    <div class="widget-header widget-header-small">
+        <h6 class="widget-title">
+            <i class="ace-icon fa fa-sort"></i>
+            Small Header & Collapsed
+        </h6>
+
+        <div class="widget-toolbar">
+            <a href="#" data-action="settings">
+                <i class="ace-icon fa fa-cog"></i>
+            </a>
+
+            <a href="#" data-action="reload">
+                <i class="ace-icon fa fa-refresh"></i>
+            </a>
+
+            <a href="#" data-action="collapse">
+                <i class="ace-icon fa fa-plus" data-icon-show="fa-plus" data-icon-hide="fa-minus"></i>
+            </a>
+
+            <a href="#" data-action="close">
+                <i class="ace-icon fa fa-times"></i>
+            </a>
+        </div>
+    </div>
+    <div class="widget-body ">
+        <div class="widget-main">
+
+        </div>
+    </div>
+</div>

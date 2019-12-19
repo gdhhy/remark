@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>
     <link rel="stylesheet" href="../components/bootstrap-datetimepicker/bootstrap-datetimepicker.css"/>
     <link rel="stylesheet" href="../assets/css/bootstrap-editable.css"/>
+    <link rel="stylesheet" href="../components/datatables/select.dataTables.css"/>
 
     <!-- basic scripts -->
     <script src="../js/jquery-1.12.4.min.js"></script>
@@ -500,7 +501,7 @@
 
                 'columnDefs': [
                     {
-                        "orderable": false, "targets": 0, width: 20, render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 0,  className: 'select-checkbox',width: 20, render: function (data, type, row, meta) {
                             return '<input name="a123" type="radio">';
                         }
                     },

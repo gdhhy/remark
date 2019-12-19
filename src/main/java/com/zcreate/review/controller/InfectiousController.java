@@ -8,7 +8,6 @@ import com.zcreate.review.dao.InfectiousDAO;
 import com.zcreate.review.dao.PatientInfoDAO;
 import com.zcreate.review.model.Contagion;
 import com.zcreate.review.model.Infectious;
-import com.zcreate.review.model.PatientInfo;
 import com.zcreate.security.pojo.User;
 import com.zcreate.util.DateJsonValueProcessor;
 import com.zcreate.util.DateUtils;
@@ -113,7 +112,7 @@ public class InfectiousController {
     }
 
     @RequestMapping(value = "getInfectious", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public String getInfectious(@RequestParam(value = "infectiousID" ) Integer infectiousID,ModelMap model) {
+    public String getInfectious(@RequestParam(value = "infectiousID") Integer infectiousID, ModelMap model) {
         //ModelMap modelMap = new ModelMap();
         model.addAttribute("success", true);
         model.addAttribute("infectious", infectiousDao.getInfectious(infectiousID));
@@ -122,16 +121,28 @@ public class InfectiousController {
     }
 
     @RequestMapping(value = "/newInfectious", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public String newInfectious(ModelMap model) {
+    public String newInfectious(@RequestParam(value = "patientID", required = false, defaultValue = "0") Integer patientID, ModelMap model) {
         Infectious infectious = new Infectious();
         infectious.setFillTime(DateUtils.formatSqlDateTime(new Date()));
-        infectious.setReportUnit( reviewConfig.getHospitalName());
+        infectious.setReportUnit(reviewConfig.getHospitalName());
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserDetails) {
             infectious.setDoctorUserID(((User) principal).getUserID());
             infectious.setReportDoctor(((User) principal).getName());
-            if(((User) principal).getLink()!=null)
-            infectious.setDoctorPhone(((User) principal).getLink().getAsString());
+            if (((User) principal).getLink() != null)
+                infectious.setDoctorPhone(((User) principal).getLink().getAsString());
+        }
+        if (patientID > 0) {
+            Map<String, Object> patientInfo = patientInfoDao.getPatientInfo(patientID);
+            infectious.setPatientName((String) patientInfo.get("Name"));
+            infectious.setBirthday(DateUtils.formatSqlDate((Timestamp) patientInfo.get("BirthDate")));
+            infectious.setIdCardNo((String) patientInfo.get("IDCardNo"));
+            infectious.setPatientParent((String) patientInfo.get("LinkmanName"));
+            infectious.setBoy("M".equals(patientInfo.get("SEX")) ? 1 : 0);
+            infectious.setWorkplace((String) patientInfo.get("Company"));
+            infectious.setLinkPhone((String) patientInfo.get("Mobile"));
+            infectious.setAddress((String) patientInfo.get("AddressHome"));
+            infectious.setOccupationElse((String) patientInfo.get("Occupation"));
         }
         model.addAttribute("success", true);
         model.addAttribute("infectious", infectious);
@@ -519,7 +530,7 @@ public class InfectiousController {
 
     @ResponseBody
     @RequestMapping(value = "saveInfectious", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
-    public String saveInfectious(@RequestBody  Infectious infectious) {
+    public String saveInfectious(@RequestBody Infectious infectious) {
         Map<String, Object> modelMap = new HashMap<>();
         try {
             if (infectious.getWorkflow() % 10 == 2) infectious.setWorkflow(infectious.getWorkflow() + 8);
@@ -607,10 +618,10 @@ public class InfectiousController {
 
     @ResponseBody
     @RequestMapping(value = "getPatientInfo", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public String getPatientInfo(@RequestParam Integer type, @RequestParam String serialNo) {
+    public String getPatientInfo(@RequestParam int patientID) {
         Map<String, Object> modelMap = new HashMap<>();
 
-        PatientInfo info = patientInfoDao.getPatientInfo(type, serialNo);
+        Map<String, Object> info = patientInfoDao.getPatientInfo(patientID);
 
         modelMap.put("success", info != null);
         modelMap.put("patientInfo", info);
@@ -620,29 +631,33 @@ public class InfectiousController {
 
     @ResponseBody
     @RequestMapping(value = "getClinicPatient", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public String getClinicPatient(@RequestParam String serialNo, @RequestParam String patientName) {
+    public String getClinicPatient(@RequestParam String queryItem, @RequestParam String queryField, @RequestParam String timeFrom, @RequestParam String timeTo) {
+        System.out.println("getClinicPatient");
         Map<String, Object> modelMap = new HashMap<>();
         Gson gson = new GsonBuilder().create();
-        List<Map> results = patientInfoDao.getClinicPatient(serialNo, patientName);
+        List<Map<String, Object>> results = patientInfoDao.getClinicPatient(queryItem, queryField, timeFrom, timeTo);
 
-        modelMap.put("success", results.size() > 0);
-        modelMap.put("results", results);
-        modelMap.put("totalCount", results.size());
+        // modelMap.put("success", true);
+        modelMap.put("data", results);
+        modelMap.put("iTotalRecords", results.size());
+        modelMap.put("iTotalDisplayRecords", results.size());
 
         return gson.toJson(modelMap);
     }
 
     @ResponseBody
     @RequestMapping(value = "getHospitalPatient", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public String getHospitalPatient(@RequestParam String serialNo, @RequestParam String patientName) {
+    public String getHospitalPatient(@RequestParam String queryItem, @RequestParam String queryField, @RequestParam String timeFrom, @RequestParam String timeTo) {
         logger.debug("getHospitalPatient:");
+
         Map<String, Object> modelMap = new HashMap<>();
 
-        List<Map> results = patientInfoDao.getHospitalPatient(serialNo, patientName);
+        List<Map<String, Object>> results = patientInfoDao.getHospitalPatient(queryItem, queryField, timeFrom, timeTo);
 
-        modelMap.put("success", results.size() > 0);
-        modelMap.put("results", results);
-        modelMap.put("totalCount", results.size());
+        //  modelMap.put("success", true);
+        modelMap.put("data", results);
+        modelMap.put("iTotalRecords", results.size());
+        modelMap.put("iTotalDisplayRecords", results.size());
 
         return gson.toJson(modelMap);
     }

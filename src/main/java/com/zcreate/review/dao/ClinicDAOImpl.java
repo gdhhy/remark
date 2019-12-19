@@ -44,7 +44,9 @@ public class ClinicDAOImpl extends SqlSessionDaoSupport implements ClinicDAO, Se
         Clinic clinic = getSqlSession().selectOne("Clinic.selectClinic", clinicID);
 
         Map<String, Object> param = new HashMap<>();
-        param.put("RxDetailTable", "RxDetail_" + (clinic.getClinicDate().getYear()+1900));
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(clinic.getClinicDate());
+        param.put("RxDetailTable", "RxDetail_" + cal.get(Calendar.YEAR));//clinic.getClinicDate().getYear()+1900));
         clinic.setIncompatibilitys(queryIncompatibilitys(param));
         clinic.setDetails(selectRxDetail2Review(param));
 
