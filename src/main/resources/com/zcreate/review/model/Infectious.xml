@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Infectious">
+    <cache eviction="LRU" readOnly="false" flushInterval="3600000" size="1000"/>
+    <resultMap id="InfectiousResult" type="com.zcreate.review.model.Infectious">
+        <result column="infectiousID" jdbcType="INTEGER" property="infectiousID"/>
+        <result column="objectType" jdbcType="INTEGER" property="objectType"/>
+        <result column="serialNo" jdbcType="VARCHAR" property="serialNo"/>
+        <result column="patientID" jdbcType="INTEGER" property="patientID"/>
+        <result column="reportNo" jdbcType="VARCHAR" property="reportNo"/>
+        <result column="reportType" jdbcType="INTEGER" property="reportType"/>
+        <result column="patientName" jdbcType="VARCHAR" property="patientName"/>
+        <result column="patientParent" jdbcType="VARCHAR" property="patientParent"/>
+        <result column="idCardNo" jdbcType="VARCHAR" property="idCardNo"/>
+        <result column="boy" jdbcType="INTEGER" property="boy"/>
+        <result column="birthday" jdbcType="VARCHAR" property="birthday"/>
+        <result column="age" jdbcType="VARCHAR" property="age"/>
+        <result column="ageUnit" jdbcType="VARCHAR" property="ageUnit"/>
+        <result column="workplace" jdbcType="VARCHAR" property="workplace"/>
+        <result column="linkPhone" jdbcType="VARCHAR" property="linkPhone"/>
+        <result column="belongTo" jdbcType="VARCHAR" property="belongTo"/>
+        <result column="address" jdbcType="VARCHAR" property="address"/>
+        <result column="occupation" jdbcType="INTEGER" property="occupation"/>
+        <result column="occupationElse" jdbcType="VARCHAR" property="occupationElse"/>
+        <result column="caseClass" jdbcType="INTEGER" property="caseClass"/>
+        <result column="accidentDate" jdbcType="VARCHAR" property="accidentDate"/>
+        <result column="diagnosisDate" jdbcType="VARCHAR" property="diagnosisDate"/>
+        <result column="diagnosisHour" jdbcType="VARCHAR" property="diagnosisHour"/>
+        <result column="deathDate" jdbcType="VARCHAR" property="deathDate"/>
+        <result column="infectiousClass" jdbcType="INTEGER" property="infectiousClass"/>
+        <result column="infectiousName" jdbcType="VARCHAR" property="infectiousName"/>
+        <result column="correctName" jdbcType="VARCHAR" property="correctName"/>
+        <result column="cancelCause" jdbcType="VARCHAR" property="cancelCause"/>
+        <result column="reportUnit" jdbcType="VARCHAR" property="reportUnit"/>
+        <result column="doctorPhone" jdbcType="VARCHAR" property="doctorPhone"/>
+        <result column="reportDoctor" jdbcType="VARCHAR" property="reportDoctor"/>
+        <result column="memo" jdbcType="VARCHAR" property="memo"/>
+
+        <result column="marital" jdbcType="INTEGER" property="marital"/>
+        <result column="nation" jdbcType="INTEGER" property="nation"/>
+        <result column="nationElse" jdbcType="VARCHAR" property="nationElse"/>
+        <result column="education" jdbcType="VARCHAR" property="education"/>
+        <result column="venerismHis" jdbcType="VARCHAR" property="venerismHis"/>
+        <result column="registerAddr" jdbcType="VARCHAR" property="registerAddr"/>
+        <result column="touchHis" jdbcType="VARCHAR" property="touchHis"/>
+        <result column="touchElse" jdbcType="VARCHAR" property="touchElse"/>
+        <result column="infectRoute" jdbcType="VARCHAR" property="infectRoute"/>
+        <result column="sampleSource" jdbcType="VARCHAR" property="sampleSource"/>
+        <result column="conclusion" jdbcType="VARCHAR" property="conclusion"/>
+        <result column="checkConfirmDate" jdbcType="VARCHAR" property="checkConfirmDate"/>
+        <result column="hivConfirmDate" jdbcType="VARCHAR" property="hivConfirmDate"/>
+        <result column="checkUnit" jdbcType="VARCHAR" property="checkUnit"/>
+
+        <result column="fillTime" jdbcType="VARCHAR" property="fillTime"/>
+        <result column="doctorUserID" jdbcType="INTEGER" property="doctorUserID"/>
+        <result column="workflow" jdbcType="INTEGER" property="workflow"/>
+    </resultMap>
+    <resultMap id="ContagionResult" type="com.zcreate.review.model.Contagion">
+        <result column="contagionID" jdbcType="INTEGER" property="contagionID"/>
+        <result column="objectType" jdbcType="INTEGER" property="objectType"/>
+        <result column="patientID" jdbcType="INTEGER" property="patientID"/>
+        <result column="serialNo" jdbcType="VARCHAR" property="serialNo"/>
+        <result column="department" jdbcType="VARCHAR" property="department"/>
+        <result column="patientName" jdbcType="VARCHAR" property="patientName"/>
+        <result column="idNo" jdbcType="VARCHAR" property="idNo"/>
+        <result column="boy" jdbcType="INTEGER" property="boy"/>
+        <result column="age" jdbcType="VARCHAR" property="age"/>
+        <result column="inDate" jdbcType="VARCHAR" property="inDate"/>
+        <result column="hospitalDay" jdbcType="VARCHAR" property="hospitalDay"/>
+        <result column="baseDiagnosis1" jdbcType="VARCHAR" property="baseDiagnosis1"/>
+        <result column="baseDiagnosis2" jdbcType="VARCHAR" property="baseDiagnosis2"/>
+        <result column="baseDiagnosis3" jdbcType="VARCHAR" property="baseDiagnosis3"/>
+        <result column="baseDiagnosis4" jdbcType="VARCHAR" property="baseDiagnosis4"/>
+        <result column="hospitalInfect1" jdbcType="VARCHAR" property="hospitalInfect1"/>
+        <result column="occurDay1" jdbcType="VARCHAR" property="occurDay1"/>
+        <result column="hospitalInfect2" jdbcType="VARCHAR" property="hospitalInfect2"/>
+        <result column="occurDay2" jdbcType="VARCHAR" property="occurDay2"/>
+        <result column="factor" jdbcType="VARCHAR" property="factor"/>
+        <result column="surgeryName" jdbcType="VARCHAR" property="surgeryName"/>
+        <result column="emergency" jdbcType="INTEGER" property="emergency"/>
+        <result column="surgeryDate" jdbcType="VARCHAR" property="surgeryDate"/>
+        <result column="surgeryDoctor" jdbcType="VARCHAR" property="surgeryDoctor"/>
+        <result column="lastTime1" jdbcType="VARCHAR" property="lastTime1"/>
+        <result column="lastTime2" jdbcType="VARCHAR" property="lastTime2"/>
+        <result column="anaesthesia" jdbcType="INTEGER" property="anaesthesia"/>
+        <result column="cut" jdbcType="INTEGER" property="cut"/>
+        <result column="feature" jdbcType="INTEGER" property="feature"/>
+        <result column="microbe" jdbcType="VARCHAR" property="microbe"/>
+        <result column="time1" jdbcType="VARCHAR" property="time1"/>
+        <result column="time2" jdbcType="VARCHAR" property="time2"/>
+        <result column="time3" jdbcType="VARCHAR" property="time3"/>
+        <result column="drainage" jdbcType="VARCHAR" property="drainage"/>
+        <result column="hormone" jdbcType="VARCHAR" property="hormone"/>
+        <result column="time4" jdbcType="VARCHAR" property="time4"/>
+        <result column="time5" jdbcType="VARCHAR" property="time5"/>
+        <result column="sample" jdbcType="VARCHAR" property="sample"/>
+        <result column="bAntiDrug" jdbcType="VARCHAR" property="bAntiDrug"/>
+        <result column="aAntiDrug" jdbcType="VARCHAR" property="aAntiDrug"/>
+        <result column="pAntiDrug" jdbcType="VARCHAR" property="pAntiDrug"/>
+        <result column="antiItem" jdbcType="INTEGER" property="antiItem"/>
+        <result column="masterDoctor" jdbcType="VARCHAR" property="masterDoctor"/>
+        <result column="monitorDoctor" jdbcType="VARCHAR" property="monitorDoctor"/>
+        <result column="reportTime" jdbcType="TIMESTAMP" property="reportTime"/>
+        <result column="doctorUserID" jdbcType="INTEGER" property="doctorUserID"/>
+        <result column="workflow" jdbcType="INTEGER" property="workflow"/>
+    </resultMap>
+    <select id="selectContagion" resultType="java.util.Map" parameterType="int">
+        SELECT contagionID,objectType,patientID,serialNo,department,patientName,idNo,boy,age,inDate,hospitalDay,baseDiagnosis1,baseDiagnosis2,baseDiagnosis3,baseDiagnosis4,hospitalInfect1,occurDay1,
+        hospitalInfect2,occurDay2,factor,surgeryName,emergency,surgeryDate,surgeryDoctor,lastTime1,lastTime2,anaesthesia,cut,feature,microbe,time1,time2,time3,drainage,hormone,time4,time5,
+        sample,bAntiDrug,aAntiDrug,pAntiDrug,antiItem,masterDoctor,monitorDoctor,reportTime,workflow,doctorUserID FROM Contagion
+        WHERE contagionID = #{contagionID:INTEGER}
+    </select>
+    <select id="selectInfectious" resultType="java.util.Map" parameterType="int">
+       SELECT infectiousID,objectType,patientID,serialNo,reportNo,reportType,patientName,patientParent,idCardNo,boy,birthday,age,ageUnit,workplace,linkPhone,belongTo,address,occupation,occupationElse,caseClass,
+       accidentDate,diagnosisDate,diagnosisHour,deathDate,infectiousClass,infectiousName,correctName,cancelCause,reportUnit,doctorPhone,reportDoctor,memo,
+       marital,nation,nationElse,education,venerismHis, registerAddr,touchHis,touchElse,infectRoute,sampleSource,conclusion,checkConfirmDate,hivConfirmDate,checkUnit,
+       convert(varchar(16),fillTime,120) fillTime, workflow,doctorUserID
+        FROM  Infectious
+        WHERE infectiousID = #{infectiousID:INTEGER}
+    </select>
+    <select id="selectContagionList" resultMap="ContagionResult" parameterType="java.util.Map">
+        SELECT
+        contagionID,objectType,patientID,serialNo,department,patientName,idNo,boy,age,inDate,hospitalDay,baseDiagnosis1,baseDiagnosis2,baseDiagnosis3,baseDiagnosis4,hospitalInfect1,occurDay1,
+        hospitalInfect2,occurDay2,factor,surgeryName,emergency,surgeryDate,surgeryDoctor,lastTime1,lastTime2,anaesthesia,cut,feature,microbe,time1,time2,time3,drainage,hormone,time4,time5,
+        sample,bAntiDrug,aAntiDrug,pAntiDrug,antiItem,masterDoctor,monitorDoctor,reportTime,workflow,doctorUserID,workflowNote FROM Contagion
+        <where>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND reportTime >= #{fromDate:TIMESTAMP}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(toDate)">AND reportTime &lt; #{toDate:TIMESTAMP}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(doctorUserID)">AND doctorUserID = #{doctorUserID:INTEGER}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(queryField)">AND patientName = #{queryField:VARCHAR}</if>
+            <if test="workflowState==3">AND workflow%10 = 3</if>
+            <if test="workflowState==0">AND workflow%10 != 3</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(notWorkflow)">AND workflow % 10 != #{notWorkflow:INTEGER}</if>
+        </where>
+        order by contagionID desc
+    </select>
+    <select id="selectInfectiousList" resultMap="InfectiousResult" parameterType="java.util.Map">
+        SELECT
+        infectiousID,objectType,patientID,serialNo,reportNo,reportType,patientName,patientParent,idCardNo,boy,birthday,age,ageUnit,workplace,linkPhone,belongTo,address,occupation,occupationElse,caseClass,
+        accidentDate,diagnosisDate,diagnosisHour,deathDate,infectiousClass,infectiousName,correctName,cancelCause,reportUnit,doctorPhone,reportDoctor,memo,
+        marital,nation,nationElse,education,venerismHis, registerAddr,touchHis,touchElse,infectRoute,sampleSource,conclusion,checkConfirmDate,hivConfirmDate,checkUnit,
+        convert(varchar(16),fillTime,120) fillTime,workflow,doctorUserID,workflowNote
+        FROM Infectious
+        <where>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND fillTime >= #{fromDate:TIMESTAMP}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(toDate)">AND fillTime &lt; #{toDate:TIMESTAMP}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(queryField)">
+                <choose>
+                    <when test="queryItem==0">AND infectiousName LIKE '%${queryField}%'</when>
+                    <when test="queryItem==1">AND patientName = #{queryField:VARCHAR}</when>
+                </choose>
+            </if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(doctorUserID)">AND doctorUserID = #{doctorUserID:INTEGER}</if>
+            <if test="workflowState==3">AND workflow%10 = 3</if>
+            <if test="workflowState==0">AND workflow%10 != 3</if>
+            <if test="notWorkflow==0">AND workflow % 10 != #{notWorkflow:INTEGER}</if>
+        </where>
+        order by infectiousID desc
+    </select>
+    <insert id="insertContagion" parameterType="com.zcreate.review.model.Contagion" flushCache="true">
+        INSERT INTO Contagion
+        (objectType,patientID,serialNo,department,patientName,idNo,boy,age,inDate,hospitalDay,baseDiagnosis1,baseDiagnosis2,baseDiagnosis3,baseDiagnosis4,hospitalInfect1,occurDay1,
+        hospitalInfect2,occurDay2,factor,surgeryName,emergency,surgeryDate,surgeryDoctor,lastTime1,lastTime2,anaesthesia,cut,feature,microbe,time1,time2,time3,drainage,hormone,time4,time5,
+        sample,bAntiDrug,aAntiDrug,pAntiDrug,antiItem,masterDoctor,monitorDoctor,workflow,doctorUserID)
+        VALUES
+        (#{objectType:INTEGER},#{patientID:INTEGER},#{serialNo:VARCHAR},#{department:VARCHAR},#{patientName:VARCHAR},#{idNo:VARCHAR},#{boy:INTEGER},#{age:VARCHAR},#{inDate:VARCHAR},#{hospitalDay:VARCHAR},
+        #{baseDiagnosis1:VARCHAR},#{baseDiagnosis2:VARCHAR},
+        #{baseDiagnosis3:VARCHAR},#{baseDiagnosis4:VARCHAR},#{hospitalInfect1:VARCHAR},#{occurDay1:VARCHAR},#{hospitalInfect2:VARCHAR},#{occurDay2:VARCHAR},
+        #{factor:VARCHAR},#{surgeryName:VARCHAR},#{emergency:INTEGER}, #{surgeryDate:VARCHAR},#{surgeryDoctor:VARCHAR},#{lastTime1:VARCHAR},#{lastTime2:VARCHAR},
+        #{anaesthesia:INTEGER},#{cut:INTEGER},#{feature:INTEGER},#{microbe:VARCHAR},
+        #{time1:VARCHAR},#{time2:VARCHAR},#{time3:VARCHAR},#{drainage:VARCHAR},#{hormone:VARCHAR}, #{time4:VARCHAR},#{time5:VARCHAR},
+        #{sample:VARCHAR},#{bAntiDrug:VARCHAR},#{aAntiDrug:VARCHAR},#{pAntiDrug:VARCHAR},
+        #{antiItem:INTEGER},#{masterDoctor:VARCHAR},#{monitorDoctor:VARCHAR} , #{workflow:INTEGER} ,#{doctorUserID:INTEGER})
+        <selectKey resultType="int" order="AFTER" keyProperty="contagionID">
+            select @@IDENTITY as contagionID
+        </selectKey>
+    </insert>
+    <insert id="insertInfectious" parameterType="com.zcreate.review.model.Infectious" flushCache="true">
+        INSERT INTO Infectious
+        (objectType,patientID,serialNo,reportNo,reportType,patientName,patientParent,idCardNo,boy,birthday,age,ageUnit,workplace,linkPhone,belongTo,address,occupation,occupationElse,caseClass,
+        accidentDate,diagnosisDate,diagnosisHour,deathDate,infectiousClass,infectiousName,correctName,cancelCause,reportUnit,doctorPhone,reportDoctor,memo,
+        marital,nation,nationElse,education,venerismHis, registerAddr,touchHis,touchElse,infectRoute,sampleSource,conclusion,checkConfirmDate,hivConfirmDate,checkUnit,workflow,doctorUserID)
+        VALUES
+        (#{objectType:INTEGER},#{patientID:INTEGER},#{serialNo:VARCHAR},#{reportNo:VARCHAR},#{reportType:INTEGER},#{patientName:VARCHAR},#{patientParent:VARCHAR},#{idCardNo:VARCHAR},#{boy:INTEGER},#{birthday:VARCHAR},
+        #{age:VARCHAR},#{ageUnit:VARCHAR},#{workplace:VARCHAR},#{linkPhone:VARCHAR},#{belongTo:VARCHAR},#{address:VARCHAR},#{occupation:VARCHAR},#{occupationElse:VARCHAR},
+        #{caseClass:INTEGER},
+        #{accidentDate:VARCHAR},#{diagnosisDate:VARCHAR},#{diagnosisHour:VARCHAR},#{deathDate:VARCHAR},#{infectiousClass:INTEGER},#{infectiousName:VARCHAR},
+        #{correctName:VARCHAR},#{cancelCause:VARCHAR},#{reportUnit:VARCHAR},#{doctorPhone:VARCHAR},#{reportDoctor:VARCHAR}, #{memo:VARCHAR},
+        #{marital:INTEGER},#{nation:INTEGER},#{nationElse:VARCHAR},#{education:VARCHAR},#{venerismHis:VARCHAR},#{registerAddr:VARCHAR},#{touchHis:INTEGER},#{touchElse:VARCHAR},#{infectRoute:VARCHAR},
+        #{sampleSource:VARCHAR},#{conclusion:VARCHAR},#{checkConfirmDate:VARCHAR},#{hivConfirmDate:VARCHAR},#{checkUnit:VARCHAR},
+        #{workflow:INTEGER} ,#{doctorUserID:INTEGER} )
+        <selectKey resultType="int" order="AFTER" keyProperty="infectiousID">
+            select @@IDENTITY as infectiousID
+        </selectKey>
+    </insert>
+    <update id="updateInfectious" parameterType="com.zcreate.review.model.Infectious" flushCache="true">
+        UPDATE Infectious
+        <set>
+            <if test="reportNo != null">reportNo = #{reportNo:VARCHAR},</if>
+            <if test="patientID != null">patientID = #{patientID:INTEGER},</if>
+            <if test="serialNo != null">serialNo = #{serialNo:VARCHAR},</if>
+            <if test="reportType != null">reportType = #{reportType:INTEGER},</if>
+            <if test="patientName != null">patientName = #{patientName:VARCHAR},</if>
+            <if test="patientParent != null">patientParent = #{patientParent:VARCHAR},</if>
+            <if test="idCardNo != null">idCardNo = #{idCardNo:VARCHAR},</if>
+            <if test="boy != null">boy = #{boy:VARCHAR},</if>
+            <if test="birthday != null">birthday = #{birthday:VARCHAR},</if>
+            <if test="age != null">age = #{age:VARCHAR},</if>
+            <if test="ageUnit != null">ageUnit = #{ageUnit:VARCHAR},</if>
+            <if test="workplace != null">workplace = #{workplace:VARCHAR},</if>
+            <if test="linkPhone != null">linkPhone = #{linkPhone:VARCHAR},</if>
+            <if test="belongTo != null">belongTo = #{belongTo:VARCHAR},</if>
+            <if test="address != null">address = #{address:VARCHAR},</if>
+            <if test="occupation != null">occupation = #{occupation:INTEGER},</if>
+            <if test="occupationElse != null">occupationElse = #{occupationElse:VARCHAR},</if>
+            <if test="caseClass != null">caseClass = #{caseClass:INTEGER},</if>
+            <if test="accidentDate != null">accidentDate = #{accidentDate:VARCHAR},</if>
+            <if test="diagnosisDate != null">diagnosisDate = #{diagnosisDate:VARCHAR},</if>
+            <if test="diagnosisHour != null">diagnosisHour = #{diagnosisHour:VARCHAR},</if>
+            <if test="deathDate != null">deathDate = #{deathDate:VARCHAR},</if>
+            <if test="infectiousClass != null">infectiousClass = #{infectiousClass:INTEGER},</if>
+            <if test="infectiousName != null">infectiousName = #{infectiousName:VARCHAR},</if>
+            <if test="correctName != null">correctName = #{correctName:VARCHAR},</if>
+            <if test="cancelCause != null">cancelCause = #{cancelCause:VARCHAR},</if>
+            <if test="reportUnit != null">reportUnit = #{reportUnit:VARCHAR},</if>
+            <if test="doctorPhone != null">doctorPhone = #{doctorPhone:VARCHAR},</if>
+            <if test="reportDoctor != null">reportDoctor = #{reportDoctor:VARCHAR},</if>
+            <if test="memo != null">memo = #{memo:VARCHAR},</if>
+            <if test="marital != null">marital = #{marital:INTEGER},</if>
+            <if test="nation != null">nation = #{nation:INTEGER},</if>
+            <if test="nationElse != null">nationElse = #{nationElse:VARCHAR},</if>
+            <if test="education != null">education = #{education:VARCHAR},</if>
+            <if test="venerismHis != null">venerismHis = #{venerismHis:VARCHAR},</if>
+            <if test="registerAddr != null">registerAddr = #{registerAddr:VARCHAR},</if>
+            <if test="touchHis != null">touchHis = #{touchHis:INTEGER},</if>
+            <if test="touchElse != null">touchElse = #{touchElse:VARCHAR},</if>
+            <if test="infectRoute != null">infectRoute = #{infectRoute:VARCHAR},</if>
+            <if test="sampleSource != null">sampleSource = #{sampleSource:VARCHAR},</if>
+            <if test="conclusion != null">conclusion = #{conclusion:VARCHAR},</if>
+            <if test="checkConfirmDate != null">checkConfirmDate = #{checkConfirmDate:VARCHAR},</if>
+            <if test="hivConfirmDate != null">hivConfirmDate = #{hivConfirmDate:VARCHAR},</if>
+            <if test="checkUnit != null">checkUnit = #{checkUnit:VARCHAR},</if>
+            <if test="workflow != null">workflow = #{workflow:INTEGER},</if>
+            <if test="workflowNote != null">workflowNote = #{workflowNote:VARCHAR},</if>
+        </set>
+        WHERE infectiousID=#{infectiousID:INTEGER}
+    </update>
+    <update id="updateContagion" parameterType="com.zcreate.review.model.Contagion" flushCache="true">
+        UPDATE Contagion
+        <set>
+            <if test="patientID != null">patientID = #{patientID:INTEGER},</if>
+            <if test="serialNo != null">serialNo = #{serialNo:VARCHAR},</if>
+            <if test="department != null">department = #{department:VARCHAR},</if>
+            <if test="patientName != null">patientName = #{patientName:VARCHAR},</if>
+            <if test="idNo != null">idNo = #{idNo:VARCHAR},</if>
+            <if test="boy != null">boy = #{boy:INTEGER},</if>
+            <if test="age != null">age = #{age:VARCHAR},</if>
+            <if test="inDate != null">inDate = #{inDate:VARCHAR},</if>
+            <if test="hospitalDay != null">hospitalDay = #{hospitalDay:VARCHAR},</if>
+            <if test="baseDiagnosis1 != null">baseDiagnosis1 = #{baseDiagnosis1:VARCHAR},</if>
+            <if test="baseDiagnosis2 != null">baseDiagnosis2 = #{baseDiagnosis2:VARCHAR},</if>
+            <if test="baseDiagnosis3 != null">baseDiagnosis3 = #{baseDiagnosis3:VARCHAR},</if>
+            <if test="baseDiagnosis4 != null">baseDiagnosis4 = #{baseDiagnosis4:VARCHAR},</if>
+            <if test="hospitalInfect1 != null">hospitalInfect1 = #{hospitalInfect1:VARCHAR},</if>
+            <if test="occurDay1 != null">occurDay1 = #{occurDay1:VARCHAR},</if>
+            <if test="hospitalInfect2 != null">hospitalInfect2 = #{hospitalInfect2:VARCHAR},</if>
+            <if test="occurDay2 != null">occurDay2 = #{occurDay2:VARCHAR},</if>
+            <if test="factor != null">factor = #{factor:VARCHAR},</if>
+            <if test="surgeryName != null">surgeryName = #{surgeryName:VARCHAR},</if>
+            <if test="emergency != null">emergency = #{emergency:INTEGER},</if>
+            <if test="surgeryDate != null">surgeryDate = #{surgeryDate:VARCHAR},</if>
+            <if test="surgeryDoctor != null">surgeryDoctor = #{surgeryDoctor:VARCHAR},</if>
+            <if test="lastTime1!= null">lastTime1 = #{lastTime1:VARCHAR},</if>
+            <if test="lastTime2!= null">lastTime2 = #{lastTime2:VARCHAR},</if>
+            <if test="anaesthesia != null">anaesthesia = #{anaesthesia:INTEGER},</if>
+            <if test="cut != null">cut = #{cut:INTEGER},</if>
+            <if test="feature != null">feature = #{feature:INTEGER},</if>
+            <if test="microbe != null">microbe = #{microbe:VARCHAR},</if>
+            <if test="time1 != null">time1 = #{time1:VARCHAR},</if>
+            <if test="time2 != null">time2 = #{time2:VARCHAR},</if>
+            <if test="time3 != null">time3 = #{time3:VARCHAR},</if>
+            <if test="drainage != null">drainage = #{drainage:VARCHAR},</if>
+            <if test="hormone != null">hormone = #{hormone:VARCHAR},</if>
+            <if test="time4 != null">time4 = #{time4:VARCHAR},</if>
+            <if test="time5 != null">time5 = #{time5:VARCHAR},</if>
+            <if test="sample != null">sample = #{sample:VARCHAR},</if>
+            <if test="bAntiDrug != null">bAntiDrug = #{bAntiDrug:VARCHAR},</if>
+            <if test="aAntiDrug != null">aAntiDrug = #{aAntiDrug:VARCHAR},</if>
+            <if test="pAntiDrug != null">pAntiDrug = #{pAntiDrug:VARCHAR},</if>
+            <if test="antiItem != null">antiItem = #{antiItem:INTEGER},</if>
+            <if test="masterDoctor != null">masterDoctor = #{masterDoctor:VARCHAR},</if>
+            <if test="monitorDoctor != null">monitorDoctor = #{monitorDoctor:VARCHAR},</if>
+            <if test="workflow != null">workflow = #{workflow:INTEGER},</if>
+            <if test="workflowNote != null">workflowNote = #{workflowNote:VARCHAR},</if>
+        </set>
+        WHERE contagionID=#{contagionID:INTEGER}
+    </update>
+    <delete id="deleteContagion" parameterType="int" flushCache="true">
+        DELETE Contagion WHERE contagionID = #{contagionID:INTEGER}
+    </delete>
+    <delete id="deleteInfectious" parameterType="int" flushCache="true">
+        DELETE Infectious WHERE infectiousID = #{infectiousID:INTEGER}
+    </delete>
+</mapper>

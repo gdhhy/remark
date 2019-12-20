@@ -9,6 +9,7 @@ public class Infectious implements Serializable {
     private int infectiousID;
     private int objectType; //1门诊，2：住院
     private String serialNo;//门诊号或住院号
+    private int patientID;
     private String reportNo;
     private int reportType;
     private String patientName;
@@ -39,7 +40,7 @@ public class Infectious implements Serializable {
     private int doctorUserID;
     private String memo;
     //传染病增加
-    private String marital;
+    private int marital;
     private int nation;
     private String nationElse;
     private String education;
@@ -81,6 +82,14 @@ public class Infectious implements Serializable {
 
     public void setSerialNo(String serialNo) {
         this.serialNo = serialNo;
+    }
+
+    public int getPatientID() {
+        return patientID;
+    }
+
+    public void setPatientID(int patientID) {
+        this.patientID = patientID;
     }
 
     public String getCorrectName() {
@@ -347,11 +356,11 @@ public class Infectious implements Serializable {
         this.workflowNote = workflowNote;
     }
 
-    public String getMarital() {
+    public int getMarital() {
         return marital;
     }
 
-    public void setMarital(String marital) {
+    public void setMarital(int marital) {
         this.marital = marital;
     }
 

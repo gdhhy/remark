@@ -90,11 +90,14 @@ CREATE TABLE Contagion (
 
 alter table infectious add serialNo varchar(20);
 alter table Contagion add serialNo varchar(20);
+
+alter table infectious add patientID int;
+alter table Contagion add patientID int;
 ALTER TABLE infectious DROP COLUMN OBJECTid;
 ALTER TABLE Contagion DROP COLUMN OBJECTid;
 
-alter table infectious add marital varchar(20);
-alter table infectious add nation varchar(20);
+alter table infectious add marital int;
+alter table infectious add nation int;
 alter table infectious add nationElse varchar(20);
 alter table infectious add education varchar(20);
 alter table infectious add venerismHis varchar(20);

@@ -143,6 +143,22 @@
             else
                 $('#occupationElse').addClass("hidden");
         });
+        //新建传入0，而具体职业occupationElse从his读入
+        if ('${infectious.occupation}' === '0' && '${infectious.occupationElse}' !== '') {
+            var elseOccu = true;
+            $('#occupation option').each(function () {
+                //console.log("$(this).val() :" + $(this).text());
+                if ($(this).text() === '${infectious.occupationElse}') {
+                    $(this).attr("selected", "selected");
+                    $('#occupationElse').val('');
+                    return false;
+                }
+            });
+            if (elseOccu) {
+                $('#occupation option[value=18]').attr("selected", "selected");
+                $('#occupationElse').removeClass("hidden");
+            }
+        }
 
         //todo 统一到一个对话框
         function showDialog(title, content) {
@@ -167,7 +183,9 @@
             ignore: "",
             rules: {
                 patientName: {required: true},
-                address: {required: true}
+                address: {required: true},
+                caseClass1: {required: true},
+                caseClass2: {required: true}
             },
 
             highlight: function (e) {
@@ -180,7 +198,12 @@
             },
 
             errorPlacement: function (error, element) {
-                error.insertAfter(element.parent());
+               /* if (element.is(":radio"))
+                    error.appendTo(element.parent().next().next());
+                else if (element.is(":checkbox"))
+                    error.appendTo(element.next());
+                else*/
+                    error.insertAfter(element.parent());
             },
 
             submitHandler: function (form) {
@@ -199,7 +222,7 @@
                     if (object.name !== 'caseClass1' && object.name !== 'caseClass2')
                         submitData[object.name] = object.value;
                 });
-                //console.log("json:" + JSON.stringify(submitData));
+                console.log("json:" + JSON.stringify(submitData));
                 $.ajax({
                     type: "POST",
                     url: "/infectious/saveInfectious.jspa",
@@ -273,7 +296,7 @@
                 <div class="row">
                     <label class="col-sm-1 control-label no-padding-right" for="reportNo"> 卡片编号 </label>
                     <div class="col-sm-4">
-                        <input type="text" id="reportNo" name="reportNo" placeholder="卡片编号" class="col-xs-10 col-sm-5" value="${infectious.reportNo}"/>
+                        <input type="text" id="reportNo" name="reportNo" class="col-xs-10 col-sm-5" value="${infectious.reportNo}"/>
                     </div>
 
                     <label class="col-sm-2 control-label no-padding-right red2 "> 报告卡类别 </label>
@@ -301,20 +324,20 @@
                                         <label class="col-sm-2  control-label no-padding-right no-padding-left red2" for="patientName">&nbsp;&nbsp;&nbsp;患者姓名 </label>
 
                                         <div class="col-sm-8">
-                                            <input type="text" id="patientName" name="patientName" placeholder="患者姓名" value="${infectious.patientName}"/>
+                                            <input type="text" id="patientName" name="patientName" value="${infectious.patientName}"/>
                                         </div>
                                     </div>
                                     <label class=" col-sm-2 control-label no-padding-right" for="patientParent"> 患儿家长姓名 </label>
 
                                     <div class="col-sm-2 col-lg-1">
-                                        <input type="text" id="patientParent" name="patientParent" placeholder="患儿家长姓名" value="${infectious.patientParent}"/>
+                                        <input type="text" id="patientParent" name="patientParent" value="${infectious.patientParent}"/>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <label class=" col-sm-1  control-label no-padding-right" for="idCardNo"> 身份证号 </label>
 
                                     <div class="col-sm-5">
-                                        <input type="text" id="idCardNo" name="idCardNo" placeholder="身份证号" style="width: 100%" value="${infectious.idCardNo}"/>
+                                        <input type="text" id="idCardNo" name="idCardNo" style="width: 100%" value="${infectious.idCardNo}"/>
                                     </div>
 
                                     <label class=" col-sm-1 control-label no-padding-right"> 性别 </label>
@@ -348,7 +371,7 @@
                                     </div>
                                     <label class="col-sm-3 control-label no-padding-right" for="age">（如出生日期不详，实足年龄： </label>
                                     <div class="col-sm-1 ">
-                                        <input type="text" id="age" name="age" placeholder="年龄" style="width: 100%" value="${infectious.age}"/>
+                                        <input type="text" id="age" name="age" style="width: 100%" value="${infectious.age}"/>
                                     </div>
 
                                     <label class=" col-sm-1 control-label no-padding-right">年龄单位 </label>
@@ -378,12 +401,12 @@
                                     <label class="col-sm-1  control-label no-padding-right" for="workplace"> 工作单位 </label>
 
                                     <div class="col-sm-7">
-                                        <input type="text" id="workplace" name="workplace" placeholder="工作单位" style="width: 100%" value="${infectious.workplace}"/>
+                                        <input type="text" id="workplace" name="workplace" style="width: 100%" value="${infectious.workplace}"/>
                                     </div>
                                     <label class=" col-sm-1 control-label no-padding-right" for="linkPhone"> 联系电话 </label>
 
                                     <div class="col-sm-3">
-                                        <input type="text" id="linkPhone" name="linkPhone" placeholder="联系电话" value="${infectious.linkPhone}"/>
+                                        <input type="text" id="linkPhone" name="linkPhone" value="${infectious.linkPhone}"/>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -432,13 +455,13 @@
                                     <label class="col-sm-1  control-label no-padding-right light-red" for="address"> 现住址 </label>
 
                                     <div class="col-sm-10">
-                                        <input type="text" id="address" name="address" placeholder="现住址" style="width: 100%" value="${infectious.address}"/>
+                                        <input type="text" id="address" name="address" style="width: 100%" value="${infectious.address}"/>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <label class="col-sm-1 control-label no-padding-right  light-red"> 患者职业 </label>
                                     <div class="col-sm-2">
-                                        <select class="chosen-select form-control" id="occupation" name="occupation" data-placeholder="选择职业">
+                                        <select class="chosen-select form-control" id="occupation" name="occupation">
                                             <option value="1"<c:if test='${infectious.occupation==1}'> selected</c:if>>幼托儿童</option>
                                             <option value="2"<c:if test='${infectious.occupation==2}'> selected</c:if>>散居儿童</option>
                                             <option value="3"<c:if test='${infectious.occupation==3}'> selected</c:if>>学生（大中小学）</option>
@@ -552,7 +575,7 @@
                                 <div class="row">
                                     <label class="col-lg-1 control-label no-padding-right light-red" for="infectiousClass"> 类别 </label>
                                     <div class="col-lg-5">
-                                        <select class="chosen-select2 form-control" id="infectiousClass" name="infectiousClass" data-placeholder="传染病类别">
+                                        <select class="chosen-select2 form-control" id="infectiousClass" name="infectiousClass">
                                             <option value="0"<c:if test='${infectious.infectiousClass==0}'> selected</c:if>>甲类传染病</option>
                                             <option value="1"<c:if test='${infectious.infectiousClass==1}'> selected</c:if>>乙类传染病</option>
                                             <option value="2"<c:if test='${infectious.infectiousClass==2}'> selected</c:if>>丙类传染病</option>
@@ -561,7 +584,7 @@
                                     </div>
                                     <label class="col-lg-1 control-label no-padding-right light-red" for="infectiousName"> 名称 </label>
                                     <div class="col-lg-5">
-                                        <select class="chosen-select2 form-control" id="infectiousName" name="infectiousName" data-placeholder="名称">
+                                        <select class="chosen-select2 form-control" id="infectiousName" name="infectiousName">
                                         </select>
                                     </div>
                                 </div>
@@ -617,7 +640,7 @@
                                         <label class="col-sm-2 control-label no-padding-right "> 民族 </label>
                                         <div class="radio col-sm-2">
                                             <label style="white-space: nowrap">
-                                                <input name="nation" type="radio" class="ace" value="汉族" <c:if test='${infectious.nation==1}'> checked</c:if>/>
+                                                <input name="nation" type="radio" class="ace" value="1" <c:if test='${infectious.nation==1}'> checked</c:if>/>
                                                 <span class="lbl">汉族</span>
                                             </label>
                                         </div>
@@ -637,7 +660,7 @@
                                 <div class="row">
                                     <label class="col-sm-1 control-label no-padding-right" for="education"> 文化程度 </label>
                                     <div class="col-sm-4">
-                                        <select class="chosen-select form-control" id="education" name="education" data-placeholder="传染病类别">
+                                        <select class="chosen-select form-control" id="education" name="education">
                                             <option value="1"<c:if test='${infectious.education==1}'> selected</c:if>>文盲</option>
                                             <option value="2"<c:if test='${infectious.education==2}'> selected</c:if>>小学</option>
                                             <option value="3"<c:if test='${infectious.education==3}'> selected</c:if>>初中</option>
@@ -673,7 +696,7 @@
                                     <label class="col-sm-1  control-label no-padding-right" for="registerAddr"> 户籍地址 </label>
 
                                     <div class="col-sm-11">
-                                        <input type="text" id="registerAddr" name="registerAddr" placeholder="户籍地址" style="width: 100%" value="${infectious.registerAddr}"/>
+                                        <input type="text" id="registerAddr" name="registerAddr" style="width: 100%" value="${infectious.registerAddr}"/>
                                     </div>
                                 </div>
                                 <div class="row" <%--style="height: 35px"--%>>
@@ -693,7 +716,7 @@
                                     <label class="col-sm-2 control-label no-padding-left" for="infectRoute"> 最有可能感染路径 </label>
 
                                     <div class="col-sm-5">
-                                        <select class="chosen-select form-control" id="infectRoute" name="infectRoute" data-placeholder="最有可能感染路径">
+                                        <select class="chosen-select form-control" id="infectRoute" name="infectRoute">
                                             <option value="1"<c:if test='${infectious.infectRoute==1}'> selected</c:if>>注射毒品</option>
                                             <option value="2"<c:if test='${infectious.infectRoute==2}'> selected</c:if>>异性传播</option>
                                             <option value="3"<c:if test='${infectious.infectRoute==3}'> selected</c:if>>同性传播</option>
@@ -709,7 +732,7 @@
                                     <label class="col-sm-1  control-label no-padding-right" for="sampleSource"> 样本来源 </label>
 
                                     <div class="col-sm-4">
-                                        <select class="chosen-select form-control" id="sampleSource" name="sampleSource" data-placeholder="样本来源">
+                                        <select class="chosen-select form-control" id="sampleSource" name="sampleSource">
                                             <option value="1"<c:if test='${infectious.sampleSource==1}'> selected</c:if>>术前检测</option>
                                             <option value="2"<c:if test='${infectious.sampleSource==2}'> selected</c:if>>受血（制品）前检测</option>
                                             <option value="3"<c:if test='${infectious.sampleSource==3}'> selected</c:if>>性病门诊</option>
@@ -780,7 +803,7 @@
                                     <label class="col-sm-3  control-label no-padding-right" for="checkUnit"> 确认（替代策略核算）检测单位 </label>
 
                                     <div class="col-sm-9">
-                                        <input type="text" id="checkUnit" name="checkUnit" placeholder="确认（替代策略核算）检测单位" style="width: 100%" value="${infectious.checkUnit}"/>
+                                        <input type="text" id="checkUnit" name="checkUnit" style="width: 100%" value="${infectious.checkUnit}"/>
                                     </div>
                                 </div>
                             </div>
@@ -794,11 +817,11 @@
                                 <div class="row">
                                     <label class="col-sm-1 control-label no-padding-right" for="correctName"> 订正病名 </label>
                                     <div class="col-sm-3">
-                                        <input type="text" id="correctName" name="correctName" placeholder="订正病名" style="width: 100%" value="${infectious.correctName}"/>
+                                        <input type="text" id="correctName" name="correctName" style="width: 100%" value="${infectious.correctName}"/>
                                     </div>
                                     <label class="col-sm-1 control-label no-padding-right" for="cancelCause"> 退卡原因 </label>
                                     <div class="col-sm-3">
-                                        <input type="text" id="cancelCause" name="cancelCause" placeholder="退卡原因" style="width: 100%" value="${infectious.cancelCause}"/>
+                                        <input type="text" id="cancelCause" name="cancelCause" style="width: 100%" value="${infectious.cancelCause}"/>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -808,7 +831,7 @@
                                     </div>
                                     <label class="col-sm-1 control-label no-padding-right" for="doctorPhone"> 联系电话 </label>
                                     <div class="col-sm-3">
-                                        <input type="text" id="doctorPhone" name="doctorPhone" placeholder="联系电话" style="width: 100%" value="${infectious.doctorPhone}"/>
+                                        <input type="text" id="doctorPhone" name="doctorPhone" style="width: 100%" value="${infectious.doctorPhone}"/>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -832,7 +855,7 @@
                                 <div class="row">
                                     <label class="col-sm-1 control-label no-padding-right" for="memo"> 备注 </label>
                                     <div class="col-sm-11">
-                                        <textarea id="memo" name="memo" placeholder="备注" style="width: 100%">${infectious.memo}</textarea>
+                                        <textarea id="memo" name="memo" style="width: 100%">${infectious.memo}</textarea>
                                     </div>
 
                                 </div>
@@ -843,6 +866,7 @@
                 <div class="row align-center">
                     <input type="hidden" name="infectiousID" value="${infectious.infectiousID}"/>
                     <input type="hidden" name="objectType" value="${infectious.objectType}"/>
+                    <input type="hidden" name="patientID" value="${infectious.patientID}"/>
                     <input type="hidden" name="serialNo" value="${infectious.serialNo}"/>
                     <input type="hidden" name="doctorUserID" value="${infectious.doctorUserID}"/>
                     <button class="btn btn-white btn-save btn-bold">

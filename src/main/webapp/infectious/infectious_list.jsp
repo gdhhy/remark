@@ -47,7 +47,7 @@
                     {"data": 'reportType', "sClass": "center"},
                     {"data": 'patientName', "sClass": "center"},
                     {"data": 'serialNo', "sClass": "center"},
-                    {"data": 'age', "sClass": "center"},//4
+                    {"data": 'birthday', "sClass": "center"},//4
                     {"data": 'occupation', "sClass": "center"},
                     {"data": 'infectiousName', "sClass": "center"},
                     {"data": 'fillTime', "sClass": "center"},
@@ -107,8 +107,8 @@
                         }
                     },
                     {"orderable": false, "targets": 2, title: '患者姓名', width: 70},
-                    {"orderable": false, "targets": 3, title: '住院/门诊号', width: 90},
-                    {"orderable": false, "targets": 4, title: '年龄', width: 50},
+                    {"orderable": false, "targets": 3, title: '住院/门诊号', width: 90, defaultContent: ''},
+                    {"orderable": false, "targets": 4, title: '出生日期', width: 90},
                     {"orderable": false, "targets": 5, title: '职业'},
                     {"orderable": false, "targets": 6, title: '传染病名'},
                     {"orderable": false, "targets": 7, title: '报告日期', width: 160},
@@ -116,10 +116,13 @@
                     {"orderable": false, "targets": 9, title: '状态'},
                     {"orderable": false, "targets": 10, title: '退回消息', defaultContent: ''},
                     {
-                        "orderable": false, "targets": 11, title: '操作', render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 11, title: '操作', width: 70, render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
-                                '<a class="hasDetail" href="#" data-Url="/index.jspa?content=/infectious/getInfectious.jspa?infectiousID={0}">'.format(data) +
+                                '<a class="hasDetail" href="#" data-Url="/index.jspa?content=/infectious/getInfectious.jspa?infectiousID={0}&menuID=50">'.format(data) +
                                 '<i class="ace-icon glyphicon glyphicon-pencil  bigger-130"></i>' +
+                                '</a>' +
+                                '<a class="black" href="#" data-infectiousID="{0}" data-patientName="{1}">'.format(data, row["patientName"]) +
+                                '<i class="ace-icon fa fa-trash-o red bigger-130"></i>' +
                                 '</a>' +
                                 '</div>';
                         }
@@ -145,21 +148,65 @@
             });
         myTable.on('draw', function () {
             $('#dynamic-table tr').find('.hasDetail').click(function () {
+
                 if ($(this).attr("data-Url").indexOf('javascript:') >= 0) {
                     eval($(this).attr("data-Url"));
                 } else
                     window.open($(this).attr("data-Url"), "_blank");
             });
-            /* $('a.blue').on('click', function (e) {
-                 e.preventDefault();
-                 $.cookie('goodsID', $(this).attr("data-goodsID"));
-                 $.cookie('goodsName', $(this).attr("data-goodsName"));
-                 window.location.href = "index.jspa?content=/admin/buyRecord.jsp&menuID=3";
-             });*/
+            //$('#dynamic-table tr').find('.black').click(function (e) {
+               $('#dynamic-table a.black').on('click', function (e) {
+                //console.log("infectiousID:" + $(this).attr("data-infectiousID"));
+                e.preventDefault();
+                deleteInfectious($(this).attr("data-infectiousID"), $(this).attr("data-patientName"));
+            });
         });
         $("#dt").resize(function () {
             myTable.columns.adjust();
         });
+
+        function deleteInfectious(infectiousID, patientName) {
+            if (infectiousID === undefined) return;
+            $('#name').text(patientName);
+            $("#dialog-delete").removeClass('hide').dialog({
+                resizable: false,
+                modal: true,
+                title: "确认传染病报告",
+                title_html: true,
+                buttons: [
+                    {
+                        html: "<i class='ace-icon fa fa-trash bigger-110'></i>&nbsp;确定",
+                        "class": "btn btn-danger btn-minier",
+                        click: function () {
+                            $.ajax({
+                                type: "POST",
+                                url: "/infectious/deleteInfectious.jspa?infectiousID=" + infectiousID,
+                                //contentType: "application/x-www-form-urlencoded; charset=UTF-8",//http://www.cnblogs.com/yoyotl/p/5853206.html
+                                cache: false,
+                                success: function (response, textStatus) {
+                                    var result = JSON.parse(response);
+                                    if (result.success)
+                                        myTable.ajax.reload();
+                                    else
+                                        showDialog("请求结果：" + result.success, response);
+                                },
+                                error: function (response, textStatus) {/*能够接收404,500等错误*/
+                                    showDialog("请求状态码：" + response.status, response.responseText);
+                                }
+                            });
+                            $(this).dialog("close");
+                        }
+                    },
+                    {
+                        html: "<i class='ace-icon fa fa-times bigger-110'></i>&nbsp; 取消",
+                        "class": "btn btn-minier",
+                        click: function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                ]
+            });
+        }
 
         $('#form-dateRange').daterangepicker({
             'applyClass': 'btn-sm btn-success',
@@ -220,49 +267,43 @@
                 {
                     "text": "<i class='fa fa-plus-square-o bigger-110 red'></i>报告传染病",
                     "className": "btn btn-xs btn-white btn-primary"
-                }, /*{
-                    "text": "<i class='fa fa-clone  bigger-110 red'></i>空白",
-                    "className": "btn btn-xs btn-white btn-primary"
-                },*/ {
+                }, {
                     "text": "<i class='fa fa-arrow-up  bigger-110 red'></i>提交",
                     "className": "btn btn-xs btn-white btn-primary"
                 }
             ]
         });
         myTable.buttons().container().appendTo($('.tableTools-container'));
-        /*  myTable.button(1).action(function (e, dt, button, config) {
-              e.preventDefault();
-              window.open("index.jspa?content=/infectious/newInfectious.jspa&menuID=50");
-          });*/
         myTable.button(0).action(function (e, dt, button, config) {
             showSampleDialog();
         });
 
-        /* //todo 统一到一个对话框
-         function showDialog(title, content) {
-             $("#errorText").html(content);
-             $("#dialog-error").removeClass('hide').dialog({
-                 modal: true,
-                 width: 600,
-                 title: title,
-                 buttons: [{
-                     text: "确定", "class": "btn btn-primary btn-xs", click: function () {
-                         $(this).dialog("close");
-                     }
-                 }]
-             });
-         }*/
+        function showDialog(title, content) {
+            $("#errorText").html(content);
+            $("#dialog-error").removeClass('hide').dialog({
+                modal: true,
+                width: 600,
+                title: title,
+                buttons: [{
+                    text: "确定", "class": "btn btn-primary btn-xs", click: function () {
+                        $(this).dialog("close");
+                    }
+                }]
+            });
+        }
+
         var patientTable;
         var choosePatient;
 
 //新
         function showSampleDialog() {
-            var queryDialog = $("#dialog-edit").removeClass('hide').dialog({
+            $('#dt2').addClass("hide");
+            $('#dt3').addClass("hide");
+            $("#dialog-edit").removeClass('hide').dialog({
                 resizable: false,
-                /*padding:'0 0',*/
-                margin: 0,
-                width: 900,
-                height: 600,
+                //margin: 0,
+                width: 950,
+                height: 650,
                 modal: true,
                 title: "选择病人填写传染病报告",
                 buttons: [
@@ -271,7 +312,14 @@
                         "class": "btn disabled btn-primary btn-minier ",
                         click: function () {
                             console.log("choosePatient:" + choosePatient["PatID"]);
-                            window.open("index.jspa?content=/infectious/newInfectious.jspa&menuID=50&patientID=" + choosePatient["PatID"]);
+                            var newInfectiousUrl = "index.jspa?content=/infectious/newInfectious.jspa&menuID=50&patientID={0}&serialNo={1}&diagnosisDate={2}";
+                            if ($('#form-type').val() === '2')
+                                newInfectiousUrl = newInfectiousUrl.format(choosePatient["PatID"], choosePatient["住院号"], choosePatient["入院时间"]);
+                            else
+                                newInfectiousUrl = newInfectiousUrl.format(choosePatient["PatID"], choosePatient["cardNo"], choosePatient["挂号时间"]);
+                            window.open(newInfectiousUrl);
+                            /*window.open("index.jspa?content=/infectious/newInfectious.jspa&menuID=50&patientID=" + choosePatient["PatID"] +
+                                "&diagnosisDate=" + ($('#form-type').val() === '2' ? choosePatient["入院时间"] : choosePatient["挂号时间"]));*/
                             $(this).dialog("close");
                         }
                     }, {
@@ -293,7 +341,6 @@
         }
 
         $('#queryPatient').click(function () {
-
             if ($('#form-type').val() === '2') {
                 $('#dt3').addClass("hide");
                 $('#dt2').removeClass("hide");
@@ -386,7 +433,7 @@
                                   return meta.row + 1 + meta.settings._iDisplayStart;
                               }
                           },*/
-                        {"orderable": false, "targets": 1, title: '卡号', width: 105},
+                        {"orderable": false, "targets": 1, title: '门诊卡号', width: 80},
                         {"orderable": false, "targets": 2, title: '挂号时间', width: 120},
                         {"orderable": false, "targets": 3, title: '姓名'},
                         {"orderable": false, "targets": 4, title: '性别', width: 45},
@@ -631,4 +678,19 @@
 
         </div>
     </div>
+</div>
+<div id="dialog-error" class="hide alert" title="提示">
+    <p id="errorText">保存失败，请稍后再试，或与系统管理员联系。</p>
+</div>
+<div id="dialog-delete" class="hide">
+    <div class="alert alert-info bigger-110">
+        永久删除 <span id="name" class="red"></span> ，不可恢复！
+    </div>
+
+    <div class="space-6"></div>
+
+    <p class="bigger-110 bolder center grey">
+        <i class="icon-hand-right blue bigger-120"></i>
+        确认吗？
+    </p>
 </div>

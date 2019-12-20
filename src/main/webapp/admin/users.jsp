@@ -465,5 +465,8 @@
     <div id="dialog-null" class="hidden">
         <div id="dialog-content"></div>
     </div>
+    <div id="dialog-error" class="hide alert" title="提示">
+        <p id="errorText">保存失败，请稍后再试，或与系统管理员联系。</p>
+    </div>
 </div>
 <!-- /.page-content -->

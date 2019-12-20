@@ -121,8 +121,12 @@ public class InfectiousController {
     }
 
     @RequestMapping(value = "/newInfectious", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public String newInfectious(@RequestParam(value = "patientID", required = false, defaultValue = "0") Integer patientID, ModelMap model) {
+    public String newInfectious(@RequestParam(value = "patientID", required = false, defaultValue = "0") Integer patientID,
+                                @RequestParam(value = "serialNo", required = false, defaultValue = "") String serialNo,
+                                @RequestParam(value = "diagnosisDate", required = false, defaultValue = "") String diagnosisDate,
+                                ModelMap model) {
         Infectious infectious = new Infectious();
+        infectious.setReportType(1);
         infectious.setFillTime(DateUtils.formatSqlDateTime(new Date()));
         infectious.setReportUnit(reviewConfig.getHospitalName());
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -133,6 +137,8 @@ public class InfectiousController {
                 infectious.setDoctorPhone(((User) principal).getLink().getAsString());
         }
         if (patientID > 0) {
+            infectious.setPatientID(patientID);
+            infectious.setSerialNo(serialNo);
             Map<String, Object> patientInfo = patientInfoDao.getPatientInfo(patientID);
             infectious.setPatientName((String) patientInfo.get("Name"));
             infectious.setBirthday(DateUtils.formatSqlDate((Timestamp) patientInfo.get("BirthDate")));
@@ -142,7 +148,31 @@ public class InfectiousController {
             infectious.setWorkplace((String) patientInfo.get("Company"));
             infectious.setLinkPhone((String) patientInfo.get("Mobile"));
             infectious.setAddress((String) patientInfo.get("AddressHome"));
-            infectious.setOccupationElse((String) patientInfo.get("Occupation"));
+            infectious.setOccupationElse((String) patientInfo.get("Occupation2"));
+            infectious.setDiagnosisDate(diagnosisDate);
+
+            //性病项
+
+            switch ((Short) patientInfo.get("LsMarriage")) {//婚姻状况：1-儿童；2-未婚；3-初婚；4-再婚；5-离异；6-丧偶；7-其他
+                case 1:
+                case 2:
+                    infectious.setMarital(1);
+                    break;
+                case 3:
+
+                case 4:
+                    infectious.setMarital(2);
+                    break;
+                case 5:
+                case 6:
+                    infectious.setMarital(3);
+                    break;
+                default:
+                    infectious.setMarital(7);
+            }
+            infectious.setNation("汉族".equals(patientInfo.get("nation")) ? 1 : 2);
+            infectious.setNationElse((String) patientInfo.get("nation"));
+            infectious.setRegisterAddr((String) patientInfo.get("Residence"));
         }
         model.addAttribute("success", true);
         model.addAttribute("infectious", infectious);
@@ -531,6 +561,7 @@ public class InfectiousController {
     @ResponseBody
     @RequestMapping(value = "saveInfectious", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
     public String saveInfectious(@RequestBody Infectious infectious) {
+        logger.debug("saveInfectious");
         Map<String, Object> modelMap = new HashMap<>();
         try {
             if (infectious.getWorkflow() % 10 == 2) infectious.setWorkflow(infectious.getWorkflow() + 8);
