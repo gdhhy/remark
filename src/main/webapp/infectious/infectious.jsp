@@ -19,7 +19,7 @@
 <link rel="stylesheet" href="../components/chosen/chosen.min.css"/>
 <!-- ace styles -->
 <link rel="stylesheet" href="../assets/css/ace.css" class="ace-main-stylesheet" id="main-ace-style"/>
-
+<link rel="stylesheet" href="../components/font-awesome-4.7.0/css/font-awesome.min.css"/>
 <script type="text/javascript">
     jQuery(function ($) {
         var startDate = moment().month(moment().month() - 1).startOf('month');
@@ -28,7 +28,12 @@
         var url = "/infectious/getInfectiousList.jspa";
         //var editor = new $.fn.dataTable.Editor({});
         //initiate dataTables plugin
+        /*   console.log("INFECTIOUS_ROLE:
 
+        ${INFECTIOUS_ROLE}");
+        console.log("infectious.workflow:" +
+
+        ${infectious.workflow});*/
 
         $('.chooseDate').daterangepicker({
             'applyClass': 'btn-sm btn-success',
@@ -198,18 +203,18 @@
             },
 
             errorPlacement: function (error, element) {
-               /* if (element.is(":radio"))
-                    error.appendTo(element.parent().next().next());
-                else if (element.is(":checkbox"))
-                    error.appendTo(element.next());
-                else*/
-                    error.insertAfter(element.parent());
+                /* if (element.is(":radio"))
+                  error.appendTo(element.parent().next().next());
+                 else if (element.is(":checkbox"))
+                  error.appendTo(element.next());
+                 else*/
+                error.insertAfter(element.parent());
             },
 
             submitHandler: function (form) {
                 $('#caseClass').val(parseInt($('input:radio[name="caseClass1"]:checked').val()) + 10 * parseInt($('input:radio[name="caseClass2"]:checked').val()));
-                /*                var touchVar = $("#touchHis").val();
-                                console.log("touchVar:" + touchVar);*/
+                /*    var touchVar = $("#touchHis").val();
+                    console.log("touchVar:" + touchVar);*/
                 var touchVar = 0;
                 $("#touchHis option:selected").each(function () {
                     touchVar += parseInt($(this).val());
@@ -261,6 +266,101 @@
                 });
             }
         });
+
+        $('.btn-info').click(function () {
+            var submitUrl = "/infectious/setWorkflow.jspa?objectID=${infectious.infectiousID}&objectType=infectious&workflow=3&flowNote= ";
+            console.log("url:" + submitUrl);
+            $("#dialog-accept").removeClass('hide').dialog({
+                resizable: false,
+                modal: true,
+                title: "接受传染病报告",
+                buttons: [
+                    {
+                        html: "<i class='ace-icon fa fa-lock bigger-110'></i>&nbsp;确定",
+                        "class": "btn btn-success btn-minier",
+                        click: function () {
+                            $.ajax({
+                                type: "POST",
+                                url: submitUrl,
+                                //contentType: "application/x-www-form-urlencoded; charset=UTF-8",//http://www.cnblogs.com/yoyotl/p/5853206.html
+                                cache: false,
+                                success: function (response, textStatus) {
+                                    var result = JSON.parse(response);
+                                    if (result.success)
+                                        closeWindow();
+                                    else
+                                        showDialog("请求结果：" + result.success, response);
+                                },
+                                error: function (response, textStatus) {/*能够接收404,500等错误*/
+                                    showDialog("请求状态码：" + response.status, response.responseText);
+                                }
+                            });
+                            $(this).dialog("close");
+                        }
+                    },
+                    {
+                        html: "<i class='ace-icon fa fa-times bigger-110'></i>&nbsp; 取消",
+                        "class": "btn btn-minier",
+                        click: function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                ]
+            });
+        });
+
+        $('.btn-danger').click(function () {
+            var submitUrl = "/infectious/setWorkflow.jspa?objectID=${infectious.infectiousID}&objectType=infectious&workflow=2&flowNote={0}";
+            //console.log("url:" + submitUrl);
+            $("#dialog-reject").removeClass('hide').dialog({
+                resizable: false,
+                modal: true,
+                title: "退回传染病报告",
+                buttons: [
+                    {
+                        html: "<i class='ace-icon fa fa-lock bigger-110'></i>&nbsp;确定",
+                        "class": "btn btn-success btn-minier",
+                        click: function () {
+                            $.ajax({
+                                type: "POST",
+                                url: submitUrl.format($('#form-field-9').val()),
+                                //contentType: "application/x-www-form-urlencoded; charset=UTF-8",//http://www.cnblogs.com/yoyotl/p/5853206.html
+                                cache: false,
+                                success: function (response, textStatus) {
+                                    var result = JSON.parse(response);
+                                    if (result.success)
+                                        closeWindow();
+                                    else
+                                        showDialog("请求结果：" + result.success, response);
+                                },
+                                error: function (response, textStatus) {/*能够接收404,500等错误*/
+                                    showDialog("请求状态码：" + response.status, response.responseText);
+                                }
+                            });
+                            $(this).dialog("close");
+                        }
+                    },
+                    {
+                        html: "<i class='ace-icon fa fa-times bigger-110'></i>&nbsp; 取消",
+                        "class": "btn btn-minier",
+                        click: function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                ]
+            });
+        });
+
+        function closeWindow (){
+            var userAgent = navigator.userAgent;
+            if (userAgent.indexOf("Firefox") !== -1 || userAgent.indexOf("Chrome") !== -1) {
+                location.href = "about:blank";
+            } else {
+                window.opener = null;
+                window.open('', '_self');
+            }
+            window.close();
+        }
     })
 </script>
 <style>
@@ -316,12 +416,12 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="widget-box  " style="width: 870px;padding: 0;margin: 0;">
+                    <div class="widget-box " style="width: 870px;padding: 0;margin: 0;">
                         <div class="widget-body ">
                             <div class="widget-main" style="padding-top: 0;padding-bottom:0">
                                 <div class="row">
                                     <div class="col-sm-6 form-group">
-                                        <label class="col-sm-2  control-label no-padding-right no-padding-left red2" for="patientName">&nbsp;&nbsp;&nbsp;患者姓名 </label>
+                                        <label class="col-sm-2 control-label no-padding-right no-padding-left red2" for="patientName">&nbsp;&nbsp;&nbsp;患者姓名 </label>
 
                                         <div class="col-sm-8">
                                             <input type="text" id="patientName" name="patientName" value="${infectious.patientName}"/>
@@ -334,7 +434,7 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <label class=" col-sm-1  control-label no-padding-right" for="idCardNo"> 身份证号 </label>
+                                    <label class=" col-sm-1 control-label no-padding-right" for="idCardNo"> 身份证号 </label>
 
                                     <div class="col-sm-5">
                                         <input type="text" id="idCardNo" name="idCardNo" style="width: 100%" value="${infectious.idCardNo}"/>
@@ -359,7 +459,7 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <label class=" col-sm-1  control-label no-padding-right" for="birthday"> 出生日期 </label>
+                                    <label class=" col-sm-1 control-label no-padding-right" for="birthday"> 出生日期 </label>
 
 
                                     <div class="col-sm-3 ">
@@ -398,7 +498,7 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <label class="col-sm-1  control-label no-padding-right" for="workplace"> 工作单位 </label>
+                                    <label class="col-sm-1 control-label no-padding-right" for="workplace"> 工作单位 </label>
 
                                     <div class="col-sm-7">
                                         <input type="text" id="workplace" name="workplace" style="width: 100%" value="${infectious.workplace}"/>
@@ -452,14 +552,14 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <label class="col-sm-1  control-label no-padding-right light-red" for="address"> 现住址 </label>
+                                    <label class="col-sm-1 control-label no-padding-right light-red" for="address"> 现住址 </label>
 
                                     <div class="col-sm-10">
                                         <input type="text" id="address" name="address" style="width: 100%" value="${infectious.address}"/>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <label class="col-sm-1 control-label no-padding-right  light-red"> 患者职业 </label>
+                                    <label class="col-sm-1 control-label no-padding-right light-red"> 患者职业 </label>
                                     <div class="col-sm-2">
                                         <select class="chosen-select form-control" id="occupation" name="occupation">
                                             <option value="1"<c:if test='${infectious.occupation==1}'> selected</c:if>>幼托儿童</option>
@@ -531,7 +631,7 @@
                                     <input name="caseClass" id="caseClass" type="hidden"/>
                                 </div>
                                 <div class="row">
-                                    <label class=" col-sm-1  control-label no-padding-right" for="accidentDate"> 发病日期 </label>
+                                    <label class=" col-sm-1 control-label no-padding-right" for="accidentDate"> 发病日期 </label>
                                     <div class="col-sm-3 ">
                                         <div class=" input-group">
                                             <input class="form-control nav-search-input chooseDate" name="accidentDate" id="accidentDate" style="color: black"
@@ -542,7 +642,7 @@
                                     <label class="col-sm-pull-4 control-label no-padding-right small" for="accidentDate">(病原携带者填初诊日期或就诊时间) </label>
                                 </div>
                                 <div class="row">
-                                    <label class=" col-sm-1  control-label no-padding-right" for="diagnosisDate"> 诊断日期 </label>
+                                    <label class=" col-sm-1 control-label no-padding-right" for="diagnosisDate"> 诊断日期 </label>
 
 
                                     <div class="col-sm-3 ">
@@ -553,7 +653,7 @@
                                         </div>
                                     </div>
 
-                                    <label class=" col-sm-1  control-label no-padding-right" for="deathDate"> 死亡日期 </label>
+                                    <label class=" col-sm-1 control-label no-padding-right" for="deathDate"> 死亡日期 </label>
 
                                     <div class="col-sm-3">
                                         <div class=" input-group">
@@ -594,7 +694,7 @@
                 </div>
                 <div class="row">
                     <div class="widget-box" id="vdBox" style="width: 870px; padding: 0;margin: 0;">
-                        <div class="widget-header  widget-header-small">
+                        <div class="widget-header widget-header-small">
                             <h6 class="widget-title">性病报告附卡（报告性病时须加填本栏目）（全部必填）</h6>
 
                             <div class="widget-toolbar">
@@ -693,14 +793,14 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <label class="col-sm-1  control-label no-padding-right" for="registerAddr"> 户籍地址 </label>
+                                    <label class="col-sm-1 control-label no-padding-right" for="registerAddr"> 户籍地址 </label>
 
                                     <div class="col-sm-11">
                                         <input type="text" id="registerAddr" name="registerAddr" style="width: 100%" value="${infectious.registerAddr}"/>
                                     </div>
                                 </div>
                                 <div class="row" <%--style="height: 35px"--%>>
-                                    <label class="col-sm-2  control-label no-padding-left " for="touchHis">接触史（可多选）</label>
+                                    <label class="col-sm-2 control-label no-padding-left " for="touchHis">接触史（可多选）</label>
                                     <div class="col-sm-10">
                                         <select multiple class="chosen-select form-control multiple-chosen" id="touchHis" data-placeholder="接触史"
                                                 style="width: 100%;">
@@ -729,7 +829,7 @@
                                             <option value="10"<c:if test='${infectious.infectRoute==10}'> selected</c:if>>不详</option>
                                         </select>
                                     </div>
-                                    <label class="col-sm-1  control-label no-padding-right" for="sampleSource"> 样本来源 </label>
+                                    <label class="col-sm-1 control-label no-padding-right" for="sampleSource"> 样本来源 </label>
 
                                     <div class="col-sm-4">
                                         <select class="chosen-select form-control" id="sampleSource" name="sampleSource">
@@ -777,7 +877,7 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-sm-5">
-                                        <label class=" col-sm-9  control-label no-padding-left" for="checkConfirmDate"> 确认（替代策略核算）检测阳性日期 </label>
+                                        <label class=" col-sm-9 control-label no-padding-left" for="checkConfirmDate"> 确认（替代策略核算）检测阳性日期 </label>
                                         <div class="col-sm-3">
                                             <div class=" input-group">
                                                 <input class="form-control nav-search-input chooseDate" name="checkConfirmDate" id="checkConfirmDate"
@@ -787,7 +887,7 @@
                                         </div>
                                     </div>
                                     <div class="col-sm-7">
-                                        <label class=" col-sm-4  control-label no-padding-right" for="hivConfirmDate"> 艾滋病确诊日期 </label>
+                                        <label class=" col-sm-4 control-label no-padding-right" for="hivConfirmDate"> 艾滋病确诊日期 </label>
 
                                         <div class="col-sm-3">
                                             <div class=" input-group">
@@ -800,7 +900,7 @@
                                         <label class="col-sm-5 control-label no-padding-right small"> （确诊为艾滋病是必须填写）</label></div>
                                 </div>
                                 <div class="row">
-                                    <label class="col-sm-3  control-label no-padding-right" for="checkUnit"> 确认（替代策略核算）检测单位 </label>
+                                    <label class="col-sm-3 control-label no-padding-right" for="checkUnit"> 确认（替代策略核算）检测单位 </label>
 
                                     <div class="col-sm-9">
                                         <input type="text" id="checkUnit" name="checkUnit" style="width: 100%" value="${infectious.checkUnit}"/>
@@ -869,15 +969,60 @@
                     <input type="hidden" name="patientID" value="${infectious.patientID}"/>
                     <input type="hidden" name="serialNo" value="${infectious.serialNo}"/>
                     <input type="hidden" name="doctorUserID" value="${infectious.doctorUserID}"/>
-                    <button class="btn btn-white btn-save btn-bold">
-                        <i class="ace-icon fa fa-floppy-o bigger-120 blue"></i>
-                        保存
-                    </button>
+                    <input type="hidden" name="doctorUsername" value="${infectious.doctorUsername}"/>
+                    <%--['编辑', '提交', '退回', '接受', '作废']--%>
+                    <c:if test='${(infectious.workflow%10==0 || infectious.workflow%10==2) && INFECTIOUS_ROLE==false}'>
+                        <button class="btn btn-white btn-primary btn-sm btn-bold">
+                            <i class="ace-icon fa fa-floppy-o bigger-120 red2"></i>
+                            保存
+                        </button>
+                    </c:if>
                 </div>
             </form>
+            <c:if test='${infectious.workflow%10==1 && INFECTIOUS_ROLE}'>
+                <div class="row align-center">
+                    <button class="btn btn-white btn-info btn-sm btn-bold">
+                        <i class="ace-icon fa fa-lock blue bigger-120"></i>
+                        接受
+                    </button>
+                    <button class="btn btn-white btn-danger btn-sm btn-bold">
+                        <i class="ace-icon fa fa-arrow-left red bigger-120"></i>
+                        退回
+                    </button>
+                </div>
+            </c:if>
             <!-- PAGE CONTENT ENDS -->
         </div><!-- /.col -->
     </div>
     <!-- /.row -->
+</div>
+
+<div id="dialog-accept" class="hide">
+    <div class="alert alert-info bigger-110">
+        接受 <span class="red">${infectious.patientName}</span> 传染病报告。
+    </div>
+
+    <div class="space-6"></div>
+
+    <p class="bigger-110 bolder center grey">
+        <i class="icon-hand-right blue bigger-120"></i>
+        确认吗？
+    </p>
+</div>
+<div id="dialog-reject" class="hide">
+    <div class="alert alert-info bigger-110">
+        拒绝 <span class="red">${infectious.patientName}</span> 传染病报告。<br/>
+        拒绝后将会退回给填写人。
+    </div>
+    <div>
+        <label for="form-field-9">拒绝原因：</label>
+
+        <textarea class="form-control limited" id="form-field-9" maxlength="255"></textarea>
+    </div>
+    <%--<div class="space-6"></div>
+    <p class="bigger-110 bolder center grey">
+     <i class="icon-hand-right blue bigger-120"></i>
+     确认吗？
+    </p>--%>
 </div>
 <!-- /.page-content -->

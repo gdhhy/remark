@@ -53,6 +53,8 @@ public class InfectiousController {
     @Autowired
     private PatientInfoDAO patientInfoDao;
     @Autowired
+    private com.zcreate.security.dao.UserMapper userMapper;
+    @Autowired
     private ReviewConfig reviewConfig;
 
     private String check = "√", uncheck = "□";
@@ -82,13 +84,11 @@ public class InfectiousController {
 
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserDetails) {
-            User ud = (User) principal;
+            UserDetails ud = (UserDetails) principal;
 
             if (!ud.getAuthorities().contains(new SimpleGrantedAuthority("INFECTIOUS")) &&
                     !ud.getAuthorities().contains(new SimpleGrantedAuthority("protect")))
-                param.put("doctorUserID", ud.getUserID());
-           /* if (!role.getRoleNo().equals("infectious") && !role.getRoleNo().equals("protect"))
-                param.put("doctorUserID", authToken.getUserID());*/
+                param.put("doctorUsername", ud.getUsername());
             else
                 param.put("notWorkflow", 0);//新建编辑的，管理员不看
 
@@ -106,18 +106,37 @@ public class InfectiousController {
             modelMap.put("totalCount", infectiousList.size());
             modelMap.put("infectious", infectiousList.subList(start, Math.min(start + limit, infectiousList.size())));//todo pass param into sql*/
         }
-        return wrap(new ArrayList());
+        return wrap(new ArrayList<Infectious>());
         /*modelView.addAllObjects(modelMap);*/
         //System.out.println("gson.toJson(modelMap) = " + gson.toJson(modelMap));
     }
 
     @RequestMapping(value = "getInfectious", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String getInfectious(@RequestParam(value = "infectiousID") Integer infectiousID, ModelMap model) {
-        //ModelMap modelMap = new ModelMap();
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetails ud = (UserDetails) principal;
+        if (ud.getAuthorities().contains(new SimpleGrantedAuthority("INFECTIOUS")))
+            model.addAttribute("INFECTIOUS_ROLE", true);
+        else
+            model.addAttribute("INFECTIOUS_ROLE", false);
+
         model.addAttribute("success", true);
         model.addAttribute("infectious", infectiousDao.getInfectious(infectiousID));
 
         return "/infectious/infectious";
+    }
+
+    @RequestMapping(value = "showInfectiousList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String showInfectiousList(ModelMap model) {
+        model.addAttribute("INFECTIOUS_ROLE", false);
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            UserDetails ud = (UserDetails) principal;
+            if (ud.getAuthorities().contains(new SimpleGrantedAuthority("INFECTIOUS")))
+                model.addAttribute("INFECTIOUS_ROLE", true);
+        }
+
+        return "/infectious/infectious_list";
     }
 
     @RequestMapping(value = "/newInfectious", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
@@ -131,10 +150,21 @@ public class InfectiousController {
         infectious.setReportUnit(reviewConfig.getHospitalName());
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserDetails) {
-            infectious.setDoctorUserID(((User) principal).getUserID());
-            infectious.setReportDoctor(((User) principal).getName());
-            if (((User) principal).getLink() != null)
-                infectious.setDoctorPhone(((User) principal).getLink().getAsString());
+            UserDetails ud = (UserDetails) principal;
+            if (ud.getAuthorities().contains(new SimpleGrantedAuthority("INFECTIOUS")))
+                model.addAttribute("INFECTIOUS_ROLE", true);
+            else
+                model.addAttribute("INFECTIOUS_ROLE", false);
+            User user;
+            if (ud instanceof User)
+                user = (User) ud;
+            else
+                user = userMapper.getUserByLoginname(((UserDetails) principal).getUsername());//自动登录的，只有UserDetail，不是User
+            infectious.setDoctorUserID(user.getUserID());
+            infectious.setDoctorUsername(((UserDetails) principal).getUsername());
+            infectious.setReportDoctor(user.getName());
+            if (user.getLink() != null)
+                infectious.setDoctorPhone(user.getLink().getAsString());
         }
         if (patientID > 0) {
             infectious.setPatientID(patientID);

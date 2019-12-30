@@ -443,6 +443,8 @@
                                     <option value="ADMIN">管理员</option>
                                     <option value="REVIEW">处方点评</option>
                                     <option value="DOCTOR">医生</option>
+                                    <option value="INFECTIOUS">传染病管理</option>
+                                    <option value="CONTAGION">感染病管理</option>
                                     <option value="DEVELOP">系统开发</option>
                                     <c:if test="${user.userID<10}">
                                         <option value="DRUGDATA">用药数据</option>

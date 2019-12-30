@@ -54,6 +54,7 @@
 
         <result column="fillTime" jdbcType="VARCHAR" property="fillTime"/>
         <result column="doctorUserID" jdbcType="INTEGER" property="doctorUserID"/>
+        <result column="doctorUsername" jdbcType="VARCHAR" property="doctorUsername"/>
         <result column="workflow" jdbcType="INTEGER" property="workflow"/>
     </resultMap>
     <resultMap id="ContagionResult" type="com.zcreate.review.model.Contagion">
@@ -103,31 +104,33 @@
         <result column="monitorDoctor" jdbcType="VARCHAR" property="monitorDoctor"/>
         <result column="reportTime" jdbcType="TIMESTAMP" property="reportTime"/>
         <result column="doctorUserID" jdbcType="INTEGER" property="doctorUserID"/>
+        <result column="doctorUsername" jdbcType="VARCHAR" property="doctorUsername"/>
         <result column="workflow" jdbcType="INTEGER" property="workflow"/>
     </resultMap>
     <select id="selectContagion" resultType="java.util.Map" parameterType="int">
         SELECT contagionID,objectType,patientID,serialNo,department,patientName,idNo,boy,age,inDate,hospitalDay,baseDiagnosis1,baseDiagnosis2,baseDiagnosis3,baseDiagnosis4,hospitalInfect1,occurDay1,
         hospitalInfect2,occurDay2,factor,surgeryName,emergency,surgeryDate,surgeryDoctor,lastTime1,lastTime2,anaesthesia,cut,feature,microbe,time1,time2,time3,drainage,hormone,time4,time5,
-        sample,bAntiDrug,aAntiDrug,pAntiDrug,antiItem,masterDoctor,monitorDoctor,reportTime,workflow,doctorUserID FROM Contagion
+        sample,bAntiDrug,aAntiDrug,pAntiDrug,antiItem,masterDoctor,monitorDoctor,reportTime,workflow,doctorUserID,doctorUsername FROM Contagion
         WHERE contagionID = #{contagionID:INTEGER}
     </select>
     <select id="selectInfectious" resultType="java.util.Map" parameterType="int">
        SELECT infectiousID,objectType,patientID,serialNo,reportNo,reportType,patientName,patientParent,idCardNo,boy,birthday,age,ageUnit,workplace,linkPhone,belongTo,address,occupation,occupationElse,caseClass,
        accidentDate,diagnosisDate,diagnosisHour,deathDate,infectiousClass,infectiousName,correctName,cancelCause,reportUnit,doctorPhone,reportDoctor,memo,
        marital,nation,nationElse,education,venerismHis, registerAddr,touchHis,touchElse,infectRoute,sampleSource,conclusion,checkConfirmDate,hivConfirmDate,checkUnit,
-       convert(varchar(16),fillTime,120) fillTime, workflow,doctorUserID
-        FROM  Infectious
+       convert(varchar(16),fillTime,120) fillTime, workflow,doctorUserID,doctorUsername
+        FROM Infectious
         WHERE infectiousID = #{infectiousID:INTEGER}
     </select>
     <select id="selectContagionList" resultMap="ContagionResult" parameterType="java.util.Map">
         SELECT
         contagionID,objectType,patientID,serialNo,department,patientName,idNo,boy,age,inDate,hospitalDay,baseDiagnosis1,baseDiagnosis2,baseDiagnosis3,baseDiagnosis4,hospitalInfect1,occurDay1,
         hospitalInfect2,occurDay2,factor,surgeryName,emergency,surgeryDate,surgeryDoctor,lastTime1,lastTime2,anaesthesia,cut,feature,microbe,time1,time2,time3,drainage,hormone,time4,time5,
-        sample,bAntiDrug,aAntiDrug,pAntiDrug,antiItem,masterDoctor,monitorDoctor,reportTime,workflow,doctorUserID,workflowNote FROM Contagion
+        sample,bAntiDrug,aAntiDrug,pAntiDrug,antiItem,masterDoctor,monitorDoctor,reportTime,workflow,doctorUserID,doctorUsername,workflowNote FROM Contagion
         <where>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND reportTime >= #{fromDate:TIMESTAMP}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(toDate)">AND reportTime &lt; #{toDate:TIMESTAMP}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(doctorUserID)">AND doctorUserID = #{doctorUserID:INTEGER}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(doctorUsername)">AND doctorUsername = #{doctorUsername:VARCHAR}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(queryField)">AND patientName = #{queryField:VARCHAR}</if>
             <if test="workflowState==3">AND workflow%10 = 3</if>
             <if test="workflowState==0">AND workflow%10 != 3</if>
@@ -140,7 +143,7 @@
         infectiousID,objectType,patientID,serialNo,reportNo,reportType,patientName,patientParent,idCardNo,boy,birthday,age,ageUnit,workplace,linkPhone,belongTo,address,occupation,occupationElse,caseClass,
         accidentDate,diagnosisDate,diagnosisHour,deathDate,infectiousClass,infectiousName,correctName,cancelCause,reportUnit,doctorPhone,reportDoctor,memo,
         marital,nation,nationElse,education,venerismHis, registerAddr,touchHis,touchElse,infectRoute,sampleSource,conclusion,checkConfirmDate,hivConfirmDate,checkUnit,
-        convert(varchar(16),fillTime,120) fillTime,workflow,doctorUserID,workflowNote
+        convert(varchar(16),fillTime,120) fillTime,workflow,doctorUserID,doctorUsername,workflowNote
         FROM Infectious
         <where>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND fillTime >= #{fromDate:TIMESTAMP}</if>
@@ -152,17 +155,18 @@
                 </choose>
             </if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(doctorUserID)">AND doctorUserID = #{doctorUserID:INTEGER}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(doctorUsername)">AND doctorUsername = #{doctorUsername:VARCHAR}</if>
             <if test="workflowState==3">AND workflow%10 = 3</if>
             <if test="workflowState==0">AND workflow%10 != 3</if>
             <if test="notWorkflow==0">AND workflow % 10 != #{notWorkflow:INTEGER}</if>
         </where>
-        order by infectiousID desc
+        order by updateTime desc
     </select>
     <insert id="insertContagion" parameterType="com.zcreate.review.model.Contagion" flushCache="true">
         INSERT INTO Contagion
         (objectType,patientID,serialNo,department,patientName,idNo,boy,age,inDate,hospitalDay,baseDiagnosis1,baseDiagnosis2,baseDiagnosis3,baseDiagnosis4,hospitalInfect1,occurDay1,
         hospitalInfect2,occurDay2,factor,surgeryName,emergency,surgeryDate,surgeryDoctor,lastTime1,lastTime2,anaesthesia,cut,feature,microbe,time1,time2,time3,drainage,hormone,time4,time5,
-        sample,bAntiDrug,aAntiDrug,pAntiDrug,antiItem,masterDoctor,monitorDoctor,workflow,doctorUserID)
+        sample,bAntiDrug,aAntiDrug,pAntiDrug,antiItem,masterDoctor,monitorDoctor,workflow,doctorUserID,doctorUsername)
         VALUES
         (#{objectType:INTEGER},#{patientID:INTEGER},#{serialNo:VARCHAR},#{department:VARCHAR},#{patientName:VARCHAR},#{idNo:VARCHAR},#{boy:INTEGER},#{age:VARCHAR},#{inDate:VARCHAR},#{hospitalDay:VARCHAR},
         #{baseDiagnosis1:VARCHAR},#{baseDiagnosis2:VARCHAR},
@@ -171,7 +175,7 @@
         #{anaesthesia:INTEGER},#{cut:INTEGER},#{feature:INTEGER},#{microbe:VARCHAR},
         #{time1:VARCHAR},#{time2:VARCHAR},#{time3:VARCHAR},#{drainage:VARCHAR},#{hormone:VARCHAR}, #{time4:VARCHAR},#{time5:VARCHAR},
         #{sample:VARCHAR},#{bAntiDrug:VARCHAR},#{aAntiDrug:VARCHAR},#{pAntiDrug:VARCHAR},
-        #{antiItem:INTEGER},#{masterDoctor:VARCHAR},#{monitorDoctor:VARCHAR} , #{workflow:INTEGER} ,#{doctorUserID:INTEGER})
+        #{antiItem:INTEGER},#{masterDoctor:VARCHAR},#{monitorDoctor:VARCHAR} , #{workflow:INTEGER} ,#{doctorUserID:INTEGER},#{doctorUsername:VARCHAR})
         <selectKey resultType="int" order="AFTER" keyProperty="contagionID">
             select @@IDENTITY as contagionID
         </selectKey>
@@ -180,7 +184,7 @@
         INSERT INTO Infectious
         (objectType,patientID,serialNo,reportNo,reportType,patientName,patientParent,idCardNo,boy,birthday,age,ageUnit,workplace,linkPhone,belongTo,address,occupation,occupationElse,caseClass,
         accidentDate,diagnosisDate,diagnosisHour,deathDate,infectiousClass,infectiousName,correctName,cancelCause,reportUnit,doctorPhone,reportDoctor,memo,
-        marital,nation,nationElse,education,venerismHis, registerAddr,touchHis,touchElse,infectRoute,sampleSource,conclusion,checkConfirmDate,hivConfirmDate,checkUnit,workflow,doctorUserID)
+        marital,nation,nationElse,education,venerismHis, registerAddr,touchHis,touchElse,infectRoute,sampleSource,conclusion,checkConfirmDate,hivConfirmDate,checkUnit,workflow,doctorUserID,doctorUsername)
         VALUES
         (#{objectType:INTEGER},#{patientID:INTEGER},#{serialNo:VARCHAR},#{reportNo:VARCHAR},#{reportType:INTEGER},#{patientName:VARCHAR},#{patientParent:VARCHAR},#{idCardNo:VARCHAR},#{boy:INTEGER},#{birthday:VARCHAR},
         #{age:VARCHAR},#{ageUnit:VARCHAR},#{workplace:VARCHAR},#{linkPhone:VARCHAR},#{belongTo:VARCHAR},#{address:VARCHAR},#{occupation:VARCHAR},#{occupationElse:VARCHAR},
@@ -189,7 +193,7 @@
         #{correctName:VARCHAR},#{cancelCause:VARCHAR},#{reportUnit:VARCHAR},#{doctorPhone:VARCHAR},#{reportDoctor:VARCHAR}, #{memo:VARCHAR},
         #{marital:INTEGER},#{nation:INTEGER},#{nationElse:VARCHAR},#{education:VARCHAR},#{venerismHis:VARCHAR},#{registerAddr:VARCHAR},#{touchHis:INTEGER},#{touchElse:VARCHAR},#{infectRoute:VARCHAR},
         #{sampleSource:VARCHAR},#{conclusion:VARCHAR},#{checkConfirmDate:VARCHAR},#{hivConfirmDate:VARCHAR},#{checkUnit:VARCHAR},
-        #{workflow:INTEGER} ,#{doctorUserID:INTEGER} )
+        #{workflow:INTEGER} ,#{doctorUserID:INTEGER} ,#{doctorUsername:VARCHAR} )
         <selectKey resultType="int" order="AFTER" keyProperty="infectiousID">
             select @@IDENTITY as infectiousID
         </selectKey>
@@ -243,6 +247,7 @@
             <if test="checkUnit != null">checkUnit = #{checkUnit:VARCHAR},</if>
             <if test="workflow != null">workflow = #{workflow:INTEGER},</if>
             <if test="workflowNote != null">workflowNote = #{workflowNote:VARCHAR},</if>
+            updateTime=getdate()
         </set>
         WHERE infectiousID=#{infectiousID:INTEGER}
     </update>

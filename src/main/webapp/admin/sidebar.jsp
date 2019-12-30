@@ -242,7 +242,7 @@
 
             <ul class="submenu">
                 <li class="">
-                    <a href="index.jspa?content=/infectious/infectious_list.jsp&menuID=50" id="50">
+                    <a href="index.jspa?content=/infectious/showInfectiousList.jspa&menuID=50" id="50">
                         <!--<i class="menu-icon fa fa-user"></i>-->
                         <i class="menu-icon fa fa-bug"></i>
                         <span class="menu-text">传染病上报</span>

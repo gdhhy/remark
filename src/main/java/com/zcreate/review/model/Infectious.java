@@ -6,16 +6,16 @@ import java.io.Serializable;
  * Created by hhy on 2015/5/7.
  */
 public class Infectious implements Serializable {
-    private int infectiousID;
-    private int objectType; //1门诊，2：住院
+    private int infectiousID; //must Integer not int
+    private Integer objectType; //1门诊，2：住院
     private String serialNo;//门诊号或住院号
-    private int patientID;
+    private Integer patientID;
     private String reportNo;
-    private int reportType;
+    private Integer reportType;
     private String patientName;
     private String patientParent;
     private String idCardNo;
-    private int boy;
+    private Integer boy;
     private String birthday;
     private String age;
     private String ageUnit;
@@ -23,9 +23,9 @@ public class Infectious implements Serializable {
     private String linkPhone;
     private String belongTo;
     private String address;
-    private int occupation;//change int
+    private Integer occupation;//change int
     private String occupationElse;
-    private int caseClass;
+    private Integer caseClass;
     private String accidentDate;
     private String diagnosisDate;
     private String diagnosisHour;
@@ -37,16 +37,16 @@ public class Infectious implements Serializable {
     private String reportUnit;
     private String doctorPhone;
     private String reportDoctor;
-    private int doctorUserID;
+    private Integer doctorUserID;
     private String memo;
     //传染病增加
-    private int marital;
-    private int nation;
+    private Integer marital;
+    private Integer nation;
     private String nationElse;
     private String education;
     private String venerismHis;
     private String registerAddr;
-    private int touchHis;
+    private int touchHis ;
     private String touchElse;
     private String infectRoute;
     private String sampleSource;
@@ -56,9 +56,10 @@ public class Infectious implements Serializable {
     private String checkUnit;
 
     private String fillTime;
-    private int workflow=0;//0：新建编辑，1，提交， 2，退回（可重新编辑提交），3，接受（完毕） mode 4
+    private Integer workflow = 0;//0：新建编辑，1，提交， 2，退回（可重新编辑提交），3，接受（完毕） mode 4
     private String workflowChn;
     private String workflowNote;
+    private String doctorUsername;
 
     public int getInfectiousID() {
         return infectiousID;
@@ -68,11 +69,11 @@ public class Infectious implements Serializable {
         this.infectiousID = infectiousID;
     }
 
-    public int getObjectType() {
+    public Integer getObjectType() {
         return objectType;
     }
 
-    public void setObjectType(int objectType) {
+    public void setObjectType(Integer objectType) {
         this.objectType = objectType;
     }
 
@@ -84,11 +85,11 @@ public class Infectious implements Serializable {
         this.serialNo = serialNo;
     }
 
-    public int getPatientID() {
+    public Integer getPatientID() {
         return patientID;
     }
 
-    public void setPatientID(int patientID) {
+    public void setPatientID(Integer patientID) {
         this.patientID = patientID;
     }
 
@@ -108,11 +109,11 @@ public class Infectious implements Serializable {
         this.reportNo = reportNo;
     }
 
-    public int getReportType() {
+    public Integer getReportType() {
         return reportType;
     }
 
-    public void setReportType(int reportType) {
+    public void setReportType(Integer reportType) {
         this.reportType = reportType;
     }
 
@@ -140,11 +141,11 @@ public class Infectious implements Serializable {
         this.idCardNo = idCardNo;
     }
 
-    public int getBoy() {
+    public Integer getBoy() {
         return boy;
     }
 
-    public void setBoy(int boy) {
+    public void setBoy(Integer boy) {
         this.boy = boy;
     }
 
@@ -204,11 +205,11 @@ public class Infectious implements Serializable {
         this.address = address;
     }
 
-    public int getOccupation() {
+    public Integer getOccupation() {
         return occupation;
     }
 
-    public void setOccupation(int occupation) {
+    public void setOccupation(Integer occupation) {
         this.occupation = occupation;
     }
 
@@ -220,11 +221,11 @@ public class Infectious implements Serializable {
         this.occupationElse = occupationElse;
     }
 
-    public int getCaseClass() {
+    public Integer getCaseClass() {
         return caseClass;
     }
 
-    public void setCaseClass(int caseClass) {
+    public void setCaseClass(Integer caseClass) {
         this.caseClass = caseClass;
     }
 
@@ -308,12 +309,20 @@ public class Infectious implements Serializable {
         this.reportDoctor = reportDoctor;
     }
 
-    public int getDoctorUserID() {
+    public Integer getDoctorUserID() {
         return doctorUserID;
     }
 
-    public void setDoctorUserID(int doctorUserID) {
+    public void setDoctorUserID(Integer doctorUserID) {
         this.doctorUserID = doctorUserID;
+    }
+
+    public String getDoctorUsername() {
+        return doctorUsername;
+    }
+
+    public void setDoctorUsername(String doctorUsername) {
+        this.doctorUsername = doctorUsername;
     }
 
     public String getMemo() {
@@ -332,11 +341,11 @@ public class Infectious implements Serializable {
         this.fillTime = fillTime;
     }
 
-    public int getWorkflow() {
+    public Integer getWorkflow() {
         return workflow;
     }
 
-    public void setWorkflow(int workflow) {
+    public void setWorkflow(Integer workflow) {
         this.workflow = workflow;
     }
 
@@ -356,19 +365,19 @@ public class Infectious implements Serializable {
         this.workflowNote = workflowNote;
     }
 
-    public int getMarital() {
+    public Integer getMarital() {
         return marital;
     }
 
-    public void setMarital(int marital) {
+    public void setMarital(Integer marital) {
         this.marital = marital;
     }
 
-    public int getNation() {
+    public Integer getNation() {
         return nation;
     }
 
-    public void setNation(int nation) {
+    public void setNation(Integer nation) {
         this.nation = nation;
     }
 
@@ -467,4 +476,5 @@ public class Infectious implements Serializable {
     public void setCheckUnit(String checkUnit) {
         this.checkUnit = checkUnit;
     }
+
 }
