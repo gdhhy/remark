@@ -42,21 +42,20 @@
         </where>
     </sql>
     <select id="medicineList" parameterType="java.util.Map" resultType="java.util.HashMap">
-        SELECT M.chnName,M.anticlass,M.spec,M.producer,M.dealer, A.amount,A.quantity FROM (
+        SELECT M.chnName,M.anticlass,M.spec,M.producer,M.dealer,M.base, A.amount,A.quantity FROM (
         SELECT T.goodsNo,sum(T.amount)amount ,sum(T.quantity) quantity FROM ${DrugRecordsTable} T
         <include refid="queryWhere"/>
         GROUP BY goodsNo HAVING sum(T.quantity)>0) A
         JOIN Medicine M ON M.no=A.goodsNo ORDER BY A.amount DESC
     </select>
     <!--基药-->
-    <select id="medicineList2" parameterType="java.util.Map" resultType="java.util.HashMap">
+   <!-- <select id="medicineList2" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT M.chnName,M.spec,M.producer,M.dealer, A.amount,A.quantity FROM (
         SELECT T.goodsNo,sum(T.amount)amount ,sum(T.quantity) quantity FROM ${DrugRecordsTable} T
         <include refid="queryWhere"/>
         GROUP BY goodsNo HAVING sum(T.quantity)>0) A
-        JOIN Medicine M ON M.no=A.goodsNo
-        ORDER BY A.amount DESC
-    </select>
+        JOIN Medicine M ON M.no=A.goodsNo ORDER BY A.amount DESC
+    </select>-->
 
     <select id="medicineTrend" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT cast(dateStr AS DATETIME) date ,amount, number,quantity FROM
@@ -64,6 +63,14 @@
         FROM ${DrugRecordsTable} T
         <include refid="queryWhere"/>
         GROUP BY convert(VARCHAR(10),T.dispensingDate,120)) A ORDER BY dateStr
+    </select>
+    <!--2019-12-31-->
+    <select id="departbase" parameterType="java.util.Map" resultType="java.util.HashMap">
+        select T.department,sum(T.amount) amount,sum(case when M.base=1 then T.amount else 0 end ) base1Amount,sum(case when M.base=2 then T.amount else 0 end ) base2Amount,
+               sum(case when M.base=3 then T.amount else 0 end ) base3Amount
+        from ${DrugRecordsTable} T left join Medicine M on T.goodsID=M.goodsID
+        <include refid="queryWhere"/>
+        group by T.department order by sum(T.amount) desc
     </select>
 
     <!--按药品使用分析-->
@@ -228,6 +235,7 @@
         FROM DailyDepart A LEFT JOIN rbac..Dict D ON D.name=A.department WHERE A.date >= #{fromDate:TIMESTAMP} AND A.date &lt; #{toDate:TIMESTAMP} GROUP BY A.department) D
         WHERE A.department=D.department ORDER BY A.antiAMount DESC
     </select>
+    <!--抗菌药品种统计 2019-12-31确认-->
     <select id="antiDrug" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT M.no
         goodsNo,M.price,M.chnName,M.antiClass,M.dose,M.spec,M.minUnit,A.clinicQuantity,A.hospitalQuantity,A.bringQuantity,A.total,A.clinicPatient,A.hospitalPatient,A.amount,

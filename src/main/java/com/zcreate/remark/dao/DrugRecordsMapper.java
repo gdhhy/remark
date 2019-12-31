@@ -17,7 +17,7 @@ public interface DrugRecordsMapper {
 
     public List<HashMap<String, Object>> medicineList(Map param);
 
-    public List<HashMap<String, Object>> medicineList2(Map param);
+    //public List<HashMap<String, Object>> medicineList2(Map param);
 
     public List<HashMap<String, Object>> medicineTrend(Map param);
 
@@ -42,6 +42,8 @@ public interface DrugRecordsMapper {
     public List<HashMap<String, Object>> antiDepart2(Map param);
 
     public List<HashMap<String, Object>> antiDrug(Map param);
+
+    public List<HashMap<String, Object>> departbase(Map param);
 
     int queryPatientDrugCount(Map param);
 }

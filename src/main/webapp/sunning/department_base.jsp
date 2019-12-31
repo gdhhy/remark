@@ -9,19 +9,16 @@
 <script src="../js/accounting.min.js"></script>
 <script src="../js/render_func.js"></script>
 <script src="../js/jquery.cookie.min.js"></script>
-<script src="../assets/js/jquery.validate.min.js"></script>
 <script src="../components/moment/moment.min.js"></script>
 <script src="../components/bootstrap-daterangepicker/daterangepicker.js"></script>
 <script src="../components/bootstrap-daterangepicker/daterangepicker.zh-CN.js"></script>
-<script src="../components/typeahead.js/dist/typeahead.bundle.min.js"></script>
-<script src="../components/typeahead.js/handlebars.js"></script>
 
 <link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>
 <!-- bootstrap & fontawesome -->
 
 <link rel="stylesheet" href="../assets/css/ace.css"/>
 <style type="text/css">
-    #showDepartDoctorDialog .modal-dialog {
+    #showMedicineDetailDialog .modal-dialog {
         position: absolute;
         top: 0;
         bottom: 0;
@@ -29,7 +26,7 @@
         right: 0;
     }
 
-    #showDepartDoctorDialog .modal-content {
+    #showMedicineDetailDialog .modal-content {
         /*overflow-y: scroll; */
         position: absolute;
         top: 0;
@@ -37,7 +34,7 @@
         width: 100%;
     }
 
-    #showDepartDoctorDialog .modal-body {
+    #showMedicineDetailDialog .modal-body {
         overflow-y: scroll;
         position: absolute;
         top: 38px;
@@ -45,7 +42,7 @@
         width: 100%;
     }
 
-    #showDepartDoctorDialog .modal-header .close {
+    #showMedicineDetailDialog .modal-header .close {
         margin-right: 15px;
     }
 </style>
@@ -53,12 +50,12 @@
     jQuery(function ($) {
         var startDate = moment().month(moment().month() - 1).startOf('month');
         var endDate = moment().month(moment().month() - 1).endOf('month');
-        var url = "/sunning/byDepart.jspa?fromDate={0}&toDate={1}&medicineNo={2}";
+        var url = "/sunning/departBase.jspa?fromDate={0}&toDate={1}";
 
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');
         var myTable = dynamicTable
-        //.wrap("<div class='dataTables_borderWrap' />") //if you are applying horizontal scrolling (sScrollX)
+            //.wrap("<div class='dataTables_borderWrap' />") //if you are applying horizontal scrolling (sScrollX)
             .DataTable({
                 bAutoWidth: false,
                 bProcessing: true,
@@ -66,11 +63,10 @@
                     {"data": "department", "sClass": "center"},
                     {"data": "department", "sClass": "center"},
                     {"data": "amount", "sClass": "center"},
-                    {"data": "clinicAmount", "sClass": "center"},
-                    {"data": "hospitalAmount", "sClass": "center"},//4
-                    {"data": "amountRatio", "sClass": "center"},
-                    {"data": "insuranceAmount", "sClass": "center"},
-                    {"data": "insuranceRatio", "sClass": "center"},
+                    {"data": "base2Amount", "sClass": "center"},
+                    {"data": "base3Amount", "sClass": "center"},//4
+                    {"data": "base2Amount", "sClass": "center"},
+                    {"data": "base3Amount", "sClass": "center"},
                     {"data": "department", "sClass": "center"}
                 ],
                 'columnDefs': [
@@ -79,15 +75,22 @@
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     },
-                    {"orderable": false, "targets": 1, title: '科室',searchable: true},
-                    {"orderable": false, "targets": 2, title: '金额', render: renderAmount},
-                    {"orderable": false, "targets": 3, title: '门诊金额', render: renderAmount},
-                    {"orderable": false, "targets": 4, title: '住院金额', render: renderAmount},
-                    {"orderable": false, "targets": 5, title: '科室占全院', render: renderPercent1},
-                    {"orderable": false, "targets": 6, title: '医保金额', render: renderAmount},
-                    {"orderable": false, "targets": 7, title: '医保比例', render: renderPercent1},
+                    {"orderable": false, "targets": 1, title: '科室', searchable: true},
+                    {"orderable": true, "targets": 2, title: '总金额', render: renderAmount},
+                    {"orderable": true, "targets": 3, title: '国基金额', render: renderAmount},
+                    {"orderable": true, "targets": 4, title: '省基金额', render: renderAmount},
                     {
-                        'targets': 8, 'searchable': false, 'orderable': false, width: 110, title: '科室明细',
+                        "orderable": true, "targets": 5, title: '国基比例', render: function (data, type, row, meta) {
+                            return accounting.format(data * 100 / row["amount"], 1) + '%';
+                        }
+                    },
+                    {
+                        "orderable": true, "targets": 6, title: '省基比例', render: function (data, type, row, meta) {
+                            return accounting.format(data * 100 / row["amount"], 1) + '%';
+                        }
+                    },
+                    {
+                        'targets': 7, 'searchable': false, 'orderable': false, width: 110, title: '科室明细',
                         render: function (data, type, row, meta) {
                             var jsp = row['type'] === 1 ? "clinic_list.jsp" : "recipe_list.jsp";
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
@@ -102,7 +105,7 @@
                     url: '../components/datatables/datatables.chinese.json'
                 },
                 "ajax": {
-                    url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"),   ""),
+                    url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), ""),
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -132,11 +135,11 @@
             endDate: endDate,
             ranges: {
                 '本月': [moment().startOf('month')],
-                '上月': [moment().month(moment().month() - 1).startOf('month'),  moment().month(moment().month() - 1).endOf('month')],
+                '上月': [moment().month(moment().month() - 1).startOf('month'), moment().month(moment().month() - 1).endOf('month')],
                 '本季': [moment().startOf('quarter')],
-                '上季': [moment().quarter(moment().quarter() - 1).startOf('month'),  moment().quarter(moment().quarter() - 1).endOf('quarter')],
+                '上季': [moment().quarter(moment().quarter() - 1).startOf('month'), moment().quarter(moment().quarter() - 1).endOf('quarter')],
                 '今年': [moment().startOf('year')],
-                '去年':  [moment().year(moment().year() - 1).startOf('year'),  moment().year(moment().year() - 1).endOf('year')]
+                '去年': [moment().year(moment().year() - 1).startOf('year'), moment().year(moment().year() - 1).endOf('year')]
             },
             locale: locale
         }, function (start, end, label) {
@@ -163,53 +166,14 @@
         }
 
         $('.btn-success').click(function () {
-            var medicineNo = $('#form-medicineNo').val();
-            // console.log("medicine:" + medicineNo);
-            myTable.ajax.url(url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"),   medicineNo)).load();
+            myTable.ajax.url(url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"))).load();
         });
         $('.btn-info').click(function () {
-            window.location.href = "/excel/byDepart.jspa?fromDate={0}&toDate={1}".format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"));
-        });
-        //https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
-        $('#form-medicine').typeahead({hint: true},
-            {
-                limit: 1000,
-                source: function (queryStr, processSync, processAsync) {
-                    var params = {queryChnName: queryStr, length: 1000};
-                    $.getJSON('/medicine/liveMedicine.jspa', params, function (json) {
-                        //medicineLiveCount = json.iTotalRecords;
-                        //console.log("count:" + medicineLiveCount);
-                        return processAsync(json.data);
-                    });
-                },
-                display: function (item) {
-                    return item.chnName + " - " + item.spec;
-                },
-                templates: {
-                    header: function (query) {//header or footer
-                        //console.log("query:" + JSON.stringify(query, null, 4));
-                        if (query.suggestions.length > 1)
-                            return '<div style="text-align:center" class="green" >发现 {0} 项</div>'.format(query.suggestions.length);
-                    },
-                    suggestion: Handlebars.compile('<div style="font-size: 9px">' +
-                        '<div style="font-weight:bold">{{chnName}}</div>' +
-                        '<span class="light-grey">编码：</span>{{goodsNo}}<span class="space-4"/> <span class="light-grey">规格：</span>{{spec}}</div>'),
-                    pending: function (query) {
-                        return '<div>查询中...</div>';
-                    },
-                    notFound: '<div class="red">没匹配</div>'
-                }
-            }
-        );
-        $('.typeahead').bind('typeahead:select', function (ev, suggestion) {
-            $('#form-medicineNo').val(suggestion["medicineNo"]);
-        });
-        $('#form-medicine').on("input propertychange", function () {
-            $('#form-medicineNo').val("");
+            window.location.href = "/excel/departbase.jspa?fromDate={0}&toDate={1}".format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"));
         });
 
         function showDepartmentDetail(department) {
-            var url = "/sunning/byDepartDetail.jspa?fromDate={0}&toDate={1}&department={2}&limit=1000";
+            var url = "/sunning/medicineList.jspa?fromDate={0}&toDate={1}&department={2}&baseType=1&limit=1000";
 
             //console.log("text=" + $('#disItem').val());
             $.ajax({
@@ -227,14 +191,15 @@
                         var i = 0;
                         $.each(respObject.data, function () {
                             var $tr = ('<tr><td style="text-align: center">{0}</td><td style="text-align: center">{1}</td>' +
-                                '<td style="text-align: right">{2}</td><td style="text-align: right">{3}</td>' +
-                                '<td style="text-align: right">{4}</td><td style="text-align: right">{5}</td></tr>'
-                            ).format(++i, this.chnName, this.spec, this.quantity, accounting.format(this.amount, 2), accounting.format(this.ratioInDepart * 100, 2) + '%');
+                                '<td style="text-align: right">{2}</td><td style="text-align: right">{3}</td><td style="text-align: right">{4}</td>' +
+                                '<td style="text-align: right">{5}</td><td style="text-align: right">{6}</td></tr>'
+                            ).format(++i, this.chnName, this.spec, this.base === 2 ? "国基" : this.base === 3 ? "省基" : "基药",
+                                this.quantity, accounting.format(this.amount, 2), accounting.format(this.baseRatioInDepart * 100, 2) + '%');
                             // console.log($tr);
                             $("#departmentTable tbody").append($tr);
                         });
-                        $('#dialog-title').text(department + " - 用药明细");
-                        $('#showDepartDoctorDialog').modal();
+                        $('#dialog-title').text(department + " - 基药明细");
+                        $('#showMedicineDetailDialog').modal();
                         //console.log("i=" + i);
                     }
                 },
@@ -242,7 +207,7 @@
                     $("#errorText").html(response.responseText);
                     $("#dialog-error").removeClass('hide').dialog({
                         modal: true,
-                        width: 600,
+                        width: 700,
                         title: "请求状态码：" + response.status,//404，500等
                         buttons: [{
                             text: "确定", "class": "btn btn-primary btn-xs", click: function () {
@@ -264,7 +229,7 @@
             <i class="ace-icon fa fa-home home-icon"></i>
             <a href="/index.jspa">首页</a>
         </li>
-        <li class="active">科室用药趋势</li>
+        <li class="active">科室基药统计</li>
 
     </ul><!-- /.breadcrumb -->
 
@@ -281,13 +246,6 @@
     <div class="page-header">
 
         <form class="form-search form-inline">
-            <label class=" control-label no-padding-right" for="form-medicine">药品名称： </label>
-            <div class="input-group">
-                <input class="typeahead scrollable nav-search-input" type="text" id="form-medicine" name="form-medicine"
-                       autocomplete="off" style="width: 250px;font-size: 9px;color: black"
-                       placeholder="编码或拼音匹配，鼠标选择"/><input type="hidden" id="form-medicineNo"/>
-            </div>
-
             <label>日期：</label>
             <!-- #section:plugins/date-time.datepicker -->
             <div class="input-group">
@@ -335,7 +293,7 @@
         </div><!-- /.col -->
     </div><!-- /.row -->
 
-    <div id="showDepartDoctorDialog" class="modal fade" tabindex="-1">
+    <div id="showMedicineDetailDialog" class="modal fade" tabindex="-1">
         <div class="modal-dialog" style="width: 600px">
             <div class="modal-content">
                 <div class="modal-header no-padding">
@@ -352,10 +310,11 @@
                         <thead>
                         <tr>
                             <th class="col-xs-1" style="text-align: center">排名</th>
-                            <th class="col-xs-4" style="text-align: center">药品</th>
-                            <th class="col-xs-2" style="text-align: center">规格</th>
+                            <th class="col-xs-3" style="text-align: center">药品</th>
+                            <th class="col-xs-1" style="text-align: center">规格</th>
+                            <th class="col-xs-1" style="text-align: center">基药</th>
                             <th class="col-xs-1" style="text-align: center">数量</th>
-                            <th class="col-xs-2" style="text-align: center">金额</th>
+                            <th class="col-xs-1" style="text-align: center">金额</th>
                             <th class="col-xs-2" style="text-align: center">占本科<br/>室比例</th>
                         </tr>
                         </thead>

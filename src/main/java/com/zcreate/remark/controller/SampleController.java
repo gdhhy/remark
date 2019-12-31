@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.zcreate.remark.util.ControllerHelp.wrap;
+
 @Controller
 @RequestMapping("/remark")
 public class SampleController {
@@ -285,22 +287,4 @@ public class SampleController {
         return gson.toJson(history);
     }
 
-    private String wrap(List list) {
-        Map<String, Object> result = new HashMap<>();
-        result.put("data", list);
-
-        result.put("iTotalRecords", list.size());
-        result.put("iTotalDisplayRecords", list.size());
-        return gson.toJson(result);
-    }
-
-    private String wrap(List list, int start, int limit, int draw) {
-        Map<String, Object> result = new HashMap<>();
-        result.put("data", list.subList(start, Math.min(list.size(), start + limit)));
-        result.put("sEcho", draw);
-
-        result.put("iTotalRecords", list.size());
-        result.put("iTotalDisplayRecords", list.size());
-        return gson.toJson(result);
-    }
 }

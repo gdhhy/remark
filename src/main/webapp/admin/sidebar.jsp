@@ -171,6 +171,16 @@
 
                     <b class="arrow"></b>
                 </li>
+                <li class="">
+                <a href="index.jspa?content=/sunning/department_base.jsp&menuID=24" id="24">
+
+                    <!--<i class="menu-icon fa 	fa-certificate"></i>-->
+                    <i class="menu-icon fa fa-caret-right"></i>
+                    <span class="menu-text">科室基药统计</span>
+                </a>
+
+                <b class="arrow"></b>
+            </li>
             </ul>
         </li>
         <%--<sec:authentication property="principal.username"/>--%>

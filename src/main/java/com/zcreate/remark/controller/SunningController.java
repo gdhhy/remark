@@ -1,11 +1,9 @@
 package com.zcreate.remark.controller;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.zcreate.ReviewConfig;
 import com.zcreate.remark.dao.DrugRecordsMapper;
+import com.zcreate.remark.util.ControllerHelp;
 import com.zcreate.remark.util.ParamUtils;
-import com.zcreate.review.dao.DailyDAO;
 import com.zcreate.review.dao.StatDAO;
 import com.zcreate.review.logic.StatService;
 import com.zcreate.util.DateUtils;
@@ -16,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +22,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import static com.zcreate.remark.util.ControllerHelp.wrap;
 
 @Controller
 @RequestMapping("/sunning")
@@ -33,13 +35,12 @@ public class SunningController {
     private static Logger log = LoggerFactory.getLogger(SunningController.class);
     @Autowired
     private StatDAO statDao;
-    @Autowired
-    private DailyDAO dailyDao;
+   /* @Autowired
+    private DailyDAO dailyDao;*/
     @Autowired
     private DrugRecordsMapper drugRecordsMapper;
     @Autowired
     private StatService statService;
-    private Gson gson = new GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd HH:mm").create();
     @Autowired
     private ReviewConfig reviewConfig;
 
@@ -71,14 +72,28 @@ public class SunningController {
         List<HashMap<String, Object>> result = drugRecordsMapper.statMedicineGroupByDepart(param);
         //List<HashMap<String, Object>> result = statDao.statMedicineGroupByDepart(param);
         StatMath.sumAndCalcRatio(result, "amount", "ratio");
+        return ControllerHelp.wrap(result, start, limit, draw);
+    }
 
-        Map<String, Object> retMap = new HashMap<>();
-        retMap.put("draw", draw);
-        retMap.put("data", result.subList(start, Math.min(start + limit, result.size())));
-        retMap.put("iTotalRecords", result.size());//todo 表的行数，未加任何调剂
-        retMap.put("iTotalDisplayRecords", result.size());
+    //科室基药
+    @ResponseBody
+    @RequestMapping(value = "departBase", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String departBase(@RequestParam(value = "fromDate") String fromDate, @RequestParam(value = "toDate") String toDate) {
+        HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, null);
+        List<HashMap<String, Object>> result = drugRecordsMapper.departbase(param);
+        return wrap(result);
+    }
 
-        return gson.toJson(retMap);
+    @ResponseBody
+    @RequestMapping(value = "medicineList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String medicineList(@RequestParam(value = "fromDate") String fromDate, @RequestParam(value = "toDate") String toDate,
+                               @RequestParam(value = "department", defaultValue = "") String department,
+                               @RequestParam(value = "baseType", required = false) Integer baseType) {
+        HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, department);
+        param.put("baseType", baseType);
+        List<HashMap<String, Object>> result = drugRecordsMapper.medicineList(param);
+        StatMath.sumAndCalcRatio(result, "amount", "baseRatioInDepart");
+        return wrap(result);
     }
 
     @ResponseBody
@@ -108,13 +123,7 @@ public class SunningController {
                 aMap.put("quantity", "-");
             }
 
-        Map<String, Object> retMap = new HashMap<>();
-        retMap.put("draw", draw);
-        retMap.put("data", result.subList(start, Math.min(start + limit, result.size())));
-        retMap.put("iTotalRecords", result.size());//todo 表的行数，未加任何调剂
-        retMap.put("iTotalDisplayRecords", result.size());
-
-        return gson.toJson(retMap);
+        return wrap(result, start, limit, draw);
     }
 
     //药品分析（天）
@@ -178,13 +187,7 @@ public class SunningController {
             aMap.put("patientRatio", ((Integer) aMap.get("patient")) * 1.0 / ((Integer) summary.get("clinicPatient") + (Integer) summary.get("hospitalPatient")));
         }
 
-        Map<String, Object> retMap = new HashMap<>();
-        retMap.put("draw", draw);
-        retMap.put("data", result.subList(start, Math.min(start + limit, result.size())));
-        retMap.put("iTotalRecords", result.size());//todo 表的行数，未加任何调剂
-        retMap.put("iTotalDisplayRecords", result.size());
-
-        return gson.toJson(retMap);
+        return wrap(result, start, limit, draw);
     }
 
     //药品分析（天）
@@ -201,19 +204,12 @@ public class SunningController {
             @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
         List<HashMap<String, Object>> result = statService.byDepart(fromDate, toDate, type, healthNo, medicineNo);
 
-        Map<String, Object> retMap = new HashMap<>();
-        retMap.put("draw", draw);
-        retMap.put("data", result.subList(start, Math.min(start + limit, result.size())));
-        retMap.put("iTotalRecords", result.size());//todo 表的行数，未加任何调剂
-        retMap.put("iTotalDisplayRecords", result.size());
-
-        return gson.toJson(retMap);
+        return wrap(result, start, limit, draw);
     }
 
     @ResponseBody
     @RequestMapping(value = "byDepartDetail", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String byDepartDetail(
-            @RequestParam(value = "medicineNo", required = false, defaultValue = "") String medicineNo,
             @RequestParam(value = "department", required = false, defaultValue = "") String department,
             @RequestParam(value = "healthNo", required = false, defaultValue = "") String healthNo,
             @RequestParam(value = "fromDate") String fromDate,
@@ -225,13 +221,7 @@ public class SunningController {
             @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
         List<HashMap<String, Object>> result = statService.getDepartDetail(fromDate, toDate, department, type, healthNo, antiClass);
 
-        Map<String, Object> retMap = new HashMap<>();
-        retMap.put("draw", draw);
-        retMap.put("data", result.subList(start, Math.min(start + limit, result.size())));
-        retMap.put("iTotalRecords", result.size());
-        retMap.put("iTotalDisplayRecords", result.size());
-
-        return gson.toJson(retMap);
+        return wrap(result, start, limit, draw);
     }
 
     @ResponseBody
@@ -246,14 +236,7 @@ public class SunningController {
             @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
         List<HashMap<String, Object>> result = statService.byDoctor(fromDate, toDate, department);
 
-        Map<String, Object> retMap = new HashMap<>();
-        retMap.put("draw", draw);
-        retMap.put("data", result.subList(start, Math.min(start + limit, result.size())));
-        retMap.put("iTotalRecords", result.size());//todo 表的行数，未加任何调剂
-        retMap.put("iTotalDisplayRecords", result.size());
-
-        return gson.toJson(retMap);
+        return wrap(result, start, limit, draw);
     }
-
 
 }

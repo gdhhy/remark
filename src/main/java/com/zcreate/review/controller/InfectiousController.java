@@ -42,6 +42,8 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static com.zcreate.remark.util.ControllerHelp.wrap;
+
 //update Sys_Role set homepage='ext5/doctor/index.jspx' where roleNo in('infectious','contagion');
 @Controller
 @RequestMapping("/infectious")
@@ -541,15 +543,6 @@ public class InfectiousController {
 
         return wrap(new ArrayList());
         //return gson.toJson(modelMap);
-    }
-
-    public String wrap(List list) {
-        Map<String, Object> result = new HashMap<>();
-        result.put("data", list);
-
-        result.put("iTotalRecords", list.size());
-        result.put("iTotalDisplayRecords", list.size());
-        return gson.toJson(result);
     }
 
     @ResponseBody

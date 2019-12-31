@@ -39,7 +39,8 @@ dependencies {
     compile group: 'org.apache.poi', name: 'poi', version: '4.0.1'
     compile group: 'net.sf.json-lib', name: 'json-lib', version: '2.4', classifier: 'jdk15'
 
-    compile group: 'com.alibaba', name: 'fastjson', version: '1.2.59' 
+    compile group: 'com.alibaba', name: 'fastjson', version: '1.2.59'
+    compile group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.5.8'
 
     compile(
             'net.sf.jasperreports:jasperreports:6.7.0',
