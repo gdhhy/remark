@@ -19,12 +19,21 @@
     <bean id="reviewDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
         <property name="url" value="jdbc:sqlserver://192.168.1.212:1433;databaseName=wy_review_160222"/>
+        <!--<property name="url" value="jdbc:sqlserver://192.168.157.128:1433;databaseName=wy_review_160222"/>-->
         <property name="username" value="sa"/>
         <property name="password" value="cjdlx"/>
     </bean>
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="configLocation" value="classpath:mybatis.xml"/>
         <property name="dataSource" ref="reviewDataSource"/>
+    </bean>
+    <bean id="hisDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+        <property name="url" value="jdbc:sqlserver://192.168.1.212:61433;databaseName=YueBeiHis"/>
+        <property name="username" value="sa"/>
+        <property name="password" value="cjdlx"/>
+        <property name="maxIdle" value="100"/>
+        <property name="initialSize" value="20"/>
     </bean>
     <!--<bean id="posterService" class=" com.zcreate.lottery.ad.PosterService"/>-->
     <!--<bean id="securityDS" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
@@ -40,6 +49,10 @@
     <bean id="session2" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="configLocation" value="classpath:mybatis-security.xml"/>
         <property name="dataSource" ref="reviewDataSource"/>
+    </bean>
+    <bean id="session3" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="configLocation" value="classpath:mybatis-his.xml"/>
+        <property name="dataSource" ref="hisDataSource"/>
     </bean>
     <bean id="userMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="sqlSessionFactory" ref="session2"/>
@@ -166,7 +179,7 @@
         <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
     </bean>
     <bean id="patientInfoDao" class="com.zcreate.review.dao.PatientInfoDAOImpl">
-        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="sqlSessionFactory" ref="session3"/>
         <property name="reviewConfig" ref="reviewConfig"/>
     </bean>
     <bean id="storageCheckDao" class="com.zcreate.storage.dao.StorageCheckDAOImpl">

@@ -65,12 +65,19 @@
         GROUP BY convert(VARCHAR(10),T.dispensingDate,120)) A ORDER BY dateStr
     </select>
     <!--2019-12-31-->
-    <select id="departbase" parameterType="java.util.Map" resultType="java.util.HashMap">
+    <select id="departBase" parameterType="java.util.Map" resultType="java.util.HashMap">
         select T.department,sum(T.amount) amount,sum(case when M.base=1 then T.amount else 0 end ) base1Amount,sum(case when M.base=2 then T.amount else 0 end ) base2Amount,
                sum(case when M.base=3 then T.amount else 0 end ) base3Amount
         from ${DrugRecordsTable} T left join Medicine M on T.goodsID=M.goodsID
         <include refid="queryWhere"/>
         group by T.department order by sum(T.amount) desc
+    </select>
+    <select id="doctorBase" parameterType="java.util.Map" resultType="java.util.HashMap">
+        select T.doctorName,sum(T.amount) amount,sum(case when M.base=1 then T.amount else 0 end ) base1Amount,sum(case when M.base=2 then T.amount else 0 end ) base2Amount,
+               sum(case when M.base=3 then T.amount else 0 end ) base3Amount
+        from ${DrugRecordsTable} T left join Medicine M on T.goodsID=M.goodsID
+        <include refid="queryWhere"/>
+        group by T.doctorName order by sum(T.amount) desc
     </select>
 
     <!--按药品使用分析-->

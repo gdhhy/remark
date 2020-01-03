@@ -35,8 +35,8 @@ public class SunningController {
     private static Logger log = LoggerFactory.getLogger(SunningController.class);
     @Autowired
     private StatDAO statDao;
-   /* @Autowired
-    private DailyDAO dailyDao;*/
+    /* @Autowired
+     private DailyDAO dailyDao;*/
     @Autowired
     private DrugRecordsMapper drugRecordsMapper;
     @Autowired
@@ -64,7 +64,7 @@ public class SunningController {
             @RequestParam(value = "medicineNo", required = false, defaultValue = "") String medicineNo,
             @RequestParam(value = "fromDate") String fromDate,
             @RequestParam(value = "toDate") String toDate,
-            @RequestParam(value = "draw", required = false) Integer draw,
+            @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
             @RequestParam(value = "start", required = false, defaultValue = "0") int start,
             @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
         HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, null);
@@ -80,7 +80,15 @@ public class SunningController {
     @RequestMapping(value = "departBase", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String departBase(@RequestParam(value = "fromDate") String fromDate, @RequestParam(value = "toDate") String toDate) {
         HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, null);
-        List<HashMap<String, Object>> result = drugRecordsMapper.departbase(param);
+        List<HashMap<String, Object>> result = drugRecordsMapper.departBase(param);
+        return wrap(result);
+    }//医生基药
+
+    @ResponseBody
+    @RequestMapping(value = "doctorBase", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String doctorBase(@RequestParam(value = "fromDate") String fromDate, @RequestParam(value = "toDate") String toDate) {
+        HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, null);
+        List<HashMap<String, Object>> result = drugRecordsMapper.doctorBase(param);
         return wrap(result);
     }
 
@@ -88,9 +96,11 @@ public class SunningController {
     @RequestMapping(value = "medicineList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String medicineList(@RequestParam(value = "fromDate") String fromDate, @RequestParam(value = "toDate") String toDate,
                                @RequestParam(value = "department", defaultValue = "") String department,
+                               @RequestParam(value = "doctorName", defaultValue = "") String doctorName,
                                @RequestParam(value = "baseType", required = false) Integer baseType) {
         HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, department);
         param.put("baseType", baseType);
+        param.put("doctorName", doctorName);
         List<HashMap<String, Object>> result = drugRecordsMapper.medicineList(param);
         StatMath.sumAndCalcRatio(result, "amount", "baseRatioInDepart");
         return wrap(result);
@@ -102,7 +112,7 @@ public class SunningController {
             @RequestParam(value = "medicineNo", required = false, defaultValue = "") String medicineNo,
             @RequestParam(value = "fromDate") String fromDate,
             @RequestParam(value = "toDate") String toDate,
-            @RequestParam(value = "draw", required = false) Integer draw,
+            @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
             @RequestParam(value = "start", required = false, defaultValue = "0") int start,
             @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
         HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, null);
@@ -141,7 +151,7 @@ public class SunningController {
             @RequestParam(value = "top3", required = false, defaultValue = "false") Boolean top3,
           /*  @RequestParam(value = "mental", required = false, defaultValue = "false") Boolean mental,
             @RequestParam(value = "assist", required = false, defaultValue = "false") Boolean assist,*/
-            @RequestParam(value = "draw", required = false) Integer draw,
+            @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
             @RequestParam(value = "start", required = false, defaultValue = "0") int start,
             @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
 
@@ -199,7 +209,7 @@ public class SunningController {
             @RequestParam(value = "fromDate") String fromDate,
             @RequestParam(value = "toDate") String toDate,
             @RequestParam(value = "type", required = false, defaultValue = "-1") Integer type,
-            @RequestParam(value = "draw", required = false) Integer draw,
+            @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
             @RequestParam(value = "start", required = false, defaultValue = "0") int start,
             @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
         List<HashMap<String, Object>> result = statService.byDepart(fromDate, toDate, type, healthNo, medicineNo);
@@ -216,7 +226,7 @@ public class SunningController {
             @RequestParam(value = "toDate") String toDate,
             @RequestParam(value = "type", required = false, defaultValue = "-1") Integer type,
             @RequestParam(value = "antiClass", required = false, defaultValue = "-1") Integer antiClass,
-            @RequestParam(value = "draw", required = false) Integer draw,
+            @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
             @RequestParam(value = "start", required = false, defaultValue = "0") int start,
             @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
         List<HashMap<String, Object>> result = statService.getDepartDetail(fromDate, toDate, department, type, healthNo, antiClass);
@@ -227,11 +237,11 @@ public class SunningController {
     @ResponseBody
     @RequestMapping(value = "byDoctor", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String byDoctor(
-            @RequestParam(value = "medicineNo", required = false, defaultValue = "") String medicineNo,
+            //@RequestParam(value = "medicineNo", required = false, defaultValue = "") String medicineNo,
             @RequestParam(value = "department", required = false, defaultValue = "") String department,
             @RequestParam(value = "fromDate") String fromDate,
             @RequestParam(value = "toDate") String toDate,
-            @RequestParam(value = "draw", required = false) Integer draw,
+            @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
             @RequestParam(value = "start", required = false, defaultValue = "0") int start,
             @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
         List<HashMap<String, Object>> result = statService.byDoctor(fromDate, toDate, department);

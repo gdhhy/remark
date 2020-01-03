@@ -50,7 +50,7 @@
     jQuery(function ($) {
         var startDate = moment().month(moment().month() - 1).startOf('month');
         var endDate = moment().month(moment().month() - 1).endOf('month');
-        var url = "/sunning/departBase.jspa?fromDate={0}&toDate={1}";
+        var url = "/sunning/doctorBase.jspa?fromDate={0}&toDate={1}";
 
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');
@@ -60,14 +60,14 @@
                 bAutoWidth: false,
                 bProcessing: true,
                 "columns": [
-                    {"data": "department", "sClass": "center"},
-                    {"data": "department", "sClass": "center"},
+                    {"data": "doctorName", "sClass": "center"},
+                    {"data": "doctorName", "sClass": "center"},
                     {"data": "amount", "sClass": "center"},
                     {"data": "base2Amount", "sClass": "center"},
                     {"data": "base3Amount", "sClass": "center"},//4
                     {"data": "base2Amount", "sClass": "center"},
                     {"data": "base3Amount", "sClass": "center"},
-                    {"data": "department", "sClass": "center"}
+                    {"data": "doctorName", "sClass": "center"}
                 ],
                 'columnDefs': [
                     {
@@ -75,7 +75,7 @@
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     },
-                    {"orderable": false, "targets": 1, title: '科室', searchable: true},
+                    {"orderable": false, "targets": 1, title: '医生', searchable: true},
                     {"orderable": true, "targets": 2, title: '总金额', render: renderAmount},
                     {"orderable": true, "targets": 3, title: '国基金额', render: renderAmount},
                     {"orderable": true, "targets": 4, title: '省基金额', render: renderAmount},
@@ -90,11 +90,11 @@
                         }
                     },
                     {
-                        'targets': 7, 'searchable': false, 'orderable': false, width: 110, title: '科室明细',
+                        'targets': 7, 'searchable': false, 'orderable': false, width: 110, title: '医生明细',
                         render: function (data, type, row, meta) {
                             var jsp = row['type'] === 1 ? "clinic_list.jsp" : "recipe_list.jsp";
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
-                                '<a class="hasDetail" href="#" data-Url="javascript:showDepartmentDetail(\'{0}\');">'.format(data) +
+                                '<a class="hasDetail" href="#" data-Url="javascript:showdoctorDetail(\'{0}\');">'.format(data) +
                                 '<i class="ace-icon glyphicon  glyphicon-list  bigger-130"></i>' +
                                 '</a>&nbsp;&nbsp;&nbsp;' +
                                 '</div>';
@@ -169,25 +169,23 @@
             myTable.ajax.url(url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"))).load();
         });
         $('.btn-info').click(function () {
-            window.location.href = "/excel/departBase.jspa?fromDate={0}&toDate={1}".format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"));
+            window.location.href = "/excel/doctorBase.jspa?fromDate={0}&toDate={1}".format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"));
         });
 
-        function showDepartmentDetail(department) {
-            var url = "/sunning/medicineList.jspa?fromDate={0}&toDate={1}&department={2}&baseType=1&limit=1000";
+        function showdoctorDetail(doctor) {
+            var url = "/sunning/medicineList.jspa?fromDate={0}&toDate={1}&doctorName={2}&baseType=1&limit=1000";
 
             //console.log("text=" + $('#disItem').val());
             $.ajax({
                 type: "GET",
-                url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), department),
+                url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), doctor),
                 contentType: "application/json; charset=utf-8",
                 cache: false,
                 success: function (response, textStatus) {
                     var respObject = JSON.parse(response);
                     if (respObject.data.length > 0) {
-                        //if($("#departmentTable tbody tr").length === 0)
-                        //$('#departmentTable').empty();
 
-                        $('#departmentTable tbody tr').remove();
+                        $('#doctorTable tbody tr').remove();
                         var i = 0;
                         $.each(respObject.data, function () {
                             var $tr = ('<tr><td style="text-align: center">{0}</td><td style="text-align: center">{1}</td>' +
@@ -196,9 +194,9 @@
                             ).format(++i, this.chnName, this.spec, this.base === 2 ? "国基" : this.base === 3 ? "省基" : "基药",
                                 this.quantity, accounting.format(this.amount, 2), accounting.format(this.baseRatioInDepart * 100, 2) + '%');
                             // console.log($tr);
-                            $("#departmentTable tbody").append($tr);
+                            $("#doctorTable tbody").append($tr);
                         });
-                        $('#dialog-title').text(department + " - 基药明细");
+                        $('#dialog-title').text(doctor + " - 基药明细");
                         $('#showMedicineDetailDialog').modal();
                         //console.log("i=" + i);
                     }
@@ -229,7 +227,7 @@
             <i class="ace-icon fa fa-home home-icon"></i>
             <a href="/index.jspa">首页</a>
         </li>
-        <li class="active">科室基药统计</li>
+        <li class="active">医生基药统计</li>
 
     </ul><!-- /.breadcrumb -->
 
@@ -301,12 +299,12 @@
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
                             <span class="white">&times;</span>
                         </button>
-                        <span id="dialog-title">科室用药明细</span>
+                        <span id="dialog-title">医生用药明细</span>
                     </div>
                 </div>
 
                 <div class="modal-body no-padding">
-                    <table id="departmentTable" class="table table-striped table-bordered table-hover no-margin-bottom no-border-top">
+                    <table id="doctorTable" class="table table-striped table-bordered table-hover no-margin-bottom no-border-top">
                         <thead>
                         <tr>
                             <th class="col-xs-1" style="text-align: center">排名</th>

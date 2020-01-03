@@ -393,7 +393,7 @@ public class InfectiousController {
             result += (s.equals(infectious.get("ageUnit")) ? check : uncheck) + s + "  ";
         infectious.put("ageUnit", result);
 
-        items = new String[]{"疑似病例", "临床诊断病例", "实验室确诊病例、病原携带者", "急性", "慢性（乙型肝炎、血吸虫、丙型肝炎填写）"};
+        items = new String[]{"疑似病例", "临床诊断病例", "实验室确诊病例", "病原携带者", "急性", "慢性（乙型肝炎、血吸虫、丙型肝炎填写）"};
         result = "（1）";
         for (int i = 0; i < items.length; i++) {
             result += ((((Integer) infectious.get("caseClass")) & (int) Math.pow(2, i)) > 0 ? check : uncheck) + items[i] + "    ";

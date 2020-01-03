@@ -2,6 +2,8 @@ package com.zcreate.remark.controller;
 
 import com.zcreate.common.DictService;
 import com.zcreate.rbac.web.DeployRunning;
+import com.zcreate.remark.dao.DrugRecordsMapper;
+import com.zcreate.remark.util.ParamUtils;
 import com.zcreate.review.dao.DailyDAO;
 import com.zcreate.review.dao.StatDAO;
 import com.zcreate.review.logic.AntibiosisService;
@@ -41,6 +43,8 @@ public class ExcelController {
     private StatService statService;
     @Autowired
     private AntibiosisService antibiosisService;
+    @Autowired
+    private DrugRecordsMapper drugRecordsMapper;
     @Autowired
     private DictService dictService;
     String templateDir = "template";
@@ -272,5 +276,35 @@ public class ExcelController {
             }
         }
 
+    }
+
+    @RequestMapping(value = "departBase", method = RequestMethod.GET)
+    public void departBase(HttpServletResponse response, @RequestParam(value = "fromDate") String fromDate, @RequestParam(value = "toDate") String toDate) throws Exception {
+        HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, null);
+        List<HashMap<String, Object>> result = drugRecordsMapper.departBase(param);
+
+        StatMath.ratio(result, "base2Amount", "amount", "base2Ratio");
+        StatMath.ratio(result, "base3Amount", "amount", "base3Ratio");
+
+        String[] prop = {"department", "amount", "base2Amount", "base3Amount", "base2Ratio", "base3Ratio"};
+
+        HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "departBase.xls"));
+
+        exportExcel(response, wb, 3, "科室基药统计" + fromDate + "～" + toDate, result, prop);
+    }
+
+    @RequestMapping(value = "doctorBase", method = RequestMethod.GET)
+    public void doctorBase(HttpServletResponse response, @RequestParam(value = "fromDate") String fromDate, @RequestParam(value = "toDate") String toDate) throws Exception {
+        HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, null);
+        List<HashMap<String, Object>> result = drugRecordsMapper.departBase(param);
+
+        StatMath.ratio(result, "base2Amount", "amount", "base2Ratio");
+        StatMath.ratio(result, "base3Amount", "amount", "base3Ratio");
+
+        String[] prop = {"department", "amount", "base2Amount", "base3Amount", "base2Ratio", "base3Ratio"};
+
+        HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "departBase.xls"));
+
+        exportExcel(response, wb, 3, "医生基药统计" + fromDate + "～" + toDate, result, prop);
     }
 }

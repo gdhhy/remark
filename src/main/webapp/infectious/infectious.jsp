@@ -594,7 +594,7 @@
                                             <label class="col-sm-1 control-label no-padding-right"> (1) </label>
                                             <div class="radio col-sm-2">
                                                 <label style="white-space: nowrap">
-                                                    <input name="caseClass1" type="radio" class="ace" value="1" <c:if test='${(infectious.caseClass mod 10 )==1}'> checked</c:if>/>
+                                                    <input name="caseClass1" type="radio" class="ace" value="1" <c:if test='${(infectious.caseClass mod 10)==1}'> checked</c:if>/>
                                                     <span class="lbl">疑似病例</span>
                                                 </label>
                                             </div>
@@ -608,7 +608,13 @@
                                             <div class="radio col-sm-2">
                                                 <label style="white-space: nowrap">
                                                     <input name="caseClass1" type="radio" class="ace" value="4"<c:if test='${(infectious.caseClass mod 10)==4}'> checked</c:if>/>
-                                                    <span class="lbl">实验室确诊病例、病原携带者</span>
+                                                    <span class="lbl">实验室确诊病例</span>
+                                                </label>
+                                            </div>
+                                            <div class="radio col-sm-2">
+                                                <label style="white-space: nowrap">
+                                                    <input name="caseClass1" type="radio" class="ace" value="8"<c:if test='${(infectious.caseClass mod 10)==8}'> checked</c:if>/>
+                                                    <span class="lbl">病原携带者</span>
                                                 </label>
                                             </div>
                                         </div>

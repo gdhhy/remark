@@ -133,7 +133,7 @@
                   '<a class="submit" href="#" data-Url="javascript:submitInfectious({0},\'{1}\')">'.format(data, row["patientName"]) +
                   '<i class="ace-icon fa fa-arrow-up orange bigger-130" title="提交"></i></a>&nbsp;' : '') +
                 (row["workflowChn"] === "接受" ?
-                  '<a class="export" href="#" data-Url="/index.jspa?content=/infectious/getInfectiousPDF.jspa?infectiousID={0}">'.format(data) +
+                  '<a class="export" href="#" data-Url="/infectious/getInfectiousPDF.jspa?infectiousID={0}">'.format(data) +
                   '<i class="ace-icon fa fa-file-pdf-o bigger-130" title="导出PDF"></i></a>' : '') +
                 </c:when>
                 <c:otherwise>
@@ -146,7 +146,7 @@
                   '<a class="reject" href="#" data-Url="javascript:rejectInfectious({0},\'{1}\')">'.format(data, row["patientName"]) +
                   '<i class="ace-icon fa fa-arrow-left red bigger-110" title="退回"></i></a>&nbsp;' : '') +
                 (row["workflowChn"] === "接受" ?
-                  '<a class="export" href="#" data-Url="/index.jspa?content=/infectious/getInfectiousPDF.jspa?infectiousID={0}">'.format(data, row["patientName"]) +
+                        '<a class="export" href="#" data-Url="/infectious/getInfectiousPDF.jspa?infectiousID={0}">'.format(data) +
                   '<i class="ace-icon fa fa-file-pdf-o bigger-130" title="导出PDF" ></i></a>' : ' ') +
                 </c:otherwise>
                 </c:choose>

@@ -172,15 +172,25 @@
                     <b class="arrow"></b>
                 </li>
                 <li class="">
-                <a href="index.jspa?content=/sunning/department_base.jsp&menuID=24" id="24">
+                    <a href="index.jspa?content=/sunning/department_base.jsp&menuID=24" id="24">
 
-                    <!--<i class="menu-icon fa 	fa-certificate"></i>-->
-                    <i class="menu-icon fa fa-caret-right"></i>
-                    <span class="menu-text">科室基药统计</span>
-                </a>
+                        <!--<i class="menu-icon fa 	fa-certificate"></i>-->
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        <span class="menu-text">科室基药统计</span>
+                    </a>
 
-                <b class="arrow"></b>
-            </li>
+                    <b class="arrow"></b>
+                </li>
+                <li class="">
+                    <a href="index.jspa?content=/sunning/doctor_base.jsp&menuID=25" id="25">
+
+                        <!--<i class="menu-icon fa 	fa-certificate"></i>-->
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        <span class="menu-text">医生基药统计</span>
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
             </ul>
         </li>
         <%--<sec:authentication property="principal.username"/>--%>
@@ -219,24 +229,24 @@
 
                     <b class="arrow"></b>
                 </li>
-              <%--  <li class="">
-                    <a href="index.jspa?content=/admin/roles.jsp&menuID=31" id="31">
-                        <!--<i class="menu-icon fa 	fa-certificate"></i>-->
-                        <i class="menu-icon fa fa-caret-right"></i>
-                        <span class="menu-text"> 住院科室抗菌药统计</span>
-                    </a>
+                <%--  <li class="">
+                      <a href="index.jspa?content=/admin/roles.jsp&menuID=31" id="31">
+                          <!--<i class="menu-icon fa 	fa-certificate"></i>-->
+                          <i class="menu-icon fa fa-caret-right"></i>
+                          <span class="menu-text"> 住院科室抗菌药统计</span>
+                      </a>
 
-                    <b class="arrow"></b>
-                </li>
-                <li class="">
-                    <a href="index.jspa?content=/admin/roles.jsp&menuID=32" id="32">
-                        <!--<i class="menu-icon fa 	fa-certificate"></i>-->
-                        <i class="menu-icon fa fa-caret-right"></i>
-                        <span class="menu-text"> 门诊抗菌药统计</span>
-                    </a>
+                      <b class="arrow"></b>
+                  </li>
+                  <li class="">
+                      <a href="index.jspa?content=/admin/roles.jsp&menuID=32" id="32">
+                          <!--<i class="menu-icon fa 	fa-certificate"></i>-->
+                          <i class="menu-icon fa fa-caret-right"></i>
+                          <span class="menu-text"> 门诊抗菌药统计</span>
+                      </a>
 
-                    <b class="arrow"></b>
-                </li>--%>
+                      <b class="arrow"></b>
+                  </li>--%>
             </ul>
         </li>
         <li>
@@ -306,16 +316,16 @@
 
             <ul class="submenu">
                 <sec:authorize access="hasAuthority('ADMIN')">
-                <li class="">
-                    <a href="index.jspa?content=users.jspa&menuID=4" id="4">
-                        <i class="menu-icon fa fa-caret-right"></i>
-                        <i class="fa fa-user"></i>
-                        <span class="menu-text">用户管理</span>
+                    <li class="">
+                        <a href="index.jspa?content=users.jspa&menuID=4" id="4">
+                            <i class="menu-icon fa fa-caret-right"></i>
+                            <i class="fa fa-user"></i>
+                            <span class="menu-text">用户管理</span>
 
-                    </a>
+                        </a>
 
-                    <b class="arrow"></b>
-                </li>
+                        <b class="arrow"></b>
+                    </li>
                 </sec:authorize>
                 <li class="">
                     <a href="index.jspa?content=/monitor/data.jsp&menuID=6" id="6">
