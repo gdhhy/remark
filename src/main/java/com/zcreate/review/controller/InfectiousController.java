@@ -141,6 +141,19 @@ public class InfectiousController {
         return "/infectious/infectious_list";
     }
 
+    @RequestMapping(value = "showContagionList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String showContagionList(ModelMap model) {
+        model.addAttribute("CONTAGION_ROLE", false);
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            UserDetails ud = (UserDetails) principal;
+            if (ud.getAuthorities().contains(new SimpleGrantedAuthority("CONTAGION")))
+                model.addAttribute("CONTAGION_ROLE", true);
+        }
+
+        return "/infectious/contagion_list";
+    }
+
     @RequestMapping(value = "/newInfectious", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String newInfectious(@RequestParam(value = "patientID", required = false, defaultValue = "0") Integer patientID,
                                 @RequestParam(value = "serialNo", required = false, defaultValue = "") String serialNo,
@@ -410,9 +423,11 @@ public class InfectiousController {
         infectious.put("classA", result);
 
         HashMap<String, String[]> subInfect = new HashMap<>();
+        items = new String[]{"HIV阳性", "艾滋病"};
+        subInfect.put("艾滋病", items);
         items = new String[]{"Ⅰ期", "Ⅱ期", "Ⅲ期", "胎传", "隐性"};
         subInfect.put("梅毒", items);
-        items = new String[]{"涂阳", "仅培阳", "菌阴", "未痰检"};
+        items = new String[]{"涂阳", "菌阴", "未痰检", "仅培阳"};
         subInfect.put("肺结核", items);
         items = new String[]{"伤寒", "副伤寒"};
         subInfect.put("伤寒", items);
@@ -424,37 +439,36 @@ public class InfectiousController {
         subInfect.put("疟疾", items);
         items = new String[]{"甲型", "乙型", "丙型", "戊型", "未分型"};
         subInfect.put("病毒性肝炎", items);
-        items = new String[]{"传染性非典型肺炎", "艾滋病", "脊髓灰质炎", "流行性出血热", "新生儿破伤风", "麻疹", "狂犬病",
-                "流行性脑脊髓膜炎", "登革热", "布鲁氏菌病", "钩端螺旋体病", "流行性乙型脑炎", "白喉", "猩红热",
-                "人感染H7N9禽流感", "百日咳", "血吸虫病", "淋病", "人感染高致病性禽流感",
-                "病毒性肝炎", "疟疾", "炭疽", "痢疾", "伤寒", "肺结核", "梅毒"};
+        items = new String[]{"传染性非典型肺炎", "艾滋病", "病毒性肝炎",
+                "脊髓灰质炎", "人感染高致病性禽流感", "麻疹", "流行性出血热", "狂犬病", "流行性乙型脑炎", "登革热", "炭疽", "痢疾",
+                "肺结核", "伤寒", "流行性脑脊髓膜炎", "百日咳", "白喉", "新生儿破伤风", "猩红热",
+                "布鲁氏菌病", "淋病", "梅毒", "钩端螺旋体病",
+                "血吸虫病", "疟疾", "人感染H7N9禽流感"};
         result = "";
         String[] infectNameArray = ((String) infectious.get("infectiousName")).split("-");
 
-        for (String s : items) {
-            result += (infectNameArray.length > 0 && s.equals(infectNameArray[0]) ? check : uncheck) + s;
-            if (subInfect.get(s) != null) {
-                result += "：（";
-                String[] subInfectious = subInfect.get(s);
+        for (String firstName : items) {
+            if (subInfect.get(firstName) != null) {
+                String secondName = "：（";
+                String[] subInfectious = subInfect.get(firstName);
                 for (String s2 : subInfectious)
-                    result += (infectNameArray.length == 2 && s2.equals(infectNameArray[1]) ? check : uncheck) + s2 + "  ";
-                result += "）  ";
+                    secondName += (infectNameArray.length == 2 && s2.equals(infectNameArray[1]) ? check : uncheck) + s2 + "  ";
+                secondName += "）  ";
+                result += firstName + secondName;
             } else
-                result += "   ";
+                result += (infectNameArray.length > 0 && firstName.equals(infectNameArray[0]) ? check : uncheck) + firstName + "   ";
         }
         infectious.put("classB", result + "     ");
 
         items = new String[]{"流行性感冒", "流行性腮腺炎", "风疹", "急性出血结膜炎", "麻风病", "流行性和地方性斑疹伤寒", "黑热病", "包虫病", "丝虫病",
-                "除霍乱、细菌性和阿米巴性痢疾、伤寒和副伤寒以外的感染性腹泻病", "手足口病", "人感染H7N9禽流感"};
+                "除霍乱、细菌性和阿米巴性痢疾、伤寒和副伤寒以外的感染性腹泻病", "手足口病"};
         result = "";
         for (String s : items)
             result += (s.equals(infectious.get("infectiousName")) ? check : uncheck) + s + "  ";
         infectious.put("classC", result);
 
-        items = new String[]{"水痘", "不明原因肺炎", "人感染猪链球菌病", "结核性胸膜炎", "发热伴血小板减少综合症",
-                "人粒细胞无形体病", "肝吸虫病", "生殖器疱疹", "尖锐湿疣", "AFP",
-                "生殖道沙眼衣原体感染", "中东呼吸综合症", "埃博拉出血热", "寨卡病毒病",
-                "不明原因", "其它"};
+        items = new String[]{"非淋菌性尿道炎", "尖锐湿疣", "生殖器疱疹", "水痘", "肝吸虫病", "生殖道沙眼衣原体感染", "恙虫病", "森林脑炎", "结核性胸膜炎", "人感染猪链球菌病", "人粒细胞无形体病",
+                "不明原因肺炎", "发热伴血小板减少综合症", "中东呼吸综合症", "埃博拉出血热", "寨卡病毒病", "AFP", "其它"};
         result = "";
         for (String s : items)
             result += (s.equals(infectious.get("infectiousName")) ? check : uncheck) + s + "  ";

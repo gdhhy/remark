@@ -4,13 +4,16 @@ import com.zcreate.common.DictService;
 import com.zcreate.rbac.web.DeployRunning;
 import com.zcreate.remark.dao.DrugRecordsMapper;
 import com.zcreate.remark.util.ParamUtils;
-import com.zcreate.review.dao.DailyDAO;
-import com.zcreate.review.dao.StatDAO;
+import com.zcreate.review.dao.ClinicDAO;
+import com.zcreate.review.dao.RecipeDAO;
 import com.zcreate.review.logic.AntibiosisService;
 import com.zcreate.review.logic.StatService;
 import com.zcreate.util.DataFormat;
+import com.zcreate.util.DateUtils;
 import com.zcreate.util.StatMath;
+import com.zcreate.util.Verify;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
@@ -27,6 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,7 +51,12 @@ public class ExcelController {
     private DrugRecordsMapper drugRecordsMapper;
     @Autowired
     private DictService dictService;
+    @Autowired
+    private ClinicDAO clinicDao;
+    @Autowired
+    private RecipeDAO recipeDao;
     String templateDir = "template";
+    String downloadDir = "tmp";
 
     //药品分析（天）
     //@ResponseBody
@@ -306,5 +315,176 @@ public class ExcelController {
         HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "departBase.xls"));
 
         exportExcel(response, wb, 3, "医生基药统计" + fromDate + "～" + toDate, result, prop);
+    }
+
+    @RequestMapping(value = "getClinicList", method = RequestMethod.GET)
+    public void getClinicList(HttpServletResponse response, @RequestParam(value = "fromDate", required = false) String fromDate,
+                              @RequestParam(value = "toDate", required = false) String toDate,
+                              @RequestParam(value = "queryItem", required = false) String queryItem,
+                              @RequestParam(value = "queryField", required = false) String queryField,
+                              @RequestParam(value = "department", required = false) String department,
+                              @RequestParam(value = "rational", required = false) Integer rational) throws Exception {
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("reviewDateFrom", fromDate);
+        if (!"".equals(toDate)) {
+            Calendar cal = DateUtils.parseCalendarDayFormat(toDate);
+            cal.add(Calendar.DATE, 1);
+            param.put("reviewDateTo", cal.getTime());
+        }
+        // param.put("reviewDateNotNull", true);
+        if (queryItem != null && !"".equals(queryItem) &&
+                queryField != null && !"".equals(queryField))
+            param.put(queryItem, queryField);
+
+        param.put("department", department);
+        param.put("rational", rational);
+        param.put("start", 0);
+        param.put("limit", 10000);
+        // if ((Integer) param.get("start") > 0)
+        param.put("orderField", "clinicID");
+        /*else
+            param.put("orderField", "money");*/
+        List list = clinicDao.getClinicList(param);
+
+        String headers[] = {"处方日期", "门诊号", "病人", "年龄", "诊断", "科室", "医生", "点评内容", "点评时间"};
+        String prop[] = {"clinicDate", "serialNo", "patientName", "age", "diagnosis", "department", "doctorName", "result", "reviewDate"};
+
+        OutputStream out = null;
+        try {
+            HSSFWorkbook workbook = exportExcel("门诊点评结果", headers, list, prop);
+
+            String downFileName = "门诊点评结果.xls";
+
+            response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+            response.setHeader("Content-Disposition", "attachment; filename*=utf-8'zh_cn'" +
+                    java.net.URLEncoder.encode(downFileName, "UTF-8") + ".xls");//chrome 、 firefox都正常
+            out = response.getOutputStream(); // 输出到文件流
+            workbook.write(out);
+            out.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (out != null) {
+                out.close();
+            }
+        }
+    }
+
+    @RequestMapping(value = "getRecipeList", method = RequestMethod.GET)
+    public void getRecipeList(HttpServletResponse response, @RequestParam(value = "fromDate", required = false) String fromDate,
+                              @RequestParam(value = "toDate", required = false) String toDate,
+                              @RequestParam(value = "queryItem", required = false) String queryItem,
+                              @RequestParam(value = "queryField", required = false) String queryField,
+                              @RequestParam(value = "department", required = false) String department,
+                              @RequestParam(value = "rational", required = false) Integer rational) throws Exception {
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("reviewDateFrom", fromDate);
+        if (!"".equals(toDate)) {
+            Calendar cal = DateUtils.parseCalendarDayFormat(toDate);
+            cal.add(Calendar.DATE, 1);
+            param.put("reviewDateTo", cal.getTime());
+        }
+        // param.put("reviewDateNotNull", true);
+        if (queryItem != null && !"".equals(queryItem) &&
+                queryField != null && !"".equals(queryField))
+            param.put(queryItem, queryField);
+
+        param.put("department", department);
+        param.put("rational", rational);
+        param.put("start", 0);
+        param.put("limit", 10000);
+        param.put("orderField", "recipeID");
+        /*else
+            param.put("orderField", "money");*/
+        List list = recipeDao.getRecipeList(param);
+
+        String headers[] = {"入院日期", "住院号", "病人", "年龄", "诊断", "科室", "主管医生", "点评内容", "点评时间"};
+        String prop[] = {"inDate", "patientNo", "patientName", "age", "diagnosis", "department", "masterDoctorName", "result", "reviewDate"};
+
+        OutputStream out = null;
+        try {
+            HSSFWorkbook workbook = exportExcel("住院点评结果", headers, list, prop);
+
+            String downFileName = "住院点评结果.xls";
+
+            response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+            response.setHeader("Content-Disposition", "attachment; filename*=utf-8'zh_cn'" +
+                    java.net.URLEncoder.encode(downFileName, "UTF-8") + ".xls");//chrome 、 firefox都正常
+            out = response.getOutputStream(); // 输出到文件流
+            workbook.write(out);
+            out.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (out != null) {
+                out.close();
+            }
+        }
+    }
+
+    //通用格式
+    public HSSFWorkbook exportExcel(String title, String[] headers, Collection dataset, String prop[]) throws Exception {
+        // 声明一个工作薄
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        // 生成一个表格
+        HSSFSheet sheet = workbook.createSheet(title);
+
+        //产生表格标题行
+        HSSFRow row = sheet.createRow(0);
+        for (int i = 0; i < headers.length; i++) {
+            HSSFCell cell = row.createCell(i);
+            // cell.setCellStyle(style);
+            HSSFRichTextString text = new HSSFRichTextString(headers[i]);
+            cell.setCellValue(text);
+        }
+
+        //遍历集合数据，产生数据行
+        Iterator<Object> it = dataset.iterator();
+        int index = 0;
+        while (it.hasNext()) {
+            index++;
+            row = sheet.createRow(index);
+            Object object = it.next();
+            //利用反射，根据javabean属性的先后顺序，动态调用getXxx()方法得到属性值
+            for (int i = 0; i < prop.length; i++) {
+                HSSFCell cell = row.createCell(i);
+                //cell.setCellStyle(style2);
+
+                Object value = BeanUtils.getProperty(object, prop[i]);
+                //判断值的类型后进行强制类型转换
+                String textValue = null;
+                if (value instanceof Boolean) {
+                    boolean bValue = (Boolean) value;
+                    textValue = "是";
+                    if (!bValue) {
+                        textValue = "否";
+                    }
+                } else if (value instanceof Date) {
+                    Date date = (Date) value;
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    textValue = sdf.format(date);
+                } else {
+                    //其它数据类型都当作字符串简单处理
+                    if (value != null) {
+                        textValue = value.toString();
+                        if (Verify.validShortDate(StringUtils.substring(textValue, 0, 10)))
+                            textValue = StringUtils.substring(textValue, 0, 10);
+                    }
+                }
+                //如果不是图片数据，就利用正则表达式判断textValue是否全部由数字组成
+                if (textValue != null) {
+                    Pattern p = Pattern.compile("^\\d+(\\.\\d+)?$");
+                    Matcher matcher = p.matcher(textValue);
+                    if (matcher.matches()) {
+                        //是数字当作double处理
+                        cell.setCellValue(Double.parseDouble(textValue));
+                    } else {
+                        HSSFRichTextString richString = new HSSFRichTextString(textValue);
+                        cell.setCellValue(richString);
+                    }
+                }
+            }
+        }
+        return workbook;
     }
 }

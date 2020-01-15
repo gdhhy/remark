@@ -397,6 +397,7 @@
             <label>选项：</label>
             <select class="chosen-select form-control" id="special" data-placeholder="选择职业">
                 <option value="all">全部</option>
+                <option value="anti">抗菌药</option>
                 <option value="base1">基药</option>
                 <option value="base2">国基</option>
                 <option value="base3">省基</option>

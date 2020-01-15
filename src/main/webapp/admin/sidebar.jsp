@@ -101,19 +101,17 @@
             <ul class="submenu">
                 <li class="">
                     <a href="index.jspa?content=/remark/sample.jsp&menuID=14" id="14">
-                        <!--<i class="menu-icon fa fa-user"></i>-->
-                        <i class="menu-icon fa fa-caret-right"></i>
-                        <i class="fa fa-random"></i>
+                        <%--<i class="menu-icon fa fa-caret-right"></i>--%>
+                        <i class="menu-icon fa fa-random"></i>
                         <span class="menu-text">抽样点评</span>
                     </a>
 
                     <b class="arrow"></b>
                 </li>
                 <li class="">
-                    <a href="index.jspa?content=/admin/roles.jsp&menuID=15" id="15">
-                        <!--<i class="menu-icon fa 	fa-certificate"></i>-->
-                        <i class="menu-icon fa fa-caret-right"></i>
-                        <span class="menu-text"> 查询点评</span>
+                    <a href="index.jspa?content=/remark/result.jsp&menuID=15" id="15">
+                        <i class="menu-icon fa fa-history"></i>
+                        <span class="menu-text"> 点评结果</span>
                     </a>
 
                     <b class="arrow"></b>
@@ -263,7 +261,6 @@
             <ul class="submenu">
                 <li class="">
                     <a href="index.jspa?content=/infectious/showInfectiousList.jspa&menuID=50" id="50">
-                        <!--<i class="menu-icon fa fa-user"></i>-->
                         <i class="menu-icon fa fa-bug"></i>
                         <span class="menu-text">传染病上报</span>
                     </a>
@@ -271,9 +268,8 @@
                     <b class="arrow"></b>
                 </li>
                 <li class="">
-                    <a href="index.jspa?content=/sunning/medicine_day.jsp&menuID=51" id="51">
+                    <a href="index.jspa?content=/infectious/showContagionList.jspa&menuID=51" id="51">
 
-                        <!--<i class="menu-icon fa 	fa-certificate"></i>-->
                         <i class="menu-icon fa fa-caret-right"></i>
                         <span class="menu-text">感染病上报</span>
                     </a>

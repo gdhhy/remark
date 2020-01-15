@@ -6,6 +6,8 @@ import com.zcreate.common.DictService;
 import com.zcreate.pinyin.PinyinUtil;
 import com.zcreate.rbac.web.DeployRunning;
 import com.zcreate.review.dao.AppealDAO;
+import com.zcreate.review.dao.ClinicDAO;
+import com.zcreate.review.dao.RecipeDAO;
 import com.zcreate.review.dao.SampleDAO;
 import com.zcreate.review.logic.ReviewService;
 import com.zcreate.review.model.Clinic;
@@ -29,7 +31,10 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.MessageFormat;
@@ -44,6 +49,10 @@ public class RemarkController {
     private ReviewService reviewService;
     @Autowired
     private SampleDAO sampleDao;
+    @Autowired
+    private ClinicDAO clinicDao;
+    @Autowired
+    private RecipeDAO recipeDao;
 
     private Gson gson = new GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd HH: mm").create();
 
@@ -697,7 +706,7 @@ public class RemarkController {
       /*  Map<String, Object> param = new HashMap< >();
         param.put("limit", 1);
         param.put("sampleBatchID", sampleBatchID);*/
-      //  SampleBatch sampleBatch = sampleDao.getSampleBatchList(param).get(0);
+        //  SampleBatch sampleBatch = sampleDao.getSampleBatchList(param).get(0);
         SampleBatch batch = sampleDao.getSampleBatch(sampleBatchID);
         HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "hospital.xls"));
         HSSFSheet sheet = wb.getSheet("Sheet1");
@@ -818,7 +827,8 @@ public class RemarkController {
             recipe.setDepartCode(reviewService.getDepartCode(recipe.getDepartment()));
             SampleBatch batch = sampleDao.getSampleBatch(batchID);
             recipe.setMasterDoctorName(PinyinUtil.replaceName(recipe.getMasterDoctorName()));
-            if (recipe.getReview().getRecipeReviewID() == null) recipe.getReview().setGermCheck(recipe.getMicrobeCheck() > 0 ? 1 : 0);
+            if (recipe.getReview().getRecipeReviewID() == null)
+                recipe.getReview().setGermCheck(recipe.getMicrobeCheck() > 0 ? 1 : 0);
 
             model.addAttribute("recipe", recipe);
             model.addAttribute("deployLocation", reviewConfig.getDeployLocation());
@@ -843,7 +853,8 @@ public class RemarkController {
             recipe.setDepartCode(reviewService.getDepartCode(recipe.getDepartment()));
             SampleBatch batch = sampleDao.getSampleBatch(batchID);
             recipe.setMasterDoctorName(PinyinUtil.replaceName(recipe.getMasterDoctorName()));
-            if (recipe.getReview().getRecipeReviewID() == null) recipe.getReview().setGermCheck(recipe.getMicrobeCheck() > 0 ? 1 : 0);
+            if (recipe.getReview().getRecipeReviewID() == null)
+                recipe.getReview().setGermCheck(recipe.getMicrobeCheck() > 0 ? 1 : 0);
 
             model.addAttribute("recipe", recipe);
             model.addAttribute("deployLocation", reviewConfig.getDeployLocation());
@@ -897,4 +908,97 @@ public class RemarkController {
     private String getCorrect(JsonElement element, String compare) {
         return element != null && element.getAsString().equals(compare) ? "√" : " ";
     }
+
+    @ResponseBody
+    @RequestMapping(value = "getClinicList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String getClinicList(@RequestParam(value = "fromDate", required = false) String fromDate,
+                                @RequestParam(value = "toDate", required = false) String toDate,
+                                @RequestParam(value = "queryItem", required = false) String queryItem,
+                                @RequestParam(value = "queryField", required = false) String queryField,
+                                @RequestParam(value = "department", required = false) String department,
+                                @RequestParam(value = "rational", required = false) Integer rational,
+                                @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
+                                @RequestParam(value = "start", required = false, defaultValue = "0") int start,
+                                @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("reviewDateFrom", fromDate);
+        if (!"".equals(toDate)) {
+            Calendar cal = DateUtils.parseCalendarDayFormat(toDate);
+            cal.add(Calendar.DATE, 1);
+            param.put("reviewDateTo", cal.getTime());
+        }
+        // param.put("reviewDateNotNull", true);
+        if (queryItem != null && !"".equals(queryItem) &&
+                queryField != null && !"".equals(queryField))
+            param.put(queryItem, queryField);
+
+        param.put("department", department);
+        param.put("rational", rational);
+        param.put("start", start);
+        param.put("limit", limit);
+        // if ((Integer) param.get("start") > 0)
+        param.put("orderField", "clinicID");
+        /*else
+            param.put("orderField", "money");*/
+        List<Clinic> list = clinicDao.getClinicList(param);
+        int totalCount = list.size();
+        //System.out.println("totalCount = " + totalCount);
+        if (start > 0 || totalCount == limit)
+            totalCount = clinicDao.getClinicCount(param);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("data", list);
+        result.put("draw", draw);
+        result.put("iTotalRecords", totalCount);//todo 表的行数，未加任何调剂
+        result.put("iTotalDisplayRecords", totalCount);
+
+        return gson.toJson(result);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "getHospitalList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String getHospitalList(@RequestParam(value = "fromDate", required = false) String fromDate,
+                                  @RequestParam(value = "toDate", required = false) String toDate,
+                                  @RequestParam(value = "queryItem", required = false) String queryItem,
+                                  @RequestParam(value = "queryField", required = false) String queryField,
+                                  @RequestParam(value = "department", required = false) String department,
+                                  @RequestParam(value = "rational", required = false) Integer rational,
+                                  @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
+                                  @RequestParam(value = "start", required = false, defaultValue = "0") int start,
+                                  @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("reviewDateFrom", fromDate);
+        if (!"".equals(toDate)) {
+            Calendar cal = DateUtils.parseCalendarDayFormat(toDate);
+            cal.add(Calendar.DATE, 1);
+            param.put("reviewDateTo", cal.getTime());
+        }
+        // param.put("reviewDateNotNull", true);
+        if (queryItem != null && !"".equals(queryItem) &&
+                queryField != null && !"".equals(queryField))
+            param.put(queryItem, queryField);
+
+        param.put("department", department);
+        param.put("rational", rational);
+        param.put("start", start);
+        param.put("limit", limit);
+        // if ((Integer) param.get("start") > 0)
+        param.put("orderField", "recipeID");
+        /*else
+            param.put("orderField", "money");*/
+        List<HashMap<String, Object>> list = recipeDao.getRecipeList(param);
+        int totalCount = list.size();
+        //System.out.println("totalCount = " + totalCount);
+        if (start > 0 || totalCount == limit)
+            totalCount = recipeDao.getRecipeCount(param);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("data", list);
+        result.put("draw", draw);
+        result.put("iTotalRecords", totalCount);//todo 表的行数，未加任何调剂
+        result.put("iTotalDisplayRecords", totalCount);
+
+        return gson.toJson(result);
+    }
+
 }

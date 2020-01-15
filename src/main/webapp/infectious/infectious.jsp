@@ -80,14 +80,16 @@
         //$('.chosen-select').chosen({allow_single_deselect: true});
         //$('.multiple-chosen').addClass('tag-input-style');
         var infectious0 = ['鼠疫', '霍乱'];
-        var infectious1 = ['传染性非典型肺炎', '艾滋病', 'HIV', '脊髓灰质炎', '流行性出血热', '新生儿破伤风', '麻疹', '流行性脑脊髓膜炎', '登革热', '布鲁氏菌病', '钩端螺旋体病', '流行性乙型脑炎',
-            '白喉', '猩红热', '人感染H7N9禽流感', '百日咳', '血吸虫病', '淋病', '人感染高致病性禽流感', '狂犬病', '病毒性肝炎-甲型', '病毒性肝炎-乙型', '病毒性肝炎-丙型', '病毒性肝炎-戊型',
-            '病毒性肝炎-未分型', '疟疾-间日疟', '疟疾-恶性疟', '疟疾-未分型', '炭疽-肺炭疽', '炭疽-皮肤炭疽', '炭疽-未分型', '痢疾-细菌性', '痢疾-阿米巴性', '伤寒-伤寒', '伤寒-副伤寒',
-            '肺结核-涂阳', '肺结核-仅培阳', '肺结核-菌阴', '肺结核-未痰检', '梅毒-Ⅰ期', '梅毒-Ⅱ期', '梅毒-Ⅲ期', '梅毒-胎传', '梅毒-隐性'];
+        var infectious1 = ['传染性非典型肺炎', '艾滋病-HIV阳性', '艾滋病-艾滋病', '病毒性肝炎-甲型', '病毒性肝炎-乙型', '病毒性肝炎-丙型', '病毒性肝炎-戊型', '病毒性肝炎-未分型',
+            '脊髓灰质炎', '人感染高致病性禽流感', '麻疹', '流行性出血热', '狂犬病', '流行性乙型脑炎', '登革热', '炭疽-肺炭疽', '炭疽-皮肤炭疽', '炭疽-未分型', '痢疾-细菌性', '痢疾-阿米巴性',
+            '肺结核-涂阳', '肺结核-菌阴', '肺结核-未痰检', '肺结核-仅培阳', '伤寒-伤寒', '伤寒-副伤寒', '流行性脑脊髓膜炎', '百日咳', '白喉', '新生儿破伤风', '猩红热',
+            '布鲁氏菌病', '淋病', '梅毒-Ⅰ期', '梅毒-Ⅱ期', '梅毒-Ⅲ期', '梅毒-胎传', '梅毒-隐性', '钩端螺旋体病',
+            '血吸虫病', '疟疾-间日疟', '疟疾-恶性疟', '疟疾-未分型', '人感染H7N9禽流感'
+        ];
         var infectious2 = ['流行性感冒', '流行性腮腺炎', '风疹', '急性出血结膜炎', '麻风病', '流行性和地方性斑疹伤寒', '黑热病', '包虫病', '丝虫病',
             '除霍乱、细菌性和阿米巴性痢疾、伤寒和副伤寒以外的感染性腹泻病', '手足口病'];
-        var infectious3 = ['水痘', '不明原因肺炎', '人感染猪链球菌病', '结核性胸膜炎', '发热伴血小板减少综合症', '人粒细胞无形体病', '肝吸虫病', '生殖器疱疹', '不明原因肺炎', 'AFP', '生殖道沙眼衣原体感染',
-            '恙虫病', '中东呼吸综合症', '埃博拉出血热', '寨卡病毒病', '不明原因', '其它'];
+        var infectious3 = ['非淋菌性尿道炎', '尖锐湿疣', '生殖器疱疹', '水痘', '肝吸虫病', '生殖道沙眼衣原体感染', '恙虫病', '森林脑炎', '结核性胸膜炎', '人感染猪链球菌病', '人粒细胞无形体病',
+            '不明原因肺炎', '发热伴血小板减少综合症', '中东呼吸综合症', '埃博拉出血热', '寨卡病毒病', 'AFP', '其它'];
 
         var infectiousVar = [infectious0, infectious1, infectious2, infectious3];
         $('#infectiousClass').on('change', function () {
@@ -351,7 +353,7 @@
             });
         });
 
-        function closeWindow (){
+        function closeWindow() {
             var userAgent = navigator.userAgent;
             if (userAgent.indexOf("Firefox") !== -1 || userAgent.indexOf("Chrome") !== -1) {
                 location.href = "about:blank";
@@ -622,13 +624,13 @@
                                         <div class="row"><label class="col-sm-1 control-label no-padding-right"> (2) </label>
                                             <div class="radio col-sm-2">
                                                 <label style="white-space: nowrap">
-                                                    <input name="caseClass2" type="radio" class="ace" value="1"<c:if test='${(infectious.caseClass mod 10)==1}'> checked</c:if>/>
+                                                    <input name="caseClass2" type="radio" class="ace" value="0"<c:if test='${infectious.caseClass<10}'> checked</c:if>/>
                                                     <span class="lbl">急性</span>
                                                 </label>
                                             </div>
                                             <div class="radio col-sm-2">
                                                 <label style="white-space: nowrap">
-                                                    <input name="caseClass2" type="radio" class="ace" value="2"<c:if test='${(infectious.caseClass mod 10)==2}'> checked</c:if>/>
+                                                    <input name="caseClass2" type="radio" class="ace" value="1"<c:if test='${infectious.caseClass>10}'> checked</c:if>/>
                                                     <span class="lbl">慢性（乙型肝炎、血吸虫填、丙型肝炎写）</span>
                                                 </label>
                                             </div>

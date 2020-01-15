@@ -103,6 +103,8 @@ public class StatServiceImpl implements StatService {
         else
             param.put("likeMedicineName", medicineNo);
 
+        if ("anti".equals(special))
+            param.put("antiClass", 0);
         if ("assist".equals(special))
             param.put("assist", true);
         if ("mental".equals(special))
