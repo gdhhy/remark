@@ -58,7 +58,7 @@
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');
         var myTable = dynamicTable
-            //.wrap("<div class='dataTables_borderWrap' />") //if you are applying horizontal scrolling (sScrollX)
+        //.wrap("<div class='dataTables_borderWrap' />") //if you are applying horizontal scrolling (sScrollX)
             .DataTable({
                 bAutoWidth: false,
                 bProcessing: true,
@@ -85,25 +85,23 @@
                     },
                     {"orderable": false, "targets": 1, title: '药品名称'},
                     {"orderable": false, "targets": 2, title: '规格'},
-                    {
-                        "orderable": false, "targets": 3, title: '基药'
-                    },
+                    {"orderable": false, "targets": 3, title: '基药'},
                     /*{"orderable": false, "targets": 4, title: '包装转换比'},*/
-                    {"orderable": false, "targets": 4, title: '数量'},
+                    {"orderable": false, 'searchable': false, "targets": 4, title: '数量'},
                     {
-                        "orderable": false, "targets": 5, title: '金额', render: function (data, type, row, meta) {
+                        "orderable": false, 'searchable': false, "targets": 5, title: '金额', render: function (data, type, row, meta) {
                             if (data === "-") return "未授权";
                             return data.toFixed(2);
                         }
                     },
                     {"orderable": false, "targets": 6, title: '病人数'},
                     {
-                        "orderable": false, "targets": 7, title: '金额占全院', render: function (data, type, row, meta) {
+                        "orderable": false, 'searchable': false, "targets": 7, title: '金额占全院', render: function (data, type, row, meta) {
                             return (data * 100).toFixed(3) + "%";
                         }
                     },
                     {
-                        "orderable": false, "targets": 8, title: '病人占全院', render: function (data, type, row, meta) {
+                        "orderable": false, 'searchable': false, "targets": 8, title: '病人占全院', render: function (data, type, row, meta) {
                             return (data * 100).toFixed(3) + "%";
                         }
                     },
@@ -140,7 +138,7 @@
                 },
 
                 // "processing": true,
-                "serverSide": true,
+                //"serverSide": true,
                 select: {
                     style: 'single'
                 }

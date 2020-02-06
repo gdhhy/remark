@@ -1,25 +1,29 @@
 
-create table DrugRecords_2015(
-                                 drID int   ,--lydmx_id
-                                 recordID int ,--lydno
-                                 drugstore varchar(20),--药房
-                                 dispensingDate datetime ,--发药日期
-                                 patientName varchar(30),--病人姓名
-                                 dispensingNo varchar(20),--发药ID fyid
-                                 invoiceNo varchar(20),--发票号
-                                 department varchar(20),--科室
-                                 age float,
-                                 clinicType varchar(10),--门诊类型：急诊、儿科、麻、精一
-                                 goodsID int ,--fyypid
-                                 goodsNo varchar(11) ,--ypbm
-                                 unit varchar(10),
-                                 spec varchar(30),
-                                 quantity numeric(15,4),--fysl
-                                 price decimal(15,2),
-                                 amount numeric(15,4),
-                                 doctorName varchar(30),--
-                                 adviceType varchar(30),--静滴、肌注静注
-                                 valid tinyint
+create table DrugRecords (
+                           drID int identity primary key ,--lydmx_id
+                           recordID int ,--lydno
+                           drugstore varchar(20),--药房
+                           dispensingDate datetime ,--发药日期
+                           patientID int,
+                           patientName varchar(30),--病人姓名
+                           dispensingNo varchar(20),--发药ID fyid
+  --invoiceNo varchar(20),--发票号
+                           departID int,--科室
+                           department varchar(20),--科室
+                          -- age float,
+                           clinicType varchar(10),--门诊类型：急诊、儿科、麻、精一
+                           goodsID int ,--fyypid
+  --goodsNo varchar(11) ,--ypbm
+                           unit varchar(10),
+  --spec varchar(30),
+                           quantity numeric(15,4),--fysl
+                           price decimal(15,2),
+  --amount numeric(15,4),
+                           doctorID int,--
+                           doctorName varchar(30),--
+                           usage varchar(255),--静滴、肌注静注
+                           adviceId int default 0,
+                           valid tinyint default  1
 );
 
 --药品分析（天）

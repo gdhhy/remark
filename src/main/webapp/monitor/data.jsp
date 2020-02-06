@@ -56,7 +56,7 @@
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     }, {
-                        'targets': 13, 'searchable': false, 'orderable': false,
+                        'targets': 16, 'searchable': false, 'orderable': false,
                         render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 '<a class="hasDetail" href="#" data-Url="javascript:deleteDialog(\'{0}\');">'.format(data) +

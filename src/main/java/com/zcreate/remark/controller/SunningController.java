@@ -153,7 +153,7 @@ public class SunningController {
             @RequestParam(value = "assist", required = false, defaultValue = "false") Boolean assist,*/
             @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
             @RequestParam(value = "start", required = false, defaultValue = "0") int start,
-            @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
+            @RequestParam(value = "length", required = false, defaultValue = "5000") int limit) {
 
         HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, department, type);
         param.put("start", start);
