@@ -1,7 +1,9 @@
 package com.zcreate.review.logic;
 
 import ChartDirector.XYChart;
+import com.zcreate.ReviewConfig;
 import com.zcreate.remark.dao.DrugRecordsMapper;
+import com.zcreate.remark.util.ParamUtils;
 import com.zcreate.review.dao.DailyDAO;
 import com.zcreate.review.dao.DailyDAOImpl;
 import com.zcreate.review.dao.StatDAO;
@@ -31,6 +33,8 @@ public class StatServiceImpl implements StatService {
     private static DailyDAO dailyDao;
     @Autowired
     private DrugRecordsMapper drugRecordsMapper;
+    @Autowired
+    private ReviewConfig reviewConfig;
 
     public StatServiceImpl() {
     }
@@ -91,17 +95,18 @@ public class StatServiceImpl implements StatService {
         return result;
     }
 
-    public List<HashMap<String, Object>> statByHealthNo(int start, int limit, String fromDate, String toDate,
-                                                        String healthNo, String medicineNo, String department, int type, boolean top3, String special) {
+    public List<HashMap<String, Object>> byMedicine(String fromDate, String toDate, String healthNo, Integer goodsID, String department,
+                                                      int type, boolean top3, String special, int start, int limit) {
         HashMap<String, Object> param = produceMap(fromDate, toDate, department, type);
         param.put("start", start);
         param.put("limit", limit);
         param.put("likeHealthNo", healthNo);
+        param.put("goodsID", goodsID);
 
-        if (medicineNo.getBytes().length == medicineNo.length())
+        /*if (medicineNo.getBytes().length == medicineNo.length())
             param.put("medicineNo", medicineNo);
         else
-            param.put("likeMedicineName", medicineNo);
+            param.put("likeMedicineName", medicineNo);*/
 
         if ("anti".equals(special))
             param.put("antiClass", 0);
@@ -116,23 +121,19 @@ public class StatServiceImpl implements StatService {
         if ("base3".equals(special))
             param.put("base", 3);
         param.put("top3", top3);
+        param.put("prefix", reviewConfig.getPrefixRBAC());
         List<HashMap<String, Object>> result;
         /*if ((department == null || "".equals(department)) && type <= 0)//无科室、全院
             result = statDao.dailyMedicine(param); //分页取
         else*/
-        result = drugRecordsMapper.statByMedicine(param); //取全部
+        result = drugRecordsMapper.byMedicine(param); //取全部
         //logger.debug("result.size()=" + result.size());
         param.remove("likeHealthNo");
         param.remove("assist");
         param.remove("mental");
         //HashMap global = statDao.statMoneyAndRxCount(param);
-        Date dateTo = null;
-        if (!"".equals(toDate)) {
-            Calendar cal = DateUtils.parseCalendarDayFormat(toDate);
-            cal.add(Calendar.DATE, 1);
-            dateTo = cal.getTime();
-        }
-        HashMap summary = statDao.dailySummary(DateUtils.parseDateDayFormat(fromDate), dateTo);
+
+        HashMap summary = drugRecordsMapper.dailySummary(ParamUtils.produceMap(fromDate, toDate, ""));
 
         for (HashMap<String, Object> aMap : result) {
             aMap.put("amountRatio", ((BigDecimal) aMap.get("amount")).divide(((BigDecimal) summary.get("clinicAmount")).add((BigDecimal) summary.get("hospitalAmount")), 5, BigDecimal.ROUND_HALF_UP));
@@ -291,7 +292,7 @@ public class StatServiceImpl implements StatService {
 
     }
 
-    public List<HashMap<String, Object>> byDepart(String fromDate, String toDate, int type, String healthNo, String medicineNo) {
+    /*public List<HashMap<String, Object>> byDepart(String fromDate, String toDate, int type, String healthNo, String medicineNo) {
         HashMap<String, Object> param = new HashMap<String, Object>();
         if (medicineNo.getBytes().length == medicineNo.length())  //无汉字
             param.put("medicineNo", medicineNo);
@@ -313,7 +314,7 @@ public class StatServiceImpl implements StatService {
         StatMath.ratio(result, "insuranceAmount", "amount", "insuranceRatio");
 
         return result;
-    }
+    }*/
 
     public List<HashMap<String, Object>> antiByDepart(String fromDate, String toDate, int antiClass, String medicineNo) {
         HashMap<String, Object> param = new HashMap<String, Object>();

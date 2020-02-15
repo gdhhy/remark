@@ -59,21 +59,21 @@ function renderBase2(data, type, row, meta) {
         case 3:
             return '省基';
         default :
-            return '';
+            return "　";
     }
 }
 
 function renderInsurance(data, type, row, meta) {
     if (data === 1) return "甲";
     else if (data === 2) return "乙";
-    else return " ";
+    return "　";
 }
 
 function renderWestern(data, type, row, meta) {
     if (data === 1) return "西药";
     else if (data === 3) return "中成药";
     else if (data === 4) return "中草药";
-    else return "";
+    return "";
 }
 
 function renderRouter(data, type, row, meta) {

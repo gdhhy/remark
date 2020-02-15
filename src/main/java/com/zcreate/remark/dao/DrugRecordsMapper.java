@@ -11,7 +11,10 @@ import java.util.Map;
  */
 @Mapper
 public interface DrugRecordsMapper {
-    public List<HashMap<String, Object>> statByMedicine(Map param);
+    public  HashMap<String, Object> dailySummary(Map param);
+
+    public List<HashMap<String, Object>> byMedicine(Map param);
+    public List<HashMap<String, Object>> byDoctor(Map param);
 
     public HashMap<String, Object> summaryHospitalDrugNum(Map param);
 
@@ -23,7 +26,7 @@ public interface DrugRecordsMapper {
 
     public List<HashMap<String, Object>> healthAnalysis2(Map param);
 
-    public List<HashMap<String, Object>> statRxDetailByHealthNo2(Map param);
+    //public List<HashMap<String, Object>> statRxDetailByHealthNo2(Map param);
 
     public List<HashMap<String, Object>> queryPatientDrug(Map param);
 
@@ -44,6 +47,7 @@ public interface DrugRecordsMapper {
     public List<HashMap<String, Object>> antiDrug(Map param);
 
     public List<HashMap<String, Object>> departBase(Map param);
+    public List<HashMap<String, Object>> departMedicine(Map param);
     public List<HashMap<String, Object>> doctorBase(Map param);
 
     int queryPatientDrugCount(Map param);

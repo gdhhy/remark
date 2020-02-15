@@ -4,9 +4,7 @@ import com.zcreate.ReviewConfig;
 import com.zcreate.remark.dao.DrugRecordsMapper;
 import com.zcreate.remark.util.ControllerHelp;
 import com.zcreate.remark.util.ParamUtils;
-import com.zcreate.review.dao.StatDAO;
 import com.zcreate.review.logic.StatService;
-import com.zcreate.util.DateUtils;
 import com.zcreate.util.StatMath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +19,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -33,10 +28,10 @@ import static com.zcreate.remark.util.ControllerHelp.wrap;
 @RequestMapping("/sunning")
 public class SunningController {
     private static Logger log = LoggerFactory.getLogger(SunningController.class);
-    @Autowired
-    private StatDAO statDao;
     /* @Autowired
-     private DailyDAO dailyDao;*/
+     private StatDAO statDao;
+      @Autowired
+      private DailyDAO dailyDao;*/
     @Autowired
     private DrugRecordsMapper drugRecordsMapper;
     @Autowired
@@ -61,14 +56,14 @@ public class SunningController {
     @ResponseBody
     @RequestMapping(value = "statMedicineGroupByDepart", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String statMedicineGroupByDepart(
-            @RequestParam(value = "medicineNo", required = false, defaultValue = "") String medicineNo,
+            @RequestParam(value = "goodsID", required = false, defaultValue = "") String goodsID,
             @RequestParam(value = "fromDate") String fromDate,
             @RequestParam(value = "toDate") String toDate,
             @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
             @RequestParam(value = "start", required = false, defaultValue = "0") int start,
             @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
         HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, null);
-        param.put("medicineNo", medicineNo);
+        param.put("goodsID", goodsID);
         List<HashMap<String, Object>> result = drugRecordsMapper.statMedicineGroupByDepart(param);
         //List<HashMap<String, Object>> result = statDao.statMedicineGroupByDepart(param);
         StatMath.sumAndCalcRatio(result, "amount", "ratio");
@@ -89,36 +84,43 @@ public class SunningController {
     public String doctorBase(@RequestParam(value = "fromDate") String fromDate, @RequestParam(value = "toDate") String toDate) {
         HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, null);
         List<HashMap<String, Object>> result = drugRecordsMapper.doctorBase(param);
+
+        StatMath.ratio(result, "clinicBaseAmount", "clinicAmount", "clinicBaseRatio");
+        StatMath.ratio(result, "hospitalBaseAmount", "hospitalAmount", "hospitalBaseRatio");
+
         return wrap(result);
     }
 
+    //1、科室用药趋势；2、科室基药；3、医生基药 --力锦
     @ResponseBody
     @RequestMapping(value = "medicineList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String medicineList(@RequestParam(value = "fromDate") String fromDate, @RequestParam(value = "toDate") String toDate,
                                @RequestParam(value = "department", defaultValue = "") String department,
                                @RequestParam(value = "doctorName", defaultValue = "") String doctorName,
+                               @RequestParam(value = "antiClass", required = false) Integer antiClass,
                                @RequestParam(value = "baseType", required = false) Integer baseType) {
         HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, department);
+        param.put("antiClass", antiClass);
         param.put("baseType", baseType);
         param.put("doctorName", doctorName);
         List<HashMap<String, Object>> result = drugRecordsMapper.medicineList(param);
-        StatMath.sumAndCalcRatio(result, "amount", "baseRatioInDepart");
+        StatMath.sumAndCalcRatio(result, "amount", "amountRatio");//1、科室用药趋势
         return wrap(result);
     }
 
     @ResponseBody
     @RequestMapping(value = "getDoctorListByMedicine", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String getDoctorListByMedicine(
-            @RequestParam(value = "medicineNo", required = false, defaultValue = "") String medicineNo,
+            @RequestParam(value = "goodsID", required = false ) Integer goodsID,
             @RequestParam(value = "fromDate") String fromDate,
             @RequestParam(value = "toDate") String toDate,
             @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
             @RequestParam(value = "start", required = false, defaultValue = "0") int start,
             @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
         HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, null);
-        param.put("medicineNo", medicineNo);
+        param.put("goodsID", goodsID);
         //List<HashMap<String, Object>> result = dailyDao.getDoctorListByMedicine(param);
-        List<HashMap<String, Object>> result = drugRecordsMapper.queryDoctorByMedicine(param);
+        List<HashMap<String, Object>> result = drugRecordsMapper.byDoctor(param);
         StatMath.sumAndCalcRatio(result, "amount", "ratio");
         boolean viewDoctorNum = false;
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -136,17 +138,16 @@ public class SunningController {
         return wrap(result, start, limit, draw);
     }
 
-    //药品分析（天）
+    //药品分析（天）--力锦
     @ResponseBody
-    @RequestMapping(value = "statMedicine", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public String statMedicine(
-            @RequestParam(value = "medicineNo", required = false, defaultValue = "") String medicineNo,
+    @RequestMapping(value = "byMedicine", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String byMedicine(
+            @RequestParam(value = "goodsID", required = false) Integer goodsID,
             @RequestParam(value = "department", required = false, defaultValue = "") String department,
             @RequestParam(value = "healthNo", required = false, defaultValue = "") String healthNo,
             @RequestParam(value = "fromDate") String fromDate,
             @RequestParam(value = "toDate") String toDate,
             @RequestParam(value = "type", required = false, defaultValue = "-1") Integer type,
-            //@RequestParam(value = "table", required = false, defaultValue = "0") Integer table,
             @RequestParam(value = "special", required = false, defaultValue = "") String special,
             @RequestParam(value = "top3", required = false, defaultValue = "false") Boolean top3,
           /*  @RequestParam(value = "mental", required = false, defaultValue = "false") Boolean mental,
@@ -155,7 +156,7 @@ public class SunningController {
             @RequestParam(value = "start", required = false, defaultValue = "0") int start,
             @RequestParam(value = "length", required = false, defaultValue = "5000") int limit) {
 
-        HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, department, type);
+        /*HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, department, type);
         param.put("start", start);
         param.put("limit", limit);
         param.put("likeHealthNo", healthNo);
@@ -181,40 +182,44 @@ public class SunningController {
         //log.debug("param:" + param);
         param.put("prefix", reviewConfig.getPrefixRBAC());
         List<HashMap<String, Object>> result;
-       /* if (table == 1)
-            result = statDao.statByMedicine(param); *//*取全部*//*
-        else*/
         result = drugRecordsMapper.statByMedicine(param); //取全部
 
-        //todo 移动到外面计算
-        Date dateTo = null;
-        if (!"".equals(toDate)) {
-            Calendar cal = DateUtils.parseCalendarDayFormat(toDate);
-            cal.add(Calendar.DATE, 1);
-            dateTo = cal.getTime();
-        }
-        HashMap summary = statDao.dailySummary(DateUtils.parseDateDayFormat(fromDate), dateTo);
+
+        HashMap summary = drugRecordsMapper.dailySummary(ParamUtils.produceMap(fromDate, toDate, ""));
         for (HashMap<String, Object> aMap : result) {
             aMap.put("amountRatio", ((BigDecimal) aMap.get("amount")).divide(((BigDecimal) summary.get("clinicAmount")).add((BigDecimal) summary.get("hospitalAmount")), 5, BigDecimal.ROUND_HALF_UP));
             aMap.put("patientRatio", ((Integer) aMap.get("patient")) * 1.0 / ((Integer) summary.get("clinicPatient") + (Integer) summary.get("hospitalPatient")));
-        }
+        }*/
+        List<HashMap<String, Object>> result = statService.byMedicine(fromDate, toDate, healthNo, goodsID, department, type, top3, special, start, limit);
 
         return wrap(result, start, limit, draw);
     }
 
     //药品分析（天）
+  /*  @ResponseBody
+    @RequestMapping(value = "dailySummary", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String dailySummary(
+            @RequestParam(value = "fromDate") String fromDate,
+            @RequestParam(value = "toDate") String toDate) {
+        List<HashMap<String, Object>> result = statService.byDepart(fromDate, toDate, type, healthNo, medicineNo);
+
+        return wrap(result, start, limit, draw);
+    }*/
+    /*科室用药趋势 --力锦*/
     @ResponseBody
     @RequestMapping(value = "byDepart", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String byDepart(
             @RequestParam(value = "medicineNo", required = false, defaultValue = "") String medicineNo,
-            @RequestParam(value = "healthNo", required = false, defaultValue = "") String healthNo,
             @RequestParam(value = "fromDate") String fromDate,
             @RequestParam(value = "toDate") String toDate,
             @RequestParam(value = "type", required = false, defaultValue = "-1") Integer type,
             @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
             @RequestParam(value = "start", required = false, defaultValue = "0") int start,
             @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
-        List<HashMap<String, Object>> result = statService.byDepart(fromDate, toDate, type, healthNo, medicineNo);
+        HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, "");
+        param.put("medicineNo", medicineNo);
+        List<HashMap<String, Object>> result = drugRecordsMapper.departMedicine(param);
+        StatMath.sumAndCalcRatio(result, "amount", "amountRatio");
 
         return wrap(result, start, limit, draw);
     }
@@ -239,14 +244,14 @@ public class SunningController {
     @ResponseBody
     @RequestMapping(value = "byDoctor", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String byDoctor(
-            //@RequestParam(value = "medicineNo", required = false, defaultValue = "") String medicineNo,
             @RequestParam(value = "department", required = false, defaultValue = "") String department,
             @RequestParam(value = "fromDate") String fromDate,
             @RequestParam(value = "toDate") String toDate,
             @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
             @RequestParam(value = "start", required = false, defaultValue = "0") int start,
             @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
-        List<HashMap<String, Object>> result = statService.byDoctor(fromDate, toDate, department);
+        HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, department);
+        List<HashMap<String, Object>> result = drugRecordsMapper.byDoctor(param);
 
         return wrap(result, start, limit, draw);
     }

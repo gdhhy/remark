@@ -58,12 +58,12 @@ public class ExcelController {
     String templateDir = "template";
     String downloadDir = "tmp";
 
-    //药品分析（天）
+    //药品分析（天）--力锦
     //@ResponseBody
-    @RequestMapping(value = "statMedicine", method = RequestMethod.GET/*, produces = "text/html;charset=UTF-8"*/)
-    public void statMedicine(
+    @RequestMapping(value = "byMedicine", method = RequestMethod.GET/*, produces = "text/html;charset=UTF-8"*/)
+    public void byMedicine(
             HttpServletResponse response,
-            @RequestParam(value = "medicineNo", required = false, defaultValue = "") String medicineNo,
+            @RequestParam(value = "goodsID", required = false) Integer goodsID,
             @RequestParam(value = "department", required = false, defaultValue = "") String department,
             @RequestParam(value = "healthNo", required = false, defaultValue = "") String healthNo,
             @RequestParam(value = "special", required = false, defaultValue = "") String special,
@@ -71,7 +71,7 @@ public class ExcelController {
             @RequestParam(value = "fromDate") String fromDate,
             @RequestParam(value = "toDate") String toDate,
             @RequestParam(value = "type", required = false, defaultValue = "-1") Integer type) throws Exception {
-        List<HashMap<String, Object>> result = statService.statByHealthNo(0, 3000, fromDate, toDate, healthNo, medicineNo, department, type, top3, special);
+        List<HashMap<String, Object>> result = statService.byMedicine(fromDate, toDate, healthNo, goodsID, department, type, top3, special, 0, 3000);
         for (HashMap<String, Object> row : result) {
             row.put("patientRatio", DataFormat.getInstance().getPercentDisplayFormat().format(row.get("patientRatio")));
         }
@@ -83,15 +83,20 @@ public class ExcelController {
         exportExcel(response, wb, 3, "药品使用统计" + fromDate + "～" + toDate, result, prop);
     }
 
+    //--力锦
     @RequestMapping(value = "byDepart", method = RequestMethod.GET/*, produces = "text/html;charset=UTF-8"*/)
     public void byDepart(
             HttpServletResponse response,
             @RequestParam(value = "medicineNo", required = false, defaultValue = "") String medicineNo,
-            @RequestParam(value = "healthNo", required = false, defaultValue = "") String healthNo,
+            //@RequestParam(value = "healthNo", required = false, defaultValue = "") String healthNo,
             @RequestParam(value = "fromDate") String fromDate,
-            @RequestParam(value = "toDate") String toDate,
-            @RequestParam(value = "type", required = false, defaultValue = "-1") Integer type) throws Exception {
-        List<HashMap<String, Object>> result = statService.byDepart(fromDate, toDate, type, healthNo, medicineNo);
+            @RequestParam(value = "toDate") String toDate
+            //, @RequestParam(value = "type", required = false, defaultValue = "-1") Integer type
+    ) throws Exception {
+        //List<HashMap<String, Object>> result = statService.byDepart(fromDate, toDate, type, healthNo, medicineNo);
+        HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, "");
+        param.put("medicineNo", medicineNo);
+        List<HashMap<String, Object>> result = drugRecordsMapper.departMedicine(param);
 
         String[] prop = {"department", "amount", "clinicAmount", "hospitalAmount", "amountRatio", "insuranceAmount", "insuranceRatio"};
 
@@ -141,25 +146,24 @@ public class ExcelController {
             @RequestParam(value = "department", required = false, defaultValue = "") String department,
             @RequestParam(value = "fromDate") String fromDate,
             @RequestParam(value = "toDate") String toDate) throws Exception {
-        List<HashMap<String, Object>> result = statService.byDoctor(fromDate, toDate, department);
+        HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, department);
+        List<HashMap<String, Object>> result = drugRecordsMapper.byDoctor(param);
 
-        StatMath.ratio(result, "antiAmount", "amount", "amountRatio");
+       /* StatMath.ratio(result, "antiAmount", "amount", "amountRatio");
         StatMath.sumAndCalcRatio(result, "antiAmount", "antiAmountRatio");
         StatMath.ratio(result, "hospitalAntiPatient2", "hospitalPatient2", "antiPatientRatio");
         StatMath.sumAndCalcRatio(result, "clinicAntiPatient", "clinicAntiCompose");
-        StatMath.ratio(result, "clinicAntiPatient", "clinicPatient2", "clinicAntiPatientRatio");
+        StatMath.ratio(result, "clinicAntiPatient", "clinicPatient2", "clinicAntiPatientRatio"); */
+        StatMath.ratio(result, "clinicAmount", "clinicPatient", "clinicPatientRatio");
+        StatMath.ratio(result, "hospitalAmount", "hospitalPatient", "hospitalPatientRatio");
 
-        for (HashMap<String, Object> aMap : result) {
-            if (aMap.get("hospitalDay") != null && aMap.get("DDDs") != null && ((Number) aMap.get("hospitalDay")).doubleValue() > 0)
-                aMap.put("AUD", ((Number) aMap.get("DDDs")).doubleValue() * 100 / ((Number) aMap.get("hospitalDay")).doubleValue());
-        }
 
-        String prop[] = {"doctorName", "antiAmount", "amount", "amountRatio", "antiAmountRatio", "hospitalAntiPatient2", "antiPatientRatio",
-                "DDDs", "hospitalDay", "AUD", "clinicAntiPatient", "clinicAntiPatientRatio", "clinicAntiCompose"};
+        String prop[] = {"doctorName", "amount", "clinicAmount", "hospitalAmount", "clinicPatient", "clinicPatient2", "hospitalPatient",
+                "clinicPatientRatio", "hospitalPatientRatio"};
 
-        HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "antiByDoctor.xls"));
+        HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "doctor.xls"));
 
-        exportExcel(response, wb, 3, "科室用药统计", result, prop);
+        exportExcel(response, wb, 3, "医生用药统计", result, prop);
     }
 
     public void exportExcel(HttpServletResponse response, HSSFWorkbook wb, int startRow, String downloadFilename, Collection dataset, String prop[]) throws Exception {
@@ -305,14 +309,15 @@ public class ExcelController {
     @RequestMapping(value = "doctorBase", method = RequestMethod.GET)
     public void doctorBase(HttpServletResponse response, @RequestParam(value = "fromDate") String fromDate, @RequestParam(value = "toDate") String toDate) throws Exception {
         HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, null);
-        List<HashMap<String, Object>> result = drugRecordsMapper.departBase(param);
+        List<HashMap<String, Object>> result = drugRecordsMapper.doctorBase(param);
 
-        StatMath.ratio(result, "base2Amount", "amount", "base2Ratio");
-        StatMath.ratio(result, "base3Amount", "amount", "base3Ratio");
+        //StatMath.sum(result, "clinicAmount", "hospitalAmount", "amount");
+        StatMath.ratio(result, "clinicBaseAmount", "clinicAmount", "clinicBaseRatio");
+        StatMath.ratio(result, "hospitalBaseAmount", "hospitalAmount", "hospitalBaseRatio");
 
-        String[] prop = {"department", "amount", "base2Amount", "base3Amount", "base2Ratio", "base3Ratio"};
-
-        HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "departBase.xls"));
+        String prop[] = {"doctorName", "amount", "clinicAmount", "hospitalAmount", "clinicBaseAmount", "hospitalBaseAmount", "clinicBaseRatio", "hospitalBaseRatio"};
+        // logger.debug("result11=" + result);
+        HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "baseByDoctor.xls"));
 
         exportExcel(response, wb, 3, "医生基药统计" + fromDate + "～" + toDate, result, prop);
     }

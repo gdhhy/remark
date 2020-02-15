@@ -22,7 +22,7 @@ public interface StatService {
 
     List<HashMap<String, Object>> getMedicineByHealthNo(String fromDate, String toDate, String healthNo, String department, int type);
 
-    List<HashMap<String, Object>> statByHealthNo(int start, int limit, String fromDate, String toDate, String healthNo, String medicineNo, String department, int type, boolean top3, String special);
+    List<HashMap<String, Object>> byMedicine( String fromDate, String toDate, String healthNo, Integer goodsID, String department, int type, boolean top3, String special,int start, int limit);
 
     List<HashMap<String, Object>> statMedicineGroupByDepart(String fromDate, String toDate, String medicineNo, String department, int type);
 
@@ -38,7 +38,7 @@ public interface StatService {
 
     XYChart doseTrend(int chartWidth, int chartHeight, String fromDate, String toDate, String dose, String healthNo, String department, int type);
 
-    List<HashMap<String, Object>> byDepart(String fromDate, String toDate, int type, String healthNo, String medicineNo);
+    //List<HashMap<String, Object>> byDepart(String fromDate, String toDate, int type, String healthNo, String medicineNo);
 
     List<HashMap<String, Object>> antiByDepart(String fromDate, String toDate, int antiClass, String medicineNo);
 

@@ -65,7 +65,8 @@
                         "orderable": false, "targets": 0, width: 20, render: function (data, type, row, meta) {
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
-                    }, {
+                    }, {'targets': 4, 'searchable': false, 'orderable': false},
+                    {
                         'targets': 15, 'searchable': false, 'orderable': false,
                         render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
@@ -112,7 +113,7 @@
                     renderRoute();
                     setRouteOption();
                 });
-            //else renderRoute();
+            else renderRoute();
         });
 
         function renderRoute() {
@@ -439,7 +440,7 @@
                 $('#goodsNo').text(result.no);
                 $('#pinyin').text(result.pinyin);
                 $('#spec').text(result.spec);
-                $('#producer').text(result.producer);
+                $('#producer').text(result.producer === null ? "　" : result.producer);
                 $('#dealer').text(result.dealer);
                 $('#price').text(result.price);
                 $('#insurance').text(renderInsurance(result.insurance));
@@ -449,11 +450,12 @@
                 $('#instructionName').html(result.instructionName == null ? "&nbsp;" : result.instructionName);
 
                 $('#medicineID').val(medicineID);
-                $('#contents').val(result.contents);
+                $('#contents').text(result.contents);
                 $('#ddd').val(result.ddd);
                 $('#maxDay').val(result.maxDay);
                 $('#antiClass').val(result.antiClass);
-                $('#base').val(result.base);
+                $('#base').text(renderBase2(result.base));
+                //$("#base").attr("disabled", true);
                 $('#mental').val(result.mental);
                 $('#healthNo').combotree('setValue', result.healthNo);
                 $("input[name='isStat'][value='" + result.isStat + "']").attr("checked", true);
@@ -465,8 +467,8 @@
 
                 $("#dialog-edit").removeClass('hide').dialog({
                     resizable: false,
-                    width: 760,
-                    height: 550,
+                    width: 780,
+                    height: 570,
                     modal: true,
                     title: "药品资料",
                     buttons: [{
@@ -509,7 +511,7 @@
                 var result = ret.aaData[0];
                 $('#chnName2').text(result.chnName);
                 $('#spec2').text(result.spec);
-                $('#producer2').text(result.producer);
+                $('#producer2').text(result.producer === null ? "　" : result.producer);
                 $('#dealer2').text(result.dealer);
                 $('#insurance2').text(renderInsurance(result.insurance));
                 $('#dose2').html(result.dose == null ? "&nbsp;" : result.dose);
@@ -520,12 +522,18 @@
                     $.getJSON("/medicine/liveDrug.jspa?drugID=" + result.matchDrugID, function (ret) {
                         //matchDrug = ret.data[0];
                         $('#liveDrug').val(ret.data[0].chnName);
-                        chooseDrug(ret.data[0],  result.instructionName);
-                         //matchDrug = ret.data[0];
+                        chooseDrug(ret.data[0], result.instructionName);
+                        //matchDrug = ret.data[0];
                         /* console.log("matchDrug:" + JSON.stringify(matchDrug, null, 4)); */
                     });
 
                     $('#drugID').val(result.matchDrugID);
+                } else {
+                    $('#liveDrug').val('');
+                    $('#drugID').val();
+                    $('#chooseInstruction').val('');
+
+                    $('#antiClass_DDD').addClass('hide');
                 }
                 if (result.matchInstrID > 0) {
                     //$('#chooseInstruction')
@@ -625,8 +633,8 @@
                 cache: false,
                 success: function (response, textStatus) {
                     var respObject = JSON.parse(response);
-                    if(respObject)
-                    $('#instructionContent').html(respObject.instruction);
+                    if (respObject)
+                        $('#instructionContent').html(respObject.instruction);
                 },
                 error: function (response, textStatus) {/*能够接收404,500等错误*/
                     showDialog("请求状态码：" + response.status, response.responseText);
@@ -726,13 +734,6 @@
             <!-- PAGE CONTENT BEGINS -->
             <form class="form-horizontal" role="form" id="medicineForm">
                 <div class="col-sm-4 no-padding">
-                    <%-- <div class="widget-header">
-                         <h4 class="smaller">
-                             Tooltips
-                             <small>different directions and colors</small>
-                         </h4>
-                     </div>--%>
-
                     <div class="row">
                         <label class="col-sm-4" style="white-space: nowrap">药品名称 </label>
                         <div class="col-sm-8 no-padding" id="chnName" style="border-bottom: 1px solid; border-bottom-color: lightgrey;font-size:  large"></div>
@@ -766,10 +767,6 @@
                         <div class="col-sm-8 no-padding " style=" border-bottom: 1px solid; border-bottom-color: lightgrey" id="insurance"></div>
                     </div>
                     <div class="row">
-                        <label class="col-sm-4" style="white-space: nowrap">剂型 </label>
-                        <div class="col-sm-8 no-padding " style=" border-bottom: 1px solid; border-bottom-color: lightgrey" id="dose"></div>
-                    </div>
-                    <div class="row">
                         <label class="col-sm-4" style="white-space: nowrap">最后采购 </label>
                         <div class="col-sm-8 no-padding " style=" border-bottom: 1px solid; border-bottom-color: lightgrey" id="lastPurchaseTime"></div>
                     </div>
@@ -786,17 +783,29 @@
                             <ul>说明： <li>药理分类、剂型、医保和中西药分类在统计分析时使用；</li>
                                         <li>拼音码是作为查询时自动完成；含量是计算抗菌素DDD值必须。DDD是成人限定日剂量。</li></ul></span>
                     </div>
-
-                    <hr/>
                 </div><!-- /.col -->
 
                 <div class="col-xs-7" style="margin: 2px;">
-                    <div class="form-group" style="margin-bottom: 3px;margin-top: 3px;">
-                        <label class="col-sm-3 control-label no-padding-right" for="contents"> 含量 </label>
-                        <div class="col-sm-9">
-                            <input type="text" id="contents" name="contents" placeholder="含量" class="col-xs-10 col-sm-5"/>
-                            <span class="help-inline col-xs-12 col-sm-7"><span class="middle red">g</span></span>
+                    <div class="row">
+                        <label class="col-sm-3" style="white-space: nowrap">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;剂型 </label>
+                        <div class="col-sm-5 ">
+                            <div style=" border-bottom: 1px solid; border-bottom-color: lightgrey" id="dose"></div>
                         </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-sm-3 no-padding-right" for="base">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;基本药物 </label>
+                        <div class="col-sm-5 ">
+                            <div style="border-bottom: 1px solid; border-bottom-color: lightgrey" id="base"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label class="col-sm-3 no-padding-right" for="base">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;含量 </label>
+                        <div class="col-sm-2">
+                            <div style="border-bottom: 1px solid; border-bottom-color: lightgrey" id="contents"></div>
+                        </div>
+                        <span class="help-inline col-sm-3 no-padding-left"><span class="middle red">g</span></span>
                     </div>
                     <div class="form-group" style="margin-bottom: 3px;margin-top: 3px">
                         <label class="col-sm-3 control-label no-padding-right " for="antiClass"> 抗菌药级别 </label>
@@ -857,17 +866,6 @@
                                     <option value="0"></option>
                                 </select>
                             </div>
-                        </div>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 3px;margin-top: 3px">
-                        <label class="col-sm-3 control-label no-padding-right " for="mental"> 基本药物 </label>
-                        <div class="col-sm-5">
-                            <select class="form-control" id="base" name="base">
-                                <option value="0">否</option>
-                                <option value="1">基药</option>
-                                <option value="2">国基</option>
-                                <option value="3">省基</option>
-                            </select>
                         </div>
                     </div>
                     <div class="form-group" style="margin-bottom: 3px;margin-top: 3px">

@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Medicine">
+    <!--每隔10分钟刷新,因分页是全部加载-->
+    <cache eviction="LRU" readOnly="false" flushInterval="600000" size="1000"/>
+    <resultMap id="RecordResult" type="com.zcreate.review.model.Medicine">
+        <result column="medicineID" jdbcType="INTEGER" property="medicineID"/>
+        <result column="no" jdbcType="VARCHAR" property="no"/>
+        <result column="goodsID" jdbcType="INTEGER" property="goodsID"/>
+        <result column="pinyin" jdbcType="VARCHAR" property="pinyin"/>
+        <result column="healthNo" jdbcType="VARCHAR" property="healthNo"/>
+        <result column="chnName" jdbcType="VARCHAR" property="chnName"/>
+        <result column="engName" jdbcType="VARCHAR" property="engName"/>
+        <result column="dose" jdbcType="VARCHAR" property="dose"/>
+        <result column="producer" jdbcType="VARCHAR" property="producer"/>
+        <result column="insurance" jdbcType="INTEGER" property="insurance"/>
+        <result column="packUnit" jdbcType="VARCHAR" property="packUnit"/>
+        <result column="minUnit" jdbcType="VARCHAR" property="minUnit"/>
+        <result column="measureUnit" jdbcType="VARCHAR" property="measureUnit"/>
+        <result column="minOfpack" jdbcType="INTEGER" property="minOfpack"/>
+        <result column="matchDrugID" jdbcType="INTEGER" property="matchDrugID"/>
+        <result column="matchInstrID" jdbcType="INTEGER" property="matchInstrID"/>
+        <result column="memo" jdbcType="VARCHAR" property="memo"/>
+        <result column="route" jdbcType="INTEGER" property="route"/>
+        <result column="injectRoute" jdbcType="INTEGER" property="injectRoute"/>
+        <result column="antiClass" jdbcType="INTEGER" property="antiClass"/>
+        <result column="ddd" jdbcType="FLOAT" property="ddd"/>
+        <result column="updateUser" jdbcType="FLOAT" property="updateUser"/>
+        <result column="updateTime" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="generalName" jdbcType="VARCHAR" property="generalName"/>
+        <result column="instructionName" jdbcType="VARCHAR" property="instructionName"/>
+        <result column="western" jdbcType="VARCHAR" property="western"/>
+        <result column="usageCounter" jdbcType="INTEGER" property="usageCounter"/>
+        <result column="base" jdbcType="INTEGER" property="base"/>
+        <result column="price" jdbcType="INTEGER" property="price"/>
+        <result column="contents" jdbcType="INTEGER" property="contents"/>
+        <result column="dealer" jdbcType="VARCHAR" property="dealer"/>
+        <result column="lastPurchaseTime" jdbcType="TIMESTAMP" property="lastPurchaseTime"/>
+        <result column="mental" jdbcType="INTEGER" property="mental"/>
+        <result column="maxDay" jdbcType="INTEGER" property="maxDay"/>
+        <result column="menstruum" jdbcType="INTEGER" property="menstruum"/>
+        <result column="isDelete" jdbcType="INTEGER" property="isDelete"/>
+        <result column="isStat" jdbcType="INTEGER" property="isStat"/>
+        <result column="healthName" jdbcType="VARCHAR" property="healthName"/>
+    </resultMap>
+    <sql id="queryWhere">
+        <where>
+            <if test="medicineID > 0">medicineID=#{medicineID}</if>
+            <!--<if test="@com.zcreate.util.Ognl@isNotEmpty(no)">NO=#{no}</if>-->
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(goodsNo)">AND  no = #{goodsNo:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(liveGoodsNo)">AND no LIKE '${liveGoodsNo}%'</if>
+            <if test="goodsID>0">goodsID=#{goodsID}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(chnName)">AND chnName LIKE '%${chnName}%'</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(liveChnName)">AND chnName LIKE '${liveChnName}%'</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(livePinyin)">AND LOWER(pinyin) LIKE '${livePinyin}%'</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(healthNo)">AND healthNo=#{healthNo}</if>
+            <if test="antiClass == 1">AND antiClass >= 1</if>
+            <if test="base !=null and base >0">AND base >= 1</if>
+            <if test="insurance !=null and insurance >0">AND insurance = #{insurance}</if>
+            <if test="western !=null and western >0 and western &lt;=4">AND western = #{western}</if>
+            <if test="western ==9">AND route=1</if>
+            <if test="western ==10">AND route=2</if>
+            <if test="western ==11">AND route=3</if>
+            <if test="western ==12">AND route=4</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(noMatch)">
+                AND ((matchInstrID = '' AND matchDrugID = '') or (matchInstrID is null AND matchDrugID is null))
+            </if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(match)">AND (matchInstrID != '' AND matchDrugID != '')</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(matchGeneralOnly)">AND matchDrugID != ''</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(matchInstructionOnly)">AND matchInstrID != ''</if>
+        </where>
+    </sql>
+    <select id="selectMedicine" parameterType="int" resultMap="RecordResult">
+        SELECT medicineID,no,goodsID,pinyin,healthNo,chnName,engName,dose,spec,price,contents,producer,insurance,packUnit,minUnit,measureUnit,minOfpack,
+        matchDrugID,matchInstrID, memo,western,route,injectRoute,antiClass,ddd,updateUser,updateTime,usageCounter,dealer,lastPurchaseTime,mental,
+        maxDay,menstruum ,isDelete,isStat
+        FROM Medicine
+        WHERE medicineID=#{medicineID:INTEGER}
+    </select>
+    <select id="selectMedicineByNo" parameterType="string" resultMap="RecordResult">
+        SELECT medicineID,no,goodsID,pinyin,healthNo,chnName,engName,dose,spec,price,contents,producer,insurance,packUnit,minUnit,measureUnit,minOfpack,
+        matchDrugID,matchInstrID, memo,western,route,injectRoute,antiClass,ddd,updateUser,updateTime,usageCounter ,dealer,lastPurchaseTime,mental,
+        maxDay,menstruum,isDelete,isStat
+        FROM Medicine
+        WHERE no=#{no:VARCHAR}
+    </select>
+    <select id="selectMedicineByGoodsNo" parameterType="string" resultMap="RecordResult">
+        SELECT medicineID,no,goodsID,pinyin,healthNo,chnName,engName,dose,spec,price,contents,producer,insurance,packUnit,minUnit,measureUnit,minOfpack,
+        matchDrugID,matchInstrID, memo,western,route,injectRoute,antiClass,ddd,updateUser,updateTime,usageCounter ,dealer,lastPurchaseTime,mental,
+        maxDay,menstruum,isDelete,isStat
+        FROM Medicine
+        WHERE no=#{goodsNo:VARCHAR}
+    </select>
+    <select id="queryMedicine" parameterType="java.util.Map" resultMap="RecordResult">
+        SELECT M.*,D.chnName generalName,I.chnName instructionName,H.chnName healthName FROM
+        ( SELECT TOP ${limit} medicineID,no,goodsID,pinyin, healthNo,rtrim(chnName) chnName,engName,dose,spec,price,contents,producer,insurance,packUnit,minUnit,
+        measureUnit,minOfpack,matchDrugID,matchInstrID,memo,western,route,injectRoute,antiClass,ddd,updateUser,updateTime,usageCounter,base,dealer,lastPurchaseTime,mental,maxDay,menstruum,isDelete,isStat
+        FROM
+        (SELECT * FROM Medicine
+        <include refid="queryWhere"/>
+        ) A
+        <if test="start != null  and start > 0">
+            WHERE ${orderField} > ( SELECT max(${orderField}) FROM (SELECT TOP ${start} ${orderField} FROM Medicine
+            <include refid="queryWhere"/>
+            ORDER BY ${orderField} ASC)AS T)
+        </if>
+        ORDER BY ${orderField} ASC ) M
+        LEFT JOIN Instruction I ON M.matchInstrID=I.instructionID
+        LEFT JOIN Drug D ON M.matchDrugID=D.drugID
+        LEFT JOIN Health H ON M.healthNo=H.healthNo
+        ORDER BY M.${orderField} ASC
+    </select>
+    <select id="queryMedicineDesc" parameterType="java.util.Map" resultMap="RecordResult">
+        SELECT M.*,D.chnName generalName,I.chnName instructionName,H.chnName healthName FROM
+        ( SELECT TOP ${limit} medicineID,no,goodsID,pinyin, healthNo,rtrim(chnName) chnName,engName,dose,spec,price,contents,producer,insurance,packUnit,minUnit,
+        measureUnit,minOfpack,matchDrugID,matchInstrID,memo,western,route,injectRoute,antiClass,ddd,updateUser,updateTime,usageCounter,base,dealer,lastPurchaseTime,mental,maxDay,menstruum,isDelete,isStat
+        FROM
+        (SELECT * FROM Medicine
+        <include refid="queryWhere"/>
+        ) A
+        <if test="start != null  and start > 0">
+            WHERE ${orderField} &lt; ( SELECT min(${orderField}) FROM (SELECT TOP ${start} ${orderField} FROM Medicine
+            <include refid="queryWhere"/>
+            ORDER BY ${orderField} DESC)AS T)
+        </if>
+        ORDER BY ${orderField} DESC ) M
+        LEFT JOIN Instruction I ON M.matchInstrID=I.instructionID
+        LEFT JOIN Drug D ON M.matchDrugID=D.drugID
+        LEFT JOIN Health H ON M.healthNo=H.healthNo
+        ORDER BY M.${orderField} DESC
+    </select>
+    <select id="queryMedicineCount" parameterType="java.util.Map" resultType="int">
+        SELECT count(medicineID) FROM Medicine
+        <include refid="queryWhere"/>
+    </select>
+    <sql id="liveWhere">
+        <where>
+
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(liveChnName)">AND chnName LIKE '${liveChnName}%'</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(livePinyin)">AND pinyin LIKE '${livePinyin}%'</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(liveNo)">AND no LIKE '${liveNo}%'</if>
+            <if test="antiClass == 0">AND antiClass >=0</if>
+            <if test="isDelete == 0">AND isDelete=0</if>
+        </where>
+    </sql>
+    <select id="liveMedicine" parameterType="java.util.Map" resultType="java.util.HashMap">
+        select * from (
+        SELECT TOP ${limit} rtrim(chnName) chnName,rtrim(spec) spec,dose,insurance,base,no goodsNo,goodsID,producer,len(no) no_len,len(rtrim(chnName)) chnName_len
+        FROM (SELECT DISTINCT chnName,spec,dose,insurance,base,no,goodsID,producer FROM Medicine<include refid="liveWhere"/>) A
+        <if test="start!=null and start > 0">
+            WHERE chnName > ( SELECT max(chnName) FROM (SELECT TOP ${start} chnName FROM Medicine
+            <include refid="liveWhere"/>
+            GROUP BY chnName ORDER BY chnName ASC ) A)
+        </if>
+        ORDER BY chnName ASC) T
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(liveNo)">order by no_len</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(liveChnName)">order by chnName_len</if>
+    </select>
+    <select id="liveMedicineCount" parameterType="java.util.Map" resultType="int">
+        SELECT count(DISTINCT chnName) FROM Medicine
+        <include refid="liveWhere"/>
+    </select>
+    <insert id="insertMedicine" parameterType="com.zcreate.review.model.Medicine" flushCache="true">
+        INSERT INTO Medicine
+        (no,pinyin,healthNo,chnName,engName,dose,spec,price,contents,producer,insurance,packUnit,minUnit,measureUnit,minOfpack,matchDrugID,matchInstrID,memo,western,
+        route,injectRoute,antiClass,base,ddd,dealer,mental,maxDay,menstruum,updateUser)
+        VALUES ( #{no:VARCHAR}, #{pinyin:VARCHAR}, #{healthNo:VARCHAR}, #{chnName:VARCHAR}, #{engName:VARCHAR}, #{dose:VARCHAR}, #{spec:VARCHAR},
+        #{price:DOUBLE},
+        #{contents:DOUBLE}, #{producer:VARCHAR}, #{insurance:INTEGER}, #{packUnit:VARCHAR}, #{minUnit:VARCHAR},#{measureUnit:VARCHAR}, #{minOfpack:INTEGER}, #{matchDrugID:INTEGER},
+        #{matchInstrID:INTEGER}, #{memo:VARCHAR},#{western:INTEGER}, #{route:INTEGER},#{injectRoute:INTEGER}, #{antiClass:INTEGER},#{base:INTEGER},#{ddd:FLOAT},
+        #{dealer:VARCHAR},#{mental:INTEGER},{maxDay:INTEGER},{menstruum:INTEGER},#{updateUser:VARCHAR})
+        <selectKey resultType="int" order="AFTER" keyProperty="medicineID">
+            SELECT @@IDENTITY AS medicineID
+        </selectKey>
+    </insert>
+    <update id="updateMedicineByPrimaryKeySelective" parameterType="com.zcreate.review.model.Medicine" flushCache="true">
+        UPDATE Medicine
+        <set>
+            updateTime = getdate(),
+            <!--
+              <if test="no != null">NO = #{no:VARCHAR},</if>-->
+            <if test="pinyin != null">pinyin = #{pinyin:VARCHAR},</if>
+            <if test="healthNo != null">healthNo = #{healthNo:VARCHAR},</if>
+            <!--  <if test="chnName != null">chnName = #{chnName:VARCHAR},</if>-->
+            <if test="engName != null">engname = #{engName:VARCHAR},</if>
+            <!-- <if test="dose != null">dose = #{dose:VARCHAR},</if> -->
+            <if test="contents != null">contents = #{contents:DOUBLE},</if>
+            <if test="matchDrugID != null">matchDrugID = #{matchDrugID:INTEGER},</if>
+            <if test="matchInstrID != null">matchInstrID = #{matchInstrID:INTEGER},</if>
+            <if test="route != null">route = #{route:INTEGER},</if>
+            <if test="injectRoute != null">injectRoute = #{injectRoute:INTEGER},</if>
+            <if test="antiClass != null">antiClass = #{antiClass:INTEGER},</if>
+            <if test="ddd != null">ddd = #{ddd:FLOAT},</if>
+            <if test="updateUser != null">updateUser = #{updateUser:VARCHAR},</if>
+            <if test="memo != null">memo = #{memo:VARCHAR},</if>
+            <if test="base != null">base = #{base:INTEGER},</if>
+            <if test="maxDay != null">maxDay = #{maxDay:INTEGER},</if>
+            <if test="mental != null">mental = #{mental:INTEGER},</if>
+            <if test="menstruum != null">menstruum = #{menstruum:INTEGER},</if>
+            <if test="isStat != null">isStat = #{isStat:INTEGER},</if>
+        </set>
+        WHERE medicineID = #{medicineID:INTEGER}
+    </update>
+    <update id="updateMatchMedicine" parameterType="com.zcreate.review.model.Medicine" flushCache="true">
+        UPDATE Medicine
+        <set>
+            updateTime = getdate(),
+            <if test="healthNo != null">healthNo = #{healthNo:VARCHAR},</if>
+            <if test="dose != null">dose = #{dose:VARCHAR},</if>
+            <if test="matchDrugID != null">matchDrugID = #{matchDrugID:VARCHAR},</if>
+            <if test="matchInstrID != null">matchInstrID = #{matchInstrID:VARCHAR},</if>
+            <if test="isStat != null">isStat = #{isStat:INTEGER},</if>
+            <if test="base != null">base = #{base:INTEGER},</if>
+            <if test="antiClass != null">antiClass = #{antiClass:INTEGER},</if>
+            <if test="ddd != null">ddd = #{ddd:FLOAT},</if>
+            <if test="updateUser != null">updateUser = #{updateUser:VARCHAR},</if>
+        </set>
+        WHERE medicineID = #{medicineID:INTEGER}
+    </update>
+    <delete id="deleteMedicine" parameterType="int" flushCache="true">
+        DELETE FROM Medicine WHERE medicineID = #{medicineID}
+    </delete>
+</mapper>

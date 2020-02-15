@@ -55,19 +55,21 @@
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');
         var myTable = dynamicTable
-            //.wrap("<div class='dataTables_borderWrap' />") //if you are applying horizontal scrolling (sScrollX)
+        //.wrap("<div class='dataTables_borderWrap' />") //if you are applying horizontal scrolling (sScrollX)
             .DataTable({
                 bAutoWidth: false,
                 bProcessing: true,
                 "columns": [
-                    {"data": "doctorName", "sClass": "center"},
+                    {"data": "doctorID", "sClass": "center"},
                     {"data": "doctorName", "sClass": "center"},
                     {"data": "amount", "sClass": "center"},
-                    {"data": "base2Amount", "sClass": "center"},
-                    {"data": "base3Amount", "sClass": "center"},//4
-                    {"data": "base2Amount", "sClass": "center"},
-                    {"data": "base3Amount", "sClass": "center"},
-                    {"data": "doctorName", "sClass": "center"}
+                    {"data": "clinicAmount", "sClass": "center"},
+                    {"data": "hospitalAmount", "sClass": "center"},//4
+                    {"data": "clinicBaseAmount", "sClass": "center"},
+                    {"data": "hospitalBaseAmount", "sClass": "center"},
+                    {"data": "clinicBaseRatio", "sClass": "center"},
+                    {"data": "hospitalBaseRatio", "sClass": "center"}/*,
+                    {"data": "doctorID", "sClass": "center"}*///9
                 ],
                 'columnDefs': [
                     {
@@ -77,29 +79,22 @@
                     },
                     {"orderable": false, "targets": 1, title: '医生', searchable: true},
                     {"orderable": true, "targets": 2, title: '总金额', render: renderAmount},
-                    {"orderable": true, "targets": 3, title: '国基金额', render: renderAmount},
-                    {"orderable": true, "targets": 4, title: '省基金额', render: renderAmount},
+                    {"orderable": true, "targets": 3, title: '门诊金额', render: renderAmount},
+                    {"orderable": true, "targets": 4, title: '住院金额', render: renderAmount},
+                    {"orderable": true, "targets": 5, title: '门诊基药金额', render: renderAmount},
+                    {"orderable": true, "targets": 6, title: '住院基药金额', render: renderAmount},
+                    {"orderable": true, "targets": 7, title: '门诊基药比例', render: renderPercent1},
+                    {"orderable": true, "targets": 8, title: '住院基药比例', render: renderPercent1}/*,
                     {
-                        "orderable": true, "targets": 5, title: '国基比例', render: function (data, type, row, meta) {
-                            return accounting.format(data * 100 / row["amount"], 1) + '%';
-                        }
-                    },
-                    {
-                        "orderable": true, "targets": 6, title: '省基比例', render: function (data, type, row, meta) {
-                            return accounting.format(data * 100 / row["amount"], 1) + '%';
-                        }
-                    },
-                    {
-                        'targets': 7, 'searchable': false, 'orderable': false, width: 110, title: '医生明细',
+                        'targets': 9, 'searchable': false, 'orderable': false, width: 110, title: '医生明细',
                         render: function (data, type, row, meta) {
-                            var jsp = row['type'] === 1 ? "clinic_list.jsp" : "recipe_list.jsp";
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 '<a class="hasDetail" href="#" data-Url="javascript:showdoctorDetail(\'{0}\');">'.format(data) +
                                 '<i class="ace-icon glyphicon  glyphicon-list  bigger-130"></i>' +
                                 '</a>&nbsp;&nbsp;&nbsp;' +
                                 '</div>';
                         }
-                    }],
+                    }*/],
                 "aaSorting": [],
                 language: {
                     url: '../components/datatables/datatables.chinese.json'
@@ -192,7 +187,7 @@
                                 '<td style="text-align: right">{2}</td><td style="text-align: right">{3}</td><td style="text-align: right">{4}</td>' +
                                 '<td style="text-align: right">{5}</td><td style="text-align: right">{6}</td></tr>'
                             ).format(++i, this.chnName, this.spec, this.base === 2 ? "国基" : this.base === 3 ? "省基" : "基药",
-                                this.quantity, accounting.format(this.amount, 2), accounting.format(this.baseRatioInDepart * 100, 2) + '%');
+                                this.quantity, accounting.format(this.amount, 2), accounting.format(this.amountRatio * 100, 2) + '%');
                             // console.log($tr);
                             $("#doctorTable tbody").append($tr);
                         });

@@ -18,7 +18,8 @@
                 </when>
             </choose>
             <choose>
-                <when test="@com.zcreate.util.Ognl@isNotEmpty(department)">AND (T.department = #{department:VARCHAR} OR T.department = #{department:VARCHAR}+'门诊')</when>
+                <!--<when test="@com.zcreate.util.Ognl@isNotEmpty(department)">AND (T.department = #{department:VARCHAR} OR T.department = #{department:VARCHAR}+'门诊')</when>-->
+                <when test="@com.zcreate.util.Ognl@isNotEmpty(department)">AND  T.department = #{department:VARCHAR}  </when>
                 <when test="@com.zcreate.util.Ognl@isNotEmpty(departs)">
                     <foreach separator="," item="item" index="index" open=" AND T.department in (" close=")" collection="departs">
                         #{item}
@@ -35,27 +36,49 @@
                 <when test="@com.zcreate.util.Ognl@isNotEmpty(dose)">AND T.goodsID IN (SELECT goodsID FROM Medicine WHERE dose = #{dose:VARCHAR})</when>
                 <when test="@com.zcreate.util.Ognl@isNotEmpty(nullDose)">AND T.goodsID IN (SELECT goodsID FROM Medicine WHERE dose ='' OR dose IS NULL)</when>
             </choose>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(medicineNo)">AND T.goodsID IN (SELECT goodsID FROM Medicine WHERE medicineNo=#{medicineNo:VARCHAR})</if>
+            <!--<if test="@com.zcreate.util.Ognl@isNotEmpty(medicineNo)">AND T.goodsID IN (SELECT goodsID FROM Medicine WHERE medicineNo=#{medicineNo:VARCHAR})</if>-->
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(goodsID)">AND T.goodsID = #{goodsID:INTEGER}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(likeMedicineName)">AND T.goodsID IN (SELECT goodsID FROM Medicine WHERE chnName LIKE '$%{likeMedicineName}%')</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(healthNo)">AND T.goodsID IN (SELECT goodsID FROM Medicine WHERE healthNo LIKE '${healthNo}%')</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(likeHealthNo)">AND T.goodsID IN (SELECT goodsID FROM Medicine WHERE healthNo LIKE '${likeHealthNo}%')</if>
         </where>
     </sql>
+    <!--统计摘要-->
+    <select id="dailySummary" resultType="java.util.Map" parameterType="java.util.Map">
+        select sum(case when adviceID=0 then amount else 0 end) clinicAmount, sum(case when adviceID>0 then amount else 0 end)hospitalAmount ,
+        count(distinct case when adviceID=0 then patientID else null end) clinicPatient, count(distinct case when adviceID>0 then patientID else null end) hospitalPatient
+        from ${DrugRecordsTable} T
+        <where>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND T.dispensingDate >= #{fromDate:TIMESTAMP}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(toDate)">AND T.dispensingDate &lt; #{toDate:TIMESTAMP}</if>
+        </where>
+    </select>
+    <!--力锦-->
+    <!-- <select id="groupByMedicine" resultType="java.util.Map" parameterType="java.util.Map">
+         select sum(case when adviceID=0 then amount else 0 end) clinicAmount, sum(case when adviceID>0 then amount else 0 end)hospitalAmount ,
+         count(distinct case when adviceID=0 then patientID else null end) clinicPatient, count(distinct case when adviceID>0 then patientID else null end) hospitalPatient
+         from ${DrugRecordsTable} T
+         <where>
+             <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND T.dispensingDate >= #{fromDate:TIMESTAMP}</if>
+             <if test="@com.zcreate.util.Ognl@isNotEmpty(toDate)">AND T.dispensingDate &lt; #{toDate:TIMESTAMP}</if>
+         </where>
+     </select>-->
+    <!--力锦-->
     <select id="medicineList" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT M.chnName,M.anticlass,M.spec,M.producer,M.dealer,M.base, A.amount,A.quantity FROM (
-        SELECT T.goodsNo,sum(T.amount)amount ,sum(T.quantity) quantity FROM ${DrugRecordsTable} T
+        SELECT T.goodsID,sum(T.amount)amount ,sum(T.quantity) quantity FROM ${DrugRecordsTable} T
         <include refid="queryWhere"/>
-        GROUP BY goodsNo HAVING sum(T.quantity)>0) A
-        JOIN Medicine M ON M.no=A.goodsNo ORDER BY A.amount DESC
+        GROUP BY goodsID HAVING sum(T.quantity)>0) A
+        JOIN Medicine M ON M.goodsID=A.goodsID ORDER BY A.amount DESC
     </select>
     <!--基药-->
-   <!-- <select id="medicineList2" parameterType="java.util.Map" resultType="java.util.HashMap">
-        SELECT M.chnName,M.spec,M.producer,M.dealer, A.amount,A.quantity FROM (
-        SELECT T.goodsNo,sum(T.amount)amount ,sum(T.quantity) quantity FROM ${DrugRecordsTable} T
-        <include refid="queryWhere"/>
-        GROUP BY goodsNo HAVING sum(T.quantity)>0) A
-        JOIN Medicine M ON M.no=A.goodsNo ORDER BY A.amount DESC
-    </select>-->
+    <!-- <select id="medicineList2" parameterType="java.util.Map" resultType="java.util.HashMap">
+         SELECT M.chnName,M.spec,M.producer,M.dealer, A.amount,A.quantity FROM (
+         SELECT T.goodsNo,sum(T.amount)amount ,sum(T.quantity) quantity FROM ${DrugRecordsTable} T
+         <include refid="queryWhere"/>
+         GROUP BY goodsNo HAVING sum(T.quantity)>0) A
+         JOIN Medicine M ON M.no=A.goodsNo ORDER BY A.amount DESC
+     </select>-->
 
     <select id="medicineTrend" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT cast(dateStr AS DATETIME) date ,amount, number,quantity FROM
@@ -67,24 +90,33 @@
     <!--2019-12-31-->
     <select id="departBase" parameterType="java.util.Map" resultType="java.util.HashMap">
         select T.department,sum(T.amount) amount,sum(case when M.base=1 then T.amount else 0 end ) base1Amount,sum(case when M.base=2 then T.amount else 0 end ) base2Amount,
-               sum(case when M.base=3 then T.amount else 0 end ) base3Amount
+        sum(case when M.base=3 then T.amount else 0 end ) base3Amount
         from ${DrugRecordsTable} T left join Medicine M on T.goodsID=M.goodsID
         <include refid="queryWhere"/>
         group by T.department order by sum(T.amount) desc
     </select>
-    <select id="doctorBase" parameterType="java.util.Map" resultType="java.util.HashMap">
+   <!-- <select id="doctorBase" parameterType="java.util.Map" resultType="java.util.HashMap">
         select T.doctorName,sum(T.amount) amount,sum(case when M.base=1 then T.amount else 0 end ) base1Amount,sum(case when M.base=2 then T.amount else 0 end ) base2Amount,
-               sum(case when M.base=3 then T.amount else 0 end ) base3Amount
+        sum(case when M.base=3 then T.amount else 0 end ) base3Amount
         from ${DrugRecordsTable} T left join Medicine M on T.goodsID=M.goodsID
         <include refid="queryWhere"/>
         group by T.doctorName order by sum(T.amount) desc
+    </select>-->
+    <!--力锦-->
+    <select id="doctorBase" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT doctorID,doctorName, sum(T.amount) amount, sum(T.quantity) quantity,
+        sum(case when adviceID=0 then amount else 0 end) clinicAmount, sum(case when adviceID>0 then amount else 0 end)hospitalAmount ,
+        sum(case when adviceID=0 and M.base>0 then amount else 0 end) clinicBaseAmount, sum(case when adviceID>0 and M.base>0 then amount else 0 end)hospitalBaseAmount
+        FROM ${DrugRecordsTable} T  left join Medicine M on T.goodsID=M.goodsID
+        <include refid="queryWhere"/>
+        GROUP BY doctorID,doctorName
+        ORDER BY sum(amount) DESC
     </select>
 
-    <!--按药品使用分析-->
+    <!--按药品使用分析 力锦-->
     <!--todo 翁源Medicine.goodsID 有null值，需要查找原因，否则统计误差大-->
-    <!--WHEN len(T.dispensingNo)>=10 THEN-->
-    <select id="statByMedicine" parameterType="java.util.Map" resultType="java.util.HashMap">
-        SELECT M.medicineNo,M.no,M.chnName,M.spec,M.producer,M.dealer,A.amount,A.quantity,M.dose,M.minUnit,
+    <select id="byMedicine" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT M.goodsID,M.no,M.chnName,M.spec,M.producer,M.dealer,A.amount,A.quantity,M.dose,M.minUnit,
         case M.base when 1 then '基药' when 2 then '国基' when 3 then '省基' else '' end base,
         M.mental,M.minOfpack,
         <if test="top3==true">A.topDepartment,A.topDoctor,</if>A.patient FROM Medicine M,
@@ -97,13 +129,28 @@
             AND dispensingDate &lt; #{toDate:TIMESTAMP} and goodsID=T.goodsID
             group by doctorName order by sum(amount) desc FOR XML PATH('')), 1, 1, '') topDoctor,
         </if>
-        count(DISTINCT CASE WHEN len(T.dispensingNo) &lt; 10 THEN T.invoiceNo ELSE T.dispensingNo END) patient
+        count(DISTINCT patientID) patient
         FROM ${DrugRecordsTable} T LEFT JOIN rbac..Dict R ON R.name=T.department AND R.parentID=108
         <include refid="queryWhere"/>
         GROUP BY goodsID) A
         WHERE M.goodsID =A.goodsID
         ORDER BY A.amount DESC
     </select>
+
+    <!--力锦-->
+    <select id="byDoctor" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT doctorID,doctorName, sum(T.amount) amount, sum(T.quantity) quantity,
+        sum(case when adviceID=0 then amount else 0 end) clinicAmount, sum(case when adviceID>0 then amount else 0 end)hospitalAmount ,
+        count(distinct case when adviceID=0 then patientID else null end) clinicPatient,
+        count(distinct case when adviceID=0 and M.western!=4 then patientID else null end) clinicPatient2,/*门诊病人(西药)*/
+        count(distinct case when adviceID>0 then patientID else null end) hospitalPatient
+        FROM ${DrugRecordsTable} T  left join Medicine M on T.goodsID=M.goodsID
+        <include refid="queryWhere"/>
+        GROUP BY doctorID,doctorName
+        -- having sum(amount)>0
+        ORDER BY sum(amount) DESC
+    </select>
+
     <!--药理分析-->
     <select id="healthAnalysis2" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT H.healthNo,H.chnName,B.amount,B.quantity FROM Health H,
@@ -112,17 +159,17 @@
         (SELECT T.goodsNo,sum(T.amount) amount,sum(T.quantity) quantity
         FROM ${DrugRecordsTable} T
         <include refid="queryWhere"/>
-        GROUP BY T.goodsNo) A WHERE A.goodsNo=M.nostatByMedicine
+        GROUP BY T.goodsNo) A WHERE A.goodsNo=M.no
         GROUP BY left(M.healthNo,6)) B WHERE H.healthNo=B.healthNo
         ORDER BY B.amount DESC
     </select>
-    <select id="statRxDetailByHealthNo2" parameterType="java.util.Map" resultType="java.util.HashMap">
+    <!--<select id="statRxDetailByHealthNo2" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT M.chnName,M.spec,M.medicineNo,A.amount FROM
         (SELECT T.goodsNo,sum(T.amount) amount
         FROM ${DrugRecordsTable} T
         <include refid="queryWhere"/>
         GROUP BY T.goodsNo) A JOIN Medicine M ON M.no=A.goodsNo
-    </select>
+    </select>-->
     <!--病人用药查询 Start-->
     <!--查询条件：起止日期，药品名称、药理分类、病人姓名-->
     <select id="queryPatientDrug" parameterType="java.util.Map" resultType="java.util.HashMap">
@@ -151,12 +198,6 @@
         GROUP BY T.department ORDER BY sum(T.amount) DESC
     </select>
 
-    <select id="queryDoctorByMedicine" parameterType="java.util.Map" resultType="java.util.HashMap">
-        SELECT T.doctorName doctorName,sum(amount) amount,sum(quantity) quantity
-        FROM ${DrugRecordsTable} T
-        <include refid="queryWhere"/>
-        GROUP BY T.doctorName having sum(amount)>0 ORDER BY sum(amount) DESC
-    </select>
     <select id="medicineMonth" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT convert(VARCHAR(7), T.dispensingDate, 120) MONTH,
                sum(T.amount)                              amount,
@@ -169,28 +210,16 @@
           AND M1.medicineNo = #{medicineNo:VARCHAR}
         GROUP BY convert(VARCHAR(7), T.dispensingDate, 120)
     </select>
+    <!--力锦-->
     <select id="medicineDay" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT cast(convert(VARCHAR(10), T.dispensingDate, 120) AS SMALLDATETIME) date,
-               sum(T.amount)                                                      amount,
-               sum(T.quantity)                                                    quantity
+        sum(T.amount) amount, sum(T.quantity) quantity
         FROM ${DrugRecordsTable} T
-                 LEFT JOIN Medicine M1
-                           ON M1.no = T.goodsNo
-        WHERE T.doctorName = #{doctorName:VARCHAR}
-          AND T.dispensingDate > #{fromDate:VARCHAR}
-          AND M1.medicineNo = #{medicineNo:VARCHAR}
-        GROUP BY convert(VARCHAR(10), T.dispensingDate, 120)
-    </select>
-    <!--
-    <select id="statAntiDailyDoctor" parameterType="java.util.Map" resultType="java.util.HashMap">
-        SELECT A.doctorName,A.amount,A.antiAmount,A.patient,A.antiPatient FROM
-        (SELECT YS doctorName, sum(T.amount) amount,sum(CASE WHEN M1.antiClass>0 THEN T.amount ELSE 0 END) antiAmount,
-        count(DISTINCT CASE WHEN len(T.dispensingNo) &lt; 10 THEN D.T.invoiceNo ELSE null END) patient,
-        count(DISTINCT CASE WHEN len(T.dispensingNo) &lt; 10 AND M1.antiClass>0 THEN T.invoiceNo ELSE null END) antiPatient
-        FROM ${DrugRecordsTable} T LEFT JOIN Medicine M1 ON T.goodsNo=M1.no LEFT JOIN rbac.dbo.Dict R ON R.name=T.department AND R.parentID=108
         <include refid="queryWhere"/>
-        GROUP BY T.doctorName ) A ORDER BY A.antiAmount DESC
-    </select>-->
+        GROUP BY convert(VARCHAR(10), T.dispensingDate, 120)
+        order BY convert(VARCHAR(10), T.dispensingDate, 120)
+    </select>
+
     <!--越级使用抗菌药-->
     <select id="bypass" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT P.*,M.antiClass mAntiClass,D.antiClass dAntiClass ,D.name doctorName FROM Clinic P
@@ -213,7 +242,7 @@
         count(DISTINCT CASE WHEN M1.antiClass>0 AND (T.adviceType ='肌注静注' OR T.adviceType ='静滴') THEN T.dispensingNo ELSE null END) hospitalInjectAntiPatient
         FROM ${DrugRecordsTable} T LEFT JOIN Medicine M1 ON T.goodsNo=M1.no
         <include refid="queryWhere"/>
-        and len(T.dispensingNo)>=10
+        and adviceID>0
     </select>
     <select id="summaryBase" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT
@@ -221,6 +250,19 @@
         COUNT(distinct case when base=2 then T.goodsNo else null end) nationBaseNum,sum(case when base=2 then amount else 0 end) nationBaseMoney
         FROM ${DrugRecordsTable} T LEFT JOIN Medicine M1 ON T.goodsNo=M1.no
         <include refid="queryWhere"/>
+    </select>
+    <!--抗菌药按科室查询 力锦-->
+    <select id="departMedicine" parameterType="java.util.Map" resultType="java.util.Map">
+        select department, sum(case when M.insurance != 3 then amount else 0 end) insuranceAmount, sum(amount) amount,
+        case when sum(amount) &lt; 0.0001 then 0 else sum(case when M.insurance != 3 then amount else 0 end)/sum(amount) end insuranceRatio,
+        sum(case when adviceID = 0 then amount else 0 end) clinicAmount, sum(case when adviceID > 0 then amount else 0 end) hospitalAmount,
+        count(distinct case when adviceID = 0 then patientID else null end) clinicPatient, count(distinct case when adviceID > 0 then patientID else null end) hospitalPatient
+        from DrugRecords_2018 T
+        LEFT JOIN Medicine M ON T.goodsID = M.goodsID
+        where T.dispensingDate >= #{fromDate:TIMESTAMP} AND T.dispensingDate &lt; #{toDate:TIMESTAMP}
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(medicineNo)">AND M.no=#{medicineNo:VARCHAR})</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(likeMedicineName)">AND M.chnName LIKE '$%{likeMedicineName}%')</if>
+        group by department;
     </select>
     <!--抗菌药按科室查询-->
     <select id="antiDepart2" parameterType="java.util.Map" resultType="java.util.Map">
@@ -231,7 +273,7 @@
         SELECT CASE WHEN len(T.department)>3 and T.department not like '%产科%' THEN replace(T.department,'门诊','') ELSE T.department END department, sum(T.amount) antiAmount,
         sum(CASE WHEN len(T.dispensingNo)>=10 AND M1.ddd>0 THEN T.quantity*M1.contents/M1.ddd ELSE 0 END)*100.0 DDDs,
         count(DISTINCT CASE WHEN len(T.dispensingNo) &lt; 10 THEN T.invoiceNo ELSE null END) clinicAntiPatient
-        FROM ${DrugRecordsTable} T LEFT JOIN Medicine M1 ON T.goodsNo=M1.no
+        FROM ${DrugRecordsTable} T LEFT JOIN Medicine M1 ON T.goodsID=M1.goodsID
         WHERE T.dispensingDate >= #{fromDate:TIMESTAMP} AND T.dispensingDate &lt; #{toDate:TIMESTAMP}
         <if test="@com.zcreate.util.Ognl@isNotEmpty(medicineNo)">AND M1.medicineNo=#{medicineNo:VARCHAR}</if>
         <if test="antiClass!=null and antiClass>0">AND M1.antiClass=#{antiClass:INTEGER}</if>
@@ -245,26 +287,26 @@
     <!--抗菌药品种统计 2019-12-31确认-->
     <select id="antiDrug" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT M.no
-        goodsNo,M.price,M.chnName,M.antiClass,M.dose,M.spec,M.minUnit,A.clinicQuantity,A.hospitalQuantity,A.bringQuantity,A.total,A.clinicPatient,A.hospitalPatient,A.amount,
+        goodsID,M.price,M.chnName,M.antiClass,M.dose,M.spec,M.minUnit,A.clinicQuantity,A.hospitalQuantity,A.bringQuantity,A.total,A.clinicPatient,A.hospitalPatient,A.amount,
         case when M.ddd>0 then A.hospitalQuantity2*M.contents / M.ddd else 0 end DDDs FROM (
-        SELECT T.goodsNo,
-        sum(case when len(T.dispensingNo) &lt; 10 then T.quantity else 0 end) clinicQuantity ,
-        sum(case when len(T.dispensingNo)>=10 and T.adviceType!='出院带药' then T.quantity else 0 end) hospitalQuantity,
-        sum(case when T.adviceType='出院带药' then T.quantity else 0 end) bringQuantity,
+        SELECT T.goodsID,
+        sum(case when adviceID=0 then T.quantity else 0 end) clinicQuantity ,
+        sum(case when adviceID>0 and T.usage!='出院带药' then T.quantity else 0 end) hospitalQuantity,
+        sum(case when T.usage='出院带药' then T.quantity else 0 end) bringQuantity,
         sum(T.quantity) total,
         sum(T.amount) amount,
-        count(distinct case when len(T.dispensingNo) &lt; 10 then T.invoiceNo else null end) clinicPatient,
-        count(distinct case when len(T.dispensingNo)>=10 then T.dispensingNo else null end) hospitalPatient ,
-        SUM(CASE when len(T.dispensingNo)>=10 and T.adviceType!='出院带药' and T.adviceType!='其它' then T.quantity else 0 end)hospitalQuantity2
-        FROM ${DrugRecordsTable} T join Medicine M on M.no=T.goodsNo
+        count(distinct case when adviceID=0 then T.patientID else null end) clinicPatient,
+        count(distinct case when adviceID>0 then T.patientID else null end) hospitalPatient ,
+        SUM(CASE when adviceID>0 and T.usage!='出院带药' and T.usage!='其它' then T.quantity else 0 end)hospitalQuantity2
+        FROM ${DrugRecordsTable} T join Medicine M on M.no=T.goodsID
         WHERE M.antiClass>=1
         <if test="year>0">AND datepart(year,T.dispensingDate) =#{year:INTEGER}</if>
         <if test="month>0">AND datepart(mm,T.dispensingDate) =#{month:INTEGER}</if>
         <if test="quarter>0">AND datepart(qq,T.dispensingDate) =#{quarter:INTEGER}</if>
         <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND T.dispensingDate >= #{fromDate:VARCHAR}</if>
         <if test="@com.zcreate.util.Ognl@isNotEmpty(toDate)">AND T.dispensingDate &lt; #{toDate:VARCHAR}</if>
-        group by T.goodsNo) A
-        LEFT JOIN Medicine M on M.no=A.goodsNo
+        group by T.goodsID) A
+        LEFT JOIN Medicine M on M.goodsID=A.goodsID
         order by a.amount desc
     </select>
 </mapper>

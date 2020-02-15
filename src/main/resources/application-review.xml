@@ -18,7 +18,7 @@
       </bean>-->
     <bean id="reviewDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-        <property name="url" value="jdbc:sqlserver://192.168.1.212:1433;databaseName=wy_review_160222"/>
+        <property name="url" value="jdbc:sqlserver://192.168.0.212:1433;databaseName=review_lj"/>
         <!--<property name="url" value="jdbc:sqlserver://192.168.157.128:1433;databaseName=wy_review_160222"/>-->
         <property name="username" value="sa"/>
         <property name="password" value="cjdlx"/>
@@ -29,7 +29,7 @@
     </bean>
     <bean id="hisDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-        <property name="url" value="jdbc:sqlserver://192.168.1.212:61433;databaseName=YueBeiHis"/>
+        <property name="url" value="jdbc:sqlserver://192.168.0.212:61433;databaseName=YueBeiHis"/>
         <property name="username" value="sa"/>
         <property name="password" value="cjdlx"/>
         <property name="maxIdle" value="100"/>

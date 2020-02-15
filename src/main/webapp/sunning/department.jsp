@@ -53,7 +53,7 @@
     jQuery(function ($) {
         var startDate = moment().month(moment().month() - 1).startOf('month');
         var endDate = moment().month(moment().month() - 1).endOf('month');
-        var url = "/sunning/byDepart.jspa?fromDate={0}&toDate={1}&medicineNo={2}";
+        var url = "/sunning/byDepart.jspa?fromDate={0}&toDate={1}&goodsID={2}";
 
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');
@@ -163,9 +163,9 @@
         }
 
         $('.btn-success').click(function () {
-            var medicineNo = $('#form-medicineNo').val();
-            // console.log("medicine:" + medicineNo);
-            myTable.ajax.url(url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"),   medicineNo)).load();
+            var goodsID = $('#form-goodsID').val();
+            // console.log("medicine:" + goodsID);
+            myTable.ajax.url(url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"),   goodsID)).load();
         });
         $('.btn-info').click(function () {
             window.location.href = "/excel/byDepart.jspa?fromDate={0}&toDate={1}".format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"));
@@ -202,14 +202,14 @@
             }
         );
         $('.typeahead').bind('typeahead:select', function (ev, suggestion) {
-            $('#form-medicineNo').val(suggestion["medicineNo"]);
+            $('#form-goodsID').val(suggestion["goodsID"]);
         });
         $('#form-medicine').on("input propertychange", function () {
-            $('#form-medicineNo').val("");
+            $('#form-goodsID').val("");
         });
 
         function showDepartmentDetail(department) {
-            var url = "/sunning/byDepartDetail.jspa?fromDate={0}&toDate={1}&department={2}&limit=1000";
+            var url = "/sunning/medicineList.jspa?fromDate={0}&toDate={1}&department={2}&limit=1000";
 
             //console.log("text=" + $('#disItem').val());
             $.ajax({
@@ -229,7 +229,7 @@
                             var $tr = ('<tr><td style="text-align: center">{0}</td><td style="text-align: center">{1}</td>' +
                                 '<td style="text-align: right">{2}</td><td style="text-align: right">{3}</td>' +
                                 '<td style="text-align: right">{4}</td><td style="text-align: right">{5}</td></tr>'
-                            ).format(++i, this.chnName, this.spec, this.quantity, accounting.format(this.amount, 2), accounting.format(this.ratioInDepart * 100, 2) + '%');
+                            ).format(++i, this.chnName, this.spec, this.quantity, accounting.format(this.amount, 2), accounting.format(this.amountRatio * 100, 2) + '%');
                             // console.log($tr);
                             $("#departmentTable tbody").append($tr);
                         });
@@ -285,7 +285,7 @@
             <div class="input-group">
                 <input class="typeahead scrollable nav-search-input" type="text" id="form-medicine" name="form-medicine"
                        autocomplete="off" style="width: 250px;font-size: 9px;color: black"
-                       placeholder="编码或拼音匹配，鼠标选择"/><input type="hidden" id="form-medicineNo"/>
+                       placeholder="编码或拼音匹配，鼠标选择"/><input type="hidden" id="form-goodsID"/>
             </div>
 
             <label>日期：</label>

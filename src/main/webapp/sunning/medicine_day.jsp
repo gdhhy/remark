@@ -53,7 +53,7 @@
         var startDate = moment().month(moment().month() - 1).startOf('month');
         var endDate = moment().month(moment().month() - 1).endOf('month');
         var table = $.getUrlParam("table") == null ? 0 : $.getUrlParam("table");
-        var url = "/sunning/statMedicine.jspa?fromDate={0}&toDate={1}&top3={2}&special={3}&medicineNo={4}&table=" + table;
+        var url = "/sunning/byMedicine.jspa?fromDate={0}&toDate={1}&top3={2}&special={3}&goodsID={4}&table=" + table;
         var baseChn = ["", "基药", "国基", "省基"];
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');
@@ -63,7 +63,7 @@
                 bAutoWidth: false,
                 bProcessing: true,
                 "columns": [
-                    {"data": "medicineNo", "sClass": "center"},
+                    {"data": "goodsID", "sClass": "center"},
                     {"data": "chnName", "sClass": "center"},
                     {"data": "spec", "sClass": "center"},
                     {"data": "base", "sClass": "center"},
@@ -75,7 +75,7 @@
                     {"data": "patientRatio", "sClass": "center"},
                     {"data": "topDepartment", "sClass": "center", defaultContent: ''},
                     {"data": "topDoctor", "sClass": "center", defaultContent: ''},
-                    {"data": "medicineNo", "sClass": "center"}
+                    {"data": "goodsID", "sClass": "center"}
                 ],
                 'columnDefs': [
                     {
@@ -195,20 +195,20 @@
         $('.btn-success').click(function () {
             var special = $('#special').val();
             var top3 = $('#top3').is(':checked');
-            var medicineNo = $('#form-medicineNo').val();
-            // console.log("medicine:" + medicineNo);
-            //console.log('url=' + url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), top3, mental, medicineNo));
+            var goodsID = $('#form-goodsID').val();
+            // console.log("medicine:" + goodsID);
+            //console.log('url=' + url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), top3, mental, goodsID));
             if (startDate.year() !== endDate.year())
                 showDialog("日期错误", "查询日期不能跨年！");
             else
-                myTable.ajax.url(url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), top3, special, medicineNo)).load();
+                myTable.ajax.url(url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), top3, special, goodsID)).load();
         });
         $('.btn-info').click(function () {
             var special = $('#special').val();
             var top3 = $('#top3').is(':checked');
-            var medicineNo = $('#form-medicineNo').val();
-            window.location.href = "/excel/statMedicine.jspa?fromDate={0}&toDate={1}&top3={2}&special={3}&medicineNo={4}"
-                .format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), top3, special, medicineNo);
+            var goodsID = $('#form-goodsID').val();
+            window.location.href = "/excel/byMedicine.jspa?fromDate={0}&toDate={1}&top3={2}&special={3}&goodsID={4}"
+                .format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), top3, special, goodsID);
         });
         //https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
         $('#form-medicine').typeahead({hint: true},
@@ -242,31 +242,31 @@
             }
         );
         $('.typeahead').bind('typeahead:select', function (ev, suggestion) {
-            $('#form-medicineNo').val(suggestion["medicineNo"]);
+            $('#form-goodsID').val(suggestion["goodsID"]);
         });
         $('#form-medicine').on("input propertychange", function () {
-            $('#form-medicineNo').val("");
+            $('#form-goodsID').val("");
         });
 
-        function showMedicineChart(medicineNo, chnName) {
-            var url = "/chart/medicine.jspa?fromDate={0}&toDate={1}&medicineNo={2}&chartWidth={3}&chartHeight={4}";
+        function showMedicineChart(goodsID, chnName) {
+            var url = "/chart/medicine.jspa?fromDate={0}&toDate={1}&goodsID={2}&chartWidth={3}&chartHeight={4}";
             /*   console.log($("#imagePic").width());
                console.log($("#imagePic").height());*/
             $('#dialog-title').text(chnName + " - 走势图");
             $('#showChartDialog').modal();
-            $("#imagePic").attr("src", url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), medicineNo, $("#imagePic").width(), $("#imagePic").height()));
+            $("#imagePic").attr("src", url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), goodsID, $("#imagePic").width(), $("#imagePic").height()));
 
         }
 
-        function showDepartmentDetail(medicineNo, chnName) {
+        function showDepartmentDetail(goodsID, chnName) {
             $('#doctorTable').hide();
             $('#departmentTable').show();
-            var url = "/sunning/statMedicineGroupByDepart.jspa?fromDate={0}&toDate={1}&medicineNo={2}";
+            var url = "/sunning/statMedicineGroupByDepart.jspa?fromDate={0}&toDate={1}&goodsID={2}";
 
             //console.log("text=" + $('#disItem').val());
             $.ajax({
                 type: "GET",
-                url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), medicineNo),
+                url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), goodsID),
                 contentType: "application/json; charset=utf-8",
                 cache: false,
                 success: function (response, textStatus) {
@@ -306,13 +306,13 @@
             });
         }
 
-        function showDoctorDetail(medicineNo, chnName) {
+        function showDoctorDetail(goodsID, chnName) {
             $('#doctorTable').show();
             $('#departmentTable').hide();
-            url = "/sunning/getDoctorListByMedicine.jspa?fromDate={0}&toDate={1}&medicineNo={2}";
+            url = "/sunning/getDoctorListByMedicine.jspa?fromDate={0}&toDate={1}&goodsID={2}";
             $.ajax({
                 type: "GET",
-                url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), medicineNo),
+                url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), goodsID),
                 contentType: "application/json; charset=utf-8",
                 cache: false,
                 success: function (response, textStatus) {
@@ -381,7 +381,7 @@
             <div class="input-group">
                 <input class="typeahead scrollable nav-search-input" type="text" id="form-medicine" name="form-medicine"
                        autocomplete="off" style="width: 250px;font-size: 9px;color: black"
-                       placeholder="编码或拼音匹配，鼠标选择"/><input type="hidden" id="form-medicineNo"/>
+                       placeholder="编码或拼音匹配，鼠标选择"/><input type="hidden" id="form-goodsID"/>
             </div>
 
             <label>日期：</label>

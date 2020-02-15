@@ -194,7 +194,7 @@
                                 '<td style="text-align: right">{2}</td><td style="text-align: right">{3}</td><td style="text-align: right">{4}</td>' +
                                 '<td style="text-align: right">{5}</td><td style="text-align: right">{6}</td></tr>'
                             ).format(++i, this.chnName, this.spec, this.base === 2 ? "国基" : this.base === 3 ? "省基" : "基药",
-                                this.quantity, accounting.format(this.amount, 2), accounting.format(this.baseRatioInDepart * 100, 2) + '%');
+                                this.quantity, accounting.format(this.amount, 2), accounting.format(this.amountRatio * 100, 2) + '%');
                             // console.log($tr);
                             $("#departmentTable tbody").append($tr);
                         });
