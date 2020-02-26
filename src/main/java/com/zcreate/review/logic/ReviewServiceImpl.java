@@ -117,7 +117,7 @@ public class ReviewServiceImpl implements ReviewService {
             details.get(0).setNum2("(1)");
             for (int i = 1; i < details.size(); i++) {
                 if (details.get(i).getGroupID().equals(details.get(i - 1).getGroupID())) {
-                    if (!"+".equals(details.get(i).getMedicineNo()))
+                    if (!"+".equals(details.get(i).getGoodsID()))
                         details.get(i).setNum2("(" + ++num2 + ")");
                 } else {
                     details.get(i).setNum1(++num1 + "、");
@@ -206,6 +206,7 @@ public class ReviewServiceImpl implements ReviewService {
             return clinicDao.getClinicCount(param);
         } else {
             param.put("outDateFrom", DateUtils.parseSqlDate(fromDate));
+            param.put("RecipeItemTable", "RecipeItem_" + fromDate.substring(0, 4));
             param.put("outDateTo", toCal.getTime());
             //param.put("outHospital", true);
             return recipeDao.getRecipeCount(param);
@@ -259,6 +260,7 @@ public class ReviewServiceImpl implements ReviewService {
             else {
                 //不调用存储过程，效率低
                 //先产生等差随机数列
+                param.put("RxDetailTable", "RxDetail_" + param.get("clinicDateFrom").toString().substring(0, 4));
                 int array[] = linearArray(clinicDao.getClinicCount(param), sampleBatch.getNum());
                 List<Integer> clinicIDs = clinicDao.selectClinicIDForLinear(param);
                 List<Integer> result = new ArrayList<Integer>(array.length);
@@ -269,6 +271,7 @@ public class ReviewServiceImpl implements ReviewService {
             }
         else {   //住院
             param.put("outDateFrom", param.get("clinicDateFrom"));
+            param.put("RecipeItemTable", "RecipeItem_" + param.get("clinicDateFrom").toString().substring(0, 4));
             param.put("outDateTo", param.get("clinicDateTo"));
             //param.put("outHospital", true);
             if (sampleBatch.getSampleType() == 1)//随机
@@ -338,7 +341,7 @@ public class ReviewServiceImpl implements ReviewService {
         return recipeDao.getRecipeListForExcel(param);
     }
 
-    public List<HashMap<String, Object>> getRecipeItemForExcel(String serialNo, int medicineType) {
+    public List<HashMap<String, Object>> getRecipeItemForExcel(Integer serialNo, int medicineType) {
         Map<String, Object> param = new HashMap<String, Object>(2);
         param.put("serialNo", serialNo);
         if (medicineType == 1)
@@ -348,13 +351,13 @@ public class ReviewServiceImpl implements ReviewService {
         return recipeDao.getRecipeItemForExcel(param);
     }
 
-    public int getClinicCount(Map<String, Object> param) {
+    /*public int getClinicCount(Map<String, Object> param) {
         return clinicDao.getClinicCount(param);
-    }
+    }*/
 
-    public int getRecipeCount(Map<String, Object> param) {
+   /* public int getRecipeCount(Map<String, Object> param) {
         return recipeDao.getRecipeCount(param);
-    }
+    }*/
 
     /*  public static void setSampleDao(SampleDAO sampleDao) {
         ReviewServiceImpl.sampleDao = sampleDao;
@@ -498,15 +501,15 @@ public class ReviewServiceImpl implements ReviewService {
         return recipeDao.getRecipeReview(recipeID);
     }*/
 /*
-    public List<Course> getCourse(String serialNo) {
+    public List<Course> getCourse(Integer serialNo) {
         return hisDao.getCourse(serialNo);
     }
 
-    public History getHistory(String serialNo) {
+    public History getHistory(Integer serialNo) {
         return hisDao.getHistory(serialNo);
     }*/
 
-    public List<RecipeItem> getRecipeItemList(String serialNo, int longAdvice, String year) {
+    public List<RecipeItem> getRecipeItemList(Integer serialNo, int longAdvice, String year) {
         Map<String, Object> param = new HashMap<>();
         param.put("serialNo", serialNo);
         param.put("longAdvice", longAdvice);
@@ -529,7 +532,7 @@ public class ReviewServiceImpl implements ReviewService {
         return recipeItemList;
     }
 
-    public int saveDiagnosis(String serialNo, String diagnosisNos, String diseases) {
+    public int saveDiagnosis(Integer serialNo, String diagnosisNos, String diseases) {
         String[] diagnosisNoArr = diagnosisNos.split(";");
         String[] diseaseArr = diseases.split(";");
         if (diagnosisNoArr.length == diseaseArr.length && diseaseArr.length > 0) {
@@ -562,15 +565,15 @@ public class ReviewServiceImpl implements ReviewService {
         return sampleDao.getLastReviewByDoctor(topRecount);
     }
 
-    public int getSurgeryCount(String serialNo) {
+    public int getSurgeryCount(Integer serialNo) {
         return recipeDao.getSurgeryCount(serialNo);
     }
 
-    public List<HashMap<String, Object>> getRecipeItemCount(String serialNo) {
+    public List<HashMap<String, Object>> getRecipeItemCount(Integer serialNo) {
         return recipeDao.getRecipeItemCount(serialNo);
     }
 
-    /* public int saveChooseDiagnosis(String serialNo, int[] ids) {
+    /* public int saveChooseDiagnosis(Integer serialNo, int[] ids) {
         List<Integer> list = new ArrayList<Integer>(ids.length);
         for (int i : ids) list.add(i);
         return recipeDao.saveChooseDiagnosis(serialNo, list);
@@ -583,7 +586,7 @@ public class ReviewServiceImpl implements ReviewService {
     public void setDictService(DictService dictService) {
         this.dictService = dictService;
     }
-    /* public List<HashMap<String, Object>> getSurgeryList(String serialNo) {
+    /* public List<HashMap<String, Object>> getSurgeryList(Integer serialNo) {
         return recipeDao.getSurgeryList(serialNo);
     }*/
 }

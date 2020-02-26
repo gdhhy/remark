@@ -14,7 +14,7 @@ public class RecipeItem implements Serializable {
     private Integer longAdvice;//长期医嘱：1,   临时医嘱：2
     private Timestamp recipeDate;//对应 kyzsj
     private String advice;//医嘱信息 ，对应yzxx
-    private String medicineNo;
+    private Integer goodsID;
     private String doctorName;//开医嘱医生
     private String nurseName;
     private Timestamp endDate;  //医嘱结束日期
@@ -24,7 +24,6 @@ public class RecipeItem implements Serializable {
     private String unit;
     private String problemCode;
     private String problemDesc;
-    private Integer medicineID;
     private String dose;
     private String producer;
 
@@ -92,12 +91,12 @@ public class RecipeItem implements Serializable {
         this.advice = advice;
     }
 
-    public String getMedicineNo() {
-        return medicineNo;
+    public Integer getGoodsID() {
+        return goodsID;
     }
 
-    public void setMedicineNo(String medicineNo) {
-        this.medicineNo = medicineNo;
+    public void setGoodsID(Integer goodsID) {
+        this.goodsID = goodsID;
     }
 
     public String getDoctorName() {
@@ -242,14 +241,6 @@ public class RecipeItem implements Serializable {
 
     public void setContents(Double contents) {
         this.contents = contents;
-    }
-
-    public Integer getMedicineID() {
-        return medicineID;
-    }
-
-    public void setMedicineID(Integer medicineID) {
-        this.medicineID = medicineID;
     }
 
     public String getDose() {

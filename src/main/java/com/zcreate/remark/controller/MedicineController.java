@@ -137,7 +137,7 @@ public class MedicineController {
             @RequestParam(value = "medicineID", required = false, defaultValue = "0") int medicineID,
             @RequestParam(value = "search[value]", required = false) String search,
             @RequestParam(value = "search[regex]", required = false) String regex,
-            @RequestParam(value = "goodsNo", required = false) String goodsNo,
+            @RequestParam(value = "no", required = false) String no,
             @RequestParam(value = "matchType", required = false, defaultValue = "0") int matchType,
             @RequestParam(value = "type", required = false, defaultValue = "0") int type,
             @RequestParam(value = "draw", required = false) Integer draw,
@@ -149,13 +149,13 @@ public class MedicineController {
         if (search != null) {
             search = search.replaceAll("\\s+", "");
             if (Verify.validNumber(search))
-                param.put("liveGoodsNo", search);
+                param.put("liveNo", search);
             else if (Verify.validLetter(search))
                 param.put("livePinyin", search);
             else
                 param.put("liveChnName", search);
         }
-          param.put("chnName", queryChnName);
+        param.put("chnName", queryChnName);
 
         //String antiClass = ParamUtils.getParameter(ServletActionContext.getRequest(), "antiClass");
         if (matchType == 1)
@@ -187,12 +187,13 @@ public class MedicineController {
             case 9://西药口服
             case 10://西药注射
             case 11://西药大输液
+            //case 12://西药外用
                 param.put("western", type);
                 break;
             default:
         }
 
-        param.put("goodsNo", goodsNo);
+        param.put("no", no);
         //param.put("medicineNo", medicineNo);
         param.put("medicineID", medicineID);
 

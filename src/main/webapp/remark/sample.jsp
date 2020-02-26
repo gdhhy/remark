@@ -525,7 +525,7 @@
                         {"data": "inHospitalDay", "sClass": "center"},
                         {"data": "patientName", "sClass": "center"},
                         {"data": "age", "sClass": "center"},
-                        {"data": "diagnosis", "sClass": "center"},
+                        {"data": "diagnosis2", "sClass": "center"},
                         {"data": "masterDoctorName", "sClass": "center"}
                     ],
 
@@ -541,7 +541,7 @@
                         {"orderable": false, "targets": 4, title: '住院天数'},
                         {"orderable": false, "targets": 5, title: '病人姓名'},
                         {"orderable": false, "targets": 6, title: '年龄'},
-                        {"orderable": false, "targets": 7, title: '诊断', width: 250},
+                        {"orderable": false, "targets": 7, title: '出院诊断', width: 250},
                         {"orderable": false, "targets": 8, title: '主管医生'}],
                     "aaSorting": [],
                     language: {

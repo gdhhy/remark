@@ -134,7 +134,7 @@
                         }
                     },
                     {
-                        "orderable": false, "data": "adviceType", "targets": 1, width: 80, title: '用法', className: 'center', render: function (data, type, row, meta) {
+                        "orderable": false, "data": "frequency", "targets": 1, width: 80, title: '用法', className: 'center', render: function (data, type, row, meta) {
                             return '<a href="#" data-value="{0}" >{1}</a>'.format(data, data);
                         }
                     },
@@ -175,7 +175,7 @@
                         }
                     },
                     {
-                        "orderable": false, "data": "adviceType", "targets": 1, width: 80, title: '用法', className: 'center', render: function (data, type, row, meta) {
+                        "orderable": false, "data": "frequency", "targets": 1, width: 80, title: '用法', className: 'center', render: function (data, type, row, meta) {
                             return '<a href="#" data-value="{0}" >{1}</a>'.format(data, data);
                         }
                     },
@@ -501,7 +501,7 @@
 
                 'columnDefs': [
                     {
-                        "orderable": false, "targets": 0,  className: 'select-checkbox',width: 20, render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 0, className: 'select-checkbox', width: 20, render: function (data, type, row, meta) {
                             return '<input name="a123" type="radio">';
                         }
                     },
@@ -516,7 +516,7 @@
                 },
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getSurgerys.jspa?serialNo=0017527401",//${recipe.serialNo}
+                    url: "/remark/getSurgerys.jspa?serialNo=${recipe.serialNo}",//${recipe.serialNo}
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -561,8 +561,8 @@
                     },
                     {"orderable": false, "data": "type", "targets": 1, title: '类型', defaultContent: ''},
                     {"orderable": false, "data": "disease", "targets": 2, title: '诊断', defaultContent: ''},
-                    {"orderable": false, "data": "icd", "targets": 3, title: 'ICD', defaultContent: ''},
-                    {"orderable": false, "data": "originalChs", "targets": 4, title: '入院病情', defaultContent: ''}
+                    {"orderable": false, "data": "icd", "targets": 3, title: 'ICD', defaultContent: ''}/*,
+                    {"orderable": false, "data": "originalChs", "targets": 4, title: '入院病情', defaultContent: ''}*/
                 ],
                 "aaSorting": [],
                 language: {
@@ -570,8 +570,8 @@
                 },
                 scrollY: '60vh',
                 "ajax": {
-                    //url:"/remark/getDiagnosis.jspa?serialNo=${recipe.serialNo}&archive=${recipe.archive}",
-                    url: "/remark/getDiagnosis.jspa?serialNo=0000593702&archive=1",
+                    url: "/remark/getDiagnosis.jspa?serialNo=${recipe.serialNo}",
+                    //url: "/remark/getDiagnosis.jspa?serialNo=0000593702&archive=1",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -584,8 +584,9 @@
                 var rowData = diagnosisTable.row(indexes).data();
                 var exists = false;
                 /*先判断是否存在，如存在不添加*/
+                var no = "" + rowData["diagnosisNo"];
                 $("#chooseDiagnosis tr").each(function (i, item) {
-                    if (rowData["diagnosisNo"] === $(item).attr("data-id"))
+                    if ($(item).attr("data-id") !== undefined && no === $(item).attr("data-id"))
                         exists = true;
                 });
                 if (exists) return;
@@ -593,8 +594,9 @@
                 $("#chooseDiagnosis tr:last").after(Handlebars.compile("<tr data-id='{{diagnosisNo}}'><td>{{type}}</td><td>{{disease}}</td></tr>")(rowData));
             }).on('deselect', function (e, dt, type, indexes) {
                 var rowData = diagnosisTable.row(indexes).data();
+                var no = "" + rowData["diagnosisNo"];
                 $("#chooseDiagnosis tr").each(function (i, item) {
-                    if (rowData["diagnosisNo"] === $(item).attr("data-id"))
+                    if (no === $(item).attr("data-id"))
                         $(this).remove();
                 });
             }).on('draw', function (e, settings) {
@@ -604,23 +606,6 @@
                 });
             });
 
-            /* $('#diagnosis-table tbody').on('click', 'input[type="checkbox"]', function (e) {
-            console.log("checkbox click");
-            var $row = $(this).closest('tr');
-
-            // Get row data
-            var data = table.row($row).data();
-
-            // Get row ID
-            var rowId = data["diagnosisNo"];
-            console.log("rowID:" + rowId);
-            });*/
-
-            // Handle click on table cells with checkboxes
-            /* $('#diagnosis-table').on('click', 'tbody td, thead th:first-child', function (e) {
-            console.log("checkbox click2");
-            $(this).parent().find('input[type="checkbox"]').trigger('click');
-            });*/
             $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
                 //当切换tab时，强制重新计算列宽
                 $.fn.dataTable.tables({visible: true, api: true}).columns.adjust().draw();
@@ -628,8 +613,8 @@
             var loadData = 0;
             $('#courseTabIndex').click(function () {
                 if ((loadData & 1) === 0)
-                    $.getJSON("/remark/getCourse.jspa?serialNo=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
-                        //$.getJSON("/remark/getCourse.jspa?serialNo=${recipe.serialNo}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                //$.getJSON("/remark/getCourse.jspa?serialNo=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                    $.getJSON("/remark/getCourse.jspa?serialNo=${recipe.serialNo}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
                         var template = Handlebars.compile($('#courseContent').html());
                         var htmlArray = [];
                         $.each(result.data, function (index, value) {
@@ -644,8 +629,8 @@
             });
             $('#historyTabIndex').click(function () {
                 if ((loadData & 2) === 0)
-                    $.getJSON("/remark/showHistory.jspa?serialNo=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
-                        //$.getJSON("/remark/getCourse.jspa?serialNo=${recipe.serialNo}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                //$.getJSON("/remark/showHistory.jspa?serialNo=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                    $.getJSON("/remark/getCourse.jspa?serialNo=${recipe.serialNo}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
                         var template = Handlebars.compile($('#historyContent').html());
 
                         $('#historyContent').html(template(result));

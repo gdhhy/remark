@@ -968,6 +968,7 @@ public class RemarkController {
                                   @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("reviewDateFrom", fromDate);
+        param.put("RecipeItemTable", "RecipeItem_" + fromDate.substring(0, 4));
         if (!"".equals(toDate)) {
             Calendar cal = DateUtils.parseCalendarDayFormat(toDate);
             cal.add(Calendar.DATE, 1);

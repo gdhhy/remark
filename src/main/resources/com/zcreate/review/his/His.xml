@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--病程记录
+住院病历
+
+检验结果-->
+<mapper namespace="His">
+    <cache eviction="LRU" readOnly="false" flushInterval="600000" size="10000"/>
+    <resultMap id="CourseResult" type="com.zcreate.review.his.Course">
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="doctorName" jdbcType="VARCHAR" property="doctorName"/>
+        <result column="writeTime" jdbcType="TIMESTAMP" property="writeTime"/>
+        <result column="confirmTime" jdbcType="TIMESTAMP" property="confirmTime"/>
+    </resultMap>
+    <resultMap id="HistoryResult" type="com.zcreate.review.his.History">
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="writeTime" jdbcType="TIMESTAMP" property="writeTime"/>
+        <result column="doctorName1" jdbcType="VARCHAR" property="doctorName1"/>
+        <result column="doctorName2" jdbcType="VARCHAR" property="doctorName2"/>
+    </resultMap>
+    <resultMap id="ExamDirResult" type="com.zcreate.review.his.ExamDir">
+        <result column="examName" jdbcType="VARCHAR" property="examName"/>
+        <result column="examItem" jdbcType="VARCHAR" property="examItem"/>
+        <result column="serialNo" jdbcType="VARCHAR" property="serialNo"/>
+    </resultMap>
+    <resultMap id="ExamResult" type="com.zcreate.review.his.ExamResult">
+        <result column="examTime" jdbcType="TIMESTAMP" property="examTime"/>
+        <result column="examiner" jdbcType="VARCHAR" property="examiner"/>
+        <result column="purpose" jdbcType="VARCHAR" property="purpose"/>
+        <result column="substance" jdbcType="VARCHAR" property="substance"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="contentType" jdbcType="VARCHAR" property="contentType"/>
+    </resultMap>
+    <!--诊断-->
+    <select id="selectDiagnosis" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT case A.LsInOut when 1 then '门诊📳诊断' when 2 then '住院诊断' else '' end type, A.IllDesc disease, B.Code icd,A.ID diagnosisNo
+        FROM YBHis.YueBeiHis.dbo.InHosMzIll A
+                 left join YBHis.YueBeiHis.dbo.BsIllness B on A.icdid = B.ID
+        where A.hospid = #{serialNo:INTEGER}
+        order by A.LsInOut, A.ListNum;
+    </select>
+
+</mapper>

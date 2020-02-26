@@ -108,18 +108,18 @@
                 <when test="@com.zcreate.util.Ognl@isNotEmpty(antiDrugNum)">AND concurAntiNum=#{antiDrugNum:INTEGER}</when>
                 <when test="@com.zcreate.util.Ognl@isNotEmpty(atLeastAntiDrugNum)">AND concurAntiNum>#{atLeastAntiDrugNum:INTEGER}</when>
             </choose>
-            <if test="medicine1>0">AND serialNo IN(SELECT DISTINCT serialNo FROM ${RecipeItemTable} R WHERE R.medicineNo=#{medicine1:VARCHAR})</if>
-            <if test="medicine2>0">AND serialNo IN(SELECT DISTINCT serialNo FROM ${RecipeItemTable} R WHERE R.medicineNo=#{medicine2:VARCHAR})</if>
+            <if test="medicine1>0">AND serialNo IN(SELECT DISTINCT serialNo FROM ${RecipeItemTable} R WHERE R.goodsID=#{medicine1:VARCHAR})</if>
+            <if test="medicine2>0">AND serialNo IN(SELECT DISTINCT serialNo FROM ${RecipeItemTable} R WHERE R.goodsID=#{medicine2:VARCHAR})</if>
 
             <if test="@com.zcreate.util.Ognl@isNotEmpty(oldFolks)">AND dAge > 60</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(children)">AND dAge &lt;= 14</if>
             <if test="incompatibilityID>0">AND serialNo IN (SELECT objectID FROM RxIncompatibility WHERE incompatibilityID=#{incompatibilityID} AND TYPE=2)</if>
             <choose>
                 <when test="@com.zcreate.util.Ognl@isNotEmpty(healthNo)">
-                    AND serialNo IN (SELECT DISTINCT R.serialNo FROM ${RecipeItemTable} R JOIN medicine M ON R.medicineNo = M.medicineNo WHERE M.healthNo LIKE '${healthNo}%' )
+                    AND serialNo IN (SELECT DISTINCT R.serialNo FROM ${RecipeItemTable} R JOIN medicine M ON R.goodsID = M.goodsID WHERE M.healthNo LIKE '${healthNo}%' )
                 </when>
                 <when test="@com.zcreate.util.Ognl@isNotEmpty(antiClass)">
-                    AND serialNo IN (SELECT DISTINCT R.serialNo FROM ${RecipeItemTable} R JOIN medicine M ON R.medicineNo = M.medicineNo
+                    AND serialNo IN (SELECT DISTINCT R.serialNo FROM ${RecipeItemTable} R JOIN medicine M ON R.goodsID = M.goodsID
                     <where>
                         <if test="antiClass==0">AND M.antiClass >= 0</if>
                         <if test="antiClass >0">AND M.antiClass = #{antiClass:INTEGER}</if>
@@ -129,7 +129,7 @@
             </choose>
             <if test="publish>2">AND publish>0</if>
             <if test="publish==1 or publish==2">AND publish &amp; #{publish:INTEGER} = #{publish:INTEGER}</if>
-            <if test="surgery > 0">AND serialNo in (select serialNo from surgery
+            <if test="surgery > 0">AND patientNo in (select patientNo from surgery
                 <where>
                     <if test="incision ==1 or incision==3 or incision==5 or incision==7">OR incision='Ⅰ'</if>
                     <if test="incision == 2 or incision == 3 or incision==6  or incision==7 ">OR incision='Ⅱ'</if>
@@ -137,7 +137,7 @@
                 </where>
                 )
             </if>
-            <if test="surgery == 0">AND serialNo not in (select serialNo from surgery)</if>
+            <if test="surgery == 0">AND patientNo not in (select patientNo from surgery)</if>
             <!-- <if test="year>0">AND serialNo in (select distinct serialNo from ${RecipeItemTable} where datepart(year,recipeDate)=#{year:INTEGER} )</if>-->
             <if test="@com.zcreate.util.Ognl@isNotEmpty(recipeDateFrom)">
                 AND serialNo IN (SELECT DISTINCT serialNo FROM ${RecipeItemTable}
@@ -276,7 +276,7 @@
         mAntiClass,D.antiClass dAntiClass,P.masterDoctorName,R.doctorName,P.archive, P.appealState
         FROM Recipe P
         LEFT JOIN ${RecipeItemTable} R ON P.serialNo = R.serialNo
-        LEFT JOIN Medicine M ON R.medicineNo=M.medicineNo
+        LEFT JOIN Medicine M ON R.goodsID=M.goodsID
         LEFT JOIN doctor D ON R.doctorName = D.name
         WHERE M.antiClass>=1 AND M.antiClass>D.antiClass
         <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND R.recipeDate >= #{fromDate:TIMESTAMP}</if>
@@ -294,7 +294,7 @@
         SELECT R.serialNo,R.department,R.patientNo,R.patientName,R.masterDoctorName, (select distinct disease+',' from Diagnosis where serialNo=R.serialNo for XML PATH(''))
         diagnosis ,
         R.inHospitalDay,R.rational ,R.concurAntiNum,RR.surgeryName,RR.incision,RR.afterStopDrug,RR.beforeDrug,R.antiNum,
-        (SELECT count(*) FROM medicine M,RecipeItem I where R.serialNo=I.serialNo and western>1 and M.route=2 and M.medicineNo=I.medicineNo) chineseInjectNum
+        (SELECT count(*) FROM medicine M,RecipeItem I where R.serialNo=I.serialNo and western>1 and M.route=2 and M.goodsID=I.goodsID) chineseInjectNum
         FROM RecipeReview RR , Recipe R where R.serialNo=RR.serialNo
         <if test="@com.zcreate.util.Ognl@isNotEmpty(sampleBatchID)">AND R.recipeID in (SELECT objectID FROM SampleList WHERE sampleBatchID = #{sampleBatchID:INTEGER})</if>
         <if test="@com.zcreate.util.Ognl@isNotEmpty(sampleBatchIDs)">AND R.recipeID in (SELECT objectID FROM SampleList
@@ -334,9 +334,9 @@
             sum(clinicAntiAmount + hospitalAntiAmount)                                                            antiAmount,
              sum(clinicInsuranceAmount+hospitalInsuranceAmount)*1.0/sum(clinicAmount+hospitalAmount) insuranceRatio ,
              sum(clinicBaseAmount+hospitalBaseAmount)*1.0/sum(clinicAmount+hospitalAmount) baseRatio,
-            (SELECT top 3 M.chnName + '；' FROM dailydepartmedicine D LEFT JOIN Medicine M ON M.medicineNo = D.medicineNo
+            (SELECT top 3 M.chnName + '；' FROM dailydepartmedicine D LEFT JOIN Medicine M ON M.goodsID = D.goodsID
             WHERE D.department = DailyDepart.department AND date > #{fromDate:VARCHAR} AND date &lt; #{toDate:VARCHAR} AND M.antiClass > 0 AND isStat > 0
-            GROUP BY M.medicineNo, M.chnName  order by sum(hospitalAmount+clinicAmount) desc FOR XML PATH (''))   first3
+            GROUP BY M.goodsID, M.chnName  order by sum(hospitalAmount+clinicAmount) desc FOR XML PATH (''))   first3
         FROM DailyDepart WHERE date > #{fromDate:VARCHAR} AND date &lt; #{toDate:VARCHAR} GROUP BY department) D
          ON A.department = D.department
          left join (SELECT month, department,medicineAmount / amount  medicineRatio,amount amount2,medicineAmount FROM MonthDepartIncome WHERE month=#{month:VARCHAR} and departType=1 and amount > 0 )E ON A.department=E.department
@@ -345,18 +345,18 @@
     <select id="selectRecipeWithSurgery" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT R.serialNo, R.patientName, R.outDate, R.department, R.masterDoctorNo, R.masterDoctorName, S.incision, S.surgeryName, S.surgeryDate, B.advice,
         CASE WHEN a.serialNo IS NOT NULL THEN '是' ELSE '' END antiDrug
-        FROM Recipe R JOIN Surgery S ON S.serialNo = R.serialNo
+        FROM Recipe R JOIN Surgery S ON S.patientNo = R.patientNo
         <if test="@com.zcreate.util.Ognl@isNotEmpty(incisionType)">AND S.incision = #{incisionType:VARCHAR}</if>
         LEFT JOIN
-        (SELECT S.serialNo FROM Surgery S JOIN ${RecipeItemTable} R ON S.serialNo = R.serialNo
+        (SELECT S.serialNo FROM Surgery S JOIN ${RecipeItemTable} R ON S.patientNo = R.patientNo
         WHERE S.incision = 'Ⅰ' AND datediff(DAY, S.surgeryDate, R.recipeDate) = 0
         AND (R.advice LIKE '%术前半小时%' OR R.advice LIKE '%术前30分%' OR R.advice LIKE '%带入手术室%')) A
         ON a.serialNo = R.serialNo
         LEFT JOIN
         (SELECT DISTINCT S.serialNo, R.advice
-        FROM Surgery S JOIN ${RecipeItemTable} R ON S.serialNo = R.serialNo
+        FROM Surgery S JOIN ${RecipeItemTable} R ON S.patientNo = R.patientNo
         WHERE S.incision = 'Ⅰ' AND datediff(DAY, S.surgeryDate, R.recipeDate) = 0
-        AND R.medicineNo IN (SELECT medicineNo FROM Medicine WHERE antiClass > 0)
+        AND R.goodsID IN (SELECT goodsID FROM Medicine WHERE antiClass > 0)
         AND S.serialNo IN (SELECT serialNo FROM Recipe WHERE outDate >= #{fromDate:VARCHAR} AND outDate &lt; #{toDate:VARCHAR}) ) B
         ON B.serialNo = R.serialNo
     </select>

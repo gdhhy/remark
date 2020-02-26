@@ -27,7 +27,7 @@ public class ParamUtils {
             param.put("department", department);
         if (!"".equals(fromDate)) {
             param.put("fromDate", DateUtils.parseDateDayFormat(fromDate));
-            param.put("DxDetailTable", "DxDetail_" + fromDate.substring(0, 4));
+            param.put("RxDetailTable", "RxDetail_" + fromDate.substring(0, 4));
             param.put("DrugRecordsTable", "DrugRecords_" + fromDate.substring(0, 4));
             param.put("RecipeItemTable", "RecipeItem_" + fromDate.substring(0, 4));
         }

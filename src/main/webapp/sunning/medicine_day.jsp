@@ -393,7 +393,7 @@
                 <span class="input-group-addon"><i class="fa fa-calendar bigger-100"></i></span>
             </div>&nbsp;&nbsp;&nbsp;
             <label>选项：</label>
-            <select class="chosen-select form-control" id="special" data-placeholder="选择职业">
+            <select class="chosen-select form-control" id="special">
                 <option value="all">全部</option>
                 <option value="anti">抗菌药</option>
                 <option value="base1">基药</option>

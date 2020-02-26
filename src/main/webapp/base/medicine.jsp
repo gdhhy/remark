@@ -41,7 +41,7 @@
             .DataTable({
                 bAutoWidth: false,
                 "searching": true,
-                "iDisplayLength": 50,
+                "iDisplayLength": 25,
                 "columns": [
                     {"data": "medicineID", "sClass": "center", "orderable": false, width: 40},
                     {"data": "no", "sClass": "center", "orderable": false, searchable: true},
@@ -65,7 +65,9 @@
                         "orderable": false, "targets": 0, width: 20, render: function (data, type, row, meta) {
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
-                    }, {'targets': 4, 'searchable': false, 'orderable': false},
+                    },
+                    {'targets': 4, 'searchable': false, 'orderable': false},
+                    {'targets': 9, 'searchable': false, 'orderable': false, width: 60},
                     {
                         'targets': 15, 'searchable': false, 'orderable': false,
                         render: function (data, type, row, meta) {
@@ -150,11 +152,13 @@
         }
 
         $('.btn-success').click(function () {
-            if ($('#form-goodsNo').val() !== '')
-                myTable.ajax.url("/medicine/getMedicineList.jspa?goodsNo={0}".format($('#form-goodsNo').val())).load();
-            else
-                myTable.ajax.url("/medicine/getMedicineList.jspa?queryChnName={0}".format($('#form-medicine').val())).load();
-
+            if ($('#form-goodsNo').val() !== '') {
+                myTable.ajax.url("/medicine/getMedicineList.jspa?goodsNo={0}&matchType={1}&type={2}"
+                    .format($('#form-goodsNo').val(), $('#matchType').val(), $('#type').val())).load();
+            } else {
+                myTable.ajax.url("/medicine/getMedicineList.jspa?queryChnName={0}&matchType={1}&type={2}"
+                    .format($('#form-medicine').val(), $('#matchType').val(), $('#type').val())).load();
+            }
         });
         //https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
         $('#form-medicine').typeahead({hint: true},
@@ -278,28 +282,6 @@
             }
         }
 
-        //下拉多选
-        $('.chosen-select').chosen({allow_single_deselect: true, no_results_text: "未找到此选项!"});
-
-        //$('.chosen-select').css({'width': 190});
-        /*resize the chosen on window resize*/
-        $(window)
-            .off('resize.chosen')
-            .on('resize.chosen', function () {
-                $('.chosen-select').each(function () {
-                    var $this = $(this);
-                    $this.next().css({'width': 190});
-                })
-            }).trigger('resize.chosen');
-        //resize chosen on sidebar collapse/expand
-        $(document).on('settings.ace.chosen', function (e, event_name, event_val) {
-            console.log("settings.ace.chosen");
-            if (event_name !== 'sidebar_collapsed') return;
-            $('.chosen-select').each(function () {
-                var $this = $(this);
-                $this.next().css({'width': 190});
-            })
-        });//下拉多选结束
 
         function setRouteOption() {
             $.each(route, function (index, object) {
@@ -515,7 +497,8 @@
                 $('#dealer2').text(result.dealer);
                 $('#insurance2').text(renderInsurance(result.insurance));
                 $('#dose2').html(result.dose == null ? "&nbsp;" : result.dose);
-
+                var json = $.parseJSON(result.json);
+                $('#authCode').html(json.批准文号 == null ? "&nbsp;" : json.批准文号);
                 $('#generalName').html(result.generalName == null ? "&nbsp;" : result.generalName);
                 //todo 如果已经匹配，显示出来 2019国庆
                 if (result.matchDrugID > 0) {
@@ -673,8 +656,30 @@
                 <input class="typeahead scrollable nav-search-input" type="text" id="form-medicine" name="form-medicine"
                        autocomplete="off" style="width: 250px;font-size: 9px;color: black"
                        placeholder="编码或拼音匹配，鼠标选择"/><input type="hidden" id="form-goodsNo"/>
-            </div>
-
+            </div>&nbsp;&nbsp;&nbsp;
+            <label>配对：</label>
+            <select class="chosen-select form-control" id="matchType">
+                <option value="0">全部</option>
+                <option value="1">未配对</option>
+                <option value="2">已配对</option>
+                <option value="3">已配对通用名</option>
+                <option value="4">已配对说明书</option>
+            </select>&nbsp;&nbsp;&nbsp;
+            <label>药品类别：</label>
+            <select class="chosen-select form-control" id="type">
+                <option value="0">全部</option>
+                <option value="1">西药</option>
+                <option value="9">西药-口服</option>
+                <option value="10">西药-注射</option>
+                <option value="11">西药-大输液</option>
+                <%--<option value="12">西药-外用</option>--%>
+                <option value="3">中成药</option>
+                <option value="4">中草药</option>
+                <option value="5">抗菌药</option>
+                <option value="6">基本药物</option>
+                <option value="7">甲类医保</option>
+                <option value="8">乙类医保</option>
+            </select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <button type="button" class="btn btn-sm btn-success">
                 查询
                 <i class="ace-icon glyphicon glyphicon-search icon-on-right bigger-100"></i>
@@ -932,6 +937,10 @@
                     <div class="row">
                         <label class="col-sm-3" style="white-space: nowrap">剂型 </label>
                         <div class="col-sm-8 no-padding " style=" border-bottom: 1px solid; border-bottom-color: lightgrey" id="dose2"></div>
+                    </div>
+                    <div class="row">
+                        <label class="col-sm-3" style="white-space: nowrap">批准文号 </label>
+                        <div class="col-sm-8 no-padding " style=" border-bottom: 1px solid; border-bottom-color: lightgrey" id="authCode"></div>
                     </div>
                     <div class="row" style="margin-bottom: 3px;margin-top: 10px;">
                         <label class="col-sm-3" style="white-space: nowrap;padding-top: 10px;" for="form-medicine">对应通用名</label>

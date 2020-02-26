@@ -158,7 +158,7 @@ public class RecipeDAOImpl extends SqlSessionDaoSupport implements RecipeDAO, Se
     }
 
     @SuppressWarnings("unchecked")
-    public List<HashMap<String, Object>> getRecipeItemCount(String serialNo) {
+    public List<HashMap<String, Object>> getRecipeItemCount(Integer serialNo) {
         return getSqlSession().selectList("RecipeItem.selectRecipeItemCount", serialNo);
     }
 
@@ -178,11 +178,11 @@ public class RecipeDAOImpl extends SqlSessionDaoSupport implements RecipeDAO, Se
     }
 
     @SuppressWarnings("unchecked")
-    public List<HashMap<String, Object>> selectSurgery(String serialNo) {
+    public List<HashMap<String, Object>> selectSurgery(Integer serialNo) {
         return getSqlSession().selectList("RecipeItem.selectSurgery", serialNo);
     }
 
-    public int getSurgeryCount(String serialNo) {
+    public int getSurgeryCount(Integer serialNo) {
         return (Integer) getSqlSession().selectOne("RecipeItem.selectSurgeryCount", serialNo);
     }
 
@@ -202,20 +202,20 @@ public class RecipeDAOImpl extends SqlSessionDaoSupport implements RecipeDAO, Se
     }
 
     @SuppressWarnings("unchecked")
-    public int deleteDiagnosis(String serialNo, int choose) {
+    public int deleteDiagnosis(Integer serialNo, int choose) {
         Map param = new HashMap<>();
         param.put("serialNo", serialNo);
         param.put("choose", choose);
         return getSqlSession().delete("RecipeItem.deleteDiagnosis", param);
     }
 
-    /*public List<Map<String, Object>> selectDiagnosis(String serialNo) {
+    /*public List<Map<String, Object>> selectDiagnosis(Integer serialNo) {
         return getSqlSession().selectList("RecipeItem.selectDiagnosis", serialNo);
     }*/
 
     @Override
     @SuppressWarnings("unchecked")
-    public int chooseDiagnosisForResearch(String serialNo, List<HashMap<String, Object>> ids) {
+    public int chooseDiagnosisForResearch(Integer serialNo, List<HashMap<String, Object>> ids) {
         int succeed = deleteDiagnosis(serialNo, 2);
 
         for (Map map : ids) {

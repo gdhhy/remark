@@ -47,7 +47,7 @@
                     {"data": "drugNum", "sClass": "center"},
                     {"data": "money", "sClass": "center"},
                     {"data": "medicineMoney", "sClass": "center"},//9
-                    {"data": "diagnosis", "sClass": "center"},
+                    {"data": "diagnosis2", "sClass": "center"},
                     {"data": "masterDoctorName", "sClass": "center"},
                     {"data": "rational", "sClass": "center"},
                     {"data": "disItem", "sClass": "center"},
@@ -69,7 +69,7 @@
                     {"orderable": false, "targets": 7, title: '药品组数'},
                     {"orderable": false, "targets": 8, title: '总金额', defaultContent: ''},
                     {"orderable": false, "targets": 9, title: '药品金额', defaultContent: ''},
-                    {"orderable": false, "targets": 10, title: '入院诊断', defaultContent: ''},
+                    {"orderable": false, "targets": 10, title: '出院诊断', defaultContent: ''},
                     {"orderable": false, "targets": 11, title: '主管医生', defaultContent: '', width: 60},
                     {
                         "orderable": false, "targets": 12, title: '合理', defaultContent: '', render: function (data, type, row, meta) {

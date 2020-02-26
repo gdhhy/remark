@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="RecipeItem">
+    <cache eviction="LRU" readOnly="false" flushInterval="600000" size="10000"/>
+    <resultMap id="RecipeItemResult" type="com.zcreate.review.model.RecipeItem">
+        <result column="recipeItemID" jdbcType="INTEGER" property="recipeItemID"/>
+        <result column="recipeDate" jdbcType="TIMESTAMP" property="recipeDate"/>
+        <result column="serialNo" jdbcType="VARCHAR" property="serialNo"/>
+        <result column="longAdvice" jdbcType="INTEGER" property="longAdvice"/>
+        <!--<result column="inDate" jdbcType="TIMESTAMP" property="inDate"/>-->
+        <result column="advice" jdbcType="VARCHAR" property="advice"/>
+        <result column="goodsID" jdbcType="INTEGER" property="goodsID"/>
+        <result column="doctorName" jdbcType="VARCHAR" property="doctorName"/>
+        <result column="nurseName" jdbcType="VARCHAR" property="nurseName"/>
+        <result column="endDate" jdbcType="TIMESTAMP" property="endDate"/>
+        <result column="endDoctorName" jdbcType="VARCHAR" property="endDoctorName"/>
+        <result column="endNurseName" jdbcType="VARCHAR" property="endNurseName"/>
+        <result column="quantity" jdbcType="VARCHAR" property="quantity"/>
+        <result column="unit" jdbcType="VARCHAR" property="unit"/>
+        <result column="problemCode" jdbcType="VARCHAR" property="problemCode"/>
+        <result column="problemDesc" jdbcType="VARCHAR" property="problemDesc"/>
+        <result column="adviceType" jdbcType="VARCHAR" property="adviceType"/>
+        <result column="orderID" jdbcType="INTEGER" property="orderID"/>
+        <result column="groupID" jdbcType="INTEGER" property="groupID"/>
+        <result column="antiClass" jdbcType="INTEGER" property="antiClass"/>
+        <result column="instructionID" jdbcType="INTEGER" property="instructionID"/>
+        <result column="medicineName" jdbcType="INTEGER" property="medicineName"/>
+        <result column="contents" jdbcType="DOUBLE" property="contents"/>
+        <result column="dose" jdbcType="INTEGER" property="dose"/>
+        <result column="producer" jdbcType="INTEGER" property="producer"/>
+    </resultMap>
+    <resultMap id="RecipeItemReviewResult" type="com.zcreate.review.model.RecipeItemReview">
+        <result column="recipeItemReviewID" jdbcType="INTEGER" property="recipeItemReviewID"/>
+        <result column="serialNo" jdbcType="INTEGER" property="serialNo"/>
+        <result column="orderID" jdbcType="INTEGER" property="orderID"/>
+        <result column="longAdvice" jdbcType="INTEGER" property="longAdvice"/>
+        <result column="recipeDate" jdbcType="TIMESTAMP" property="recipeDate"/>
+        <result column="endDate" jdbcType="TIMESTAMP" property="endDate"/>
+        <result column="advice" jdbcType="VARCHAR" property="advice"/>
+        <result column="usage" jdbcType="VARCHAR" property="usage"/>
+        <result column="quantity" jdbcType="INTEGER" property="quantity"/>
+        <!--<result column="eachQuantity" jdbcType="DOUBLE" property="eachQuantity"/>-->
+        <result column="dosis" jdbcType="DOUBLE" property="dosis"/>
+        <result column="frequency" jdbcType="INTEGER" property="frequency"/>
+        <result column="dayNum" jdbcType="INTEGER" property="dayNum"/>
+        <result column="totalQuantity" jdbcType="DOUBLE" property="totalQuantity"/>
+
+        <result column="route" jdbcType="VARCHAR" property="route"/>
+        <result column="menstruum" jdbcType="VARCHAR" property="menstruum"/>
+        <result column="purpose" jdbcType="INTEGER" property="purpose"/>
+        <result column="problemCode" jdbcType="VARCHAR" property="problemCode"/>
+        <result column="problemDesc" jdbcType="VARCHAR" property="problemDesc"/>
+        <result column="adviceType" jdbcType="VARCHAR" property="adviceType"/>
+    </resultMap>
+    <select id="selectLongRecipeItem" parameterType="java.util.Map" resultMap="RecipeItemResult">
+        SELECT M.antiClass,R.recipeItemID,R.serialNo,R.longAdvice, R.recipeDate,replace(R.advice,'%','﹪') advice,M.goodsID,R.doctorName,R.nurseName, R.endDate,R.endDoctorName,R.endNurseName,
+        R.quantity,R.unit,R.problemCode, R.problemDesc, R.frequency,R.orderID,R.groupID, M.matchInstrID instructionID, replace(M.chnName,'%','﹪') medicineName,M.contents,M.medicineID,M.dose,M.producer
+            FROM ${RecipeItemTable} R
+                    LEFT JOIN Medicine M ON R.goodsID=M.goodsID
+            WHERE R.serialNo=#{serialNo:INTEGER}  AND R.longAdvice=1 ORDER BY R.groupID,R.orderID
+    </select>
+    <select id="selectShortRecipeItem" parameterType="java.util.Map" resultMap="RecipeItemResult">
+        SELECT M.antiClass,R.recipeItemID,R.serialNo,R.longAdvice, R.recipeDate,replace(R.advice,'%','﹪') advice,M.goodsID,R.doctorName,R.nurseName, R.endDate,R.endDoctorName,R.endNurseName,
+        R.quantity,R.unit,R.problemCode, R.problemDesc, R.frequency,R.orderID,R.groupID, M.matchInstrID instructionID, replace(M.chnName,'%','﹪') medicineName,M.contents,M.medicineID,M.dose,M.producer
+            FROM ${RecipeItemTable} R
+                    LEFT JOIN Medicine M ON R.goodsID=M.goodsID
+            WHERE R.serialNo=#{serialNo:INTEGER}  AND R.longAdvice=2 ORDER BY R.groupID,R.orderID
+    </select>
+    <select id="selectSurgery" parameterType="int" resultType="java.util.HashMap">
+        SELECT  surgeryID,incision, surgeryDate,surgeryName,healOver FROM Surgery WHERE serialNo=#{serialNo:INTEGER}
+    </select>
+    <select id="antiIncision" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT count(DISTINCT I.serialNo) outAntiParent,
+                count( DISTINCT CASE WHEN S.incision ='Ⅰ' THEN I.serialNo ELSE null END)  outOneIncisionAntiParent
+            FROM ${RecipeItemTable} I LEFT JOIN Recipe R ON I.serialNo=R.serialNo LEFT JOIN Surgery S ON I.serialNo=S.serialNo
+            WHERE R.outDate>=#{fromDate:TIMESTAMP} AND
+                    R.outDate  &lt; #{toDate:TIMESTAMP} AND
+                    I.goodsID IN
+                            (SELECT goodsID
+                                FROM Medicine WHERE antiClass>0)
+    </select>
+    <select id="selectSurgeryCount" parameterType="int" resultType="int">
+        SELECT count(incision) FROM Surgery WHERE serialNo = #{serialNo:INTEGER}
+    </select>
+
+    <!--RecipeItemReview  ***********************-->
+    <insert id="insertRecipeItemReview" parameterType="com.zcreate.review.model.RecipeItemReview">
+        INSERT INTO RecipeItemReview (serialNo, orderID, groupID, longAdvice,adviceType, problemCode, problemDesc,purpose,menstruum,frequency)
+        VALUES (#{serialNo:INTEGER}, #{orderID:INTEGER},#{groupID:INTEGER}, #{longAdvice:INTEGER}, #{adviceType:VARCHAR}, #{problemCode:VARCHAR}, #{problemDesc:VARCHAR},
+        #{purpose:INTEGER}, #{menstruum:VARCHAR},#{frequency:VARCHAR})
+        <selectKey resultType="int" order="AFTER" keyProperty="recipeItemReviewID">
+            select @@IDENTITY as recipeItemReviewID
+        </selectKey>
+    </insert>
+    <select id="selectLongRecipeItemReview" parameterType="java.util.Map" resultMap="RecipeItemReviewResult">
+        SELECT A.recipeItemReviewID, A.serialNo, A.orderID, A.groupID, A.longAdvice, A.problemCode, A.problemDesc,A.purpose,A.menstruum, B.recipeDate, B.endDate, replace(rtrim(B.advice),'%','﹪')advice,
+         A.frequency, CASE WHEN B.endDate IS NOT NULL THEN DATEDIFF(DD, B.recipeDate, B.endDate) + 1 ELSE -1 END dayNum,B.quantity
+        FROM RecipeItemReview A LEFT JOIN ${RecipeItemTable} B ON A.serialNo = B.serialNo AND A.orderID = B.orderID AND A.groupID = B.groupID
+        WHERE A.longAdvice = 1 AND A.serialNo = #{serialNo:INTEGER}
+    </select>
+    <select id="selectShortRecipeItemReview" parameterType="java.util.Map" resultMap="RecipeItemReviewResult">
+        SELECT A.recipeItemReviewID, A.serialNo, A.orderID, A.groupID, A.longAdvice, A.problemCode, A.problemDesc,A.purpose,A.menstruum, B.recipeDate, B.endDate, replace(rtrim(B.advice),'%','﹪') advice,
+               A.frequency, DATEDIFF(DD, B.recipeDate, B.endDate) + 1 dayNum,  B.quantity
+        FROM RecipeItemReview A LEFT JOIN ${RecipeItemTable} B ON A.serialNo = B.serialNo AND A.orderID = B.orderID AND A.groupID = B.groupID
+        WHERE A.longAdvice = 2 AND A.serialNo = #{serialNo:INTEGER}
+    </select>
+
+    <update id="updateRecipeItemReview" parameterType="com.zcreate.review.model.RecipeItemReview">
+        UPDATE RecipeItemReview
+        <set>
+            <if test="problemCode != null">problemCode = #{problemCode:VARCHAR},</if>
+            <if test="problemDesc != null">problemDesc = #{problemCode:VARCHAR},</if>
+            <if test="purpose != null">purpose = #{purpose:INTEGER},</if>
+            <if test="menstruum != null">menstruum = #{menstruum:VARCHAR},</if>
+        </set>
+        WHERE recipeItemReviewID = #{recipeItemReviewID:INTEGER}
+    </update>
+    <delete id="deleteRecipeItemReview" parameterType="java.util.Map">
+        delete RecipeItemReview where serialNo =#{serialNo:INTEGER}
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(recipeItemReviewList)">
+            <foreach separator="," item="item" index="index" open=" and recipeItemReviewID not in (" close=")" collection="recipeItemReviewList">
+                #{item}
+            </foreach>
+        </if>
+    </delete>
+    <select id="selectRecipeItemCount" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT count( recipeItemID ) itemCount, longAdvice FROM ${RecipeItemTable} WHERE serialNo = #{serialNo:INTEGER} GROUP BY longAdvice
+    </select>
+    <!--诊断 Diagnosis -->
+    <insert id="insertDiagnosis" parameterType="java.util.Map">
+        insert into Diagnosis(serialNo,type,diagnosisNo,disease,choose) values(#{serialNo:INTEGER},#{type:INTEGER},#{diagnosisNo:VARCHAR},#{disease:VARCHAR},#{choose:INTEGER})
+        <selectKey resultType="int" order="AFTER" keyProperty="diagnosisID">
+            select @@IDENTITY as diagnosisID
+        </selectKey>
+    </insert>
+    <delete id="deleteDiagnosis" parameterType="java.util.Map">
+        delete from Diagnosis where serialNo=#{serialNo:INTEGER} and choose=#{choose:INTEGER}
+    </delete>
+    <select id="selectDiagnosis" parameterType="java.util.Map" resultType="java.util.Map">
+        select diagnosisID,serialNo,type,diagnosisNo,disease,choose from Diagnosis where serialNo=#{serialNo:INTEGER} order by diagnosisNo
+    </select>
+    <select id="selectRecipeItemForExcel" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT max(M.chnName) chnName, sum(datediff(DD, I.recipeDate, I.endDate) + case when I.longAdvice=2 or datepart(hh,I.endDate)>10 then 1 else 0 end) dayNum,
+        max(M.DDD) DDD, sum(I.quantity) quantity,
+        total totalQuantity
+        FROM Medicine M, ${RecipeItemTable} I WHERE M.goodsID = I.goodsID AND I.serialNo= #{serialNo:INTEGER}
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(chineseInjection)">and M.route=2 and M.western>1 and M.injectRoute>0</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(antiClass)">and M.antiClass>0</if>
+        group by I.goodsID
+    </select>
+    <select id="selectRecipeItemReviewForResearch" parameterType="string" resultMap="RecipeItemReviewResult">
+        SELECT A.recipeItemReviewID, A.serialNo, A.orderID, A.longAdvice, A.problemCode, A.problemDesc, A.purpose,A.menstruum, B.recipeDate, B.endDate, replace(B.advice,'%','﹪') advice, B.adviceType,
+        CASE WHEN A.longAdvice = 2 OR B.endDate IS NOT NULL THEN DATEDIFF(DD, B.recipeDate, B.endDate) + 1 ELSE -1 END dayNum,   B.quantity,
+        total
+        totalQuantity
+        FROM RecipeItemReview A LEFT JOIN ${RecipeItemTable} B ON A.serialNo = B.serialNo AND A.orderID = B.orderID
+        WHERE A.serialNo = #{serialNo:INTEGER} AND A.purpose > 0
+    </select>
+
+    <delete id="deleteRecipeItemReviewForResearch" parameterType="com.zcreate.review.model.AntiResearch">
+        delete RecipeItemReview where serialNo =#{serialNo:INTEGER} AND purpose>0
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(antiItem)">
+            <foreach separator="," item="item" index="index" open=" and recipeItemReviewID not in (" close=")" collection="antiItem">
+                #{item.recipeItemReviewID:INTEGER}
+            </foreach>
+        </if>
+    </delete>
+</mapper>

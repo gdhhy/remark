@@ -253,15 +253,15 @@
                rtrim(M1.chnName) medicineName1,
                rtrim(M2.chnName) medicineName2
         FROM Incompatibility I,
-             (SELECT R.clinicID, R.rxDetailID, R.medicineNo, M.chnName, M.matchDrugID
+             (SELECT R.clinicID, R.rxDetailID, R.goodsID, M.chnName, M.matchDrugID
               FROM ${RxDetailTable} R,
                    Medicine M
-              WHERE R.medicineNo = M.medicineNo
+              WHERE R.goodsID = M.goodsID
                 AND R.clinicID = #{clinicID:INTEGER}) M1,
-             (SELECT R.clinicID, R.rxDetailID, R.medicineNo, M.chnName, M.matchDrugID
+             (SELECT R.clinicID, R.rxDetailID, R.goodsID, M.chnName, M.matchDrugID
               FROM ${RxDetailTable} R,
                    Medicine M
-              WHERE R.medicineNo = M.medicineNo
+              WHERE R.goodsID = M.goodsID
                 AND R.clinicID = #{clinicID:INTEGER}) M2
         WHERE I.drugID1 = M1.matchDrugID
           AND I.drugID2 = M2.matchDrugID
@@ -275,16 +275,16 @@
                rtrim(M2.chnName) medicineName2
         FROM RxIncompatibility I,
              Incompatibility P,
-             (SELECT R.serialNo, R.recipeItemID, R.medicineNo, M.chnName, M.matchDrugID
+             (SELECT R.serialNo, R.recipeItemID, R.goodsID, M.chnName, M.matchDrugID
               FROM ${RecipeItemTable} R,
                    Medicine M
-              WHERE R.medicineNo = M.medicineNo
-                AND R.serialNo = #{serialNo:VARCHAR}) M1,
-             (SELECT R.serialNo, R.recipeItemID, R.medicineNo, M.chnName, M.matchDrugID
+              WHERE R.goodsID = M.goodsID
+                AND R.serialNo = #{serialNo:INTEGER}) M1,
+             (SELECT R.serialNo, R.recipeItemID, R.goodsID, M.chnName, M.matchDrugID
               FROM ${RecipeItemTable}  R,
                    Medicine M
-              WHERE R.medicineNo = M.medicineNo
-                AND R.serialNo = #{serialNo:VARCHAR}) M2
+              WHERE R.goodsID = M.goodsID
+                AND R.serialNo = #{serialNo:INTEGER}) M2
         WHERE I.itemID1 = M1.recipeItemID
           AND I.itemID2 = M2.recipeItemID
           AND P.incompatibilityID = I.incompatibilityID
@@ -305,8 +305,8 @@
 
         <if test="@com.zcreate.util.Ognl@isNotEmpty(drugID)">
             AND I.incompatibilityID IN(SELECT DISTINCT incompatibilityID FROM Incompatibility WHERE
-            drugID1 IN(SELECT matchDrugID FROM Medicine WHERE medicineNo=#{drugID:VARCHAR}) OR
-            drugID2 IN(SELECT matchDrugID FROM Medicine WHERE medicineNo=#{drugID:VARCHAR}) )
+            drugID1 IN(SELECT matchDrugID FROM Medicine WHERE goodsID=#{drugID:VARCHAR}) OR
+            drugID2 IN(SELECT matchDrugID FROM Medicine WHERE goodsID=#{drugID:VARCHAR}) )
         </if>
     </sql>
     <!--分页没有标识id，做不到，一次新读入-->

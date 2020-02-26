@@ -298,7 +298,7 @@
         count(distinct case when adviceID=0 then T.patientID else null end) clinicPatient,
         count(distinct case when adviceID>0 then T.patientID else null end) hospitalPatient ,
         SUM(CASE when adviceID>0 and T.usage!='出院带药' and T.usage!='其它' then T.quantity else 0 end)hospitalQuantity2
-        FROM ${DrugRecordsTable} T join Medicine M on M.no=T.goodsID
+        FROM ${DrugRecordsTable} T join Medicine M on M.goodsID=T.goodsID
         WHERE M.antiClass>=1
         <if test="year>0">AND datepart(year,T.dispensingDate) =#{year:INTEGER}</if>
         <if test="month>0">AND datepart(mm,T.dispensingDate) =#{month:INTEGER}</if>

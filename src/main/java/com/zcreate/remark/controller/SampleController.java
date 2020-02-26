@@ -124,34 +124,18 @@ public class SampleController {
         result.put("draw", draw);
         if (type == 1) {
             param.put("clinicDateFrom", DateUtils.parseSqlDate(date[0]));
+            param.put("RxDetailTable", "RxDetail_" + date[0].substring(0, 4));
             param.put("clinicDateTo", toCal.getTime());
             result.put("count", clinicDao.getClinicCount(param));
         } else {
             param.put("outDateFrom", DateUtils.parseSqlDate(date[0]));
+            param.put("RecipeItemTable", "RecipeItem_" + date[0].substring(0, 4));
             param.put("outDateTo", toCal.getTime());
             result.put("count", recipeDao.getRecipeCount(param));
         }
 
         return gson.toJson(result);
-    }/*
- @ResponseBody
-    @RequestMapping(value = "getObjectCount2", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public String getObjectCount2(@RequestBody SampleBatch record) {
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("draw", draw);
-        if (type == 1) {
-            param.put("clinicDateFrom", DateUtils.parseSqlDate(date[0]));
-            param.put("clinicDateTo", toCal.getTime());
-            result.put("count", clinicDao.getClinicCount(param));
-        } else {
-            param.put("outDateFrom", DateUtils.parseSqlDate(date[0]));
-            param.put("outDateTo", toCal.getTime());
-            result.put("count", recipeDao.getRecipeCount(param));
-        }
-
-        return gson.toJson(result);
-    }*/
+    }
 
     @ResponseBody
     @RequestMapping(value = "newSampling", method = RequestMethod.POST, produces = "application/json; charset=UTF-8")
@@ -249,7 +233,7 @@ public class SampleController {
 
     @ResponseBody //带这个返回json，不带返回jsp视图
     @RequestMapping(value = "getRecipeItemList", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
-    public String getRecipeItemList(@RequestParam(value = "serialNo") String serialNo,@RequestParam(value = "year") String year,
+    public String getRecipeItemList(@RequestParam(value = "serialNo") Integer serialNo,@RequestParam(value = "year") String year,
                                     @RequestParam(value = "longAdvice", defaultValue = "1") int longAdvice) {
         //      log.debug("getRecipeItemList");
         List<RecipeItem> adviceList = reviewService.getRecipeItemList(serialNo, longAdvice,year);
@@ -259,21 +243,21 @@ public class SampleController {
 
     @ResponseBody //带这个返回json，不带返回jsp视图
     @RequestMapping(value = "getSurgerys", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
-    public String getSurgerys(@RequestParam(value = "serialNo") String serialNo) {
+    public String getSurgerys(@RequestParam(value = "serialNo") Integer serialNo) {
         List<HashMap<String, Object>> surgerys = recipeDao.selectSurgery(serialNo);
         return wrap(surgerys);
     }
 
     @ResponseBody //带这个返回json，不带返回jsp视图
     @RequestMapping(value = "getDiagnosis", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
-    public String getDiagnosis(@RequestParam(value = "serialNo") String serialNo, @RequestParam(value = "archive", defaultValue = "0") int archive) {
-        List<HashMap> diagnosis = hisDao.getDiagnosis(serialNo, archive);
+    public String getDiagnosis(@RequestParam(value = "serialNo") Integer serialNo) {
+        List<HashMap> diagnosis = hisDao.getDiagnosis(serialNo);
         return wrap(diagnosis);
     }
 
     @ResponseBody //带这个返回json，不带返回jsp视图
     @RequestMapping(value = "getCourse", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
-    public String getCourse(@RequestParam(value = "serialNo") String serialNo,
+    public String getCourse(@RequestParam(value = "serialNo") Integer serialNo,
                             @RequestParam(value = "departCode") String departCode, @RequestParam(value = "archive") int archive) {
         List<Course> course = hisDao.getCourse(serialNo, departCode, archive);
         return wrap(course);
@@ -281,7 +265,7 @@ public class SampleController {
 
     @ResponseBody //带这个返回json，不带返回jsp视图
     @RequestMapping(value = "showHistory", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
-    public String showHistory(@RequestParam(value = "serialNo") String serialNo,
+    public String showHistory(@RequestParam(value = "serialNo") Integer serialNo,
                               @RequestParam(value = "departCode") String departCode, @RequestParam(value = "archive") int archive) {
         History history = hisDao.getHistory(serialNo, departCode, archive);
         return gson.toJson(history);

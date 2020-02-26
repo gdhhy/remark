@@ -314,7 +314,7 @@
                 $('#short-table tr').find('input[type="checkbox"]:checked').parent().parent().each(function (index, element) {
                     shortTable.row(element).select();
                 });
-                $('#short-table tr').find('.hasInstruction').on('click',function () {
+                $('#short-table tr').find('.hasInstruction').on('click', function () {
                     $.ajax({
                         type: "GET",
                         url: '/instruction/getInstruction.jspa',
@@ -415,7 +415,7 @@
                 $('#long-table tr').find('input[type="checkbox"]:checked').parent().parent().each(function (index, element) {
                     longTable.row(element).select();
                 });
-                $('#long-table tr').find('.hasInstruction').on('click',function () {
+                $('#long-table tr').find('.hasInstruction').on('click', function () {
                     $.ajax({
                         type: "GET",
                         url: '/instruction/getInstruction.jspa',
@@ -551,7 +551,7 @@
                 },
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getSurgerys.jspa?serialNo=0017527401",//${recipe.serialNo}
+                    url: "/remark/getSurgerys.jspa?serialNo=${recipe.serialNo}",//${recipe.serialNo}
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -605,8 +605,8 @@
                 },
                 scrollY: '60vh',
                 "ajax": {
-                    //url:"/remark/getDiagnosis.jspa?serialNo=${recipe.serialNo}&archive=${recipe.archive}",
-                    url: "/remark/getDiagnosis.jspa?serialNo=0000593702&archive=1",
+                    url: "/remark/getDiagnosis.jspa?serialNo=${recipe.serialNo}",
+                    //url: "/remark/getDiagnosis.jspa?serialNo=0000593702&archive=1",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -663,8 +663,8 @@
             var loadData = 0;
             $('#courseTabIndex').click(function () {
                 if ((loadData & 1) === 0)
-                    $.getJSON("/remark/getCourse.jspa?serialNo=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
-                        //$.getJSON("/remark/getCourse.jspa?serialNo=${recipe.serialNo}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                //$.getJSON("/remark/getCourse.jspa?serialNo=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                    $.getJSON("/remark/getCourse.jspa?serialNo=${recipe.serialNo}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
                         var template = Handlebars.compile($('#courseContent').html());
                         var htmlArray = [];
                         $.each(result.data, function (index, value) {
@@ -679,8 +679,8 @@
             });
             $('#historyTabIndex').click(function () {
                 if ((loadData & 2) === 0)
-                    $.getJSON("/remark/showHistory.jspa?serialNo=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
-                        //$.getJSON("/remark/getCourse.jspa?serialNo=${recipe.serialNo}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                //$.getJSON("/remark/showHistory.jspa?serialNo=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                    $.getJSON("/remark/getCourse.jspa?serialNo=${recipe.serialNo}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
                         var template = Handlebars.compile($('#historyContent').html());
 
                         $('#historyContent').html(template(result));
@@ -1251,7 +1251,8 @@
                                                 <%--<div class="space-1"></div>--%>
                                                 <div class="col-xs-5">
                                                     <div class="input-group col-xs-4">
-                                                        <input class="date-picker <%--form-control --%> no-padding" style="width: 100px" id="temperature2_time" type="text" data-date-format="YYYY-MM-DD"/>
+                                                        <input class="date-picker <%--form-control --%> no-padding" style="width: 100px" id="temperature2_time" type="text"
+                                                               data-date-format="YYYY-MM-DD"/>
                                                         <span class="input-group-addon no-padding"><i class="fa fa-calendar bigger-110"></i></span>
                                                     </div>
                                                 </div>
