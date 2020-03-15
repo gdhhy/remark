@@ -97,17 +97,17 @@ public class SampleController {
                                  @RequestParam(value = "incision", required = false, defaultValue = "0") int incision,
                                  @RequestParam(value = "dateRange", required = false) String dateRange,
                                  @RequestParam(value = "department", required = false) String department,
-                                 @RequestParam(value = "doctorNo", required = false) String doctorNo,
-                                 @RequestParam(value = "medicineNo", required = false) String medicineNo,
+                                 @RequestParam(value = "doctorID", required = false) Integer doctorID,
+                                 @RequestParam(value = "goodsID", required = false) Integer goodsID,
                                  @RequestParam(value = "draw", required = false) Float draw) {
         Map<String, Object> param = new HashMap<String, Object>();
-        param.put("antiClass", -1);//额外增加
+        //param.put("antiClass", -1);//额外增加   remove 2020-03-15
         param.put("type", type);
-        param.put("doctor", doctorNo);
+        param.put("doctorID", doctorID);
         /*if (western >= 0) *///取值：西药1， 中药，0，-1不限
         param.put("western", western);
         param.put("clinicType", clinicType);
-        param.put("medicine1", medicineNo);
+        param.put("medicine1", goodsID);
         param.put("surgery", surgery);
         if (surgery == 1)
             param.put("incision", incision);
@@ -140,7 +140,11 @@ public class SampleController {
     @ResponseBody
     @RequestMapping(value = "newSampling", method = RequestMethod.POST, produces = "application/json; charset=UTF-8")
     public String newSampling(@RequestBody SampleBatch record) {
-        log.debug("sampleBatch:" + record);
+       /* log.debug("sampleBatch:" + record);
+        log.debug("doctorID:" + record.getDoctorID());
+        log.debug("goodsID:" + record.getGoodsID());
+        log.debug("surgery:" + record.getSurgery());
+        log.debug("incision:" + record.getIncision());*/
 
         Map<String, Object> result = new HashMap<>();
         //result.put("type", record.getType());
@@ -233,10 +237,10 @@ public class SampleController {
 
     @ResponseBody //带这个返回json，不带返回jsp视图
     @RequestMapping(value = "getRecipeItemList", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
-    public String getRecipeItemList(@RequestParam(value = "serialNo") Integer serialNo,@RequestParam(value = "year") String year,
+    public String getRecipeItemList(@RequestParam(value = "serialNo") Integer serialNo, @RequestParam(value = "year") String year,
                                     @RequestParam(value = "longAdvice", defaultValue = "1") int longAdvice) {
         //      log.debug("getRecipeItemList");
-        List<RecipeItem> adviceList = reviewService.getRecipeItemList(serialNo, longAdvice,year);
+        List<RecipeItem> adviceList = reviewService.getRecipeItemList(serialNo, longAdvice, year);
 //   log.debug("getRecipeItemList2");
         return wrap(adviceList);
     }

@@ -85,12 +85,12 @@
         FROM Medicine
         WHERE no = #{no:VARCHAR}
     </select>
-    <select id="selectMedicineByGoodsNo" parameterType="string" resultMap="RecordResult">
+    <select id="selectMedicineByGoodsID" parameterType="int" resultMap="RecordResult">
         SELECT medicineID, no, goodsID, pinyin, healthNo, chnName, engName, dose, spec, price, contents, producer, insurance, packUnit, minUnit, measureUnit, minOfpack,
                matchDrugID, matchInstrID, memo, western, route, injectRoute, antiClass, ddd, updateUser, updateTime, usageCounter, dealer, lastPurchaseTime, mental,
                maxDay, menstruum, isDelete, isStat, json
         FROM Medicine
-        WHERE no = #{goodsNo:VARCHAR}
+        WHERE goodsID = #{goodsID:INTEGER}
     </select>
     <select id="queryMedicine" parameterType="java.util.Map" resultMap="RecordResult">
         SELECT M.*,D.chnName generalName,I.chnName instructionName,H.chnName healthName FROM

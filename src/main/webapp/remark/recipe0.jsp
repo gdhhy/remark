@@ -122,7 +122,7 @@
             }
             var saveJson = JSON.parse('${recipe.review.reviewJson}');
             //console.log("saveJson:" + JSON.stringify(saveJson));
-
+            //左侧用药情况
             var longDrugTb = $('#longDrugTb').DataTable({
                 bAutoWidth: false,
                 language: {info: '', infoEmpty: '', sZeroRecords: '', emptyTable: ''},
@@ -134,8 +134,8 @@
                         }
                     },
                     {
-                        "orderable": false, "data": "frequency", "targets": 1, width: 80, title: '用法', className: 'center', render: function (data, type, row, meta) {
-                            return '<a href="#" data-value="{0}" >{1}</a>'.format(data, data);
+                        "orderable": false, "data": "adviceType", "targets": 1, width: 80, title: '用法', className: 'center', render: function (data, type, row, meta) {
+                            return '<a href="#" data-value="{0}" data-type="text" >{1}</a>'.format(data, data);
                         }
                     },
                     {
@@ -175,7 +175,7 @@
                         }
                     },
                     {
-                        "orderable": false, "data": "frequency", "targets": 1, width: 80, title: '用法', className: 'center', render: function (data, type, row, meta) {
+                        "orderable": false, "data": "adviceType", "targets": 1, width: 80, title: '用法', className: 'center', render: function (data, type, row, meta) {
                             return '<a href="#" data-value="{0}" >{1}</a>'.format(data, data);
                         }
                     },
@@ -206,6 +206,7 @@
                     //$(this).text('asdfasf');
                 });
             });
+            //右侧原始长嘱
             var longTable = $('#long-table').DataTable({
                 bAutoWidth: false,
                 paging: false, searching: false, ordering: false, "destroy": true,
@@ -213,8 +214,7 @@
                 'columnDefs': [
                     {
                         targets: 0, data: "recipeItemID", defaultContent: '', orderable: false, width: 10, render: function (data, type, row, meta) {
-
-                            if (row['adviceType'] === '1' || row['adviceType'] === '0') {
+                            if (row['goodsID'] > 0) {
                                 //console.log("row['adviceType']:" + row['adviceType']);
                                 if (typeof (saveJson.长嘱) !== 'undefined')
                                     for (var i = 0; i < saveJson.长嘱.length; i++) {
@@ -227,32 +227,40 @@
                         }
                     },
                     {"orderable": false, "data": "recipeDate", "targets": 1, title: '开始时间', width: 90, className: 'center'},
-                    {"orderable": false, "data": "adviceType", "targets": 2, title: '&nbsp;'},
                     {
-                        "orderable": false, "data": "advice", "targets": 3, title: '医嘱内容', defaultContent: '', width: 120, render: function (data, type, row, meta) {
+                        "orderable": false, "data": "advice", "targets": 2, title: '医嘱内容', defaultContent: '', /*width: 120,*/ render: function (data, type, row, meta) {
+                            var advice;
                             if (row["instructionID"] > 0)
                                 if (row["antiClass"] > 0)
-                                    return "<a href='#' class='hasInstruction' data-instructionID='{1}'><span class='pink2'>{0}</span></a>".format(data, row["instructionID"]);
+                                    advice = "<a href='#' class='hasInstruction' data-instructionID='{1}'><span class='pink2'>{0}</span></a>".format(data, row["instructionID"]);
                                 else
-                                    return "<a href='#' class='hasInstruction' data-instructionID='{1}'>{0}</a>".format(data, row["instructionID"]);
+                                    advice = "<a href='#' class='hasInstruction' data-instructionID='{1}'>{0}</a>".format(data, row["instructionID"]);
                             else
-                                return row["antiClass"] > 0 ? "<span class='pink2'>" + data + "</span>" : data;
+                                advice = row["antiClass"] > 0 ? "<span class='pink2'>" + data + "</span>" : data;
+
+                            if (row["adviceType"] === 1)
+                                advice = advice + ' ' + row["spec"];
+                            return advice;
                         }
                     },
-                    {"orderable": false, "data": "quantity", "targets": 4, title: '数量', width: 40, className: 'center'},
-                    {"orderable": false, "data": "unit", "targets": 5, title: '单位', width: 40, className: 'center'},
-                    {"orderable": false, "data": "doctorName", "targets": 6, title: '医生', width: 60},
-                    {"orderable": false, "data": "nurseName", "targets": 7, title: '护士', width: 60},
-                    {"orderable": false, "data": "endDate", "targets": 8, title: '停止时间', width: 90, className: 'center'},
-                    {"orderable": false, "data": "endDoctorName", "targets": 9, title: '医生'},
-                    {"orderable": false, "data": "endNurseName", "targets": 10, title: '护士'}
+                    {
+                        "orderable": false, "data": "quantity", "targets": 3, title: '每次量', width: 45, className: 'center', render: function (data, type, row, meta) {
+                            return data + row["unit"];
+                        }
+                    },
+                    {"orderable": false, "data": "frequency", "targets": 4, title: '频率', width: 45, className: 'center'},
+                    {"orderable": false, "data": "total", "targets": 5, title: '当天量', width: 60, className: 'center'},
+                    {"orderable": false, "data": "usage", "targets": 6, title: '用法', width: 55, className: 'center'},
+                    {"orderable": false, "data": "doctorName", "targets": 7, title: '医生', width: 60},
+                    /*{"orderable": false, "data": "nurseName", "targets": 8, title: '护士', width: 60},*/
+                    {"orderable": false, "data": "endDate", "targets": 8, title: '停止时间', width: 90, className: 'center'}
                 ],
                 "aaSorting": [],
                 language: {
                     url: '../components/datatables/datatables.chinese.json',
                     select: {
                         rows: {
-                            _: "已选择 %d 行", 0: "单击选行", 1: "仅选了 1 行"
+                            _: "已选择 %d 行", 0: "", 1: "仅选了 1 行"
                         }
                     }
                 },
@@ -274,7 +282,7 @@
                 'columnDefs': [
                     {
                         targets: 0, data: "recipeItemID", defaultContent: '', orderable: false, width: 10, render: function (data, type, row, meta) {
-                            if (row['adviceType'] === '1' || row['adviceType'] === '0') {
+                            if (row['goodsID'] > 0) {
                                 if (typeof (saveJson.临嘱) !== 'undefined')
                                     for (var i = 0; i < saveJson.临嘱.length; i++) {
                                         if (saveJson.临嘱[i].recipeItemID === data)
@@ -286,32 +294,41 @@
                         }
                     },
                     {"orderable": false, "data": "recipeDate", "targets": 1, title: '开始时间', width: 90, className: 'center'},
-                    {"orderable": false, "data": "adviceType", "targets": 2, title: '&nbsp;'},
                     {
-                        "orderable": false, "data": "advice", "targets": 3, title: '医嘱内容', defaultContent: '', width: 120, render: function (data, type, row, meta) {
+                        "orderable": false, "data": "advice", "targets": 2, title: '医嘱内容', defaultContent: '', width: 120, render: function (data, type, row, meta) {
+                            var advice;
                             if (row["instructionID"] > 0)
                                 if (row["antiClass"] > 0)
-                                    return "<a href='#' class='hasInstruction' data-instructionID='{1}'><span class='pink2'>{0}</span></a>".format(data, row["instructionID"]);
+                                    advice = "<a href='#' class='hasInstruction' data-instructionID='{1}'><span class='pink2'>{0}</span></a>".format(data, row["instructionID"]);
                                 else
-                                    return "<a href='#' class='hasInstruction' data-instructionID='{1}'>{0}</a>".format(data, row["instructionID"]);
+                                    advice = "<a href='#' class='hasInstruction' data-instructionID='{1}'>{0}</a>".format(data, row["instructionID"]);
                             else
-                                return row["antiClass"] > 0 ? "<span class='pink2'>" + data + "</span>" : data;
+                                advice = row["antiClass"] > 0 ? "<span class='pink2'>" + data + "</span>" : data;
+
+                            if (row["adviceType"] === 1)
+                                advice = advice + ' ' + row["spec"];
+                            return advice;
                         }
                     },
-                    {"orderable": false, "data": "quantity", "targets": 4, title: '数量', width: 40, className: 'center'},
-                    {"orderable": false, "data": "unit", "targets": 5, title: '单位', width: 40, className: 'center'},
-                    {"orderable": false, "data": "doctorName", "targets": 6, title: '医生', width: 60},
-                    {"orderable": false, "data": "nurseName", "targets": 7, title: '护士', width: 60},
-                    {"orderable": false, "data": "endDate", "targets": 8, title: '停止时间', width: 90, className: 'center'},
-                    {"orderable": false, "data": "endDoctorName", "targets": 9, title: '医生'},
-                    {"orderable": false, "data": "endNurseName", "targets": 10, title: '护士'}
+                    {
+                        "orderable": false, "data": "quantity", "targets": 3, title: '每次量', width: 60, className: 'center', render: function (data, type, row, meta) {
+                            return data + row["unit"];
+                        }
+                    },
+                    /*{"orderable": false, "data": "unit", "targets": 4, title: '单位', width: 40, className: 'center'},*/
+                    {"orderable": false, "data": "frequency", "targets": 4, title: '频率', width: 45, className: 'center'},
+                    {"orderable": false, "data": "total", "targets": 5, title: '当天量', width: 60, className: 'center'},
+                    {"orderable": false, "data": "usage", "targets": 6, title: '用法', width: 55, className: 'center'},
+                    {"orderable": false, "data": "doctorName", "targets": 7, title: '医生', width: 60},
+                    /*{"orderable": false, "data": "nurseName", "targets": 7, title: '护士', width: 60},*/
+                    {"orderable": false, "data": "endDate", "targets": 8, title: '停止时间', width: 90, className: 'center'}
                 ],
                 "aaSorting": [],
                 language: {
                     url: '../components/datatables/datatables.chinese.json',
                     select: {
                         rows: {
-                            _: "已选择 %d 行", 0: "单击选行", 1: "仅选了 1 行"
+                            _: "已选择 %d 行", 0: "", 1: "仅选了 1 行"
                         }
                     }
                 },
@@ -376,19 +393,12 @@
                             rowData['recipeDate'] = shortTable.row(aa).data()['recipeDate'];
                             break;
                         }
-                } else dateIndex = index;
-
-                //向后找 用法
-                for (var cc = index + 1; cc < index + 10; cc++) {//增加表行数判断
-                    // console.log("medicineNo:" +JSON.stringify( shortTable.row(cc).data()));
-                    if (shortTable.row(cc).data()['recipeDate'] > 0) break;
-                    if (typeof (shortTable.row(cc).data()['adviceType']) !== 'undefined' && shortTable.row(cc).data()['adviceType'] === 's') {
-                        rowData['adviceType'] = shortTable.row(cc).data()['advice'].replace('Sig:', '').replace(/(^\s+)|(\s+$)/g, '');
-                        break;
-                    }
-                }
+                }// else dateIndex = index;
                 if (rowData['recipeDate'] !== null && rowData['recipeDate'] !== '')
                     rowData['recipeDate'] = rowData['recipeDate'].replace(/20\d\d-/g, '');
+                rowData['advice'] = rowData["advice"] + ' ' + rowData["spec"];
+                rowData['adviceType'] = +rowData["quantity"] + rowData["unit"] + ' ' + rowData["usage"] + ' ' + rowData["frequency"];
+                rowData['quantity'] = +rowData["total"];
 
                 shortDrugTb.row.add(rowData).draw(true);
             }).on('deselect', function (e, dt, type, indexes) {
@@ -451,21 +461,7 @@
                             rowData['recipeDate'] = longTable.row(aa).data()['recipeDate'];
                             break;
                         }
-                } else dateIndex = index;
-
-                //向后找 用法
-                for (var cc = index + 1; cc < index + 10; cc++) {//增加表行数判断
-                    // console.log("medicineNo:" +JSON.stringify( longTable.row(cc).data()));
-                    if (longTable.row(cc).data()['recipeDate'] > 0) break;
-                    if (typeof (longTable.row(cc).data()['adviceType']) !== 'undefined' && longTable.row(cc).data()['adviceType'] === 's') {
-                        rowData['adviceType'] = longTable.row(cc).data()['advice'].replace('Sig:', '').replace(/(^\s+)|(\s+$)/g, '');
-                        // rowSig = longTable.row(cc).data();
-                        break;
-                    }
                 }
-
-                //console.log("recipeDate:" + rowData['recipeDate'].replace(/20\d\d-/g, ''));
-                //console.log("recipeDate:" + rowData['recipeDate'] );
 
                 if (rowData['endDate'] === null)
                     rowData['endDate'] = '<fmt:formatDate value='${outDate}' pattern='MM-dd HH:mm'/>';
@@ -476,6 +472,10 @@
                 if (rowData['recipeDate'] !== null && rowData['recipeDate'] !== '')
                     rowData['recipeDate'] = rowData['recipeDate'].replace(/^20\d\d-/g, '');
                 rowData['recipeDate'] = rowData['recipeDate'] + "～" + rowData['endDate'];
+
+                rowData['advice'] = rowData["advice"] + ' ' + rowData["spec"];
+                rowData['adviceType'] = +rowData["quantity"] + rowData["unit"] + ' ' + rowData["usage"] + ' ' + rowData["frequency"];
+                rowData['quantity'] = +rowData["total"];
 
                 longDrugTb.row.add(rowData).draw(true);
             }).on('deselect', function (e, dt, type, indexes) {
@@ -553,7 +553,7 @@
                         render: function (data, type, row, meta) {
                             if (typeof (saveJson.诊断) !== 'undefined')
                                 for (var i = 0; i < saveJson.诊断.length; i++) {
-                                    if (saveJson.诊断[i].diagnosisNo === data)
+                                    if (saveJson.诊断[i].diagnosisNo === data + "")
                                         return '<input type="checkbox" checked>';
                                 }
                             return '<input type="checkbox">';
@@ -580,7 +580,7 @@
                 }
             });
             diagnosisTable.on('select', function (e, dt, type, indexes) {
-                chooseTab('#home3');
+                chooseTab('#home3');//函数chooseTab屏蔽了代码
                 var rowData = diagnosisTable.row(indexes).data();
                 var exists = false;
                 /*先判断是否存在，如存在不添加*/
@@ -1295,7 +1295,7 @@
                     <div class="col-sm-6 widget-container-col" id="widget-container-col-13">
                         <div class="widget-box transparent" id="widget-box-13">
                             <div class="widget-header">
-                                <h4 class="widget-title lighter">住院号：${recipe.patientNo}，姓名：${recipe.patientName}</h4>
+                                <h4 class="widget-title lighter">住院号：${recipe.patientNo}，姓名：${recipe.patientName}，出院日期：<fmt:formatDate value='${outDate}' pattern='yyyy-MM-dd HH:mm'/></h4>
 
                                 <div class="widget-toolbar no-border" id="tabDiv">
                                     <ul class="nav nav-tabs" id="myTab2">
@@ -1313,7 +1313,7 @@
                             <div class="widget-body">
                                 <div class="widget-main padding-12 no-padding-left no-padding-right">
                                     <div class="tab-content padding-4">
-                                        <div id="home1" class="tab-pane">
+                                        <div id="home1" class="tab-pane in active">
 
                                             <table border="0" cellspacing="1" cellpadding="0" class="col-sm-5 table table-striped table-bordered table-hover">
                                                 <tbody>

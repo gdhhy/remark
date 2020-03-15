@@ -8,6 +8,7 @@ import java.sql.Timestamp;
  * User: hhy
  * Date: 14-1-5
  * Time: 下午6:37
+ * @deprecated
  */
 public class RecipeItemReview implements Serializable {
     private Integer recipeItemReviewID;
@@ -17,7 +18,7 @@ public class RecipeItemReview implements Serializable {
     private Integer longAdvice;
     private String advice;//医嘱内容（药品名称）
     private String usage;//用法,抄adviceType原来Sig:后面的
-    private Integer quantity;//每次量（支、片的数量）
+    private Float quantity;//每次量（支、片的数量）
 
     private Float dosis;//一次剂量,要么用s，use……，要么用每次量*含量，单位g，遇到mg，转换为g
     private String frequency;//频率
@@ -144,11 +145,11 @@ public class RecipeItemReview implements Serializable {
         this.dayNum = dayNum;
     }
 
-    public Integer getQuantity() {
+    public Float getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Integer quantity) {
+    public void setQuantity(Float quantity) {
         this.quantity = quantity;
     }
 

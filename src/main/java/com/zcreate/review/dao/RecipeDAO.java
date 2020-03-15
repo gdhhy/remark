@@ -3,7 +3,7 @@ package com.zcreate.review.dao;
 import com.zcreate.ReviewConfig;
 import com.zcreate.review.model.Recipe;
 import com.zcreate.review.model.RecipeItem;
-import com.zcreate.review.model.RecipeItemReview;
+//import com.zcreate.review.model.RecipeItemReview;
 import com.zcreate.review.model.RecipeReview;
 
 import java.util.HashMap;
@@ -53,7 +53,7 @@ public interface RecipeDAO {
 
     int getSurgeryCount(Integer serialNo);
 
-    int saveRecipeItemReview(RecipeItemReview reviewItem);
+    //int saveRecipeItemReview(RecipeItemReview reviewItem);
 
     int saveDiagnosis(List<Map> diagnosisMap);
 

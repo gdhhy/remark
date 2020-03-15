@@ -33,7 +33,7 @@ public class Recipe implements Serializable {
     private Integer drugNum;
 
     //住院主管医生
-    private String masterDoctorNo;
+    private Integer masterDoctorID;
     private String masterDoctorName;
 
     /*点评信息*/
@@ -191,12 +191,12 @@ public class Recipe implements Serializable {
         this.drugNum = drugNum;
     }
 
-    public String getMasterDoctorNo() {
-        return masterDoctorNo;
+    public Integer getMasterDoctorID() {
+        return masterDoctorID;
     }
 
-    public void setMasterDoctorNo(String masterDoctorNo) {
-        this.masterDoctorNo = masterDoctorNo;
+    public void setMasterDoctorID(Integer masterDoctorID) {
+        this.masterDoctorID = masterDoctorID;
     }
 
     public String getMasterDoctorName() {

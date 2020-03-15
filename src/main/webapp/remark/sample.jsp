@@ -256,10 +256,10 @@
                     remarkType: $('#form-remarkType').children('option:selected').val(),
                     //remarkType: $("input[name='form-field-remarkType']:checked").val(),
                     sampleType: $("input[name='form-field-algorithm']:checked").val(),
-                    doctorNo: $('#form-doctorNo').val(),//显示
+                    doctorID: $('#form-doctorID').val(),//显示
                     doctor: $('#form-doctor').val(),//存数据库
-                    medicineNo: $('#form-medicineNo').val(),//存数据库
-                    medicine: $('#form-medicine').val(),//显示
+                    goodsID: $('#form-goodsID').val(),//存数据库
+                    //medicine: $('#form-medicine').val(),//显示
                     surgery: surgery ? 1 : 0,
                     // outPatientNum: $('#form-outPatientNum').val(),
                     total: $('#form-total').val(),
@@ -274,6 +274,7 @@
                     name: $('#form-name').val(),
                     num: $('#form-number').val()
                 };
+                console.log("data:" + JSON.stringify(sampleBatch));
                 $.ajax({
                     type: "POST",
                     url: "/remark/newSampling.jspa",
@@ -356,7 +357,7 @@
 
 
         var doctorBloodHound = new Bloodhound({
-            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('doctorNo'),
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('doctorID'),
             queryTokenizer: Bloodhound.tokenizers.whitespace,
             // 在文本框输入字符时才发起请求
             remote: {url: "/remark/liveDoctor.jspa?pinyin=%QUERY", wildcard: '%QUERY'}
@@ -387,13 +388,13 @@
                 display: function (item) {
                     return item.name
                 },
-                /* template: ['<p class="repo-language">{{item.doctorNo}}</p>',
+                /* template: ['<p class="repo-language">{{item.doctorID}}</p>',
                    '<p class="repo-name">{{item.name}}</p>'
                  ].join('')*/
                 templates: {
                     suggestion: function (item) {
                         /*  return ['<p class="repo-language">', item.name, '</p>',
-                            '<p class="repo-name">', item.doctorNo, '</p>'
+                            '<p class="repo-name">', item.doctorID, '</p>'
                           ].join('');*/
                         return '<p><strong>' + item.name + '</strong> - <span class="light-grey">' + item.title + '</span></p>';
                     },
@@ -405,20 +406,21 @@
             }
         );
         $('#form-doctor').bind('typeahead:select', function (ev, suggestion) {
-            $('#form-doctorNo').val(suggestion.doctorNo);
+            // console.log("doctorID:" + suggestion.doctorID);
+            $('#form-doctorID').val(suggestion.doctorID);
         });
         $('#form-medicine').bind('typeahead:select', function (ev, suggestion) {
-            //console.log('medicineNo: ' + suggestion.medicineNo);
-            $('#form-medicineNo').val(suggestion.medicineNo);
+            //console.log('goodsID: ' + suggestion.goodsID);
+            $('#form-goodsID').val(suggestion.goodsID);
         });
         $('#form-medicine').keydown(function (event) {
             if (event.which === 8)
-                $('#form-medicineNo').val('');
+                $('#form-goodsID').val('');
 
         });
         $('#form-doctor').keydown(function (event) {
             if (event.which === 8)
-                $('#form-doctorNo').val('');
+                $('#form-doctorID').val('');
         });
         $('#form-medicine').typeahead({hint: true},
             {
@@ -460,11 +462,11 @@
             endDate: moment(),
             ranges: {
                 '本月': [moment().startOf('month')],
-                '上月': [moment().month(moment().month() - 1).startOf('month'),  moment().month(moment().month() - 1).endOf('month')],
+                '上月': [moment().month(moment().month() - 1).startOf('month'), moment().month(moment().month() - 1).endOf('month')],
                 '本季': [moment().startOf('quarter')],
-                '上季': [moment().quarter(moment().quarter() - 1).startOf('month'),  moment().quarter(moment().quarter() - 1).endOf('quarter')],
+                '上季': [moment().quarter(moment().quarter() - 1).startOf('month'), moment().quarter(moment().quarter() - 1).endOf('quarter')],
                 '今年': [moment().startOf('year')],
-                '去年':  [moment().year(moment().year() - 1).startOf('year'),  moment().year(moment().year() - 1).endOf('year')]
+                '去年': [moment().year(moment().year() - 1).startOf('year'), moment().year(moment().year() - 1).endOf('year')]
             },
             locale: locale
         }).next().on(ace.click_event, function () {
@@ -692,7 +694,7 @@
              e.preventDefault();
          });*/
         //设置批次名称
-        sampleForm.find(" #form-department,#form-doctor,#form-medicine").change(function () {
+        sampleForm.find(" #form-department,#form-doctor,#form-medicine,#form-dateRange").change(function () {
             /*var batchName = $('#form-type').children('option:selected').val() === "1" ? "门诊" : "住院";*/
             var batchName = "";
             if (departmentE.get(0).selectedIndex > 0)
@@ -760,8 +762,8 @@
 
             var params = {
                 type: p1,
-                doctorNo: $('#form-doctorNo').val(),
-                medicineNo: $('#form-medicineNo').val(),
+                doctorID: $('#form-doctorID').val(),
+                goodsID: $('#form-goodsID').val(),
                 surgery: surgery ? 1 : 0,
                 incision: incision,
                 clinicType: clinicType,
@@ -955,7 +957,7 @@
                                 <input class="typeahead scrollable" type="text" id="form-doctor" name="form-doctor"
                                        autocomplete="off"
                                        placeholder="医生拼音字母 匹配鼠标选择"/>
-                                <input type="hidden" id="form-doctorNo"/>
+                                <input type="hidden" id="form-doctorID"/>
                             </div>
                         </div>
                     </div>
@@ -982,7 +984,7 @@
                         <div class="col-sm-9">
                             <input class="typeahead scrollable" type="text" id="form-medicine" name="form-medicine"
                                    autocomplete="off" style="width: 250px;font-size: 9px;color: black"
-                                   placeholder="药品拼音首字母 匹配鼠标选择"/><input type="hidden" id="form-medicineNo"/>
+                                   placeholder="药品拼音首字母 匹配鼠标选择"/><input type="hidden" id="form-goodsID"/>
                         </div>
                     </div>
                 </div>

@@ -209,25 +209,33 @@
                         }
                     },
                     {"orderable": false, "data": "recipeDate", "targets": 1, title: '开始时间', width: 90, className: 'center'},
-                    {"orderable": false, "data": "adviceType", "targets": 2, title: '&nbsp;'},
                     {
-                        "orderable": false, "data": "advice", "targets": 3, title: '医嘱内容', defaultContent: '', width: 120, render: function (data, type, row, meta) {
+                        "orderable": false, "data": "advice", "targets": 2, title: '医嘱内容', defaultContent: '', width: 120, render: function (data, type, row, meta) {
+                            var advice;
                             if (row["instructionID"] > 0)
                                 if (row["antiClass"] > 0)
-                                    return "<a href='#' class='hasInstruction' data-instructionID='{1}'><span class='pink2'>{0}</span></a>".format(data, row["instructionID"]);
+                                    advice = "<a href='#' class='hasInstruction' data-instructionID='{1}'><span class='pink2'>{0}</span></a>".format(data, row["instructionID"]);
                                 else
-                                    return "<a href='#' class='hasInstruction' data-instructionID='{1}'>{0}</a>".format(data, row["instructionID"]);
+                                    advice = "<a href='#' class='hasInstruction' data-instructionID='{1}'>{0}</a>".format(data, row["instructionID"]);
                             else
-                                return row["antiClass"] > 0 ? "<span class='pink2'>" + data + "</span>" : data;
+                                advice = row["antiClass"] > 0 ? "<span class='pink2'>" + data + "</span>" : data;
+
+                            if (row["adviceType"] === 1)
+                                advice = advice + ' ' + row["spec"];
+                            return advice;
                         }
                     },
-                    {"orderable": false, "data": "quantity", "targets": 4, title: '数量', width: 40, className: 'center'},
-                    {"orderable": false, "data": "unit", "targets": 5, title: '单位', width: 40, className: 'center'},
-                    {"orderable": false, "data": "doctorName", "targets": 6, title: '医生', width: 60},
-                    {"orderable": false, "data": "nurseName", "targets": 7, title: '护士', width: 60},
-                    {"orderable": false, "data": "endDate", "targets": 8, title: '停止时间', width: 90, className: 'center'},
-                    {"orderable": false, "data": "endDoctorName", "targets": 9, title: '医生'},
-                    {"orderable": false, "data": "endNurseName", "targets": 10, title: '护士'}
+                    {
+                        "orderable": false, "data": "quantity", "targets": 3, title: '每次量', width: 45, className: 'center', render: function (data, type, row, meta) {
+                            return data + row["unit"];
+                        }
+                    },
+                    {"orderable": false, "data": "frequency", "targets": 4, title: '频率', width: 45, className: 'center'},
+                    {"orderable": false, "data": "total", "targets": 5, title: '当天量', width: 60, className: 'center'},
+                    {"orderable": false, "data": "usage", "targets": 6, title: '用法', width: 55, className: 'center'},
+                    {"orderable": false, "data": "doctorName", "targets": 7, title: '医生', width: 60},
+                    /*{"orderable": false, "data": "nurseName", "targets": 8, title: '护士', width: 60},*/
+                    {"orderable": false, "data": "endDate", "targets": 8, title: '停止时间', width: 90, className: 'center'}
                 ],
                 "aaSorting": [],
                 language: {
@@ -267,26 +275,35 @@
                             return "";
                         }
                     },
-                    {"orderable": false, "data": "recipeDate", "targets": 1, title: '开始时间', width: 90, className: 'center'},
-                    {"orderable": false, "data": "adviceType", "targets": 2, title: '&nbsp;'},
+                    {"orderable": false, "data": "recipeDate", "targets": 1, title: '开始时间', width: 95, className: 'center'},
                     {
-                        "orderable": false, "data": "advice", "targets": 3, title: '医嘱内容', defaultContent: '', width: 120, render: function (data, type, row, meta) {
+                        "orderable": false, "data": "advice", "targets": 2, title: '医嘱内容', defaultContent: '', width: 120, render: function (data, type, row, meta) {
+                            var advice;
                             if (row["instructionID"] > 0)
                                 if (row["antiClass"] > 0)
-                                    return "<a href='#' class='hasInstruction' data-instructionID='{1}'><span class='pink2'>{0}</span></a>".format(data, row["instructionID"]);
+                                    advice = "<a href='#' class='hasInstruction' data-instructionID='{1}'><span class='pink2'>{0}</span></a>".format(data, row["instructionID"]);
                                 else
-                                    return "<a href='#' class='hasInstruction' data-instructionID='{1}'>{0}</a>".format(data, row["instructionID"]);
+                                    advice = "<a href='#' class='hasInstruction' data-instructionID='{1}'>{0}</a>".format(data, row["instructionID"]);
                             else
-                                return row["antiClass"] > 0 ? "<span class='pink2'>" + data + "</span>" : data;
+                                advice = row["antiClass"] > 0 ? "<span class='pink2'>" + data + "</span>" : data;
+
+                            if (row["adviceType"] === 1)
+                                advice = advice + ' ' + row["spec"];
+                            return advice;
                         }
                     },
-                    {"orderable": false, "data": "quantity", "targets": 4, title: '数量', width: 40, className: 'center'},
-                    {"orderable": false, "data": "unit", "targets": 5, title: '单位', width: 40, className: 'center'},
-                    {"orderable": false, "data": "doctorName", "targets": 6, title: '医生', width: 60},
-                    {"orderable": false, "data": "nurseName", "targets": 7, title: '护士', width: 60},
-                    {"orderable": false, "data": "endDate", "targets": 8, title: '停止时间', width: 90, className: 'center'},
-                    {"orderable": false, "data": "endDoctorName", "targets": 9, title: '医生'},
-                    {"orderable": false, "data": "endNurseName", "targets": 10, title: '护士'}
+                    {
+                        "orderable": false, "data": "quantity", "targets": 3, title: '每次量', width: 60, className: 'center', render: function (data, type, row, meta) {
+                            return data + row["unit"];
+                        }
+                    },
+                    /*{"orderable": false, "data": "unit", "targets": 4, title: '单位', width: 40, className: 'center'},*/
+                    {"orderable": false, "data": "frequency", "targets": 4, title: '频率', width: 45, className: 'center'},
+                    {"orderable": false, "data": "total", "targets": 5, title: '当天量', width: 60, className: 'center'},
+                    {"orderable": false, "data": "usage", "targets": 6, title: '用法', width: 55, className: 'center'},
+                    {"orderable": false, "data": "doctorName", "targets": 7, title: '医生', width: 60},
+                    /*{"orderable": false, "data": "nurseName", "targets": 7, title: '护士', width: 60},*/
+                    {"orderable": false, "data": "endDate", "targets": 8, title: '停止时间', width: 90, className: 'center'}
                 ],
                 "aaSorting": [],
                 language: {
@@ -335,7 +352,7 @@
                 shortTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
                     if (typeof (this.data()) !== 'undefined' && this.data()['antiClass'] > 0) {
                         var rowData = this.data();
-                        $.getJSON("/medicine/getMedicine.jspa?medicineNo=" + this.data()['medicineNo'], function (result) {
+                        $.getJSON("/medicine/getMedicine.jspa?goodsID=" + this.data()['goodsID'], function (result) {
                             rowData['price'] = result.price;
                         });
                     }
@@ -353,9 +370,9 @@
                         exists = true;
                 });
                 if (exists) return;
-
-                rowData['singleQty'] = rowData['quantity'];//todo remove
-                rowData['frequency'] = rowData['quantity'];
+                rowData['advice'] = rowData["advice"] + ' ' + rowData["spec"];
+                rowData['singleQty'] = rowData['quantity'] + rowData["unit"];
+                rowData['quantity'] = rowData['total'];
 
                 //不是每一行都有日期，向前找日期
                 var dateIndex = -1;
@@ -369,21 +386,24 @@
                 } else dateIndex = index;
 
                 //向后找 用法
-                for (var cc = index + 1; cc < index + 10; cc++) {//增加表行数判断
-                    // console.log("medicineNo:" +JSON.stringify( shortTable.row(cc).data()));
-                    if (shortTable.row(cc).data()['recipeDate'] > 0) break;
-                    if (typeof (shortTable.row(cc).data()['adviceType']) !== 'undefined' && shortTable.row(cc).data()['adviceType'] === 's') {
-                        rowData['adviceType'] = shortTable.row(cc).data()['advice'].replace('Sig:', '').replace(/(^\s+)|(\s+$)/g, '');
-                        break;
-                    }
-                }
+                /* for (var cc = index + 1; cc < index + 10; cc++) {//增加表行数判断
+                     // console.log("goodsID:" +JSON.stringify( shortTable.row(cc).data()));
+                     if (shortTable.row(cc).data()['recipeDate'] > 0) break;
+                     if (typeof (shortTable.row(cc).data()['adviceType']) !== 'undefined' && shortTable.row(cc).data()['adviceType'] === 's') {
+                         rowData['adviceType'] = shortTable.row(cc).data()['advice'].replace('Sig:', '').replace(/(^\s+)|(\s+$)/g, '');
+                         break;
+                     }
+                 }*/
+                rowData['adviceType'] = rowData["usage"];
                 //找 大输液
                 if (dateIndex >= 0)
                     for (var cc = dateIndex; cc < index + 10; cc++) {/*增加表行数判断*/
-                        //console.log("medicineNo:" + JSON.stringify(shortTable.row(cc).data()));
-                        if (typeof (shortTable.row(cc).data()['medicineNo']) !== 'undefined') {
+                        //console.log("goodsID:" + JSON.stringify(shortTable.row(cc).data()));
+                        console.log("advice:" + shortTable.row(cc).data()['advice']);
 
-                            $.getJSON("/medicine/getMedicine.jspa?medicineNo=" + shortTable.row(cc).data()['medicineNo'], function (result) {
+                        if (typeof (shortTable.row(cc).data()['goodsID']) !== 'undefined') {
+                            //todo 以下代码做了药品匹配后才可以使用
+                            /*$.getJSON("/medicine/getMedicine.jspa?goodsID=" + shortTable.row(cc).data()['goodsID'], function (result) {
                                 //if (result.healthNo === '401801' || result.healthNo === '401802') {
                                 if (result.healthNo.startsWith('4018')) {
                                     rowData['menstruum'] = shortTable.row(cc).data()['advice'];
@@ -391,8 +411,16 @@
                                     var tr = $("#drugTable tr:last");
                                     tr.find("td:eq(1)").html(tr.find("td:eq(1)").text() + '<br/><span class="light-grey">溶剂：</span>' + rowData['menstruum']);//render无效，只能增加这句
                                 }
-                            });
-                            rowData['medicineNo'] = shortTable.row(cc).data()['medicineNo'];
+                            });*/
+                            //todo 暂时按搜索葡萄糖、氯化钠药排名
+                            if (shortTable.row(cc).data()['advice'].indexOf("葡萄糖") >= 0 || shortTable.row(cc).data()['advice'].indexOf("氯化钠") >= 0) {
+                                rowData['menstruum'] = shortTable.row(cc).data()['advice'];
+                                //drugTable.draw(false);
+                                var tr = $("#drugTable tr:last");
+                                tr.find("td:eq(1)").html(tr.find("td:eq(1)").text() + '<br/><span class="light-grey">溶剂：</span>' + rowData['menstruum']);//render无效，只能增加这句
+                                break;
+                            }
+                            rowData['goodsID'] = shortTable.row(cc).data()['goodsID']; //todo ?
                             break;
                         }
                     }
@@ -436,7 +464,7 @@
                 longTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
                     if (typeof (this.data()) !== 'undefined' && this.data()['antiClass'] > 0) {
                         var rowData = this.data();
-                        $.getJSON("/medicine/getMedicine.jspa?medicineNo=" + this.data()['medicineNo'], function (result) {
+                        $.getJSON("/medicine/getMedicine.jspa?goodsID=" + this.data()['goodsID'], function (result) {
                             rowData['price'] = result.price;
                         });
                     }
@@ -454,14 +482,15 @@
                         exists = true;
                 });
                 if (exists) return;
-                if (typeof (rowData['price']) === 'undefined' && typeof (rowData['medicineNo']) !== 'undefined')
-                    $.getJSON("/medicine/getMedicine.jspa?medicineNo=" + rowData['medicineNo'], function (result) {
-                        console.log("price:" + result.price);
+                if (typeof (rowData['price']) === 'undefined' && typeof (rowData['goodsID']) !== 'undefined')
+                    $.getJSON("/medicine/getMedicine.jspa?goodsID=" + rowData['goodsID'], function (result) {
+                        //console.log("price:" + result.price);
                         rowData['price'] = result.price;
                     });
 
-                rowData['singleQty'] = rowData['quantity'];//todo remove
-                rowData['frequency'] = rowData['quantity'];
+                rowData['advice'] = rowData["advice"] + ' ' + rowData["spec"];
+                rowData['singleQty'] = rowData['quantity'] + rowData["unit"];
+                rowData['quantity'] = rowData['total'];
 
                 //不是每一行都有日期，向前找日期
                 var dateIndex = -1;
@@ -475,21 +504,22 @@
                 } else dateIndex = index;
 
                 //向后找 用法
-                for (var cc = index + 1; cc < index + 10; cc++) {//增加表行数判断
-                    // console.log("medicineNo:" +JSON.stringify( longTable.row(cc).data()));
+              /*  for (var cc = index + 1; cc < index + 10; cc++) {//增加表行数判断
+                    // console.log("goodsID:" +JSON.stringify( longTable.row(cc).data()));
                     if (longTable.row(cc).data()['recipeDate'] > 0) break;
                     if (typeof (longTable.row(cc).data()['adviceType']) !== 'undefined' && longTable.row(cc).data()['adviceType'] === 's') {
                         rowData['adviceType'] = longTable.row(cc).data()['advice'].replace('Sig:', '').replace(/(^\s+)|(\s+$)/g, '');
                         break;
                     }
-                }
+                }*/
+                rowData['adviceType'] = rowData["usage"];
                 //找 大输液
                 if (dateIndex >= 0)
                     for (var cc = dateIndex; cc < index + 10; cc++) {/*增加表行数判断*/
-                        //console.log("medicineNo:" + JSON.stringify(longTable.row(cc).data()));
-                        if (typeof (longTable.row(cc).data()['medicineNo']) !== 'undefined') {
-
-                            $.getJSON("/medicine/getMedicine.jspa?medicineNo=" + longTable.row(cc).data()['medicineNo'], function (result) {
+                        //console.log("goodsID:" + JSON.stringify(longTable.row(cc).data()));
+                        if (typeof (longTable.row(cc).data()['goodsID']) !== 'undefined') {
+                            //todo 以下代码做了药品匹配后才可以使用
+                            /*$.getJSON("/medicine/getMedicine.jspa?goodsID=" + longTable.row(cc).data()['goodsID'], function (result) {
                                 //if (result.healthNo === '401801' || result.healthNo === '401802') {
                                 if (result.healthNo.startsWith('4018')) {
                                     rowData['menstruum'] = longTable.row(cc).data()['advice'];
@@ -497,8 +527,16 @@
                                     var tr = $("#drugTable tr:last");
                                     tr.find("td:eq(1)").html(tr.find("td:eq(1)").text() + '<br/><span class="light-grey">溶剂：</span>' + rowData['menstruum']);//render无效，只能增加这句
                                 }
-                            });
-                            rowData['medicineNo'] = longTable.row(cc).data()['medicineNo'];
+                            });*/
+                            //todo 暂时按搜索葡萄糖、氯化钠药排名
+                            if (longTable.row(cc).data()['advice'].indexOf("葡萄糖") >= 0 || longTable.row(cc).data()['advice'].indexOf("氯化钠") >= 0) {
+                                rowData['menstruum'] = longTable.row(cc).data()['advice'];
+                                //drugTable.draw(false);
+                                var tr = $("#drugTable tr:last");
+                                tr.find("td:eq(1)").html(tr.find("td:eq(1)").text() + '<br/><span class="light-grey">溶剂：</span>' + rowData['menstruum']);//render无效，只能增加这句
+                                break;
+                            }
+                            rowData['goodsID'] = longTable.row(cc).data()['goodsID'];// todo ?
                             break;
                         }
                     }
@@ -588,7 +626,7 @@
                         render: function (data, type, row, meta) {
                             if (typeof (saveJson.诊断) !== 'undefined')
                                 for (var i = 0; i < saveJson.诊断.length; i++) {
-                                    if (saveJson.诊断[i].diagnosisNo === data)
+                                    if (saveJson.诊断[i].diagnosisNo === data + "")
                                         return '<input type="checkbox" checked>';
                                 }
                             return '<input type="checkbox">';
@@ -596,8 +634,8 @@
                     },
                     {"orderable": false, "data": "type", "targets": 1, title: '类型', defaultContent: ''},
                     {"orderable": false, "data": "disease", "targets": 2, title: '诊断', defaultContent: ''},
-                    {"orderable": false, "data": "icd", "targets": 3, title: 'ICD', defaultContent: ''},
-                    {"orderable": false, "data": "originalChs", "targets": 4, title: '入院病情', defaultContent: ''}
+                    {"orderable": false, "data": "icd", "targets": 3, title: 'ICD', defaultContent: ''}/*,
+                    {"orderable": false, "data": "originalChs", "targets": 4, title: '入院病情', defaultContent: ''}*/
                 ],
                 "aaSorting": [],
                 language: {
@@ -629,7 +667,7 @@
             }).on('deselect', function (e, dt, type, indexes) {
                 var rowData = diagnosisTable.row(indexes).data();
                 $("#chooseDiagnosis tr").each(function (i, item) {
-                    if (rowData["diagnosisNo"] === $(item).attr("data-id"))
+                    if (rowData["diagnosisNo"] + "" === $(item).attr("data-id"))
                         $(this).remove();
                 });
             }).on('draw', function (e, settings) {
@@ -852,7 +890,7 @@
                             "recipeItemID": this.data()["recipeItemID"],
                             "advice": this.data()["advice"],
                             "price": this.data()["price"],
-                            "medicineNo": this.data()["medicineNo"],
+                            "goodsID": this.data()["goodsID"],
                             "singleQty": trRow.find("td:eq(2)").text(),
                             "frequency": trRow.find("td:eq(3)").text(),
                             "adviceType": trRow.find("td:eq(4)").text(),
@@ -1706,7 +1744,7 @@
                             <div class="widget-body">
                                 <div class="widget-main padding-12 no-padding-left no-padding-right">
                                     <div class="tab-content padding-4">
-                                        <div id="home1" class="tab-pane">
+                                        <div id="home1" class="tab-pane in active">
 
                                             <table border="0" cellspacing="1" cellpadding="0" class="col-sm-5 table table-striped table-bordered table-hover">
                                                 <tbody>

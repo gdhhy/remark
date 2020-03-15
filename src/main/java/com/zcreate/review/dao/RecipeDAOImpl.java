@@ -3,7 +3,7 @@ package com.zcreate.review.dao;
 import com.zcreate.ReviewConfig;
 import com.zcreate.review.model.Recipe;
 import com.zcreate.review.model.RecipeItem;
-import com.zcreate.review.model.RecipeItemReview;
+//import com.zcreate.review.model.RecipeItemReview;
 import com.zcreate.review.model.RecipeReview;
 import org.mybatis.spring.support.SqlSessionDaoSupport;
 
@@ -67,8 +67,8 @@ public class RecipeDAOImpl extends SqlSessionDaoSupport implements RecipeDAO, Se
         RecipeReview review = getSqlSession().selectOne("Recipe.selectRecipeReview", param);
         if (review != null) {
             review.setDiagnosis(getSqlSession().selectList("RecipeItem.selectDiagnosis", param));
-            review.setLongAdvice(getSqlSession().selectList("RecipeItem.selectLongRecipeItemReview", param));
-            review.setShortAdvice(getSqlSession().selectList("RecipeItem.selectShortRecipeItemReview", param));
+           /* review.setLongAdvice(getSqlSession().selectList("RecipeItem.selectLongRecipeItemReview", param));
+            review.setShortAdvice(getSqlSession().selectList("RecipeItem.selectShortRecipeItemReview", param));*/
         }
         return review;
     }
@@ -121,11 +121,11 @@ public class RecipeDAOImpl extends SqlSessionDaoSupport implements RecipeDAO, Se
 */
 
     public int saveRecipeReview(RecipeReview review) {
-        int affectedRowCount;
+        int affectedRowCount = 0;
         if (review.getRecipeReviewID() != null && review.getRecipeReviewID() > 0) {
             affectedRowCount = getSqlSession().update("Recipe.updateRecipeReview", review);
             //组建存在的 ID 列表
-            List<Integer> itemList = new ArrayList<>();
+            /*List<Integer> itemList = new ArrayList<>();
             if (review.getLongAdvice() != null)
                 for (RecipeItemReview item : review.getLongAdvice())
                     if (item.getRecipeItemReviewID() > 0) itemList.add(item.getRecipeItemReviewID());
@@ -136,19 +136,19 @@ public class RecipeDAOImpl extends SqlSessionDaoSupport implements RecipeDAO, Se
             Map<String, Object> param = new HashMap<>(2);
             param.put("serialNo", review.getSerialNo());
             param.put("recipeItemReviewList", itemList);
-            affectedRowCount += getSqlSession().delete("RecipeItem.deleteRecipeItemReview", param);//删除不存在的ID
+            affectedRowCount += getSqlSession().delete("RecipeItem.deleteRecipeItemReview", param);//删除不存在的ID*/
         } else {
             affectedRowCount = getSqlSession().insert("Recipe.insertRecipeReview", review);
         }
 
-        if (affectedRowCount > 0) {
+       /* if (affectedRowCount > 0) {
             if (review.getLongAdvice() != null)
                 for (RecipeItemReview item : review.getLongAdvice())
                     affectedRowCount += saveRecipeItemReview(item);
             if (review.getShortAdvice() != null)
                 for (RecipeItemReview item : review.getShortAdvice())
                     affectedRowCount += saveRecipeItemReview(item);
-        }
+        }*/
         return affectedRowCount;
     }
 
@@ -186,12 +186,12 @@ public class RecipeDAOImpl extends SqlSessionDaoSupport implements RecipeDAO, Se
         return (Integer) getSqlSession().selectOne("RecipeItem.selectSurgeryCount", serialNo);
     }
 
-    public int saveRecipeItemReview(RecipeItemReview reviewItem) {
+   /* public int saveRecipeItemReview(RecipeItemReview reviewItem) {
         if (reviewItem.getRecipeItemReviewID() != null && reviewItem.getRecipeItemReviewID() > 0)
             return getSqlSession().update("RecipeItem.updateRecipeItemReview", reviewItem);
         else
             return getSqlSession().insert("RecipeItem.insertRecipeItemReview", reviewItem);
-    }
+    }*/
 
     public int saveDiagnosis(List<Map> diagnosisMap) {
         int succeed = 0;

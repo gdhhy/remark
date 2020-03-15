@@ -25,7 +25,7 @@
     <select id="selectSampleRecipe" parameterType="java.util.Map" resultType="java.util.HashMap">
         select TOP ${limit} S.detailID,R.recipeID,R.serialNo,R.patientNo,R.patientName,R.sex,R.age,R.inDate,R.outDate,R.inHospitalDay,R.department,
         R.diagnosis, R.diagnosis2,
-        R.money,R.medicineMoney,R.antiMoney,R.drugNum,R.antiNum,R.concurAntiNum,R.masterDoctorNo,
+        R.money,R.medicineMoney,R.antiMoney,R.drugNum,R.antiNum,R.concurAntiNum,R.masterDoctorID,
         R.masterDoctorName,R.reviewDate,R.disItem,V.review result,R.rational,R.publish,
         V.recipeReviewID,V.serialNo,V.germCheck,V.sample,V.checkDate,V.germName,V.sensitiveDrugs,V.surgeryName,V.
         surgeryDate,V.incision,V.beforeDrug,V.appendDrug,V.surgeryConsumingTime,V.afterStopDrug,

@@ -98,7 +98,10 @@ public class RemarkController {
             succeed = reviewService.saveRecipeReview(review);
             log.debug("review.getRecipeReviewID():" + review.getRecipeReviewID());
             result.put("succeed", succeed);
-            result.put("message", "已保存！");
+            if (succeed)
+                result.put("message", "已保存！");
+            else
+                result.put("message", "保存失败，请联系管理员。");
             result.put("recipeReviewID", review.getRecipeReviewID());
         } catch (Exception e) {
             e.printStackTrace();
@@ -734,7 +737,7 @@ public class RemarkController {
                 antiNum = ((Number) row.get("concurAntiNum")).shortValue();
             else if (antiNum == null)
                 antiNum = 0;
-            aRow.getCell(0).setCellValue((String) row.get("patientNo"));
+            aRow.getCell(0).setCellValue((Integer) row.get("patientNo"));
             aRow.getCell(1).setCellValue(getRoman((Short) row.get("field1_2")) + "(" + antiNum + ")");
             aRow.getCell(2).setCellValue(string(row.get("field2_2")) + "/" + getTrueFalse(row.get("field2_1")));
             aRow.getCell(3).setCellValue(getTrueFalse(row.get("field3")));

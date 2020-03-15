@@ -14,30 +14,26 @@ public class RecipeItem implements Serializable {
     private Integer longAdvice;//长期医嘱：1,   临时医嘱：2
     private Timestamp recipeDate;//对应 kyzsj
     private String advice;//医嘱信息 ，对应yzxx
+    private String spec;//医嘱信息 ，对应yzxx
     private Integer goodsID;
     private String doctorName;//开医嘱医生
     private String nurseName;
     private Timestamp endDate;  //医嘱结束日期
     private String endDoctorName;//停医嘱医生
     private String endNurseName;
-    private String quantity;//数量---对应：Sl
+    private Float quantity;//数量
+    private Float total;//当天总量
     private String unit;
+    private String frequency;
+    private String usage;
     private String problemCode;
     private String problemDesc;
     private String dose;
     private String producer;
 
-    public Integer getAntiClass() {
-        return antiClass;
-    }
-
-    public void setAntiClass(Integer antiClass) {
-        this.antiClass = antiClass;
-    }
-
     private Integer antiClass; //药品类型
     //医嘱类型
-    private String adviceType;  //对应 yfbz
+    private Integer adviceType;
 
     private Integer orderID;
     private Integer groupID;
@@ -91,6 +87,14 @@ public class RecipeItem implements Serializable {
         this.advice = advice;
     }
 
+    public String getSpec() {
+        return spec;
+    }
+
+    public void setSpec(String spec) {
+        this.spec = spec;
+    }
+
     public Integer getGoodsID() {
         return goodsID;
     }
@@ -139,12 +143,20 @@ public class RecipeItem implements Serializable {
         this.endNurseName = endNurseName;
     }
 
-    public String getQuantity() {
+    public Float getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(String quantity) {
+    public void setQuantity(Float quantity) {
         this.quantity = quantity;
+    }
+
+    public Float getTotal() {
+        return total;
+    }
+
+    public void setTotal(Float total) {
+        this.total = total;
     }
 
     public String getUnit() {
@@ -155,11 +167,19 @@ public class RecipeItem implements Serializable {
         this.unit = unit;
     }
 
-    public String getAdviceType() {
+
+    public Integer getAntiClass() {
+        return antiClass;
+    }
+
+    public void setAntiClass(Integer antiClass) {
+        this.antiClass = antiClass;
+    }
+    public Integer getAdviceType() {
         return adviceType;
     }
 
-    public void setAdviceType(String adviceType) {
+    public void setAdviceType(Integer adviceType) {
         this.adviceType = adviceType;
     }
 
@@ -257,5 +277,21 @@ public class RecipeItem implements Serializable {
 
     public void setProducer(String producer) {
         this.producer = producer;
+    }
+
+    public String getFrequency() {
+        return frequency;
+    }
+
+    public void setFrequency(String frequency) {
+        this.frequency = frequency;
+    }
+
+    public String getUsage() {
+        return usage;
+    }
+
+    public void setUsage(String usage) {
+        this.usage = usage;
     }
 }

@@ -104,11 +104,11 @@ public class MedicineController {
 
     @ResponseBody
     @RequestMapping(value = "getMedicine", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public String getMedicine(@RequestParam(value = "medicineNo", required = false) String medicineNo,
-                              @RequestParam(value = "medicineID", defaultValue = "0") int medicineID) {
+    public String getMedicine(@RequestParam(value = "goodsID", required = false) Integer goodsID,
+                              @RequestParam(value = "medicineID", defaultValue = "0") Integer medicineID) {
         if (medicineID > 0)
             return gson.toJson(medicineDao.getMedicine(medicineID));
-        return gson.toJson(medicineDao.getMedicine(medicineNo));
+        return gson.toJson(medicineDao.selectMedicineByGoodsID(goodsID));
     }
 
     @ResponseBody
@@ -187,7 +187,7 @@ public class MedicineController {
             case 9://西药口服
             case 10://西药注射
             case 11://西药大输液
-            //case 12://西药外用
+                //case 12://西药外用
                 param.put("western", type);
                 break;
             default:

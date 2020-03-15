@@ -233,18 +233,19 @@ public class ReviewServiceImpl implements ReviewService {
 
 
     public List<Integer> createSampling(SampleBatch sampleBatch) {
-        Map<String, Object> param = new HashMap<String, Object>();
+        Map<String, Object> param = new HashMap<>();
         param.put("type", sampleBatch.getType());
         param.put("department", sampleBatch.getDepartment());
-        param.put("doctor", sampleBatch.getDoctorNo());
+        param.put("doctorID", sampleBatch.getDoctorID());
         if (sampleBatch.getWestern() != null && sampleBatch.getWestern() >= 0)
             param.put("western", sampleBatch.getWestern());
         param.put("limit", sampleBatch.getNum());
         param.put("year", sampleBatch.getYear());
         param.put("month", sampleBatch.getMonth());
         param.put("clinicType", sampleBatch.getClinicType());
-        param.put("medicine1", sampleBatch.getMedicineNo());
+        param.put("medicine1", sampleBatch.getGoodsID());
         param.put("special", sampleBatch.getSpecial());
+        param.put("surgery", sampleBatch.getSurgery());
         param.put("incision", sampleBatch.getIncision());
         param.put("atLeastMoney", 0);
 

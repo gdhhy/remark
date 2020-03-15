@@ -14,7 +14,8 @@
         <result column="type" jdbcType="INTEGER" property="type"/>
         <result column="department" jdbcType="VARCHAR" property="department"/>
         <result column="doctor" jdbcType="VARCHAR" property="doctor"/>
-        <result column="medicineNo" jdbcType="VARCHAR" property="medicineNo"/>
+        <result column="doctorID" jdbcType="INTEGER" property="doctorID"/>
+        <result column="goodsID" jdbcType="INTEGER" property="goodsID"/>
         <result column="western" jdbcType="INTEGER" property="western"/>
         <result column="createDate" jdbcType="TIMESTAMP" property="createDate"/>
         <result column="surgery" jdbcType="INTEGER" property="surgery"/>
@@ -37,7 +38,7 @@
     </sql>
     <select id="selectSampleBatchList" parameterType="java.util.Map" resultMap="RecordResult">
         select TOP ${limit} sampleBatchID,remarkType,sampleNo,year,month,(select count(*) from SampleList D where
-        D.sampleBatchID=SampleBatch.sampleBatchID ) num,name,type,createDate,department,doctor,medicineNo,surgery,outPatientNum,total,fromDate,toDate from
+        D.sampleBatchID=SampleBatch.sampleBatchID ) num,name,type,createDate,department,doctor,goodsID,surgery,outPatientNum,total,fromDate,toDate from
         SampleBatch
         <include refid="queryWhere"/>
         <if test="start!=null and start > 0">
@@ -50,7 +51,7 @@
     </select>
     <select id="selectSampleBatch" parameterType="int" resultMap="RecordResult">
         select   sampleBatchID,remarkType,sampleNo,year,month,(select count(*) from SampleList D where
-        D.sampleBatchID=SampleBatch.sampleBatchID ) num,name,type,createDate,department,doctor,medicineNo,surgery,outPatientNum,total,fromDate,toDate from
+        D.sampleBatchID=SampleBatch.sampleBatchID ) num,name,type,createDate,department,doctor,goodsID,surgery,outPatientNum,total,fromDate,toDate from
         SampleBatch WHERE sampleBatchID=#{sampleBatchID:INTEGER}
     </select>
     <select id="selectSampleBatchCount" parameterType="java.util.Map" resultType="int">
@@ -58,9 +59,9 @@
         <include refid="queryWhere"/>
     </select>
     <insert id="insertSampleBatch" parameterType="com.zcreate.review.model.SampleBatch" flushCache="true">
-        INSERT INTO SampleBatch (remarkType,sampleNo,year,month,num,name,type,department,doctor,medicineNo,surgery,outPatientNum,total,fromDate,toDate)
+        INSERT INTO SampleBatch (remarkType,sampleNo,year,month,num,name,type,department,doctor,goodsID,surgery,outPatientNum,total,fromDate,toDate)
         VALUES ( #{remarkType:INTEGER},#{sampleNo:VARCHAR},#{year:INTEGER},#{month:INTEGER},#{num:INTEGER},#{name:VARCHAR},#{type:INTEGER},#{department:VARCHAR},#{doctor:VARCHAR},
-        #{medicineNo:VARCHAR},#{surgery:INTEGER},#{outPatientNum:INTEGER},#{total:INTEGER},#{fromDate:VARCHAR},#{toDate:VARCHAR})
+        #{goodsID:VARCHAR},#{surgery:INTEGER},#{outPatientNum:INTEGER},#{total:INTEGER},#{fromDate:VARCHAR},#{toDate:VARCHAR})
         <selectKey resultType="int" order="AFTER" keyProperty="sampleBatchID">
             select @@IDENTITY as SampleBatch
         </selectKey>
@@ -78,7 +79,7 @@
             <if test="type != null">type = #{type:INTEGER},</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(doctor)">doctor = #{doctor:VARCHAR},</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(department)">department = #{department:VARCHAR},</if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(medicineNo)">medicineNo = #{medicineNo:VARCHAR},</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(goodsID)">goodsID = #{goodsID:VARCHAR},</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(surgery)">surgery = #{surgery:INTEGER},</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(outPatientNum)">outPatientNum = #{outPatientNum:INTEGER},</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(total)">total = #{total:INTEGER},</if>

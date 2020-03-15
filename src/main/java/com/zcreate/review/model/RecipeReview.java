@@ -33,8 +33,8 @@ public class RecipeReview implements Serializable {
     private Timestamp reviewTime;
     private Integer interDepart = 2;//1是内科，2是外科
     private List<HashMap<String, Object>> diagnosis;
-    private List<RecipeItemReview> longAdvice;
-    private List<RecipeItemReview> shortAdvice;
+    /*private List<RecipeItemReview> longAdvice;
+    private List<RecipeItemReview> shortAdvice;*/
     private String reviewJson;
 
     public Integer getRecipeReviewID() {
@@ -188,7 +188,7 @@ public class RecipeReview implements Serializable {
     public void setReviewTime(Timestamp reviewTime) {
         this.reviewTime = reviewTime;
     }
-
+/*
     public List<RecipeItemReview> getLongAdvice() {
         return longAdvice;
     }
@@ -203,7 +203,7 @@ public class RecipeReview implements Serializable {
 
     public void setShortAdvice(List<RecipeItemReview> shortAdvice) {
         this.shortAdvice = shortAdvice;
-    }
+    }*/
 
     public List<HashMap<String, Object>> getDiagnosis() {
         return diagnosis;
