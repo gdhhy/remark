@@ -33,7 +33,7 @@ public class Clinic implements Serializable {
     private String address;
 
     //开药处方医生
-    private String doctorNo;
+    private Integer doctorID;
     //审核药师
     private String confirmNo;
     //调配药师
@@ -195,12 +195,12 @@ public class Clinic implements Serializable {
         this.address = address;
     }
 
-    public String getDoctorNo() {
-        return doctorNo;
+    public Integer getDoctorID() {
+        return doctorID;
     }
 
-    public void setDoctorNo(String doctorNo) {
-        this.doctorNo = doctorNo;
+    public void setDoctorID(Integer doctorID) {
+        this.doctorID = doctorID;
     }
 
     public String getConfirmNo() {

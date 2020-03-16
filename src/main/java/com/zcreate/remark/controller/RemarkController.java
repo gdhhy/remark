@@ -827,7 +827,7 @@ public class RemarkController {
         if (recipe != null) {
             log.debug("viewRecipe:" + recipe.getDepartment());
             log.debug("reviewService:" + reviewService);
-            recipe.setDepartCode(reviewService.getDepartCode(recipe.getDepartment()));
+            //recipe.setDepartCode(reviewService.getDepartCode(recipe.getDepartment()));
             SampleBatch batch = sampleDao.getSampleBatch(batchID);
             recipe.setMasterDoctorName(PinyinUtil.replaceName(recipe.getMasterDoctorName()));
             if (recipe.getReview().getRecipeReviewID() == null)
@@ -853,7 +853,7 @@ public class RemarkController {
         if (recipe != null) {
             log.debug("viewRecipe:" + recipe.getDepartment());
             log.debug("reviewService:" + reviewService);
-            recipe.setDepartCode(reviewService.getDepartCode(recipe.getDepartment()));
+            //recipe.setDepartCode(reviewService.getDepartCode(recipe.getDepartment()));
             SampleBatch batch = sampleDao.getSampleBatch(batchID);
             recipe.setMasterDoctorName(PinyinUtil.replaceName(recipe.getMasterDoctorName()));
             if (recipe.getReview().getRecipeReviewID() == null)

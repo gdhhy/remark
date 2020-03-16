@@ -17,7 +17,7 @@
         <result column="department" jdbcType="VARCHAR" property="department"/>
         <result column="diagnosis" jdbcType="VARCHAR" property="diagnosis"/>
         <result column="money" jdbcType="DOUBLE" property="money"/>
-        <result column="doctorNo" jdbcType="VARCHAR" property="doctorNo"/>
+        <result column="doctorID" jdbcType="INTEGER" property="doctorID"/>
         <result column="confirmNo" jdbcType="VARCHAR" property="confirmNo"/>
         <result column="apothecaryNo" jdbcType="VARCHAR" property="apothecaryNo"/>
         <result column="doctorName" jdbcType="VARCHAR" property="doctorName"/>
@@ -39,10 +39,10 @@
         <result column="result" jdbcType="VARCHAR" property="result"/>
         <result column="rational" jdbcType="INTEGER" property="rational"/>
     </resultMap>
-   <!-- <resultMap id="ClinicWithDetail" type="com.zcreate.review.model.Clinic" extends="ClinicResult">
-        <collection property="incompatibilitys" select="Drug.queryByClinicID" column="clinicID"/>
-        <collection property="details" select="RxDetail.selectRxDetail2Review" column="{clinicID=clinicID}"/>
-     </resultMap>-->
+    <!-- <resultMap id="ClinicWithDetail" type="com.zcreate.review.model.Clinic" extends="ClinicResult">
+         <collection property="incompatibilitys" select="Drug.queryByClinicID" column="clinicID"/>
+         <collection property="details" select="${RxDetailTable}.select${RxDetailTable}2Review" column="{clinicID=clinicID}"/>
+      </resultMap>-->
     <sql id="queryWhere">
         <where>
             <if test="clinicID > 0">AND clinicID=#{clinicID}</if>
@@ -55,7 +55,7 @@
             <if test="@com.zcreate.util.Ognl@isNotEmpty(reviewDateFrom)">AND reviewDate >= #{reviewDateFrom:VARCHAR}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(reviewDateTo)">AND reviewDate &lt; #{reviewDateTo:TIMESTAMP}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(department)">AND department = #{department:VARCHAR}</if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(doctor)">AND  right(doctorNo,3)  = #{doctor:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(doctorID)">AND doctorID = #{doctorID:INTEGER}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(doctorName)">AND doctorName = #{doctorName:VARCHAR}</if>
             <if test="western>=1">AND isWestern = #{western:INTEGER}</if>
             <!--0是默认值，最好不要用0代表-->
@@ -74,9 +74,9 @@
             <if test="incompatibilityID>0">AND clinicID IN ( SELECT objectID FROM RxIncompatibility WHERE incompatibilityID=#{incompatibilityID} AND TYPE=1)</if>
             <choose>
                 <when test="@com.zcreate.util.Ognl@isNotEmpty(healthNo)">
-                    AND clinicID IN (SELECT DISTINCT R.clinicID FROM RxDetail R JOIN medicine M ON R.medicineNo = M.medicineNo WHERE M.healthNo LIKE '${healthNo}%' )
+                    AND clinicID IN (SELECT DISTINCT R.clinicID FROM ${RxDetailTable} R JOIN medicine M ON R.goodsID = M.goodsID WHERE M.healthNo LIKE '${healthNo}%' )
                 </when>
-                <when test="antiClass != null and antiClass >-1">AND clinicID IN (SELECT DISTINCT R.clinicID FROM RxDetail R JOIN medicine M ON R.medicineNo = M.medicineNo
+                <when test="antiClass != null and antiClass >-1">AND clinicID IN (SELECT DISTINCT R.clinicID FROM ${RxDetailTable} R JOIN medicine M ON R.goodsID = M.goodsID
                     <where>
                         <if test="antiClass==0">AND M.antiClass >= 0</if>
                         <if test="antiClass >0">AND M.antiClass = #{antiClass:INTEGER}</if>
@@ -84,10 +84,10 @@
                     )
                 </when>
             </choose>
-            <if test="medicine1>0">AND clinicID IN(SELECT clinicID FROM RxDetail R WHERE R.medicineNo=#{medicine1:VARCHAR})</if>
-            <if test="medicine2>0">AND clinicID IN(SELECT clinicID FROM RxDetail R WHERE R.medicineNo=#{medicine2:VARCHAR})</if>
+            <if test="medicine1>0">AND clinicID IN(SELECT clinicID FROM ${RxDetailTable} R WHERE R.goodsID=#{medicine1:INTEGER})</if>
+            <if test="medicine2>0">AND clinicID IN(SELECT clinicID FROM ${RxDetailTable} R WHERE R.goodsID=#{medicine2:INTEGER})</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(reviewDateNotNull)">AND reviewDate IS NOT NULL
-              <!--  <if test="rational>=0">AND rational = #{rational:INTEGER}</if>-->
+                <!--  <if test="rational>=0">AND rational = #{rational:INTEGER}</if>-->
             </if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(rational)">AND rational = #{rational:INTEGER}</if>
             <if test="publish>2">AND publish>0</if>
@@ -101,13 +101,13 @@
                 <when test="@com.zcreate.util.Ognl@isNotEmpty(sameOrallyAntiNum)">AND sameOrallyAntiNum>1</when>
                 <when test="@com.zcreate.util.Ognl@isNotEmpty(sameInjectAntiNum)">AND sameInjectAntiNum>1</when>
             </choose>
-            <if test="clinicType==1">AND clinicType='普通方'</if>
-            <if test="clinicType==2">AND clinicType='急诊方'</if>
+            <if test="clinicType==1">AND clinicType!='急诊'</if>
+            <if test="clinicType==2">AND clinicType='急诊'</if>
         </where>
     </sql>
     <select id="selectClinicList" parameterType="java.util.Map" resultMap="ClinicResult">
         SELECT TOP ${limit}
-        A.clinicID, A.serialNo, A.rxCount, A.clinicType, A.clinicDate,A.patientName, A.sex, A.age, A.department, A.diagnosis, A.money, A.doctorNo, A.confirmNo, A.apothecaryNo,
+        A.clinicID, A.serialNo, A.rxCount, A.clinicType, A.clinicDate,A.patientName, A.sex, A.age, A.department, A.diagnosis, A.money, A.doctorID, A.confirmNo, A.apothecaryNo,
         A.isWestern, A.doctorName, A.confirmName, A.apothecaryName, A. drugNum, A.baseDrugNum, A.baseDrugMoney, A.antiNum, A.antiMoney, A.insuranceMoney, A.sameAntiNum,
         A.injectionAntiNum, A.injectionAntiMoney, A.orallyAntiNum, A.orallyAntiMoney, A.injectionNum, A.sameInjectAntiNum, A.sameOrallyAntiNum, A.specAntiMoney, A.reviewDate,
         A.reviewUser, A.publish, A.result, A.appealState, A.disItem, A.rational
@@ -123,10 +123,12 @@
         ORDER BY ${orderField} DESC
     </select>
     <select id="selectClinic" parameterType="int" resultMap="ClinicResult">
-        SELECT clinicID,serialNo,rxCount,clinicType,clinicDate,patientName,sex,age,department,diagnosis,money,doctorNo,confirmNo,apothecaryNo,isWestern,doctorName,confirmName,apothecaryName,
-        drugNum,baseDrugNum,baseDrugMoney,antiNum,antiMoney,insuranceMoney,sameAntiNum,injectionAntiNum,injectionAntiMoney,orallyAntiNum,orallyAntiMoney,injectionNum,
-        sameInjectAntiNum,sameOrallyAntiNum,specAntiMoney,reviewDate,reviewUser,publish,result,appealState,disItem,rational
-        FROM Clinic WHERE clinicID =#{clinicID:INTEGER}
+        SELECT clinicID, serialNo, rxCount, clinicType, clinicDate, patientName, sex, age, department, diagnosis, money, doctorID, confirmNo, apothecaryNo, isWestern, doctorName, confirmName,
+               apothecaryName,
+               drugNum, baseDrugNum, baseDrugMoney, antiNum, antiMoney, insuranceMoney, sameAntiNum, injectionAntiNum, injectionAntiMoney, orallyAntiNum, orallyAntiMoney, injectionNum,
+               sameInjectAntiNum, sameOrallyAntiNum, specAntiMoney, reviewDate, reviewUser, publish, result, appealState, disItem, rational
+        FROM Clinic
+        WHERE clinicID = #{clinicID:INTEGER}
     </select>
     <select id="selectClinicCount" parameterType="java.util.Map" resultType="int">
         SELECT count(*) FROM Clinic
@@ -159,7 +161,7 @@
     </select>
     <select id="selectClinicInID" parameterType="java.util.Collection" resultMap="ClinicResult">
         SELECT DISTINCT
-        clinicID,serialNo,rxCount,clinicType,clinicDate,patientName,sex,age,department,diagnosis,money,doctorNo,confirmNo,apothecaryNo,isWestern,doctorName,confirmName,apothecaryName,
+        clinicID,serialNo,rxCount,clinicType,clinicDate,patientName,sex,age,department,diagnosis,money,doctorID,confirmNo,apothecaryNo,isWestern,doctorName,confirmName,apothecaryName,
         drugNum,baseDrugNum,baseDrugMoney,antiNum,antiMoney,insuranceMoney,sameAntiNum,injectionAntiNum,injectionAntiMoney,orallyAntiNum,orallyAntiMoney,injectionNum,
         sameInjectAntiNum,sameOrallyAntiNum,specAntiMoney,reviewDate,reviewUser,publish,result,appealState,disItem,rational
         FROM Clinic
@@ -170,9 +172,9 @@
     <!--越级使用抗菌药-->
     <select id="bypass" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT P.*,M.antiClass mAntiClass,D.antiClass dAntiClass ,D.name doctorName FROM Clinic P
-        LEFT JOIN RxDetail R ON P.clinicID=R.clinicID
-        LEFT JOIN Medicine M ON R.medicineNo=M.medicineNo
-        LEFT JOIN doctor D ON  P.doctorNo  = D.doctorNo WHERE M.antiClass>=1 AND M.antiClass>D.antiClass
+        LEFT JOIN ${RxDetailTable} R ON P.clinicID=R.clinicID
+        LEFT JOIN Medicine M ON R.goodsID=M.goodsID
+        LEFT JOIN doctor D ON P.doctorID = D.doctorID WHERE M.antiClass>=1 AND M.antiClass>D.antiClass
         <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND P.clinicDate >= #{fromDate:TIMESTAMP}</if>
         <if test="@com.zcreate.util.Ognl@isNotEmpty(toDate)">AND P.clinicDate &lt; #{toDate:TIMESTAMP}</if>
         <if test="antiClass==0">AND M.antiClass >0</if>
@@ -181,61 +183,59 @@
     <!--门诊开具特殊抗菌药-->
     <select id="clinicSpecAnti" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT P.*,M.antiClass mAntiClass,D.antiClass dAntiClass ,D.name doctorName FROM Clinic P
-        LEFT JOIN RxDetail R ON P.clinicID=R.clinicID
-        LEFT JOIN Medicine M ON R.medicineNo=M.medicineNo
-        LEFT JOIN doctor D ON P.doctorNo = D.doctorNo WHERE M.antiClass=3
+        LEFT JOIN ${RxDetailTable} R ON P.clinicID=R.clinicID
+        LEFT JOIN Medicine M ON R.goodsID=M.goodsID
+        LEFT JOIN doctor D ON P.doctorID = D.doctorID WHERE M.antiClass=3
         <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND P.clinicDate >= #{fromDate:TIMESTAMP}</if>
         <if test="@com.zcreate.util.Ognl@isNotEmpty(toDate)">AND P.clinicDate &lt; #{toDate:TIMESTAMP}</if>
     </select>
     <update id="reviewAlertDoctor" parameterType="java.util.Map" statementType="CALLABLE">
-        { call reviewAlertDoctor(#{objectID:INTEGER},#{type:INTEGER})}
+        { call reviewAlertDoctor(#{objectID:INTEGER}, #{type:INTEGER})}
     </update>
     <select id="analyse2_4" parameterType="int" resultType="java.util.Map">
-        SELECT
-            count(*)
+        SELECT count(*)
         FROM Clinic
         WHERE clinicID IN
-              (SELECT
-                   clinicID
-               FROM RxDetail R LEFT JOIN Medicine M
-                       ON R.medicineNo = M.medicineNo
-                   LEFT JOIN Drug D
-                       ON M.matchDrugID = D.drugID
+              (SELECT clinicID
+               FROM ${RxDetailTable} R
+                        LEFT JOIN Medicine M ON R.goodsID = M.goodsID
+                        LEFT JOIN Drug D ON M.matchDrugID = D.drugID
                WHERE children >= 1)
-              AND clinicType = '儿科方'
+          AND clinicType = '儿科方'
     </select>
     <select id="selectClinicReviewStat" parameterType="java.util.Map" resultType="java.util.HashMap">
-       SELECT A.department,A.clinicNum,A.drugNum,A.avgDrugNum,case when A.clinicNum>0 then A.injectNum*1.0/A.clinicNum else 0 end injectRatio,A.injectNum,
-       /*case when A.cortisolNum >0 then A.cortisolNum *1.0/A.clinicNum else 0 end cortisolRatio,A.cortisolNum,*/
-       case when A.amount >0 then A.baseAmount *1.0/A.amount else 0 end baseAmountRatio,
-        A.amount,A.baseAmount,
-       A.largeAmount,A.disItem1_1,A.disItem1_14,A.disItem2_5,A.disItem2_8,A.disItem2_8,A.disItem3_1, B.antiPatient,B.clinicPatient2,B.antiRatio,B.skipRank  from
-       (SELECT
-        C.department,
-        count(DISTINCT R.clinicID) clinicNum, count(M.medicineID) drugNum,
-        count(M.medicineID) * 1.0 / count(DISTINCT R.clinicID) avgDrugNum,
-        count(DISTINCT CASE WHEN M.route = 2 THEN R.clinicID ELSE NULL END) injectNum,
-        /*count(DISTINCT CASE WHEN M.mental = 2 THEN R.clinicID ELSE NULL END) cortisolNum,*/
-        sum(CASE WHEN M.base>=1 THEN R.money ELSE 0 END) baseAmount,
-        sum(R.money) amount,
-        count(DISTINCT CASE WHEN C.money > ${largeAmount} THEN R.clinicID ELSE NULL END) largeAmount,
-        count(DISTINCT CASE WHEN disitem LIKE '%1-1,%' or disitem LIKE '%1-1' THEN R.clinicID ELSE NULL END) disItem1_1,
-
-        count(DISTINCT CASE WHEN disitem LIKE '%2-5,%' or disitem LIKE '%2-5'  THEN R.clinicID ELSE NULL END) disItem2_5,
-        count(DISTINCT CASE WHEN disitem LIKE '%3-1,%' or disitem LIKE '%3-1' THEN R.clinicID ELSE NULL END) disItem3_1,
-        count(DISTINCT CASE WHEN disitem LIKE '%2-8,%' or disitem LIKE '%2-8' THEN R.clinicID ELSE NULL END) disItem2_8,
-        count(DISTINCT CASE WHEN disitem LIKE '%1-14,%' or disitem LIKE '%1-14' THEN R.clinicID ELSE NULL END) disItem1_14
-        FROM RxDetail R JOIN Medicine M ON R.medicineNo = M.medicineNo LEFT JOIN Clinic C ON R.clinicID = C.clinicID
-        WHERE R.clinicID IN
-        (SELECT objectID FROM sampleList L WHERE samplebatchID IN (SELECT samplebatchID FROM samplebatch WHERE type = 1 AND year = #{year:INTEGER} AND month =  #{month:INTEGER}))
-        GROUP BY C.department) A
-        LEFT JOIN
-        (SELECT
-        department,
-        sum(clinicAntiPatient) antiPatient,
-        sum(clinicPatient2) clinicPatient2,
-        CASE WHEN sum(clinicPatient2) > 0 THEN sum(clinicAntiPatient) * 1.0 / sum(clinicPatient2) ELSE 0 END antiRatio,
-        sum(skipRank) skipRank
-        FROM dailydepart WHERE date > #{fromDate:VARCHAR} AND date &lt; #{toDate:VARCHAR} GROUP BY department) B ON A.department = B.department
+        SELECT A.department, A.clinicNum, A.drugNum, A.avgDrugNum, case when A.clinicNum > 0 then A.injectNum * 1.0 / A.clinicNum else 0 end injectRatio, A.injectNum,
+            /*case when A.cortisolNum >0 then A.cortisolNum *1.0/A.clinicNum else 0 end cortisolRatio,A.cortisolNum,*/
+               case when A.amount > 0 then A.baseAmount * 1.0 / A.amount else 0 end                                                          baseAmountRatio,
+               A.amount, A.baseAmount,
+               A.largeAmount, A.disItem1_1, A.disItem1_14, A.disItem2_5, A.disItem2_8, A.disItem2_8, A.disItem3_1, B.antiPatient, B.clinicPatient2, B.antiRatio, B.skipRank
+        from (SELECT C.department,
+                     count(DISTINCT R.clinicID)                                                                             clinicNum, count(M.medicineID) drugNum,
+                     count(M.medicineID) * 1.0 / count(DISTINCT R.clinicID)                                                 avgDrugNum,
+                     count(DISTINCT CASE WHEN M.route = 2 THEN R.clinicID ELSE NULL END)                                    injectNum,
+                  /*count(DISTINCT CASE WHEN M.mental = 2 THEN R.clinicID ELSE NULL END) cortisolNum,*/
+                     sum(CASE WHEN M.base >= 1 THEN R.money ELSE 0 END)                                                     baseAmount,
+                     sum(R.money)                                                                                           amount,
+                     count(DISTINCT CASE WHEN C.money > ${largeAmount} THEN R.clinicID ELSE NULL END)                       largeAmount,
+                     count(DISTINCT CASE WHEN disitem LIKE '%1-1,%' or disitem LIKE '%1-1' THEN R.clinicID ELSE NULL END)   disItem1_1,
+                     count(DISTINCT CASE WHEN disitem LIKE '%2-5,%' or disitem LIKE '%2-5' THEN R.clinicID ELSE NULL END)   disItem2_5,
+                     count(DISTINCT CASE WHEN disitem LIKE '%3-1,%' or disitem LIKE '%3-1' THEN R.clinicID ELSE NULL END)   disItem3_1,
+                     count(DISTINCT CASE WHEN disitem LIKE '%2-8,%' or disitem LIKE '%2-8' THEN R.clinicID ELSE NULL END)   disItem2_8,
+                     count(DISTINCT CASE WHEN disitem LIKE '%1-14,%' or disitem LIKE '%1-14' THEN R.clinicID ELSE NULL END) disItem1_14
+              FROM ${RxDetailTable} R
+                       JOIN Medicine M ON R.goodsID = M.goodsID
+                       LEFT JOIN Clinic C ON R.clinicID = C.clinicID
+              WHERE R.clinicID IN
+                    (SELECT objectID FROM sampleList L WHERE samplebatchID IN (SELECT samplebatchID FROM samplebatch WHERE type = 1 AND year = #{year:INTEGER} AND month = #{month:INTEGER}))
+              GROUP BY C.department) A
+                 LEFT JOIN
+             (SELECT department,
+                     sum(clinicAntiPatient)                                                                               antiPatient,
+                     sum(clinicPatient2)                                                                                  clinicPatient2,
+                     CASE WHEN sum(clinicPatient2) > 0 THEN sum(clinicAntiPatient) * 1.0 / sum(clinicPatient2) ELSE 0 END antiRatio,
+                     sum(skipRank)                                                                                        skipRank
+              FROM dailydepart
+              WHERE date > #{fromDate:VARCHAR} AND date &lt; #{toDate:VARCHAR}
+              GROUP BY department) B ON A.department = B.department
     </select>
 </mapper>

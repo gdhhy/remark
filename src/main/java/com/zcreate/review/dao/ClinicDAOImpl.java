@@ -47,6 +47,7 @@ public class ClinicDAOImpl extends SqlSessionDaoSupport implements ClinicDAO, Se
         Calendar cal = Calendar.getInstance();
         cal.setTime(clinic.getClinicDate());
         param.put("RxDetailTable", "RxDetail_" + cal.get(Calendar.YEAR));//clinic.getClinicDate().getYear()+1900));
+        param.put("clinicID", clinicID);//clinic.getClinicDate().getYear()+1900));
         clinic.setIncompatibilitys(queryIncompatibilitys(param));
         clinic.setDetails(selectRxDetail2Review(param));
 

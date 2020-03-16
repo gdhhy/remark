@@ -554,10 +554,6 @@ public class ReviewServiceImpl implements ReviewService {
         return 0;
     }
 
-    public String getDepartCode(String departName) {
-        return recipeDao.getDepartCode(departName);
-    }
-
     public List<HashMap<String, Object>> getLastReview(int topRecount) {
         return sampleDao.getLastReview(topRecount);
     }

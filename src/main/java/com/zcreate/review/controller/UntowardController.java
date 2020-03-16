@@ -126,7 +126,7 @@ public class UntowardController {
                 modelMap.put("clinic", clinic);
             } else {
                 Recipe recipe = reviewService.getRecipe(objectID);
-                recipe.setDepartCode(reviewService.getDepartCode(recipe.getDepartment()));
+                //recipe.setDepartCode(reviewService.getDepartCode(recipe.getDepartment()));
                 modelMap.put("recipe", recipe);
             }
         }

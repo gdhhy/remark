@@ -170,12 +170,7 @@ public class RecipeDAOImpl extends SqlSessionDaoSupport implements RecipeDAO, Se
             return getSqlSession().selectList("RecipeItem.selectShortRecipeItem", param);
     }
 
-    public String getDepartCode(String department) {
-        HashMap<String, String> param = new HashMap<>(2);
-        param.put("departmentName", department);
-        param.put("prefix", reviewConfig.getPrefixHospital(false));
-        return (String) getSqlSession().selectOne("Recipe.selectDepartCode", param);
-    }
+
 
     @SuppressWarnings("unchecked")
     public List<HashMap<String, Object>> selectSurgery(Integer serialNo) {

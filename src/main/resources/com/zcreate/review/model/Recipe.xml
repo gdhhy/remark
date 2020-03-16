@@ -216,6 +216,9 @@
         SELECT count(*) FROM Recipe
         <include refid="queryWhere"/>
     </select>
+   <!-- <select id="selectOutPatientCount" parameterType="java.util.Map" resultType="int">
+        SELECT count(*) FROM Recipe
+    </select>-->
     <select id="selectRecipeList" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT TOP ${limit}
         A.recipeID,A.serialNo,A.patientNo,A.patientName,A.sex,A.age,A.inDate,A.outDate,A.inHospitalDay,A.department,A.diagnosis,A.diagnosis2,A.drugNum,A.money,A.medicineMoney,
@@ -294,13 +297,7 @@
         <if test="antiClass==0">AND M.antiClass >0</if>
         <if test="antiClass>0">AND M.antiClass = #{antiClass:INTEGER}</if>
     </select>
-    <!-- etonehis.hospital.william.  -->
-    <!-- eyserver.hospital.william.  -->
-    <select id="selectDepartCode" parameterType="java.util.Map" resultType="java.lang.String">
-        SELECT rtrim(p042_004) departCode
-        FROM ${prefix}.P042
-        WHERE p042_002 = #{departmentName:VARCHAR}
-    </select>
+
     <select id="selectRecipeListForExcel" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT R.serialNo,R.department,R.patientNo,R.patientName,R.masterDoctorName, (select distinct disease+',' from Diagnosis where serialNo=R.serialNo for XML PATH(''))
         diagnosis ,

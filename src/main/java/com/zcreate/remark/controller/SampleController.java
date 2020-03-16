@@ -128,9 +128,13 @@ public class SampleController {
             param.put("clinicDateTo", toCal.getTime());
             result.put("count", clinicDao.getClinicCount(param));
         } else {
-            param.put("outDateFrom", DateUtils.parseSqlDate(date[0]));
-            param.put("RecipeItemTable", "RecipeItem_" + date[0].substring(0, 4));
-            param.put("outDateTo", toCal.getTime());
+            Map<String, Object> dateParam = new HashMap<String, Object>();
+            dateParam.put("outDateFrom", DateUtils.parseSqlDate(date[0]));
+            dateParam.put("RecipeItemTable", "RecipeItem_" + date[0].substring(0, 4));
+            dateParam.put("outDateTo", toCal.getTime());
+            result.put("outPatientNum", recipeDao.getRecipeCount(dateParam));
+
+            param.putAll(dateParam);
             result.put("count", recipeDao.getRecipeCount(param));
         }
 

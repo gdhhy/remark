@@ -41,8 +41,6 @@ public interface RecipeDAO {
 
     List<RecipeItem> getRecipeItemList(Map param);
 
-    String getDepartCode(String department);
-
     List<HashMap<String, Object>> getRecipeItemCount(Integer serialNo);
 
     List<HashMap<String, Object>> getRecipeListForExcel(Map<String, Object> param);

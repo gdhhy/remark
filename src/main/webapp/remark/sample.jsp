@@ -261,7 +261,7 @@
                     goodsID: $('#form-goodsID').val(),//存数据库
                     //medicine: $('#form-medicine').val(),//显示
                     surgery: surgery ? 1 : 0,
-                    // outPatientNum: $('#form-outPatientNum').val(),
+                    outPatientNum: $('#form-outPatientNum').val(),
                     total: $('#form-total').val(),
                     incision: incision,
                     clinicType: clinicType,
@@ -722,11 +722,7 @@
                 };
 
                 $('.icon_total2').addClass("ace-icon fa fa-spinner fa-spin fa-3x fa-fw");//动画
-                $('#form-outPatientNum').val("");
-                $.getJSON("/remark/getObjectCount.jspa", params, function (result) {
-                    $('#form-outPatientNum').val(result.count);
-                    $('.icon_total2').removeClass("ace-icon fa fa-spinner fa-spin fa-3x fa-fw");//动画
-                });
+
             }
         });*/
         sampleForm.find("#form-type,#form-department,#form-doctor,#form-western,#form-medicine,input[type=checkbox],#form-dateRange").change(function () {//[name!='form-field-surgery']
@@ -779,6 +775,7 @@
             $('#form-total').val("");
             currentAjax = $.getJSON("/remark/getObjectCount.jspa", params, function (result) {
                 $('#form-total').val(result.count);
+                $('#form-outPatientNum').val(result.outPatientNum);
                 $('.icon_total').removeClass("ace-icon fa fa-spinner fa-spin fa-3x fa-fw");
             });
         });
@@ -1089,6 +1086,7 @@
                                 <input type="text" id="form-total" readonly name="form-total" autocomplete="off"
                                        class="col-sm-10"/>
                                 <i class="icon_total"></i>
+                                <input type="hidden" id="form-outPatientNum">
                             </span>
                         </div>
                     </div>

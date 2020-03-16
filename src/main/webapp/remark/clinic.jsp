@@ -309,7 +309,7 @@
                                                     <td width="20" height="25"></td>
                                                     <td width="20">${detail.num1}</td>
                                                     <td width="20">${detail.num2}</td>
-                                                    <c:if test='${detail.goodsID!="+"}'>
+                                                    <c:if test='${detail.goodsID!=0}'>
                                                         <td nowrap="true" width="300">
                                                             <c:choose>
                                                                 <c:when test='${detail.instructionID>0}'>
@@ -343,7 +343,7 @@
                                                         </c:if>
                                                         <td>${detail.audit}</td>
                                                     </c:if>
-                                                    <c:if test='${detail.goodsID=="+"}'>
+                                                    <c:if test='${detail.goodsID==0}'>
                                                         <td colspan="3">${fn:trim(detail.dosage)} ${detail.adviceType} &nbsp;&nbsp;
                                                             <c:choose>
                                                                 <c:when test='${detail.num==1}'>Q.d.</c:when>
