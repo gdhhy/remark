@@ -849,7 +849,7 @@
 
                 <div class="col-xs-12">
                     <div class="table-header">
-                        处方抽样 "全部列表"
+                        抽样 "全部列表"
                         <div class="pull-right tableTools-container"></div>
 
                     </div>

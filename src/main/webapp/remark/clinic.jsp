@@ -268,7 +268,7 @@
                                     <td width="78" align="center">${clinic.rxCount}</td>
                                     <td width="81" align="right" style="color: #368E9D;" bgColor="#ffffff">时间</td>
                                     <td width="119" align="center"><fmt:formatDate value='${clinic.clinicDate}' pattern="yyyy-MM-dd HH:mm"/></td>
-                                    <td width="81" align="right" style="color: #368E9D;" bgColor="#ffffff">药品组数</td>
+                                    <td width="81" align="right" style="color: #368E9D;" bgColor="#ffffff">品种数</td>
                                     <td width="119" align="center">${clinic.drugNum}</td>
                                 </tr>
                                 <tr>
@@ -309,54 +309,61 @@
                                                     <td width="20" height="25"></td>
                                                     <td width="20">${detail.num1}</td>
                                                     <td width="20">${detail.num2}</td>
-                                                    <c:if test='${detail.goodsID!=0}'>
-                                                        <td nowrap="true" width="300">
-                                                            <c:choose>
-                                                                <c:when test='${detail.instructionID>0}'>
-                                                                    <a href="#" class="hasInstruction" data-instructionID="${detail.instructionID}">
-                                                                        <c:if test="${detail.antiClass>0}">    <%--抗生素颜色特殊--%>
-                                                                            <span style="color: #e66e00;"> ${fn:trim(detail.dosage)} </span>
-                                                                        </c:if>
-                                                                        <c:if test="${detail.antiClass<=0}">${fn:trim(detail.dosage)}</c:if>
-                                                                    </a></c:when>
-                                                                <c:otherwise>
+                                                    <td nowrap="true" width="350">
+                                                        <c:choose>
+                                                            <c:when test='${detail.instructionID>0}'>
+                                                                <a href="#" class="hasInstruction" data-instructionID="${detail.instructionID}">
                                                                     <c:if test="${detail.antiClass>0}">    <%--抗生素颜色特殊--%>
-                                                                        <span style="color: #e66e00;"> ${fn:trim(detail.dosage)} </span>
+                                                                        <span style="color: #e66e00;"> ${fn:trim(detail.dosage)}</span>
                                                                     </c:if>
-                                                                    <c:if test="${detail.antiClass<=0}"> ${fn:trim(detail.dosage)} </c:if>
-                                                                </c:otherwise>
-                                                            </c:choose>
-                                                        </td>
-                                                        <c:if test="${detail.incompatibility==1}">
-                                                            <td onmouseout="hiddenPic();" onmousemove="showPic('${detail.taboo}');">
-                                                    <span style="color:#ee0000;">${detail.quantity}${detail.unit} &nbsp;
-                                                        (${detail.eachQuantity} ${detail.unit}／次)
-                                                          　${detail.frequency}
-                                                    </span>
-                                                            </td>
-                                                        </c:if>
-                                                        <c:if test="${detail.incompatibility!=1}">
-                                                            <td>${detail.quantity} ${detail.unit} &nbsp;
-                                                                (${detail.eachQuantity} ${detail.unit}／次)
-                                                                　${detail.frequency}
-                                                            </td>
-                                                        </c:if>
-                                                        <td>${detail.audit}</td>
-                                                    </c:if>
-                                                    <c:if test='${detail.goodsID==0}'>
-                                                        <td colspan="3">${fn:trim(detail.dosage)} ${detail.adviceType} &nbsp;&nbsp;
-                                                            <c:choose>
-                                                                <c:when test='${detail.num==1}'>Q.d.</c:when>
-                                                                <c:when test='${detail.num==2}'>B.i.d.</c:when>
-                                                                <c:when test='${detail.num==3}'>T.i.d.</c:when>
-                                                                <c:otherwise>每天${detail.num}次</c:otherwise>
-                                                            </c:choose>
-                                                            <c:if test="${detail.dayNum >0}">×&nbsp;${detail.dayNum}天 </c:if>
+                                                                    <c:if test="${detail.antiClass<=0 or empty detail.antiClass}">${fn:trim(detail.dosage)}</c:if>
+                                                                </a></c:when>
+                                                            <c:otherwise>
+                                                                <c:if test="${detail.antiClass>0}">    <%--抗生素颜色特殊--%>
+                                                                    <span style="color: #e66e00;"> ${fn:trim(detail.dosage)} </span>
+                                                                </c:if>
+                                                                <c:if test="${detail.antiClass<=0 or empty detail.antiClass}"> ${detail.dosage} </c:if>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                        &nbsp;&nbsp;&nbsp; <i>${detail.spec}</i>
+                                                    </td>
+                                                    <c:if test="${detail.incompatibility==1}">
+                                                        <td onmouseout="hiddenPic();" onmousemove="showPic('${detail.taboo}');">
+                                                            <span style="color:#ee0000;">${detail.quantity}${detail.unit} &nbsp;
+                                                                (<fmt:formatNumber pattern="0.#" value="${detail.eachQuantity}"/> ${detail.eachUnit}／次)
+                                                                  　${detail.frequency}
+                                                            </span>
                                                         </td>
                                                     </c:if>
+                                                    <c:if test="${detail.incompatibility!=1}">
+                                                        <td>${detail.quantity} ${detail.unit} &nbsp;
+                                                            (<fmt:formatNumber pattern="0.#" value="${detail.eachQuantity}"/> ${detail.eachUnit}／次)
+                                                            　${detail.frequency}
+                                                        </td>
+                                                    </c:if>
+                                                    <td>${detail.adviceType}
+                                                        <c:if test="${detail.dayNum >0}">×&nbsp;${detail.dayNum}天 </c:if></td>
+                                                        <%--<c:if test='${detail.goodsID==0}'>
+                                                            <td colspan="3">${fn:trim(detail.dosage)} ${detail.adviceType} &nbsp;&nbsp;
+                                                                <c:choose>
+                                                                    <c:when test='${detail.num==1}'>Q.d.</c:when>
+                                                                    <c:when test='${detail.num==2}'>B.i.d.</c:when>
+                                                                    <c:when test='${detail.num==3}'>T.i.d.</c:when>
+                                                                    <c:otherwise>每天${detail.num}次</c:otherwise>
+                                                                </c:choose>
+                                                                <c:if test="${detail.dayNum >0}">×&nbsp;${detail.dayNum}天 </c:if>
+                                                            </td>
+                                                        </c:if>--%>
                                                 </tr>
                                             </c:forEach>
                                         </table>
+
+                                        <c:if test="${clinic.copyNum >1}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            ×&nbsp;${clinic.copyNum} 剂 </c:if></td>
                                     </td>
                                 </tr>
                                 <tr>

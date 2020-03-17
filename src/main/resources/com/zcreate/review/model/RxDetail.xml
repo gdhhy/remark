@@ -15,7 +15,8 @@
         <result column="num" jdbcType="INTEGER" property="num"/>
         <result column="unit" jdbcType="VARCHAR" property="unit"/>
         <result column="dosage" jdbcType="VARCHAR" property="dosage"/>
-        <result column="eachQuantity" jdbcType="VARCHAR" property="eachQuantity"/>
+        <result column="eachQuantity" jdbcType="DOUBLE" property="eachQuantity"/>
+        <result column="eachUnit" jdbcType="VARCHAR" property="eachUnit"/>
         <result column="dayNum" jdbcType="INTEGER" property="dayNum"/>
         <result column="adviceType" jdbcType="VARCHAR" property="adviceType"/>
         <result column="minOfpack" jdbcType="INTEGER" property="minOfpack"/>
@@ -39,8 +40,8 @@
         </where>
     </sql>
     <select id="selectRxDetail2Review" parameterType="java.util.Map" resultMap="RxDetailResult">
-        SELECT R.rxDetailID,M.chnName medicineName,R.goodsID, R.eachQuantity,R.dayNum,R.adviceType, R.quantity,R.frequency,R.num,
-               M.minunit unit, M.matchInstrID instructionID, R.dosage,R.groupID,R.orderID ,R.audit,M.antiClass,M.producer,D.chnName generalName,M.dose,M.medicineID
+        SELECT R.rxDetailID,M.chnName medicineName,R.goodsID, R.eachQuantity,R.eachUnit,R.dayNum,R.adviceType, R.quantity,R.frequency,R.num,
+               M.minunit unit, M.matchInstrID instructionID, R.dosage,R.spec,R.groupID,R.orderID ,R.audit,M.antiClass,M.producer,D.chnName generalName,M.dose,M.medicineID
         FROM ${RxDetailTable} R
         LEFT JOIN Medicine M ON R.goodsID=M.goodsID
         LEFT JOIN Drug D ON D.drugID=M.matchDrugID
@@ -88,8 +89,8 @@
     </sql>
     <select id="queryPatientDrug" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT TOP ${limit}
-        a.serialNo,A.patientName,A.prescribeDate,a.chnName drugName,a.spec,A.quantity,A.minUnit,A.dosage,A.eachQuantity,A.dayNum,A.adviceType FROM
-        (SELECT R.rxDetailID, R.serialNo,Rx.patientName,R.prescribeDate,M.chnName,M.spec,R.quantity,M.minUnit,R.dosage,R.eachQuantity,R.dayNum,R.adviceType
+        a.serialNo,A.patientName,A.prescribeDate,a.chnName drugName,a.spec,A.quantity,A.minUnit,A.dosage,A.eachQuantity,A.eachUnit,A.dayNum,A.adviceType FROM
+        (SELECT R.rxDetailID, R.serialNo,Rx.patientName,R.prescribeDate,M.chnName,M.spec,R.quantity,M.minUnit,R.dosage,R.eachQuantity,R.eachUnit,R.dayNum,R.adviceType
         FROM ${RxDetailTable} R
         LEFT JOIN Rx ON R.rxID=Rx.rxID
         LEFT JOIN Medicine M ON R.goodsID=M.goodsID

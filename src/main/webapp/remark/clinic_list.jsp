@@ -50,9 +50,9 @@
                     {"data": "baseDrugNum", "sClass": "center"},
                     {"data": "money", "sClass": "center"},
                     {"data": "department", "sClass": "center"},
-                    {"data": "doctorName", "sClass": "center"},
+                    {"data": "doctorName", "sClass": "center"},/*
                     {"data": "confirmName", "sClass": "center"},//14
-                    {"data": "apothecaryName", "sClass": "center"},
+                    {"data": "apothecaryName", "sClass": "center"},*/
                     {"data": "rational", "sClass": "center"},
                     {"data": "disItem", "sClass": "center"},
                     {"data": "reviewDate", "sClass": "center"}
@@ -64,25 +64,25 @@
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     },
-                    {"orderable": false, "targets": 1, title: '处方日期'},//, width: 85
+                    {"orderable": false, "targets": 1, title: '处方日期', width: 125},//, width: 85
                     {"orderable": false, "targets": 2, title: '门诊号', width: 60},
                     {"orderable": false, "targets": 3, title: '姓名', width: 60},
                     {"orderable": false, "targets": 4, title: '年龄', width: 50},
                     {"orderable": false, "targets": 5, title: '诊断'},
                     {"orderable": false, "targets": 6, title: '类型', width: 45},
-                    {"orderable": false, "targets": 7, title: '品种数', width: 60},
+                    {"orderable": false, "targets": 7, title: '品种数',  defaultContent: '',width: 60},
                     {"orderable": false, "targets": 8, title: '抗菌素', defaultContent: '', width: 60, render: renderBoolean},
                     {"orderable": false, "targets": 9, title: '注射液', defaultContent: '', width: 60, render: renderBoolean},
-                    {"orderable": false, "targets": 10, title: '基本', defaultContent: '', width: 20},
+                    {"orderable": false, "targets": 10, title: '基本', defaultContent: '', width: 45},
                     {"orderable": false, "targets": 11, title: '金额', defaultContent: '', width: 60},
                     {"orderable": false, "targets": 12, title: '科室', defaultContent: ''},//, width: 70
                     {"orderable": false, "targets": 13, title: '医生', defaultContent: '', width: 60},
-                    {"orderable": false, "targets": 14, title: '审核', defaultContent: '', width: 60},
-                    {"orderable": false, "targets": 15, title: '配药', defaultContent: '', width: 60},
-                    {"orderable": false, "targets": 16, title: '合理', defaultContent: '', width: 45, render: renderYES},
-                    {"orderable": false, searchable: false, "targets": 17, title: '问题代码', width: 50, defaultContent: ''},
+                    /*{"orderable": false, "targets": 14, title: '审核', defaultContent: '', width: 60},
+                    {"orderable": false, "targets": 15, title: '配药', defaultContent: '', width: 60},*/
+                    {"orderable": false, "targets": 14, title: '合理', defaultContent: '', width: 45, render: renderYES},
+                    {"orderable": false, searchable: false, "targets": 15, title: '问题代码', width: 50, defaultContent: ''},
                     {
-                        "orderable": false, "targets": 18, title: '点评', width: 45, render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 16, title: '点评', width: 45, render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 '<a class="hasDetail" href="#" data-Url="/remark/viewClinic.jspa?clinicID={1}&batchID={2}">'.format(remarkType, row['clinicID'], sampleBatchID) +
                                 '<i class="ace-icon glyphicon glyphicon-pencil  bigger-130"></i>' +

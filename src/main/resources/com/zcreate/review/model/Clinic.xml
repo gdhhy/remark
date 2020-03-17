@@ -24,6 +24,7 @@
         <result column="confirmName" jdbcType="VARCHAR" property="confirmName"/>
         <result column="apothecaryName" jdbcType="VARCHAR" property="apothecaryName"/>
         <result column="isWestern" jdbcType="INTEGER" property="western"/>
+        <result column="copyNum" jdbcType="INTEGER" property="copyNum"/>
 
         <result column="drugNum" jdbcType="DOUBLE" property="drugNum"/>
         <result column="baseDrugNum" jdbcType="DOUBLE" property="baseDrugNum"/>
@@ -108,7 +109,7 @@
     <select id="selectClinicList" parameterType="java.util.Map" resultMap="ClinicResult">
         SELECT TOP ${limit}
         A.clinicID, A.serialNo, A.rxCount, A.clinicType, A.clinicDate,A.patientName, A.sex, A.age, A.department, A.diagnosis, A.money, A.doctorID, A.confirmNo, A.apothecaryNo,
-        A.isWestern, A.doctorName, A.confirmName, A.apothecaryName, A. drugNum, A.baseDrugNum, A.baseDrugMoney, A.antiNum, A.antiMoney, A.insuranceMoney, A.sameAntiNum,
+        A.isWestern,A.copyNum, A.doctorName, A.confirmName, A.apothecaryName, A. drugNum, A.baseDrugNum, A.baseDrugMoney, A.antiNum, A.antiMoney, A.insuranceMoney, A.sameAntiNum,
         A.injectionAntiNum, A.injectionAntiMoney, A.orallyAntiNum, A.orallyAntiMoney, A.injectionNum, A.sameInjectAntiNum, A.sameOrallyAntiNum, A.specAntiMoney, A.reviewDate,
         A.reviewUser, A.publish, A.result, A.appealState, A.disItem, A.rational
         FROM (SELECT * FROM Clinic
@@ -123,9 +124,11 @@
         ORDER BY ${orderField} DESC
     </select>
     <select id="selectClinic" parameterType="int" resultMap="ClinicResult">
-        SELECT clinicID, serialNo, rxCount, clinicType, clinicDate, patientName, sex, age, department, diagnosis, money, doctorID, confirmNo, apothecaryNo, isWestern, doctorName, confirmName,
+        SELECT clinicID, serialNo, rxCount, clinicType, clinicDate, patientName, sex, age, department, diagnosis, money, doctorID, confirmNo, apothecaryNo, isWestern, copyNum,
+               doctorName, confirmName,
                apothecaryName,
-               drugNum, baseDrugNum, baseDrugMoney, antiNum, antiMoney, insuranceMoney, sameAntiNum, injectionAntiNum, injectionAntiMoney, orallyAntiNum, orallyAntiMoney, injectionNum,
+               drugNum, baseDrugNum, baseDrugMoney, antiNum, antiMoney, insuranceMoney, sameAntiNum, injectionAntiNum, injectionAntiMoney, orallyAntiNum, orallyAntiMoney,
+               injectionNum,
                sameInjectAntiNum, sameOrallyAntiNum, specAntiMoney, reviewDate, reviewUser, publish, result, appealState, disItem, rational
         FROM Clinic
         WHERE clinicID = #{clinicID:INTEGER}
@@ -161,7 +164,7 @@
     </select>
     <select id="selectClinicInID" parameterType="java.util.Collection" resultMap="ClinicResult">
         SELECT DISTINCT
-        clinicID,serialNo,rxCount,clinicType,clinicDate,patientName,sex,age,department,diagnosis,money,doctorID,confirmNo,apothecaryNo,isWestern,doctorName,confirmName,apothecaryName,
+        clinicID,serialNo,rxCount,clinicType,clinicDate,patientName,sex,age,department,diagnosis,money,doctorID,confirmNo,apothecaryNo,isWestern,copyNum,doctorName,confirmName,apothecaryName,
         drugNum,baseDrugNum,baseDrugMoney,antiNum,antiMoney,insuranceMoney,sameAntiNum,injectionAntiNum,injectionAntiMoney,orallyAntiNum,orallyAntiMoney,injectionNum,
         sameInjectAntiNum,sameOrallyAntiNum,specAntiMoney,reviewDate,reviewUser,publish,result,appealState,disItem,rational
         FROM Clinic
@@ -206,34 +209,36 @@
     <select id="selectClinicReviewStat" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT A.department, A.clinicNum, A.drugNum, A.avgDrugNum, case when A.clinicNum > 0 then A.injectNum * 1.0 / A.clinicNum else 0 end injectRatio, A.injectNum,
             /*case when A.cortisolNum >0 then A.cortisolNum *1.0/A.clinicNum else 0 end cortisolRatio,A.cortisolNum,*/
-               case when A.amount > 0 then A.baseAmount * 1.0 / A.amount else 0 end                                                          baseAmountRatio,
+               case when A.amount > 0 then A.baseAmount * 1.0 / A.amount else 0 end baseAmountRatio,
                A.amount, A.baseAmount,
                A.largeAmount, A.disItem1_1, A.disItem1_14, A.disItem2_5, A.disItem2_8, A.disItem2_8, A.disItem3_1, B.antiPatient, B.clinicPatient2, B.antiRatio, B.skipRank
         from (SELECT C.department,
-                     count(DISTINCT R.clinicID)                                                                             clinicNum, count(M.medicineID) drugNum,
-                     count(M.medicineID) * 1.0 / count(DISTINCT R.clinicID)                                                 avgDrugNum,
-                     count(DISTINCT CASE WHEN M.route = 2 THEN R.clinicID ELSE NULL END)                                    injectNum,
+                     count(DISTINCT R.clinicID) clinicNum, count(M.medicineID) drugNum,
+                     count(M.medicineID) * 1.0 / count(DISTINCT R.clinicID) avgDrugNum,
+                     count(DISTINCT CASE WHEN M.route = 2 THEN R.clinicID ELSE NULL END) injectNum,
                   /*count(DISTINCT CASE WHEN M.mental = 2 THEN R.clinicID ELSE NULL END) cortisolNum,*/
-                     sum(CASE WHEN M.base >= 1 THEN R.money ELSE 0 END)                                                     baseAmount,
-                     sum(R.money)                                                                                           amount,
-                     count(DISTINCT CASE WHEN C.money > ${largeAmount} THEN R.clinicID ELSE NULL END)                       largeAmount,
-                     count(DISTINCT CASE WHEN disitem LIKE '%1-1,%' or disitem LIKE '%1-1' THEN R.clinicID ELSE NULL END)   disItem1_1,
-                     count(DISTINCT CASE WHEN disitem LIKE '%2-5,%' or disitem LIKE '%2-5' THEN R.clinicID ELSE NULL END)   disItem2_5,
-                     count(DISTINCT CASE WHEN disitem LIKE '%3-1,%' or disitem LIKE '%3-1' THEN R.clinicID ELSE NULL END)   disItem3_1,
-                     count(DISTINCT CASE WHEN disitem LIKE '%2-8,%' or disitem LIKE '%2-8' THEN R.clinicID ELSE NULL END)   disItem2_8,
+                     sum(CASE WHEN M.base >= 1 THEN R.money ELSE 0 END) baseAmount,
+                     sum(R.money) amount,
+                     count(DISTINCT CASE WHEN C.money > ${largeAmount} THEN R.clinicID ELSE NULL END) largeAmount,
+                     count(DISTINCT CASE WHEN disitem LIKE '%1-1,%' or disitem LIKE '%1-1' THEN R.clinicID ELSE NULL END) disItem1_1,
+                     count(DISTINCT CASE WHEN disitem LIKE '%2-5,%' or disitem LIKE '%2-5' THEN R.clinicID ELSE NULL END) disItem2_5,
+                     count(DISTINCT CASE WHEN disitem LIKE '%3-1,%' or disitem LIKE '%3-1' THEN R.clinicID ELSE NULL END) disItem3_1,
+                     count(DISTINCT CASE WHEN disitem LIKE '%2-8,%' or disitem LIKE '%2-8' THEN R.clinicID ELSE NULL END) disItem2_8,
                      count(DISTINCT CASE WHEN disitem LIKE '%1-14,%' or disitem LIKE '%1-14' THEN R.clinicID ELSE NULL END) disItem1_14
               FROM ${RxDetailTable} R
                        JOIN Medicine M ON R.goodsID = M.goodsID
                        LEFT JOIN Clinic C ON R.clinicID = C.clinicID
               WHERE R.clinicID IN
-                    (SELECT objectID FROM sampleList L WHERE samplebatchID IN (SELECT samplebatchID FROM samplebatch WHERE type = 1 AND year = #{year:INTEGER} AND month = #{month:INTEGER}))
+                    (SELECT objectID
+                     FROM sampleList L
+                     WHERE samplebatchID IN (SELECT samplebatchID FROM samplebatch WHERE type = 1 AND year = #{year:INTEGER} AND month = #{month:INTEGER}))
               GROUP BY C.department) A
                  LEFT JOIN
              (SELECT department,
-                     sum(clinicAntiPatient)                                                                               antiPatient,
-                     sum(clinicPatient2)                                                                                  clinicPatient2,
+                     sum(clinicAntiPatient) antiPatient,
+                     sum(clinicPatient2) clinicPatient2,
                      CASE WHEN sum(clinicPatient2) > 0 THEN sum(clinicAntiPatient) * 1.0 / sum(clinicPatient2) ELSE 0 END antiRatio,
-                     sum(skipRank)                                                                                        skipRank
+                     sum(skipRank) skipRank
               FROM dailydepart
               WHERE date > #{fromDate:VARCHAR} AND date &lt; #{toDate:VARCHAR}
               GROUP BY department) B ON A.department = B.department

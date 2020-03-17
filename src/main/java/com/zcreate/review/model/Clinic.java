@@ -42,6 +42,7 @@ public class Clinic implements Serializable {
     private String confirmName;
     private String apothecaryName;
     private Integer western;
+    private Integer copyNum;
 
     //----------------------基本统计
     private Integer drugNum;
@@ -249,6 +250,14 @@ public class Clinic implements Serializable {
 
     public void setWestern(Integer western) {
         this.western = western;
+    }
+
+    public Integer getCopyNum() {
+        return copyNum;
+    }
+
+    public void setCopyNum(Integer copyNum) {
+        this.copyNum = copyNum;
     }
 
     public Integer getDrugNum() {
