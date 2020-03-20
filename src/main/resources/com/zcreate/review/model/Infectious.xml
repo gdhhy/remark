@@ -6,7 +6,7 @@
     <resultMap id="InfectiousResult" type="com.zcreate.review.model.Infectious">
         <result column="infectiousID" jdbcType="INTEGER" property="infectiousID"/>
         <result column="objectType" jdbcType="INTEGER" property="objectType"/>
-        <result column="serialNo" jdbcType="VARCHAR" property="serialNo"/>
+        <result column="hospID" jdbcType="VARCHAR" property="hospID"/>
         <result column="patientID" jdbcType="INTEGER" property="patientID"/>
         <result column="reportNo" jdbcType="VARCHAR" property="reportNo"/>
         <result column="reportType" jdbcType="INTEGER" property="reportType"/>
@@ -61,7 +61,7 @@
         <result column="contagionID" jdbcType="INTEGER" property="contagionID"/>
         <result column="objectType" jdbcType="INTEGER" property="objectType"/>
         <result column="patientID" jdbcType="INTEGER" property="patientID"/>
-        <result column="serialNo" jdbcType="VARCHAR" property="serialNo"/>
+        <result column="hospID" jdbcType="VARCHAR" property="hospID"/>
         <result column="department" jdbcType="VARCHAR" property="department"/>
         <result column="patientName" jdbcType="VARCHAR" property="patientName"/>
         <result column="idNo" jdbcType="VARCHAR" property="idNo"/>
@@ -108,13 +108,13 @@
         <result column="workflow" jdbcType="INTEGER" property="workflow"/>
     </resultMap>
     <select id="selectContagion" resultType="java.util.Map" parameterType="int">
-        SELECT contagionID,objectType,patientID,serialNo,department,patientName,idNo,boy,age,inDate,hospitalDay,baseDiagnosis1,baseDiagnosis2,baseDiagnosis3,baseDiagnosis4,hospitalInfect1,occurDay1,
+        SELECT contagionID,objectType,patientID,hospID,department,patientName,idNo,boy,age,inDate,hospitalDay,baseDiagnosis1,baseDiagnosis2,baseDiagnosis3,baseDiagnosis4,hospitalInfect1,occurDay1,
         hospitalInfect2,occurDay2,factor,surgeryName,emergency,surgeryDate,surgeryDoctor,lastTime1,lastTime2,anaesthesia,cut,feature,microbe,time1,time2,time3,drainage,hormone,time4,time5,
         sample,bAntiDrug,aAntiDrug,pAntiDrug,antiItem,masterDoctor,monitorDoctor,reportTime,workflow,doctorUserID,doctorUsername FROM Contagion
         WHERE contagionID = #{contagionID:INTEGER}
     </select>
     <select id="selectInfectious" resultType="java.util.Map" parameterType="int">
-       SELECT infectiousID,objectType,patientID,serialNo,reportNo,reportType,patientName,patientParent,idCardNo,boy,birthday,age,ageUnit,workplace,linkPhone,belongTo,address,occupation,occupationElse,caseClass,
+       SELECT infectiousID,objectType,patientID,hospID,reportNo,reportType,patientName,patientParent,idCardNo,boy,birthday,age,ageUnit,workplace,linkPhone,belongTo,address,occupation,occupationElse,caseClass,
        accidentDate,diagnosisDate,diagnosisHour,deathDate,infectiousClass,infectiousName,correctName,cancelCause,reportUnit,doctorPhone,reportDoctor,memo,
        marital,nation,nationElse,education,venerismHis, registerAddr,touchHis,touchElse,infectRoute,sampleSource,conclusion,checkConfirmDate,hivConfirmDate,checkUnit,
        convert(varchar(16),fillTime,120) fillTime, workflow,doctorUserID,doctorUsername
@@ -123,7 +123,7 @@
     </select>
     <select id="selectContagionList" resultMap="ContagionResult" parameterType="java.util.Map">
         SELECT
-        contagionID,objectType,patientID,serialNo,department,patientName,idNo,boy,age,inDate,hospitalDay,baseDiagnosis1,baseDiagnosis2,baseDiagnosis3,baseDiagnosis4,hospitalInfect1,occurDay1,
+        contagionID,objectType,patientID,hospID,department,patientName,idNo,boy,age,inDate,hospitalDay,baseDiagnosis1,baseDiagnosis2,baseDiagnosis3,baseDiagnosis4,hospitalInfect1,occurDay1,
         hospitalInfect2,occurDay2,factor,surgeryName,emergency,surgeryDate,surgeryDoctor,lastTime1,lastTime2,anaesthesia,cut,feature,microbe,time1,time2,time3,drainage,hormone,time4,time5,
         sample,bAntiDrug,aAntiDrug,pAntiDrug,antiItem,masterDoctor,monitorDoctor,reportTime,workflow,doctorUserID,doctorUsername,workflowNote FROM Contagion
         <where>
@@ -140,7 +140,7 @@
     </select>
     <select id="selectInfectiousList" resultMap="InfectiousResult" parameterType="java.util.Map">
         SELECT
-        infectiousID,objectType,patientID,serialNo,reportNo,reportType,patientName,patientParent,idCardNo,boy,birthday,age,ageUnit,workplace,linkPhone,belongTo,address,occupation,occupationElse,caseClass,
+        infectiousID,objectType,patientID,hospID,reportNo,reportType,patientName,patientParent,idCardNo,boy,birthday,age,ageUnit,workplace,linkPhone,belongTo,address,occupation,occupationElse,caseClass,
         accidentDate,diagnosisDate,diagnosisHour,deathDate,infectiousClass,infectiousName,correctName,cancelCause,reportUnit,doctorPhone,reportDoctor,memo,
         marital,nation,nationElse,education,venerismHis, registerAddr,touchHis,touchElse,infectRoute,sampleSource,conclusion,checkConfirmDate,hivConfirmDate,checkUnit,
         convert(varchar(16),fillTime,120) fillTime,workflow,doctorUserID,doctorUsername,workflowNote
@@ -164,11 +164,11 @@
     </select>
     <insert id="insertContagion" parameterType="com.zcreate.review.model.Contagion" flushCache="true">
         INSERT INTO Contagion
-        (objectType,patientID,serialNo,department,patientName,idNo,boy,age,inDate,hospitalDay,baseDiagnosis1,baseDiagnosis2,baseDiagnosis3,baseDiagnosis4,hospitalInfect1,occurDay1,
+        (objectType,patientID,hospID,department,patientName,idNo,boy,age,inDate,hospitalDay,baseDiagnosis1,baseDiagnosis2,baseDiagnosis3,baseDiagnosis4,hospitalInfect1,occurDay1,
         hospitalInfect2,occurDay2,factor,surgeryName,emergency,surgeryDate,surgeryDoctor,lastTime1,lastTime2,anaesthesia,cut,feature,microbe,time1,time2,time3,drainage,hormone,time4,time5,
         sample,bAntiDrug,aAntiDrug,pAntiDrug,antiItem,masterDoctor,monitorDoctor,workflow,doctorUserID,doctorUsername)
         VALUES
-        (#{objectType:INTEGER},#{patientID:INTEGER},#{serialNo:VARCHAR},#{department:VARCHAR},#{patientName:VARCHAR},#{idNo:VARCHAR},#{boy:INTEGER},#{age:VARCHAR},#{inDate:VARCHAR},#{hospitalDay:VARCHAR},
+        (#{objectType:INTEGER},#{patientID:INTEGER},#{hospID:VARCHAR},#{department:VARCHAR},#{patientName:VARCHAR},#{idNo:VARCHAR},#{boy:INTEGER},#{age:VARCHAR},#{inDate:VARCHAR},#{hospitalDay:VARCHAR},
         #{baseDiagnosis1:VARCHAR},#{baseDiagnosis2:VARCHAR},
         #{baseDiagnosis3:VARCHAR},#{baseDiagnosis4:VARCHAR},#{hospitalInfect1:VARCHAR},#{occurDay1:VARCHAR},#{hospitalInfect2:VARCHAR},#{occurDay2:VARCHAR},
         #{factor:VARCHAR},#{surgeryName:VARCHAR},#{emergency:INTEGER}, #{surgeryDate:VARCHAR},#{surgeryDoctor:VARCHAR},#{lastTime1:VARCHAR},#{lastTime2:VARCHAR},
@@ -182,11 +182,11 @@
     </insert>
     <insert id="insertInfectious" parameterType="com.zcreate.review.model.Infectious" flushCache="true">
         INSERT INTO Infectious
-        (objectType,patientID,serialNo,reportNo,reportType,patientName,patientParent,idCardNo,boy,birthday,age,ageUnit,workplace,linkPhone,belongTo,address,occupation,occupationElse,caseClass,
+        (objectType,patientID,hospID,reportNo,reportType,patientName,patientParent,idCardNo,boy,birthday,age,ageUnit,workplace,linkPhone,belongTo,address,occupation,occupationElse,caseClass,
         accidentDate,diagnosisDate,diagnosisHour,deathDate,infectiousClass,infectiousName,correctName,cancelCause,reportUnit,doctorPhone,reportDoctor,memo,
         marital,nation,nationElse,education,venerismHis, registerAddr,touchHis,touchElse,infectRoute,sampleSource,conclusion,checkConfirmDate,hivConfirmDate,checkUnit,workflow,doctorUserID,doctorUsername)
         VALUES
-        (#{objectType:INTEGER},#{patientID:INTEGER},#{serialNo:VARCHAR},#{reportNo:VARCHAR},#{reportType:INTEGER},#{patientName:VARCHAR},#{patientParent:VARCHAR},#{idCardNo:VARCHAR},#{boy:INTEGER},#{birthday:VARCHAR},
+        (#{objectType:INTEGER},#{patientID:INTEGER},#{hospID:VARCHAR},#{reportNo:VARCHAR},#{reportType:INTEGER},#{patientName:VARCHAR},#{patientParent:VARCHAR},#{idCardNo:VARCHAR},#{boy:INTEGER},#{birthday:VARCHAR},
         #{age:VARCHAR},#{ageUnit:VARCHAR},#{workplace:VARCHAR},#{linkPhone:VARCHAR},#{belongTo:VARCHAR},#{address:VARCHAR},#{occupation:VARCHAR},#{occupationElse:VARCHAR},
         #{caseClass:INTEGER},
         #{accidentDate:VARCHAR},#{diagnosisDate:VARCHAR},#{diagnosisHour:VARCHAR},#{deathDate:VARCHAR},#{infectiousClass:INTEGER},#{infectiousName:VARCHAR},
@@ -203,7 +203,7 @@
         <set>
             <if test="reportNo != null">reportNo = #{reportNo:VARCHAR},</if>
             <if test="patientID != null">patientID = #{patientID:INTEGER},</if>
-            <if test="serialNo != null">serialNo = #{serialNo:VARCHAR},</if>
+            <if test="hospID != null">hospID = #{hospID:VARCHAR},</if>
             <if test="reportType != null">reportType = #{reportType:INTEGER},</if>
             <if test="patientName != null">patientName = #{patientName:VARCHAR},</if>
             <if test="patientParent != null">patientParent = #{patientParent:VARCHAR},</if>
@@ -255,7 +255,7 @@
         UPDATE Contagion
         <set>
             <if test="patientID != null">patientID = #{patientID:INTEGER},</if>
-            <if test="serialNo != null">serialNo = #{serialNo:VARCHAR},</if>
+            <if test="hospID != null">hospID = #{hospID:VARCHAR},</if>
             <if test="department != null">department = #{department:VARCHAR},</if>
             <if test="patientName != null">patientName = #{patientName:VARCHAR},</if>
             <if test="idNo != null">idNo = #{idNo:VARCHAR},</if>

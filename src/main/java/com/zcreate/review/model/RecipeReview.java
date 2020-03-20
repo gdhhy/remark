@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class RecipeReview implements Serializable {
     private Integer recipeReviewID=0;
-    private String serialNo;
+    private Integer hospID;
     private Integer germCheck = 0;
     private String sample;
     private String checkDate;
@@ -45,12 +45,12 @@ public class RecipeReview implements Serializable {
         this.recipeReviewID = recipeReviewID;
     }
 
-    public String getSerialNo() {
-        return serialNo;
+    public Integer getHospID() {
+        return hospID;
     }
 
-    public void setSerialNo(String serialNo) {
-        this.serialNo = serialNo;
+    public void setHospID(Integer hospID) {
+        this.hospID = hospID;
     }
 
     public Integer getGermCheck() {

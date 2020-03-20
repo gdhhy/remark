@@ -37,7 +37,7 @@ public interface ReviewService {
 
     List<HashMap<String, Object>> getRecipeListForExcel(Map<String, Object> param);
 
-    List<HashMap<String, Object>> getRecipeItemForExcel(Integer serialNo, int medicineType);
+    List<HashMap<String, Object>> getRecipeItemForExcel(Integer hospID, int medicineType);
 
   /*  int getClinicCount(Map<String, Object> param);
 
@@ -51,15 +51,15 @@ public interface ReviewService {
 
     boolean saveRecipeReview(RecipeReview review);
 
-    List<RecipeItem> getRecipeItemList(Integer serialNo, int longAdvice,String year);
+    List<RecipeItem> getRecipeItemList(Integer hospID, int longAdvice,String year);
 
     List<HashMap<String, Object>> getLastReview(int topRecount);
 
     List<HashMap<String, Object>> getLastReviewByDoctor(int topRecount);
 
-    int getSurgeryCount(Integer serialNo);
+    int getSurgeryCount(Integer hospID);
 
-    List<HashMap<String, Object>> getRecipeItemCount(Integer serialNo);
+    List<HashMap<String, Object>> getRecipeItemCount(Integer hospID);
 
-    int saveDiagnosis(Integer serialNo, String diagnosisNos, String diseases);
+    int saveDiagnosis(Integer hospID, String diagnosisNos, String diseases);
 }

@@ -3,23 +3,23 @@ exec sp_copy_index 'RecipeItem', 'RecipeItem_2017';
 exec sp_copy_table 'RecipeItem', 'RecipeItem_2018';
 exec sp_copy_index 'RecipeItem', 'RecipeItem_2018';
 
-insert into RecipeItem_2017 (recipeItemID, serialNo, longAdvice, recipeDate, advice, medicineNo, doctorName, nurseName, endDate, endDoctorName,
+insert into RecipeItem_2017 (recipeItemID, hospID, longAdvice, recipeDate, advice, medicineNo, doctorName, nurseName, endDate, endDoctorName,
                              endNurseName, quantity, unit, adviceType, orderID, groupID, problemCode, problemDesc)
 SELECT *
 FROM RecipeItem
-where serialNo in (select serialNo from Recipe where outdate > '2017-01-01' and outDate < '2018-01-01');
-insert into RecipeItem_2018 (recipeItemID, serialNo, longAdvice, recipeDate, advice, medicineNo, doctorName, nurseName, endDate, endDoctorName,
+where hospID in (select hospID from Recipe where outdate > '2017-01-01' and outDate < '2018-01-01');
+insert into RecipeItem_2018 (recipeItemID, hospID, longAdvice, recipeDate, advice, medicineNo, doctorName, nurseName, endDate, endDoctorName,
                              endNurseName, quantity, unit, adviceType, orderID, groupID, problemCode, problemDesc)
 SELECT *
 FROM RecipeItem
-where serialNo in (select serialNo from Recipe where outdate > '2018-01-01' and outDate < '2019-01-01');
+where hospID in (select hospID from Recipe where outdate > '2018-01-01' and outDate < '2019-01-01');
 
 truncate  table  RecipeItem_2019;
-insert into RecipeItem_2019 (recipeItemID, serialNo, longAdvice, recipeDate, advice, medicineNo, doctorName, nurseName, endDate, endDoctorName,
+insert into RecipeItem_2019 (recipeItemID, hospID, longAdvice, recipeDate, advice, medicineNo, doctorName, nurseName, endDate, endDoctorName,
                              endNurseName, quantity, unit, adviceType, orderID, groupID, problemCode, problemDesc)
 SELECT *
 FROM RecipeItem
-where serialNo in (select serialNo from Recipe where outdate > '2019-01-01' or outdate is null);
+where hospID in (select hospID from Recipe where outdate > '2019-01-01' or outdate is null);
 
 
 exec sp_copy_table 'RxDetail', 'RxDetail_2018';

@@ -267,7 +267,7 @@
 
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getRecipeItemList.jspa?longAdvice=1&serialNo=${recipe.serialNo}&year=${recipe.year}",
+                    url: "/remark/getRecipeItemList.jspa?longAdvice=1&hospID=${recipe.hospID}&year=${recipe.year}",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -335,7 +335,7 @@
 
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getRecipeItemList.jspa?longAdvice=2&serialNo=${recipe.serialNo}&year=${recipe.year}",
+                    url: "/remark/getRecipeItemList.jspa?longAdvice=2&hospID=${recipe.hospID}&year=${recipe.year}",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -516,7 +516,7 @@
                 },
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getSurgerys.jspa?serialNo=${recipe.serialNo}",//${recipe.serialNo}
+                    url: "/remark/getSurgerys.jspa?hospID=${recipe.hospID}",//${recipe.hospID}
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -570,8 +570,8 @@
                 },
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getDiagnosis.jspa?serialNo=${recipe.serialNo}",
-                    //url: "/remark/getDiagnosis.jspa?serialNo=0000593702&archive=1",
+                    url: "/remark/getDiagnosis.jspa?hospID=${recipe.hospID}",
+                    //url: "/remark/getDiagnosis.jspa?hospID=0000593702&archive=1",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -613,8 +613,8 @@
             var loadData = 0;
             $('#courseTabIndex').click(function () {
                 if ((loadData & 1) === 0)
-                //$.getJSON("/remark/getCourse.jspa?serialNo=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
-                    $.getJSON("/remark/getCourse.jspa?serialNo=${recipe.serialNo}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                //$.getJSON("/remark/getCourse.jspa?hospID=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                    $.getJSON("/remark/getCourse.jspa?hospID=${recipe.hospID}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
                         var template = Handlebars.compile($('#courseContent').html());
                         var htmlArray = [];
                         $.each(result.data, function (index, value) {
@@ -629,8 +629,8 @@
             });
             $('#historyTabIndex').click(function () {
                 if ((loadData & 2) === 0)
-                //$.getJSON("/remark/showHistory.jspa?serialNo=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
-                    $.getJSON("/remark/getCourse.jspa?serialNo=${recipe.serialNo}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                //$.getJSON("/remark/showHistory.jspa?hospID=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                    $.getJSON("/remark/getCourse.jspa?hospID=${recipe.hospID}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
                         var template = Handlebars.compile($('#historyContent').html());
 
                         $('#historyContent').html(template(result));
@@ -701,7 +701,7 @@
             });
 
             var json = {
-                recipeID: '${recipe.recipeID}', serialNo: '${recipe.serialNo}', recipeReviewID: '${recipe.review.recipeReviewID}',
+                recipeID: '${recipe.recipeID}', hospID: '${recipe.hospID}', recipeReviewID: '${recipe.review.recipeReviewID}',
                 reviewUser: '${currentUser.name}', masterDoctor: '${recipe.masterDoctorName}'
             };
             //保存
@@ -1295,7 +1295,7 @@
                     <div class="col-sm-6 widget-container-col" id="widget-container-col-13">
                         <div class="widget-box transparent" id="widget-box-13">
                             <div class="widget-header">
-                                <h4 class="widget-title lighter">住院号：${recipe.patientNo}，姓名：${recipe.patientName}，出院日期：<fmt:formatDate value='${outDate}' pattern='yyyy-MM-dd HH:mm'/></h4>
+                                <h4 class="widget-title lighter">住院号：${recipe.patientID}，姓名：${recipe.patientName}，出院日期：<fmt:formatDate value='${outDate}' pattern='yyyy-MM-dd HH:mm'/></h4>
 
                                 <div class="widget-toolbar no-border" id="tabDiv">
                                     <ul class="nav nav-tabs" id="myTab2">
@@ -1319,7 +1319,7 @@
                                                 <tbody>
                                                 <tr>
                                                     <td class="col-sm-2">住院号</td>
-                                                    <td class="col-sm-4">${recipe.patientNo}</td>
+                                                    <td class="col-sm-4">${recipe.patientID}</td>
 
                                                     <td class="col-sm-2">姓名</td>
 

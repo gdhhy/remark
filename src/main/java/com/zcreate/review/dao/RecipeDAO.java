@@ -41,25 +41,25 @@ public interface RecipeDAO {
 
     List<RecipeItem> getRecipeItemList(Map param);
 
-    List<HashMap<String, Object>> getRecipeItemCount(Integer serialNo);
+    List<HashMap<String, Object>> getRecipeItemCount(Integer hospID);
 
     List<HashMap<String, Object>> getRecipeListForExcel(Map<String, Object> param);
 
     List<HashMap<String, Object>> getRecipeItemForExcel(Map<String, Object> param);
 
-    List<HashMap<String, Object>> selectSurgery(Integer serialNo);
+    List<HashMap<String, Object>> selectSurgery(Integer hospID);
 
-    int getSurgeryCount(Integer serialNo);
+    int getSurgeryCount(Integer hospID);
 
     //int saveRecipeItemReview(RecipeItemReview reviewItem);
 
     int saveDiagnosis(List<Map> diagnosisMap);
 
-    int deleteDiagnosis(Integer serialNo, int choose);
+    int deleteDiagnosis(Integer hospID, int choose);
 
-    //List<Map<String,Object>> selectDiagnosis(Integer serialNo);
+    //List<Map<String,Object>> selectDiagnosis(Integer hospID);
 
-    int chooseDiagnosisForResearch(Integer serialNo, List<HashMap<String, Object>> ids);
+    int chooseDiagnosisForResearch(Integer hospID, List<HashMap<String, Object>> ids);
 
     List<HashMap<String, Object>> getRecipeAntiStat(Map param);
 

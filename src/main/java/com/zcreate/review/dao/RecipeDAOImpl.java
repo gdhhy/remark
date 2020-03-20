@@ -53,11 +53,11 @@ public class RecipeDAOImpl extends SqlSessionDaoSupport implements RecipeDAO, Se
         }
         Map<String, Object> param = new HashMap<>();
         //param.put("recipeID", recipeID);
-        param.put("serialNo", recipe.getSerialNo());
+        param.put("hospID", recipe.getHospID());
         param.put("RecipeItemTable", "RecipeItem_" + recipe.getYear());
 
         recipe.setMicrobeCheck(getSqlSession().selectOne("Recipe.selectRecipeMicrobeCheck", param));
-        recipe.setIncompatNum(getSqlSession().selectOne("Recipe.selectIncompatNum", recipe.getSerialNo()));
+        recipe.setIncompatNum(getSqlSession().selectOne("Recipe.selectIncompatNum", recipe.getHospID()));
         recipe.setReview(getRecipeReview(param));
 
         return recipe;
@@ -134,7 +134,7 @@ public class RecipeDAOImpl extends SqlSessionDaoSupport implements RecipeDAO, Se
                     if (item.getRecipeItemReviewID() > 0) itemList.add(item.getRecipeItemReviewID());
 
             Map<String, Object> param = new HashMap<>(2);
-            param.put("serialNo", review.getSerialNo());
+            param.put("hospID", review.gethospID());
             param.put("recipeItemReviewList", itemList);
             affectedRowCount += getSqlSession().delete("RecipeItem.deleteRecipeItemReview", param);//删除不存在的ID*/
         } else {
@@ -158,8 +158,8 @@ public class RecipeDAOImpl extends SqlSessionDaoSupport implements RecipeDAO, Se
     }
 
     @SuppressWarnings("unchecked")
-    public List<HashMap<String, Object>> getRecipeItemCount(Integer serialNo) {
-        return getSqlSession().selectList("RecipeItem.selectRecipeItemCount", serialNo);
+    public List<HashMap<String, Object>> getRecipeItemCount(Integer hospID) {
+        return getSqlSession().selectList("RecipeItem.selectRecipeItemCount", hospID);
     }
 
     @SuppressWarnings("unchecked")
@@ -173,12 +173,12 @@ public class RecipeDAOImpl extends SqlSessionDaoSupport implements RecipeDAO, Se
 
 
     @SuppressWarnings("unchecked")
-    public List<HashMap<String, Object>> selectSurgery(Integer serialNo) {
-        return getSqlSession().selectList("RecipeItem.selectSurgery", serialNo);
+    public List<HashMap<String, Object>> selectSurgery(Integer hospID) {
+        return getSqlSession().selectList("RecipeItem.selectSurgery", hospID);
     }
 
-    public int getSurgeryCount(Integer serialNo) {
-        return (Integer) getSqlSession().selectOne("RecipeItem.selectSurgeryCount", serialNo);
+    public int getSurgeryCount(Integer hospID) {
+        return (Integer) getSqlSession().selectOne("RecipeItem.selectSurgeryCount", hospID);
     }
 
    /* public int saveRecipeItemReview(RecipeItemReview reviewItem) {
@@ -197,28 +197,28 @@ public class RecipeDAOImpl extends SqlSessionDaoSupport implements RecipeDAO, Se
     }
 
     @SuppressWarnings("unchecked")
-    public int deleteDiagnosis(Integer serialNo, int choose) {
+    public int deleteDiagnosis(Integer hospID, int choose) {
         Map param = new HashMap<>();
-        param.put("serialNo", serialNo);
+        param.put("hospID", hospID);
         param.put("choose", choose);
         return getSqlSession().delete("RecipeItem.deleteDiagnosis", param);
     }
 
-    /*public List<Map<String, Object>> selectDiagnosis(Integer serialNo) {
-        return getSqlSession().selectList("RecipeItem.selectDiagnosis", serialNo);
+    /*public List<Map<String, Object>> selectDiagnosis(Integer hospID) {
+        return getSqlSession().selectList("RecipeItem.selectDiagnosis", hospID);
     }*/
 
     @Override
     @SuppressWarnings("unchecked")
-    public int chooseDiagnosisForResearch(Integer serialNo, List<HashMap<String, Object>> ids) {
-        int succeed = deleteDiagnosis(serialNo, 2);
+    public int chooseDiagnosisForResearch(Integer hospID, List<HashMap<String, Object>> ids) {
+        int succeed = deleteDiagnosis(hospID, 2);
 
         for (Map map : ids) {
             succeed += getSqlSession().insert("RecipeItem.insertDiagnosis", map);
         }
 
         //强逼Recipe重新加载
-        if (succeed > 0) getSqlSession().update("Recipe.clearCache", serialNo);
+        if (succeed > 0) getSqlSession().update("Recipe.clearCache", hospID);
 
         return succeed;
     }

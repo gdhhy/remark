@@ -1,6 +1,5 @@
 package com.zcreate.remark.controller;
 
-import com.zcreate.ReviewConfig;
 import com.zcreate.remark.dao.DrugRecordsMapper;
 import com.zcreate.remark.util.ControllerHelp;
 import com.zcreate.remark.util.ParamUtils;
@@ -28,28 +27,28 @@ import static com.zcreate.remark.util.ControllerHelp.wrap;
 @RequestMapping("/sunning")
 public class SunningController {
     private static Logger log = LoggerFactory.getLogger(SunningController.class);
-    /* @Autowired
-     private StatDAO statDao;
-      @Autowired
-      private DailyDAO dailyDao;*/
     @Autowired
     private DrugRecordsMapper drugRecordsMapper;
     @Autowired
     private StatService statService;
-    @Autowired
-    private ReviewConfig reviewConfig;
 
     //@ResponseBody
     @RequestMapping(value = "summary", method = RequestMethod.GET)
     public String summary(@RequestParam(value = "fromDate") String fromDate,
-                          @RequestParam(value = "toDate") String toDate,
-                          @RequestParam(value = "table", required = false, defaultValue = "0") Integer table,
-                          @RequestParam(value = "department", defaultValue = "") String department,
-                          @RequestParam(value = "type", defaultValue = "0") Integer type, ModelMap model) {
+                          @RequestParam(value = "toDate") String toDate, ModelMap model) {
         HashMap<String, Object> stat;
-        stat = statService.summary(fromDate, toDate, department, type, table);
+        stat = statService.summary(fromDate, toDate);
         model.addAttribute("stat", stat);
         return "/sunning/summary_content";
+    }
+
+    @RequestMapping(value = "summary_anti", method = RequestMethod.GET)
+    public String summary_anti(@RequestParam(value = "fromDate") String fromDate,
+                               @RequestParam(value = "toDate") String toDate, ModelMap model) {
+        HashMap<String, Object> stat;
+        stat = statService.summary(fromDate, toDate);
+        model.addAttribute("stat", stat);
+        return "/sunning/summary_anti_content";
     }
 
     //药品分析（天） 按科室
@@ -111,7 +110,7 @@ public class SunningController {
     @ResponseBody
     @RequestMapping(value = "getDoctorListByMedicine", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String getDoctorListByMedicine(
-            @RequestParam(value = "goodsID", required = false ) Integer goodsID,
+            @RequestParam(value = "goodsID", required = false) Integer goodsID,
             @RequestParam(value = "fromDate") String fromDate,
             @RequestParam(value = "toDate") String toDate,
             @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
@@ -212,7 +211,6 @@ public class SunningController {
             @RequestParam(value = "medicineNo", required = false, defaultValue = "") String medicineNo,
             @RequestParam(value = "fromDate") String fromDate,
             @RequestParam(value = "toDate") String toDate,
-            @RequestParam(value = "type", required = false, defaultValue = "-1") Integer type,
             @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
             @RequestParam(value = "start", required = false, defaultValue = "0") int start,
             @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {

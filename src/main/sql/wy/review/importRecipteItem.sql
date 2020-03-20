@@ -30,7 +30,7 @@ alter PROCEDURE importRecipeItem(@logID INT)
 
         if (@maxLastID > @lastID)
             begin
-                select @sql = ' INSERT INTO ' + @RecipeItemTable + ' (recipeItemID, serialNo, longAdvice, recipeDate, advice, groupID, orderID, doctorName, nurseName, endDate, ' +
+                select @sql = ' INSERT INTO ' + @RecipeItemTable + ' (recipeItemID, hospID, longAdvice, recipeDate, advice, groupID, orderID, doctorName, nurseName, endDate, ' +
                               'endDoctorName, endNurseName, quantity, unit, adviceType, medicineNo)
                     SELECT yz_id, zyh, lx, kyzsj, yzxx, yzzh, yzxh, kyzys, gyzhs, tyzsj, tyzys, tyzhs, cast(cast(sl AS FLOAT) AS INT), dw, yfbz, bm
                      FROM review_import.dbo.his_yz_bm WHERE yz_id > ' + cast(@lastID as varchar) + ' AND yz_id <= ' + cast(@maxLastID as varchar) + '';
@@ -47,7 +47,7 @@ alter PROCEDURE importRecipeItem(@logID INT)
                 --删除过期医嘱、重复数据
                 select @sql = 'DELETE FROM ' + @RecipeItemTable +
                               ' WHERE recipeItemID NOT IN (SELECT max(recipeItemID) FROM ' + @RecipeItemTable +
-                              ' GROUP BY serialNo, longAdvice, orderID, groupID)';
+                              ' GROUP BY hospID, longAdvice, orderID, groupID)';
                 select @sql;
                 exec (@sql);
                 select @deleteRecipeItemRowCount = @@rowcount;

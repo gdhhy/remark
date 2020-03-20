@@ -8,7 +8,7 @@ import java.io.Serializable;
  */
 public class RxDetail implements Serializable {
     private Integer rxDetailID;
-    private Integer serialNo;
+    private Integer hospID;
     private Integer rxNo;
     private Integer goodsID;
     private String medicineName;
@@ -16,7 +16,7 @@ public class RxDetail implements Serializable {
     private Double money;
     private String frequency;//频率：对应YF，门诊是单次用量，例如儿科每次不足一最小单位时，再分时的量
     //次数
-    private int num; //---对应：CS
+    private Integer freqNum;
     private String unit;
     //用法用量
     private String dosage;  //不要了 ，修改为对应cfxx
@@ -26,7 +26,7 @@ public class RxDetail implements Serializable {
 
 
     //医嘱类型
-    private String adviceType;  //对应 yztype
+    private String usage;  //对应 yztype
     //用药天数
     private Integer dayNum;
     //包装转换比
@@ -59,12 +59,12 @@ public class RxDetail implements Serializable {
         this.rxDetailID = rxDetailID;
     }
 
-    public Integer getSerialNo() {
-        return serialNo;
+    public Integer gethospID() {
+        return hospID;
     }
 
-    public void setSerialNo(Integer serialNo) {
-        this.serialNo = serialNo;
+    public void sethospID(Integer hospID) {
+        this.hospID = hospID;
     }
 
     public Integer getRxNo() {
@@ -107,12 +107,12 @@ public class RxDetail implements Serializable {
         this.frequency = frequency;
     }
 
-    public int getNum() {
-        return num;
+    public Integer getFreqNum() {
+        return freqNum;
     }
 
-    public void setNum(int num) {
-        this.num = num;
+    public void setFreqNum(Integer freqNum) {
+        this.freqNum = freqNum;
     }
 
     public String getUnit() {
@@ -147,12 +147,12 @@ public class RxDetail implements Serializable {
         this.eachUnit = eachUnit;
     }
 
-    public String getAdviceType() {
-        return adviceType;
+    public String getUsage() {
+        return usage;
     }
 
-    public void setAdviceType(String adviceType) {
-        this.adviceType = adviceType;
+    public void setUsage(String usage) {
+        this.usage = usage;
     }
 
     public Integer getDayNum() {

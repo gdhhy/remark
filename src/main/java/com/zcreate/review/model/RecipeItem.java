@@ -9,7 +9,7 @@ import java.sql.Timestamp;
  */
 public class RecipeItem implements Serializable {
     private Integer recipeItemID;
-    private String serialNo;
+    private String hospID;
     //private String recipeNo;    //住院：领用单号，门诊：空白
     private Integer longAdvice;//长期医嘱：1,   临时医嘱：2
     private Timestamp recipeDate;//对应 kyzsj
@@ -54,12 +54,12 @@ public class RecipeItem implements Serializable {
         this.recipeItemID = recipeItemID;
     }
 
-    public String getSerialNo() {
-        return serialNo;
+    public String gethospID() {
+        return hospID;
     }
 
-    public void setSerialNo(String serialNo) {
-        this.serialNo = serialNo;
+    public void sethospID(String hospID) {
+        this.hospID = hospID;
     }
 
 

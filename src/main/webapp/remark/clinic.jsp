@@ -260,10 +260,8 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td width="79" align="right" style="color: #368E9D;" bgColor="#ffffff" height="25">
-                                        门诊号
-                                    </td>
-                                    <td width="92" align="center">${clinic.serialNo}</td>
+                                    <td width="79" align="right" style="color: #368E9D;" bgColor="#ffffff" height="25">门诊号</td>
+                                    <td width="92" align="center">${clinic.mzNo.substring(0,8)}<br/>${clinic.mzNo.substring(8,12)}</td>
                                     <td width="81" align="right" style="color: #368E9D;" bgColor="#ffffff">处方张数</td>
                                     <td width="78" align="center">${clinic.rxCount}</td>
                                     <td width="81" align="right" style="color: #368E9D;" bgColor="#ffffff">时间</td>
@@ -341,19 +339,9 @@
                                                             　${detail.frequency}
                                                         </td>
                                                     </c:if>
-                                                    <td>${detail.adviceType}
+                                                    <td>${detail.usage}
                                                         <c:if test="${detail.dayNum >0}">×&nbsp;${detail.dayNum}天 </c:if></td>
-                                                        <%--<c:if test='${detail.goodsID==0}'>
-                                                            <td colspan="3">${fn:trim(detail.dosage)} ${detail.adviceType} &nbsp;&nbsp;
-                                                                <c:choose>
-                                                                    <c:when test='${detail.num==1}'>Q.d.</c:when>
-                                                                    <c:when test='${detail.num==2}'>B.i.d.</c:when>
-                                                                    <c:when test='${detail.num==3}'>T.i.d.</c:when>
-                                                                    <c:otherwise>每天${detail.num}次</c:otherwise>
-                                                                </c:choose>
-                                                                <c:if test="${detail.dayNum >0}">×&nbsp;${detail.dayNum}天 </c:if>
-                                                            </td>
-                                                        </c:if>--%>
+
                                                 </tr>
                                             </c:forEach>
                                         </table>

@@ -18,7 +18,7 @@
       </bean>-->
     <bean id="reviewDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-        <property name="url" value="jdbc:sqlserver://192.168.0.212:1433;databaseName=review_lj"/>
+        <property name="url" value="jdbc:sqlserver://192.168.157.128:1433;databaseName=review_lj"/>
         <!--<property name="url" value="jdbc:sqlserver://192.168.157.128:1433;databaseName=wy_review_160222"/>-->
         <property name="username" value="sa"/>
         <property name="password" value="cjdlx"/>
@@ -29,7 +29,7 @@
     </bean>
     <bean id="hisDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-        <property name="url" value="jdbc:sqlserver://192.168.0.212:61433;databaseName=YueBeiHis"/>
+        <property name="url" value="jdbc:sqlserver://192.168.157.128:61433;databaseName=YueBeiHis"/>
         <property name="username" value="sa"/>
         <property name="password" value="cjdlx"/>
         <property name="maxIdle" value="100"/>
@@ -66,6 +66,10 @@
     <bean id="drugRecordsMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
         <property name="mapperInterface" value="com.zcreate.remark.dao.DrugRecordsMapper"/>
+    </bean>
+    <bean id="sunningMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+        <property name="mapperInterface" value="com.zcreate.remark.dao.SunningMapper"/>
     </bean>
     <!-- <bean id="securityDS" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
          <property name="driverClassName" value="org.postgresql.Driver"/>
@@ -168,10 +172,6 @@
          <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
      </bean>-->
     <bean id="rationalDao" class="com.zcreate.review.dao.RationalDAOImpl">
-        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
-        <property name="reviewConfig" ref="reviewConfig"/>
-    </bean>
-    <bean id="sunningDao" class="com.zcreate.review.dao.SunningDAOImpl">
         <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
         <property name="reviewConfig" ref="reviewConfig"/>
     </bean>

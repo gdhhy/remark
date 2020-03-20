@@ -11,9 +11,10 @@ import java.util.List;
  */
 public class Recipe implements Serializable {
     private Integer recipeID;
-    private String serialNo;    //住院：入院号，标识病人，门诊：就诊标识
+    private Integer hospID;    //住院：入院号，标识病人，门诊：就诊标识
+    private String hospNo;    //住院：入院号，标识病人，门诊：就诊标识
     /*病人资料*/
-    private String patientNo;
+    private String patientID;
     private String patientName;
     private Boolean sex;
     private String age;
@@ -79,20 +80,28 @@ public class Recipe implements Serializable {
         this.recipeID = recipeID;
     }
 
-    public String getSerialNo() {
-        return serialNo;
+    public Integer getHospID() {
+        return hospID;
     }
 
-    public void setSerialNo(String serialNo) {
-        this.serialNo = serialNo;
+    public void setHospID(Integer hospID) {
+        this.hospID = hospID;
     }
 
-    public String getPatientNo() {
-        return patientNo;
+    public String getHospNo() {
+        return hospNo;
     }
 
-    public void setPatientNo(String patientNo) {
-        this.patientNo = patientNo;
+    public void setHospNo(String hospNo) {
+        this.hospNo = hospNo;
+    }
+
+    public String getPatientID() {
+        return patientID;
+    }
+
+    public void setPatientID(String patientID) {
+        this.patientID = patientID;
     }
 
     public String getPatientName() {

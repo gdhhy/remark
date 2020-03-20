@@ -13,12 +13,13 @@ import java.util.List;
 public class Clinic implements Serializable {
     private Integer clinicID;
     //-----------------原始资料
-    private String serialNo;//对应入院号，标识病人
+    private Integer hospID;//对应入院号
+    private String mzNo;//门诊流水号
     private Integer rxCount;    //处方张数
     private String clinicType; //''空白,儿科方、早药方、精二、普通方、急诊方、其他方
     //处方日期
     private Timestamp clinicDate;
-    private String patientNo;
+    private Integer patientID;
     private String patientName;
     private Boolean sex;
     //显示用，保持原样
@@ -100,12 +101,20 @@ public class Clinic implements Serializable {
         this.clinicID = clinicID;
     }
 
-    public String getSerialNo() {
-        return serialNo;
+    public Integer getHospID() {
+        return hospID;
     }
 
-    public void setSerialNo(String serialNo) {
-        this.serialNo = serialNo;
+    public void setHospID(Integer hospID) {
+        this.hospID = hospID;
+    }
+
+    public String getMzNo() {
+        return mzNo;
+    }
+
+    public void setMzNo(String mzNo) {
+        this.mzNo = mzNo;
     }
 
     public Integer getRxCount() {
@@ -132,12 +141,12 @@ public class Clinic implements Serializable {
         this.clinicDate = clinicDate;
     }
 
-    public String getPatientNo() {
-        return patientNo;
+    public Integer getPatientID() {
+        return patientID;
     }
 
-    public void setPatientNo(String patientNo) {
-        this.patientNo = patientNo;
+    public void setPatientID(Integer patientID) {
+        this.patientID = patientID;
     }
 
     public String getPatientName() {

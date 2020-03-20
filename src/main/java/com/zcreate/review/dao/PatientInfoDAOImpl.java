@@ -45,9 +45,9 @@ public class PatientInfoDAOImpl extends SqlSessionDaoSupport implements PatientI
     }
 
     @Override
-    public List<Map<String,Object>> getHospitalPatient(String queryItem, String serialNo, String timeFrom, String timeTo) {
+    public List<Map<String,Object>> getHospitalPatient(String queryItem, String hospID, String timeFrom, String timeTo) {
         Map<String, Object> param = new HashMap<>(3);
-        param.put(queryItem, serialNo);
+        param.put(queryItem, hospID);
         param.put("timeFrom", timeFrom);
         param.put("timeTo", timeTo);
 

@@ -43,30 +43,30 @@ CREATE NONCLUSTERED INDEX DrugRecords_2015_dispensingDate3
     ON [dbo].[DrugRecords_2015] ([dispensingDate])
     INCLUDE ([dispensingNo],[goodsNo],[adviceType]);
 
-CREATE NONCLUSTERED INDEX RecipeItem_serialNo
-    ON [dbo].[RecipeItem] ([serialNo])
+CREATE NONCLUSTERED INDEX RecipeItem_hospID
+    ON [dbo].[RecipeItem] ([hospID])
     INCLUDE ([medicineNo]);
 CREATE NONCLUSTERED INDEX  Recipe_outDate
     ON [dbo].[Recipe] ([outDate])
-    INCLUDE ([serialNo]);
+    INCLUDE ([hospID]);
 
 CREATE NONCLUSTERED INDEX  IX_RxDetail_PrescribeDate2
     ON [dbo].[RxDetail] ([prescribeDate])
-    INCLUDE ([serialNo],[dosage]);
+    INCLUDE ([hospID],[dosage]);
 
 
 CREATE NONCLUSTERED INDEX  IX_RxDetail_PrescribeDate3
     ON [dbo].[RxDetail] ([prescribeDate])
-    INCLUDE ([serialNo],[medicineNo]);
+    INCLUDE ([hospID],[medicineNo]);
 
 CREATE NONCLUSTERED INDEX IX_RxDetail_medicineNo_PrescribeDate3
     ON [dbo].[RxDetail] ([medicineNo],[prescribeDate])
-    INCLUDE ([serialNo]);
+    INCLUDE ([hospID]);
 
 
 CREATE NONCLUSTERED INDEX IX_Rx_clinicType_prescribeDate
     ON [dbo].[Rx] ([clinicType],[prescribeDate])
-    INCLUDE ([serialNo]);
+    INCLUDE ([hospID]);
 
 INSERT INTO  DrugRecords_2015 (drID,recordID,drugstore,dispensingDate,patientName,dispensingNo,invoiceNo,department,age,
                                clinicType,goodsID,goodsNo,unit,spec,quantity,price,amount,doctorName,adviceType,valid)

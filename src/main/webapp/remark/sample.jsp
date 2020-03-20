@@ -521,7 +521,7 @@
                     "destroy": true,
                     "columns": [
                         {"data": "recipeID"},
-                        {"data": "serialNo", "sClass": "center"},
+                        {"data": "hospID", "sClass": "center"},
                         {"data": "inDate", "sClass": "center"},
                         {"data": "outDate", "sClass": "center"},
                         {"data": "inHospitalDay", "sClass": "center"},
@@ -569,7 +569,7 @@
                     "columns": [
                         {"data": "rxID"},
                         {"data": "clinicDate", "sClass": "center"},
-                        {"data": "serialNo", "sClass": "center"},
+                        {"data": "hospID", "sClass": "center"},
                         {"data": "patientName", "sClass": "center"},
                         {"data": "age", "sClass": "center"},
                         {"data": "drugNum", "sClass": "center"},

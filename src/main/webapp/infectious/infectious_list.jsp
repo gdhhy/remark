@@ -48,7 +48,7 @@
           {"data": 'infectiousID'},
           {"data": 'reportType', "sClass": "center"},
           {"data": 'patientName', "sClass": "center"},
-          {"data": 'serialNo', "sClass": "center"},
+          {"data": 'hospID', "sClass": "center"},
           {"data": 'birthday', "sClass": "center"},//4
           {"data": 'occupation', "sClass": "center"},
           {"data": 'infectiousName', "sClass": "center"},
@@ -482,7 +482,7 @@
             "class": "btn disabled btn-primary btn-minier ",
             click: function () {
               console.log("choosePatient:" + choosePatient["PatID"]);
-              var newInfectiousUrl = "index.jspa?content=/infectious/newInfectious.jspa&menuID=50&patientID={0}&serialNo={1}&diagnosisDate={2}";
+              var newInfectiousUrl = "index.jspa?content=/infectious/newInfectious.jspa&menuID=50&patientID={0}&hospID={1}&diagnosisDate={2}";
               if ($('#form-type').val() === '2')
                 newInfectiousUrl = newInfectiousUrl.format(choosePatient["PatID"], choosePatient["住院号"], choosePatient["入院时间"]);
               else

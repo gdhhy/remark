@@ -69,8 +69,8 @@
         </where>
     </sql>
     <select id="selectDrug" parameterType="int" resultMap="RecordResult" useCache="false">
-        SELECT drugID,pinyin,healthNo,chnName,engName,packUnit,gravida,lactation,oldFolks,children,maxEffectiveDose,maxDose,measureUnit,frequency,
-               liver,kidney,base,general,ddd,adjuvantDrug,antiClass,drugtype,memo,updateTime,updateUser,valid,deployLocation
+        SELECT drugID, pinyin, healthNo, chnName, engName, packUnit, gravida, lactation, oldFolks, children, maxEffectiveDose, maxDose, measureUnit, frequency,
+               liver, kidney, base, general, ddd, adjuvantDrug, antiClass, drugtype, memo, updateTime, updateUser, valid, deployLocation
         FROM Drug
         WHERE drugID = #{drugID:INTEGER}
     </select>
@@ -159,24 +159,16 @@
     </sql>
     <insert id="createTmpIncompatibility" flushCache="true">
         INSERT INTO tmpIncompatibility(drugID, chnName, dose, num)
-        SELECT M.drugID,
-               M.chnName,
-               M.dose,
-               CASE
-                   WHEN A.num IS NOT null THEN A.num
-                   ELSE 0 END num
+        SELECT M.drugID, M.chnName, M.dose, CASE WHEN A.num IS NOT null THEN A.num ELSE 0 END num
         FROM (
-                 SELECT drugID,
-                        count(u.actionDrugID) num
+                 SELECT drugID, count(u.actionDrugID) num
                  FROM (
-                          SELECT M.drugID,
-                                 A.drugID2 actionDrugID
+                          SELECT M.drugID, A.drugID2 actionDrugID
                           FROM Drug M
                                    INNER JOIN incompatibility A ON M.drugID = A.drugID1
                           WHERE drugID2 IN (SELECT drugID FROM Drug)
                           UNION
-                          SELECT M.drugID,
-                                 A.drugID1 actionDrugID
+                          SELECT M.drugID, A.drugID1 actionDrugID
                           FROM Drug M
                                    INNER JOIN incompatibility A ON M.drugID = A.drugID2
                           WHERE drugID1 IN (SELECT drugID FROM Drug)) U
@@ -203,18 +195,8 @@
         <include refid="queryWhere3"/>
     </select>
     <select id="selectIncompatibilityByDrugID" parameterType="int" resultType="java.util.HashMap">
-        SELECT A.incompatibilityID,
-               A.drugID1,
-               M1.chnName chnName1,
-               A.drugID2,
-               M2.chnName chnName2,
-               A.level,
-               A.inBody,
-               A.result,
-               A.mechanism,
-               A.source,
-               A.updateTime,
-               A.warning
+        SELECT A.incompatibilityID, A.drugID1, M1.chnName chnName1, A.drugID2, M2.chnName chnName2, A.level,
+               A.inBody, A.result, A.mechanism, A.source, A.updateTime, A.warning
         FROM Incompatibility A
                  INNER JOIN Drug M1 ON M1.drugID = A.drugID1
                  INNER JOIN Drug M2 ON M2.drugID = A.drugID2
@@ -245,11 +227,11 @@
         FROM Incompatibility
         WHERE incompatibilityID = #{incompatibilityID}
     </delete>
-    <select id="queryByClinicID"  parameterType="java.util.Map" resultType="java.util.HashMap">
+    <select id="queryByClinicID" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT I.incompatibilityID,
                I.result,
-               M1.rxDetailID     itemID1,
-               M2.rxDetailID     itemID2,
+               M1.rxDetailID itemID1,
+               M2.rxDetailID itemID2,
                rtrim(M1.chnName) medicineName1,
                rtrim(M2.chnName) medicineName2
         FROM Incompatibility I,
@@ -266,7 +248,7 @@
         WHERE I.drugID1 = M1.matchDrugID
           AND I.drugID2 = M2.matchDrugID
     </select>
-    <select id="queryBySerialNo"  parameterType="java.util.Map" resultType="java.util.HashMap">
+    <select id="queryByhospID" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT I.incompatibilityID,
                P.result,
                I.itemID1,
@@ -275,16 +257,16 @@
                rtrim(M2.chnName) medicineName2
         FROM RxIncompatibility I,
              Incompatibility P,
-             (SELECT R.serialNo, R.recipeItemID, R.goodsID, M.chnName, M.matchDrugID
+             (SELECT R.hospID, R.recipeItemID, R.goodsID, M.chnName, M.matchDrugID
               FROM ${RecipeItemTable} R,
                    Medicine M
               WHERE R.goodsID = M.goodsID
-                AND R.serialNo = #{serialNo:INTEGER}) M1,
-             (SELECT R.serialNo, R.recipeItemID, R.goodsID, M.chnName, M.matchDrugID
-              FROM ${RecipeItemTable}  R,
+                AND R.hospID = #{hospID:INTEGER}) M1,
+             (SELECT R.hospID, R.recipeItemID, R.goodsID, M.chnName, M.matchDrugID
+              FROM ${RecipeItemTable} R,
                    Medicine M
               WHERE R.goodsID = M.goodsID
-                AND R.serialNo = #{serialNo:INTEGER}) M2
+                AND R.hospID = #{hospID:INTEGER}) M2
         WHERE I.itemID1 = M1.recipeItemID
           AND I.itemID2 = M2.recipeItemID
           AND P.incompatibilityID = I.incompatibilityID
@@ -297,7 +279,7 @@
             AND D.clinicDate &lt; #{clinicDateTo:TIMESTAMP}
         </if>
         <if test="@com.zcreate.util.Ognl@isNotEmpty(recipeDateFrom)">
-            AND I.objectID IN (SELECT DISTINCT serialNo FROM ${RecipeItemTable}  WHERE recipeDate >= #{recipeDateFrom:VARCHAR}
+            AND I.objectID IN (SELECT DISTINCT hospID FROM ${RecipeItemTable} WHERE recipeDate >= #{recipeDateFrom:VARCHAR}
             <if test="@com.zcreate.util.Ognl@isNotEmpty(recipeDateTo)">
                 AND recipeDate &lt; #{recipeDateTo:TIMESTAMP}
             </if>)
@@ -324,7 +306,7 @@
         SELECT A.incompatibilityID,I.result,I.level,I.inBody, rtrim(M1.chnName) chnName1, rtrim(M2.chnName) chnName2,A.num,A.useNum,i.warning
         FROM incompatibility I
         LEFT JOIN Drug M1 ON M1.drugID=I.drugID1 LEFT JOIN Drug M2 ON M2.drugID=I.drugID2,
-        (SELECT incompatibilityID,count(DISTINCT I.objectID) num,count(I.objectID) useNum FROM Recipe D,RxIncompatibility I WHERE D.serialNo=I.objectID AND I.type=2
+        (SELECT incompatibilityID,count(DISTINCT I.objectID) num,count(I.objectID) useNum FROM Recipe D,RxIncompatibility I WHERE D.hospID=I.objectID AND I.type=2
         <include refid="queryWhere2"/>
         GROUP BY incompatibilityID) A
         WHERE I.incompatibilityID=A.incompatibilityID ORDER BY A.num DESC
@@ -364,9 +346,10 @@
     </delete>
     <select id="selectDrugDose" resultMap="DrugDoseRecord" parameterType="int">
         SELECT A.drugDoseID, A.drugID, A.route, A.dose, A.instructionID, C.chnName intructionName, B.cc instructCount
-        from   DrugDose A ,Instruction C ,(	select  generalInstrID,count(generalInstrID) cc from Instruction where  hasInstruction=1 group by generalInstrID)B
-        where A.InstructionID=C.instructionID and C.generalInstrID=B.generalInstrID
-        and  A.drugID = #{drugID:INTEGER}
+        from DrugDose A, Instruction C, (select generalInstrID, count(generalInstrID) cc from Instruction where hasInstruction = 1 group by generalInstrID) B
+        where A.InstructionID = C.instructionID
+          and C.generalInstrID = B.generalInstrID
+          and A.drugID = #{drugID:INTEGER}
     </select>
     <!--alter table DrugDose add instructCount int default 0;
 	update DrugDose set instructCount=0;

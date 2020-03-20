@@ -33,8 +33,8 @@ public class ClinicDAOImpl extends SqlSessionDaoSupport implements ClinicDAO, Se
     }
 
     /**
-     * 改用  getRxBySerialNo，废掉
-     * 因为serialNo可以唯一标识处方，个别医生为了规避药品处方数大于5，同一个病人开多张处方
+     * 改用  getRxByhospID，废掉
+     * 因为hospID可以唯一标识处方，个别医生为了规避药品处方数大于5，同一个病人开多张处方
      *
      * @param clinicID
      * @return

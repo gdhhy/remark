@@ -352,7 +352,7 @@ public class ExcelController {
         List list = clinicDao.getClinicList(param);
 
         String headers[] = {"处方日期", "门诊号", "病人", "年龄", "诊断", "科室", "医生", "点评内容", "点评时间"};
-        String prop[] = {"clinicDate", "serialNo", "patientName", "age", "diagnosis", "department", "doctorName", "result", "reviewDate"};
+        String prop[] = {"clinicDate", "hospID", "patientName", "age", "diagnosis", "department", "doctorName", "result", "reviewDate"};
 
         OutputStream out = null;
         try {

@@ -54,7 +54,7 @@ public class ReviewServiceImpl implements ReviewService {
             // System.out.println("----------review is null  ");
             review = new RecipeReview();
             review.setReviewJson("{}");
-            review.setSerialNo(recipe.getSerialNo());
+            review.setHospID(recipe.getHospID());
             //设置手术信息
            /* if (recipe.getSurgerys().size() > 0) {
                 review.setSurgeryName((String) recipe.getSurgerys().get(0).get("surgeryName"));
@@ -62,17 +62,17 @@ public class ReviewServiceImpl implements ReviewService {
                 review.setIncision((String) recipe.getSurgerys().get(0).get("incision"));
             }*/
             //微生物送检 todo 药师提出名字优化 能写在sql吗？ 少一次读数据库
-           /* List<RecipeItem> germItem = recipeDao.getRecipeItemWithGerm(recipe.getSerialNo());
+           /* List<RecipeItem> germItem = recipeDao.getRecipeItemWithGerm(recipe.gethospID());
             if (germItem.size() > 0) {
                 review.setGermCheck(1);
                 review.setCheckDate(DateUtils.formatSqlDateTime(germItem.get(0).getRecipeDate()));
                 review.setSample(germItem.get(0).getAdvice());
             }*/
             HashMap<String, Object> param = new HashMap<>();
-            param.put("serialNo", recipe.getSerialNo());
+            param.put("hospID", recipe.getHospID());
             param.put("RecipeItemTable", "RecipeItem_" + recipe.getYear());
             //寻找配伍禁忌药品
-            List<HashMap<String, Object>> incompatiMap = incompatibilityDAO.queryBySerialNo(param);
+            List<HashMap<String, Object>> incompatiMap = incompatibilityDAO.queryByhospID(param);
             HashMap<Integer, String> resultMap = new HashMap<Integer, String>();
             for (HashMap aMap : incompatiMap) {
                 String result = aMap.get("medicineName1") + " + " + aMap.get("medicineName2") + " : " + aMap.get("result");
@@ -342,9 +342,9 @@ public class ReviewServiceImpl implements ReviewService {
         return recipeDao.getRecipeListForExcel(param);
     }
 
-    public List<HashMap<String, Object>> getRecipeItemForExcel(Integer serialNo, int medicineType) {
+    public List<HashMap<String, Object>> getRecipeItemForExcel(Integer hospID, int medicineType) {
         Map<String, Object> param = new HashMap<String, Object>(2);
-        param.put("serialNo", serialNo);
+        param.put("hospID", hospID);
         if (medicineType == 1)
             param.put("chineseInjection", 1);
         else
@@ -393,7 +393,7 @@ public class ReviewServiceImpl implements ReviewService {
                 boolean exist = false;
                 for (HashMap<String, Object> detail : detailList) {
                     if (detail.get("clinicID").equals(((Clinic) rx).getClinicID())) {
-                        //if (detail.getSerialNo().equals(clinic.getSerialNo()) && detail.getPrescribeDate().equals(clinic.getPrescribeDate())) {
+                        //if (detail.gethospID().equals(clinic.gethospID()) && detail.getPrescribeDate().equals(clinic.getPrescribeDate())) {
                         exist = true;
                         break;
                     }
@@ -409,7 +409,7 @@ public class ReviewServiceImpl implements ReviewService {
                 boolean exist = false;
                 for (HashMap<String, Object> detail : detailList) {
                     if (detail.get("recipeID").equals(((Recipe) rx).getRecipeID())) {
-                        //if (detail.getSerialNo().equals(clinic.getSerialNo()) && detail.getPrescribeDate().equals(clinic.getPrescribeDate())) {
+                        //if (detail.gethospID().equals(clinic.gethospID()) && detail.getPrescribeDate().equals(clinic.getPrescribeDate())) {
                         exist = true;
                         break;
                     }
@@ -502,17 +502,17 @@ public class ReviewServiceImpl implements ReviewService {
         return recipeDao.getRecipeReview(recipeID);
     }*/
 /*
-    public List<Course> getCourse(Integer serialNo) {
-        return hisDao.getCourse(serialNo);
+    public List<Course> getCourse(Integer hospID) {
+        return hisDao.getCourse(hospID);
     }
 
-    public History getHistory(Integer serialNo) {
-        return hisDao.getHistory(serialNo);
+    public History getHistory(Integer hospID) {
+        return hisDao.getHistory(hospID);
     }*/
 
-    public List<RecipeItem> getRecipeItemList(Integer serialNo, int longAdvice, String year) {
+    public List<RecipeItem> getRecipeItemList(Integer hospID, int longAdvice, String year) {
         Map<String, Object> param = new HashMap<>();
-        param.put("serialNo", serialNo);
+        param.put("hospID", hospID);
         param.put("longAdvice", longAdvice);
         param.put("RecipeItemTable", "RecipeItem_" + year);
         List<RecipeItem> recipeItemList = recipeDao.getRecipeItemList(param);
@@ -521,7 +521,7 @@ public class ReviewServiceImpl implements ReviewService {
                 recipeItemList.get(i).setRecipeDate(null);
             }
         }
-        List<HashMap<String, Object>> map = incompatibilityDAO.queryBySerialNo(param);
+        List<HashMap<String, Object>> map = incompatibilityDAO.queryByhospID(param);
         //标记配伍禁忌药品，显示为红色
         for (HashMap aMap : map)
             for (RecipeItem item : recipeItemList) {
@@ -533,14 +533,14 @@ public class ReviewServiceImpl implements ReviewService {
         return recipeItemList;
     }
 
-    public int saveDiagnosis(Integer serialNo, String diagnosisNos, String diseases) {
+    public int saveDiagnosis(Integer hospID, String diagnosisNos, String diseases) {
         String[] diagnosisNoArr = diagnosisNos.split(";");
         String[] diseaseArr = diseases.split(";");
         if (diagnosisNoArr.length == diseaseArr.length && diseaseArr.length > 0) {
             List<Map> diagnosisList = new ArrayList<Map>(diseaseArr.length);
             for (int i = 0; i < diseaseArr.length; i++) {
                 HashMap<String, Object> map = new HashMap<String, Object>();
-                map.put("serialNo", serialNo);
+                map.put("hospID", hospID);
                 map.put("type", diagnosisNoArr[i].indexOf("_0") > 0 ? 0 : 1);
                 map.put("diagnosisNo", diagnosisNoArr[i]);
                 map.put("disease", diseaseArr[i]);
@@ -548,7 +548,7 @@ public class ReviewServiceImpl implements ReviewService {
 
                 diagnosisList.add(map);
             }
-            recipeDao.deleteDiagnosis(serialNo, 1);
+            recipeDao.deleteDiagnosis(hospID, 1);
             return recipeDao.saveDiagnosis(diagnosisList);
         }
         return 0;
@@ -562,18 +562,18 @@ public class ReviewServiceImpl implements ReviewService {
         return sampleDao.getLastReviewByDoctor(topRecount);
     }
 
-    public int getSurgeryCount(Integer serialNo) {
-        return recipeDao.getSurgeryCount(serialNo);
+    public int getSurgeryCount(Integer hospID) {
+        return recipeDao.getSurgeryCount(hospID);
     }
 
-    public List<HashMap<String, Object>> getRecipeItemCount(Integer serialNo) {
-        return recipeDao.getRecipeItemCount(serialNo);
+    public List<HashMap<String, Object>> getRecipeItemCount(Integer hospID) {
+        return recipeDao.getRecipeItemCount(hospID);
     }
 
-    /* public int saveChooseDiagnosis(Integer serialNo, int[] ids) {
+    /* public int saveChooseDiagnosis(Integer hospID, int[] ids) {
         List<Integer> list = new ArrayList<Integer>(ids.length);
         for (int i : ids) list.add(i);
-        return recipeDao.saveChooseDiagnosis(serialNo, list);
+        return recipeDao.saveChooseDiagnosis(hospID, list);
     }*/
 
     public DictService getDictService() {
@@ -583,7 +583,7 @@ public class ReviewServiceImpl implements ReviewService {
     public void setDictService(DictService dictService) {
         this.dictService = dictService;
     }
-    /* public List<HashMap<String, Object>> getSurgeryList(Integer serialNo) {
-        return recipeDao.getSurgeryList(serialNo);
+    /* public List<HashMap<String, Object>> getSurgeryList(Integer hospID) {
+        return recipeDao.getSurgeryList(hospID);
     }*/
 }

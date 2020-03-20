@@ -975,7 +975,7 @@
                     <input type="hidden" name="infectiousID" value="${infectious.infectiousID}"/>
                     <input type="hidden" name="objectType" value="${infectious.objectType}"/>
                     <input type="hidden" name="patientID" value="${infectious.patientID}"/>
-                    <input type="hidden" name="serialNo" value="${infectious.serialNo}"/>
+                    <input type="hidden" name="hospID" value="${infectious.hospID}"/>
                     <input type="hidden" name="doctorUserID" value="${infectious.doctorUserID}"/>
                     <input type="hidden" name="doctorUsername" value="${infectious.doctorUsername}"/>
                     <%--['编辑', '提交', '退回', '接受', '作废']--%>

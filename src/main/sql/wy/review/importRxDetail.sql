@@ -38,7 +38,7 @@ alter PROCEDURE importRxDetail(@logID INT)
                 select @deleteRxDetailRowCount = @@rowcount;
 
                 select @sql =
-                       ' INSERT INTO ' + @RxDetailTable + ' (rxDetailID, serialNo, rxNo, prescribeDate, orderID, medicineNo, quantity, price, money, frequency, eachQuantity,' +
+                       ' INSERT INTO ' + @RxDetailTable + ' (rxDetailID, hospID, rxNo, prescribeDate, orderID, medicineNo, quantity, price, money, frequency, eachQuantity,' +
                        ' num, dayNum, unit, adviceType, minOfpack, spec, groupID, dosage)
              SELECT mzcfmx_id, JZID, CFJID, RQ, XH, YPID, SL, DJ, JE, YF, MCL, CS, TS, DW, CLZT, ZH, GG, cfzh, cfxx
              FROM review_import.dbo.HIS_MZCFMX WHERE mzcfmx_id IN (

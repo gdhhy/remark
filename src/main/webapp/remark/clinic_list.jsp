@@ -38,8 +38,8 @@
                 // paging: false,
                 "columns": [
                     {"data": "detailID"},
+                    {"data": "mzNo", "sClass": "center"},
                     {"data": "clinicDate", "sClass": "center"},
-                    {"data": "serialNo", "sClass": "center"},
                     {"data": "patientName", "sClass": "center"},
                     {"data": "age", "sClass": "center"},//4
                     {"data": "diagnosis", "sClass": "center"},
@@ -64,13 +64,13 @@
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     },
-                    {"orderable": false, "targets": 1, title: '处方日期', width: 125},//, width: 85
-                    {"orderable": false, "targets": 2, title: '门诊号', width: 60},
+                    {"orderable": false, "targets": 1, title: '门诊号', width: 60},
+                    {"orderable": false, "targets": 2, title: '时间', width: 55},//, width: 85
                     {"orderable": false, "targets": 3, title: '姓名', width: 60},
                     {"orderable": false, "targets": 4, title: '年龄', width: 50},
                     {"orderable": false, "targets": 5, title: '诊断'},
                     {"orderable": false, "targets": 6, title: '类型', width: 45},
-                    {"orderable": false, "targets": 7, title: '品种数',  defaultContent: '',width: 60},
+                    {"orderable": false, "targets": 7, title: '品种数', defaultContent: '', width: 60},
                     {"orderable": false, "targets": 8, title: '抗菌素', defaultContent: '', width: 60, render: renderBoolean},
                     {"orderable": false, "targets": 9, title: '注射液', defaultContent: '', width: 60, render: renderBoolean},
                     {"orderable": false, "targets": 10, title: '基本', defaultContent: '', width: 45},
@@ -160,7 +160,7 @@
         myTable.buttons().container().appendTo($('.tableTools-container'));
         myTable.button(0).action(function (e, dt, button, config) {
             e.preventDefault();
-            window.location.href = "remark/clinic.jspa?sampleBatchID="+sampleBatchID;
+            window.location.href = "remark/clinic.jspa?sampleBatchID=" + sampleBatchID;
         });
 
 

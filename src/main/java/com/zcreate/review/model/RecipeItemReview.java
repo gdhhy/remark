@@ -12,7 +12,7 @@ import java.sql.Timestamp;
  */
 public class RecipeItemReview implements Serializable {
     private Integer recipeItemReviewID;
-    private String serialNo;
+    private String hospID;
     private Integer orderID;
     private Integer groupID;
     private Integer longAdvice;
@@ -29,7 +29,7 @@ public class RecipeItemReview implements Serializable {
     private Integer purpose = 0;//预防、治疗
     private String problemCode;
     private String problemDesc;
-    //sql：recipeItemReviewID,serialNo,orderID,groupID,longAdvice,advice,usage,quantity,dosis,frequency,dayNum,totalQuantity,route,menstruum,purpose,problemCode,problemDesc
+    //sql：recipeItemReviewID,hospID,orderID,groupID,longAdvice,advice,usage,quantity,dosis,frequency,dayNum,totalQuantity,route,menstruum,purpose,problemCode,problemDesc
     ////////////////////////////
     private Timestamp recipeDate;
     private Timestamp endDate;
@@ -43,12 +43,12 @@ public class RecipeItemReview implements Serializable {
         this.recipeItemReviewID = recipeItemReviewID;
     }
 
-    public String getSerialNo() {
-        return serialNo;
+    public String gethospID() {
+        return hospID;
     }
 
-    public void setSerialNo(String serialNo) {
-        this.serialNo = serialNo;
+    public void sethospID(String hospID) {
+        this.hospID = hospID;
     }
 
     public Integer getOrderID() {

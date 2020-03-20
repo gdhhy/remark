@@ -9,7 +9,7 @@ import java.sql.Timestamp;
 public class Contagion implements Serializable {
     private Integer contagionID;
     private Integer objectType; //1门诊，2：住院
-    private String serialNo;//门诊号或住院号
+    private String hospID;//门诊号或住院号
     private String department;
     private String patientName;
     private String idNo;
@@ -72,12 +72,12 @@ public class Contagion implements Serializable {
         this.objectType = objectType;
     }
 
-    public String getSerialNo() {
-        return serialNo;
+    public String gethospID() {
+        return hospID;
     }
 
-    public void setSerialNo(String serialNo) {
-        this.serialNo = serialNo;
+    public void sethospID(String hospID) {
+        this.hospID = hospID;
     }
 
     public String getDepartment() {

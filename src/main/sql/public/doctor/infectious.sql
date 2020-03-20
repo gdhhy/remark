@@ -91,9 +91,9 @@ CREATE TABLE Contagion
 )
 
 alter table infectious
-    add serialNo varchar(20);
+    add hospID varchar(20);
 alter table Contagion
-    add serialNo varchar(20);
+    add hospID varchar(20);
 
 alter table infectious
     add patientID int;

@@ -23,9 +23,9 @@ public class HisDAOImpl extends SqlSessionDaoSupport implements HisDAO, Serializ
     }
 
     @SuppressWarnings("unchecked")
-    public List<Course> getCourse(Integer serialNo, String departCode, int archive) {
+    public List<Course> getCourse(Integer hospID, String departCode, int archive) {
         HashMap<String, Object> map = new HashMap<String, Object>(2);
-        map.put("serialNo", serialNo);
+        map.put("hospID", hospID);
         map.put("prefix", reviewConfig.getPrefixClinic(archive == 1, departCode));
         List<Course> courses = getSqlSession().selectList("His.selectCourse", map);
         for (Course course : courses)
@@ -33,9 +33,9 @@ public class HisDAOImpl extends SqlSessionDaoSupport implements HisDAO, Serializ
         return courses;
     }
 
-    public History getHistory(Integer serialNo, String departCode, int archive) {
+    public History getHistory(Integer hospID, String departCode, int archive) {
         HashMap<String, Object> map = new HashMap<String, Object>(2);
-        map.put("serialNo", serialNo);
+        map.put("hospID", hospID);
         map.put("prefix", reviewConfig.getPrefixClinic(archive == 1, departCode));
         History history = (History) getSqlSession().selectOne("His.selectHistory", map);
         if (history != null)
@@ -49,9 +49,9 @@ public class HisDAOImpl extends SqlSessionDaoSupport implements HisDAO, Serializ
 
     }
 
-    public List<HashMap> getDiagnosis(Integer serialNo) {
+    public List<HashMap> getDiagnosis(Integer hospID) {
         HashMap<String, Object> param = new HashMap<String, Object>(2);
-        param.put("serialNo", serialNo);
+        param.put("hospID", hospID);
 
         return getSqlSession().selectList("His.selectDiagnosis", param);
     }

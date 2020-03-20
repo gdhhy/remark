@@ -5,14 +5,14 @@
     <cache eviction="LRU" readOnly="false" flushInterval="60000" size="1000"/>
     <sql id="queryWhereClinic">
         <if test="@com.zcreate.util.Ognl@isNotEmpty(patientName)">AND A.name LIKE '%${patientName}%'</if>
-        <if test="@com.zcreate.util.Ognl@isNotEmpty(serialNo)">AND A.MzRegNo LIKE '${serialNo}%'</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(hospID)">AND A.MzRegNo LIKE '${hospID}%'</if>
         <if test="@com.zcreate.util.Ognl@isNotEmpty(timeFrom)">AND A.regTime >= #{timeFrom:VARCHAR}</if>
         <if test="@com.zcreate.util.Ognl@isNotEmpty(timeTo)">AND A.regTime &lt; #{timeTo:VARCHAR}</if>
     </sql>
     <sql id="queryWhereHospital">
         <where>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(patientName)">AND A.Name LIKE '%${patientName}%'</if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(serialNo)">AND A.HospNo LIKE '%${serialNo}'</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(hospID)">AND A.HospNo LIKE '%${hospID}'</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(timeFrom)">AND A.outTime >= #{timeFrom:VARCHAR}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(timeTo)">AND A.outTime &lt; #{timeTo:VARCHAR}</if>
         </where>

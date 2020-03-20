@@ -38,7 +38,7 @@
                 //paging: false,
                 "columns": [
                     {"data": "detailID"},
-                    {"data": "patientNo", "sClass": "center"},
+                    {"data": "hospNo", "sClass": "center", defaultContent: ''},
                     {"data": "patientName", "sClass": "center"},
                     {"data": "age", "sClass": "center"},
                     {"data": "inDate", "sClass": "center"},//4
@@ -67,7 +67,7 @@
                     {"orderable": false, "targets": 5, title: '出院日期', width: 130},
                     {"orderable": false, "targets": 6, title: '住院天数'},
                     {"orderable": false, "targets": 7, title: '药品组数'},
-                    {"orderable": false, "targets": 8, title: '总金额', defaultContent: ''},
+                    {"orderable": false, "targets": 8, title: '总金额', defaultContent: '', align : 'right'},
                     {"orderable": false, "targets": 9, title: '药品金额', defaultContent: ''},
                     {"orderable": false, "targets": 10, title: '出院诊断', defaultContent: ''},
                     {"orderable": false, "targets": 11, title: '主管医生', defaultContent: '', width: 60},

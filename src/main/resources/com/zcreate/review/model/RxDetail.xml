@@ -5,20 +5,20 @@
     <cache eviction="LRU" readOnly="false" flushInterval="600000" size="1000"/>
     <resultMap id="RxDetailResult" type="com.zcreate.review.model.RxDetail">
         <result column="rxDetailID" jdbcType="INTEGER" property="rxDetailID"/>
-        <result column="serialNo" jdbcType="VARCHAR" property="serialNo"/>
+        <result column="hospID" jdbcType="INTEGER" property="hospID"/>
         <result column="prescribeDate" jdbcType="TIMESTAMP" property="prescribeDate"/>
         <result column="goodsID" jdbcType="INTEGER" property="goodsID"/>
         <result column="medicineName" jdbcType="VARCHAR" property="medicineName"/>
         <result column="quantity" jdbcType="INTEGER" property="quantity"/>
         <result column="money" jdbcType="DOUBLE" property="money"/>
         <result column="frequency" jdbcType="VARCHAR" property="frequency"/>
-        <result column="num" jdbcType="INTEGER" property="num"/>
+        <result column="freqNum" jdbcType="INTEGER" property="freqNum"/>
         <result column="unit" jdbcType="VARCHAR" property="unit"/>
         <result column="dosage" jdbcType="VARCHAR" property="dosage"/>
         <result column="eachQuantity" jdbcType="DOUBLE" property="eachQuantity"/>
         <result column="eachUnit" jdbcType="VARCHAR" property="eachUnit"/>
         <result column="dayNum" jdbcType="INTEGER" property="dayNum"/>
-        <result column="adviceType" jdbcType="VARCHAR" property="adviceType"/>
+        <result column="usage" jdbcType="VARCHAR" property="usage"/>
         <result column="minOfpack" jdbcType="INTEGER" property="minOfpack"/>
         <result column="price" jdbcType="DOUBLE" property="price"/>
         <result column="spec" jdbcType="VARCHAR" property="spec"/>
@@ -35,12 +35,12 @@
     <sql id="queryWhere">
         <where>
             <if test="rxDetailID > 0">AND rxDetailID=#{rxDetailID}</if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(serialNo)">AND serialNo=#{serialNo}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(hospID)">AND hospID=#{hospID}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(prescribeDate)">AND prescribeDate=#{prescribeDate}</if>
         </where>
     </sql>
     <select id="selectRxDetail2Review" parameterType="java.util.Map" resultMap="RxDetailResult">
-        SELECT R.rxDetailID,M.chnName medicineName,R.goodsID, R.eachQuantity,R.eachUnit,R.dayNum,R.adviceType, R.quantity,R.frequency,R.num,
+        SELECT R.rxDetailID,M.chnName medicineName,R.goodsID, R.eachQuantity,R.eachUnit,R.dayNum,R.usage, R.quantity,R.frequency,R.freqNum,
                M.minunit unit, M.matchInstrID instructionID, R.dosage,R.spec,R.groupID,R.orderID ,R.audit,M.antiClass,M.producer,D.chnName generalName,M.dose,M.medicineID
         FROM ${RxDetailTable} R
         LEFT JOIN Medicine M ON R.goodsID=M.goodsID
@@ -50,23 +50,23 @@
     </select>
 
     <select id="selectVDPatient" parameterType="java.util.Map" resultType="java.util.HashMap">
-        select count(distinct A.serialNo) vdPatient,count(distinct case when B.serialNo IS not null then B.serialNo else null end) antiVdPatient,
-         count(distinct case when B.serialNo IS not null and C.serialNo IS not null then B.serialNo else null  end) antiVdEmerPatient
+        select count(distinct A.hospID) vdPatient,count(distinct case when B.hospID IS not null then B.hospID else null end) antiVdPatient,
+         count(distinct case when B.hospID IS not null and C.hospID IS not null then B.hospID else null  end) antiVdEmerPatient
         from
-        (select  serialNo,convert(varchar(10) ,prescribeDate,120)pDate from ${RxDetailTable} where  dosage like '%vd%'  and prescribeDate>#{fromDate:TIMESTAMP} and prescribeDate &lt; #{toDate:TIMESTAMP}) A
+        (select  hospID,convert(varchar(10) ,prescribeDate,120)pDate from ${RxDetailTable} where  dosage like '%vd%'  and prescribeDate>#{fromDate:TIMESTAMP} and prescribeDate &lt; #{toDate:TIMESTAMP}) A
         left join
-        (select serialNo,convert(varchar(10) ,prescribeDate,120)pDate from ${RxDetailTable} where goodsID in(select goodsID from Medicine where antiClass>1)
-         and prescribeDate>#{fromDate:TIMESTAMP} and prescribeDate &lt; #{toDate:TIMESTAMP}) B on A.serialNo=B.serialNo and A.pDate=B.pDate
+        (select hospID,convert(varchar(10) ,prescribeDate,120)pDate from ${RxDetailTable} where goodsID in(select goodsID from Medicine where antiClass>1)
+         and prescribeDate>#{fromDate:TIMESTAMP} and prescribeDate &lt; #{toDate:TIMESTAMP}) B on A.hospID=B.hospID and A.pDate=B.pDate
         left join
-        (select serialNo,convert(varchar(10) ,prescribeDate,120)pDate from Rx where  clinicType = '急诊方'
-        and prescribeDate>#{fromDate:TIMESTAMP} and prescribeDate &lt; #{toDate:TIMESTAMP}) C on A.serialNo=C.serialNo and A.pDate=C.pDate
+        (select hospID,convert(varchar(10) ,prescribeDate,120)pDate from Rx where  clinicType = '急诊方'
+        and prescribeDate>#{fromDate:TIMESTAMP} and prescribeDate &lt; #{toDate:TIMESTAMP}) C on A.hospID=C.hospID and A.pDate=C.pDate
     </select>
     <select id="selectEmergencyPatient" parameterType="java.util.Map" resultType="java.util.HashMap">
-        select COUNT(distinct rx.serialNo) emergPatient,  sum(rd.money) emergDrugMoney,
+        select COUNT(distinct rx.hospID) emergPatient,  sum(rd.money) emergDrugMoney,
         count(distinct case when M.antiClass>1 then M.goodsID else null end) emergAntiDrugNum ,
         sum( case when M.antiClass>1 then rd.money else null end) emergAntiDrugMoney
         from Rx
-        left join ${RxDetailTable} Rd on rx.serialNo=rd.serialNo
+        left join ${RxDetailTable} Rd on rx.hospID=rd.hospID
         left join Medicine M on M.goodsID=Rd.goodsID
         where rx.prescribeDate>#{fromDate:TIMESTAMP} and rx.prescribeDate &lt; #{toDate:TIMESTAMP} and rx.clinicType='急诊方'
     </select>
@@ -77,20 +77,20 @@
 
     <sql id="queryWhere2">
         <where>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(serialNo)">AND R.serialNo=#{serialNo:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(hospID)">AND R.hospID=#{hospID:INTEGER}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND R.prescribeDate >= #{fromDate:TIMESTAMP}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(toDate)">AND R.prescribeDate &lt; #{toDate:TIMESTAMP}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(goodsID)">AND R.goodsID = #{goodsID:INTEGER}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(medicineName)">AND M.chnName LIKE '%${medicineName}%'</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(healthNo)">AND M.healthNo LIKE '${healthNo}%'</if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(patient)">AND ( Rx.patientName=#{patient:VARCHAR} OR R.serialNo=#{patient:VARCHAR})</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(patient)">AND ( Rx.patientName=#{patient:VARCHAR} OR R.hospID=#{patient:VARCHAR})</if>
             <if test="type>0">AND Rx.type = #{type:INTEGER}</if>
         </where>
     </sql>
     <select id="queryPatientDrug" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT TOP ${limit}
-        a.serialNo,A.patientName,A.prescribeDate,a.chnName drugName,a.spec,A.quantity,A.minUnit,A.dosage,A.eachQuantity,A.eachUnit,A.dayNum,A.adviceType FROM
-        (SELECT R.rxDetailID, R.serialNo,Rx.patientName,R.prescribeDate,M.chnName,M.spec,R.quantity,M.minUnit,R.dosage,R.eachQuantity,R.eachUnit,R.dayNum,R.adviceType
+        a.hospID,A.patientName,A.prescribeDate,a.chnName drugName,a.spec,A.quantity,A.minUnit,A.dosage,A.eachQuantity,A.eachUnit,A.dayNum,A.usage FROM
+        (SELECT R.rxDetailID, R.hospID,Rx.patientName,R.prescribeDate,M.chnName,M.spec,R.quantity,M.minUnit,R.dosage,R.eachQuantity,R.eachUnit,R.dayNum,R.usage
         FROM ${RxDetailTable} R
         LEFT JOIN Rx ON R.rxID=Rx.rxID
         LEFT JOIN Medicine M ON R.goodsID=M.goodsID

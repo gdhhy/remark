@@ -8,7 +8,7 @@ import java.io.Serializable;
 public class Infectious implements Serializable {
     private int infectiousID; //must Integer not int
     private Integer objectType; //1门诊，2：住院
-    private String serialNo;//门诊号或住院号
+    private String hospID;//门诊号或住院号
     private Integer patientID;
     private String reportNo;
     private Integer reportType;
@@ -77,12 +77,12 @@ public class Infectious implements Serializable {
         this.objectType = objectType;
     }
 
-    public String getSerialNo() {
-        return serialNo;
+    public String gethospID() {
+        return hospID;
     }
 
-    public void setSerialNo(String serialNo) {
-        this.serialNo = serialNo;
+    public void sethospID(String hospID) {
+        this.hospID = hospID;
     }
 
     public Integer getPatientID() {

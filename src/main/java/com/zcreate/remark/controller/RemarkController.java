@@ -90,8 +90,8 @@ public class RemarkController {
         }*/
         review.setReviewUser(json.get("reviewUser").getAsString());
         review.setReviewTime(new Timestamp(System.currentTimeMillis()));
-        //System.out.println("baseInfo.get(\"serialNo\").getAsString() = " + baseInfo.get("serialNo").getAsString());
-        review.setSerialNo(json.get("serialNo").getAsString());
+        //System.out.println("baseInfo.get(\"hospID\").getAsString() = " + baseInfo.get("hospID").getAsString());
+        review.setHospID(json.get("hospID").getAsInt());
         review.setReviewJson(string);
         boolean succeed;
         try {
@@ -158,7 +158,7 @@ public class RemarkController {
         HSSFSheet sheet = wb.getSheet("Sheet1");
         JsonObject baseInfo = json.getAsJsonObject("基本情况");
         sheet.getRow(1).getCell(0).setCellValue("科室：" + recipe.getDepartment());
-        sheet.getRow(1).getCell(5).setCellValue("病历号：" + recipe.getPatientNo());
+        sheet.getRow(1).getCell(5).setCellValue("病历号：" + recipe.getPatientID());
         sheet.getRow(1).getCell(7).setCellValue("病人姓名：" + recipe.getPatientName());
         sheet.getRow(2).getCell(2).setCellValue("性别：" + baseInfo.get("sex").getAsString() + baseInfo.get("age").getAsString() + "岁");//(recipe.getSex() ? "男" : "女") + "   年龄：" + String.valueOf(recipe.getAge()) + "岁"
         sheet.getRow(2).getCell(5).setCellValue("入院时间：" + baseInfo.get("inHospital").getAsString());//DateUtils.formatDate(recipe.getInDate(), "yy-M-d")
@@ -360,7 +360,7 @@ public class RemarkController {
         string = Optional.ofNullable(sheet.getRow(startRow).getCell(0).getStringCellValue())
                 .orElse("病人所属科室：%s   病历号：%s       序号：%s");
 
-        sheet.getRow(startRow++).getCell(0).setCellValue(String.format(string, recipe.getDepartment(), recipe.getPatientNo(), "1"));
+        sheet.getRow(startRow++).getCell(0).setCellValue(String.format(string, recipe.getDepartment(), recipe.getPatientID(), "1"));
 //基本情况
         string = Optional.ofNullable(sheet.getRow(startRow).getCell(cellIndex).getStringCellValue())
                 .orElse("性别 %s  年龄 %s  体重 %s kg   入院时间： %s 出院时间： %s");
@@ -813,7 +813,7 @@ public class RemarkController {
         log.debug("clinic:" + clinic.getAntiMoney());
         SampleBatch batch = sampleDao.getSampleBatch(batchID);
         model.addAttribute("clinic", clinic);
-        model.addAttribute("deployLocation", reviewConfig.getDeployLocation());
+        //model.addAttribute("deployLocation", reviewConfig.getDeployLocation());
         model.addAttribute("batchID", batchID);
         model.addAttribute("batch", batch);
         model.addAttribute("currentUser", SecurityContextHolder.getContext().getAuthentication().getPrincipal());//todo
@@ -834,7 +834,7 @@ public class RemarkController {
                 recipe.getReview().setGermCheck(recipe.getMicrobeCheck() > 0 ? 1 : 0);
 
             model.addAttribute("recipe", recipe);
-            model.addAttribute("deployLocation", reviewConfig.getDeployLocation());
+            //model.addAttribute("deployLocation", reviewConfig.getDeployLocation());
         /*model.addAttribute("inDate", DateUtils.formatSqlDateTime(recipe.getInDate()));
         model.addAttribute("outDate", DateUtils.formatSqlDateTime(recipe.getOutDate()));*/
             model.addAttribute("inDate", new Date(recipe.getInDate().getTime()));
@@ -860,7 +860,7 @@ public class RemarkController {
                 recipe.getReview().setGermCheck(recipe.getMicrobeCheck() > 0 ? 1 : 0);
 
             model.addAttribute("recipe", recipe);
-            model.addAttribute("deployLocation", reviewConfig.getDeployLocation());
+            //model.addAttribute("deployLocation", reviewConfig.getDeployLocation());
             model.addAttribute("inDate", new Date(recipe.getInDate().getTime()));
             model.addAttribute("outDate", new java.util.Date(recipe.getOutDate().getTime()));
             model.addAttribute("batchID", batchID);

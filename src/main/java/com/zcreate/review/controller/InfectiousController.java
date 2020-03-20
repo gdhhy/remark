@@ -156,7 +156,7 @@ public class InfectiousController {
 
     @RequestMapping(value = "/newInfectious", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String newInfectious(@RequestParam(value = "patientID", required = false, defaultValue = "0") Integer patientID,
-                                @RequestParam(value = "serialNo", required = false, defaultValue = "") String serialNo,
+                                @RequestParam(value = "hospID", required = false, defaultValue = "") String hospID,
                                 @RequestParam(value = "diagnosisDate", required = false, defaultValue = "") String diagnosisDate,
                                 ModelMap model) {
         Infectious infectious = new Infectious();
@@ -183,7 +183,7 @@ public class InfectiousController {
         }
         if (patientID > 0) {
             infectious.setPatientID(patientID);
-            infectious.setSerialNo(serialNo);
+            infectious.sethospID(hospID);
             Map<String, Object> patientInfo = patientInfoDao.getPatientInfo(patientID);
             infectious.setPatientName((String) patientInfo.get("Name"));
             infectious.setBirthday(DateUtils.formatSqlDate((Timestamp) patientInfo.get("BirthDate")));

@@ -5,11 +5,12 @@
     <cache eviction="LRU" readOnly="false" flushInterval="600000" size="10000"/>
     <resultMap id="ClinicResult" type="com.zcreate.review.model.Clinic">
         <result column="clinicID" jdbcType="INTEGER" property="clinicID"/>
-        <result column="serialNo" jdbcType="VARCHAR" property="serialNo"/>
+        <result column="hospID" jdbcType="INTEGER" property="hospID"/>
+        <result column="mzNo" jdbcType="VARCHAR" property="mzNo"/>
         <result column="rxCount" jdbcType="INTEGER" property="rxCount"/>
         <result column="clinicType" jdbcType="VARCHAR" property="clinicType"/>
         <result column="clinicDate" jdbcType="TIMESTAMP" property="clinicDate"/>
-        <result column="patientNo" jdbcType="VARCHAR" property="patientNo"/>
+        <result column="patientID" jdbcType="INTEGER" property="patientID"/>
         <result column="patientName" jdbcType="VARCHAR" property="patientName"/>
         <result column="address" jdbcType="VARCHAR" property="address"/>
         <result column="sex" jdbcType="BOOLEAN" property="sex"/>
@@ -47,7 +48,7 @@
     <sql id="queryWhere">
         <where>
             <if test="clinicID > 0">AND clinicID=#{clinicID}</if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(serialNo)">AND serialNo=#{serialNo}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(hospID)">AND hospID=#{hospID}</if>
             <!--<if test="year>0">AND datepart(year,clinicDate)=#{year:INTEGER}</if>-->
             <if test="@com.zcreate.util.Ognl@isNotEmpty(clinicDate)">AND clinicDate=#{clinicDate}</if>
             <if test="untoward>0">AND clinicID not in(select objectID from untoward where objectType=1)</if>
@@ -108,7 +109,7 @@
     </sql>
     <select id="selectClinicList" parameterType="java.util.Map" resultMap="ClinicResult">
         SELECT TOP ${limit}
-        A.clinicID, A.serialNo, A.rxCount, A.clinicType, A.clinicDate,A.patientName, A.sex, A.age, A.department, A.diagnosis, A.money, A.doctorID, A.confirmNo, A.apothecaryNo,
+        A.clinicID, A.hospID,A.mzNo, A.rxCount, A.clinicType, A.clinicDate,A.patientName, A.sex, A.age, A.department, A.diagnosis, A.money, A.doctorID, A.confirmNo, A.apothecaryNo,
         A.isWestern,A.copyNum, A.doctorName, A.confirmName, A.apothecaryName, A. drugNum, A.baseDrugNum, A.baseDrugMoney, A.antiNum, A.antiMoney, A.insuranceMoney, A.sameAntiNum,
         A.injectionAntiNum, A.injectionAntiMoney, A.orallyAntiNum, A.orallyAntiMoney, A.injectionNum, A.sameInjectAntiNum, A.sameOrallyAntiNum, A.specAntiMoney, A.reviewDate,
         A.reviewUser, A.publish, A.result, A.appealState, A.disItem, A.rational
@@ -124,12 +125,9 @@
         ORDER BY ${orderField} DESC
     </select>
     <select id="selectClinic" parameterType="int" resultMap="ClinicResult">
-        SELECT clinicID, serialNo, rxCount, clinicType, clinicDate, patientName, sex, age, department, diagnosis, money, doctorID, confirmNo, apothecaryNo, isWestern, copyNum,
-               doctorName, confirmName,
-               apothecaryName,
-               drugNum, baseDrugNum, baseDrugMoney, antiNum, antiMoney, insuranceMoney, sameAntiNum, injectionAntiNum, injectionAntiMoney, orallyAntiNum, orallyAntiMoney,
-               injectionNum,
-               sameInjectAntiNum, sameOrallyAntiNum, specAntiMoney, reviewDate, reviewUser, publish, result, appealState, disItem, rational
+        SELECT clinicID, hospID, mzNo, rxCount, clinicType, clinicDate, patientName, sex, age, department, diagnosis, money, doctorID, confirmNo, apothecaryNo, isWestern, copyNum,
+               doctorName, confirmName, apothecaryName, drugNum, baseDrugNum, baseDrugMoney, antiNum, antiMoney, insuranceMoney, sameAntiNum, injectionAntiNum, injectionAntiMoney,
+               orallyAntiNum, orallyAntiMoney, injectionNum, sameInjectAntiNum, sameOrallyAntiNum, specAntiMoney, reviewDate, reviewUser, publish, result, appealState, disItem, rational
         FROM Clinic
         WHERE clinicID = #{clinicID:INTEGER}
     </select>
@@ -164,8 +162,8 @@
     </select>
     <select id="selectClinicInID" parameterType="java.util.Collection" resultMap="ClinicResult">
         SELECT DISTINCT
-        clinicID,serialNo,rxCount,clinicType,clinicDate,patientName,sex,age,department,diagnosis,money,doctorID,confirmNo,apothecaryNo,isWestern,copyNum,doctorName,confirmName,apothecaryName,
-        drugNum,baseDrugNum,baseDrugMoney,antiNum,antiMoney,insuranceMoney,sameAntiNum,injectionAntiNum,injectionAntiMoney,orallyAntiNum,orallyAntiMoney,injectionNum,
+        clinicID,hospID,mzNo,rxCount,clinicType,clinicDate,patientName,sex,age,department,diagnosis,money,doctorID,confirmNo,apothecaryNo,isWestern,copyNum,doctorName,confirmName,
+        apothecaryName, drugNum,baseDrugNum,baseDrugMoney,antiNum,antiMoney,insuranceMoney,sameAntiNum,injectionAntiNum,injectionAntiMoney,orallyAntiNum,orallyAntiMoney,injectionNum,
         sameInjectAntiNum,sameOrallyAntiNum,specAntiMoney,reviewDate,reviewUser,publish,result,appealState,disItem,rational
         FROM Clinic
         <foreach separator="," item="item" index="index" open=" WHERE clinicID in (" close=")" collection="list">

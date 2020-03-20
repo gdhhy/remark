@@ -257,7 +257,7 @@
         case when sum(amount) &lt; 0.0001 then 0 else sum(case when M.insurance != 3 then amount else 0 end)/sum(amount) end insuranceRatio,
         sum(case when adviceID = 0 then amount else 0 end) clinicAmount, sum(case when adviceID > 0 then amount else 0 end) hospitalAmount,
         count(distinct case when adviceID = 0 then patientID else null end) clinicPatient, count(distinct case when adviceID > 0 then patientID else null end) hospitalPatient
-        from DrugRecords_2018 T
+        from ${DrugRecordsTable} T
         LEFT JOIN Medicine M ON T.goodsID = M.goodsID
         where T.dispensingDate >= #{fromDate:TIMESTAMP} AND T.dispensingDate &lt; #{toDate:TIMESTAMP}
         <if test="@com.zcreate.util.Ognl@isNotEmpty(medicineNo)">AND M.no=#{medicineNo:VARCHAR})</if>

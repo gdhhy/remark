@@ -22,7 +22,7 @@
     <resultMap id="ExamDirResult" type="com.zcreate.review.his.ExamDir">
         <result column="examName" jdbcType="VARCHAR" property="examName"/>
         <result column="examItem" jdbcType="VARCHAR" property="examItem"/>
-        <result column="serialNo" jdbcType="VARCHAR" property="serialNo"/>
+        <result column="hospID" jdbcType="VARCHAR" property="hospID"/>
     </resultMap>
     <resultMap id="ExamResult" type="com.zcreate.review.his.ExamResult">
         <result column="examTime" jdbcType="TIMESTAMP" property="examTime"/>
@@ -37,7 +37,7 @@
         SELECT case A.LsInOut when 1 then '门诊📳诊断' when 2 then '住院诊断' else '' end type, A.IllDesc disease, B.Code icd,A.ID diagnosisNo
         FROM YBHis.YueBeiHis.dbo.InHosMzIll A
                  left join YBHis.YueBeiHis.dbo.BsIllness B on A.icdid = B.ID
-        where A.hospid = #{serialNo:INTEGER}
+        where A.hospid = #{hospID:INTEGER}
         order by A.LsInOut, A.ListNum;
     </select>
 
