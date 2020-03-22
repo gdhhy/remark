@@ -80,18 +80,14 @@ public class RemarkController {
         //out.println("string = " + string); 
         JsonObject json = (JsonObject) parser.parse(string);
         //JsonObject baseInfo = json.getAsJsonObject("基本情况");
+        JsonObject reviewJson = json.getAsJsonObject("点评");
         InPatientReview review = new InPatientReview();
         review.setInPatientReviewID(json.getAsJsonPrimitive("inPatientReviewID").getAsInt());
         review.setReviewType(json.get("reviewType").getAsInt());
-        //Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        //System.out.println("principal = " + principal);
-       /* if (principal instanceof UserDetails) {
-            review.setReviewUser(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString());
-        }*/
         review.setReviewUser(json.get("reviewUser").getAsString());
         review.setReviewTime(new Timestamp(System.currentTimeMillis()));
-        //System.out.println("baseInfo.get(\"hospID\").getAsString() = " + baseInfo.get("hospID").getAsString());
         review.setHospID(json.get("hospID").getAsInt());
+        review.setReview(reviewJson.get("review").getAsString());
         review.setReviewJson(string);
         boolean succeed;
         try {
@@ -147,7 +143,7 @@ public class RemarkController {
 
     @RequestMapping("getInPatientExcel0")
     public void getInPatientExcel0(HttpServletResponse response, @RequestParam(value = "inPatientID") int inPatientID) throws IOException {
-        com.zcreate.review.model.InPatient inPatient = reviewService.getInPatient(inPatientID);
+        com.zcreate.review.model.InPatient inPatient = reviewService.getInPatient(inPatientID, 0);
         InPatientReview review = inPatient.getReview();
         //SampleBatch batch = sampleDao.getSampleBatch(batchID);
         JsonObject json = (JsonObject) parser.parse(review.getReviewJson());
@@ -343,7 +339,7 @@ public class RemarkController {
 
     @RequestMapping("getInPatientAntiExcel")
     public void getInPatientAntiExcel(HttpServletResponse response, @RequestParam(value = "inPatientID") int inPatientID, @RequestParam(value = "batchID") int batchID) throws IOException {
-        com.zcreate.review.model.InPatient inPatient = reviewService.getInPatient(inPatientID);
+        com.zcreate.review.model.InPatient inPatient = reviewService.getInPatient(inPatientID, 1);
         InPatientReview review = inPatient.getReview();
         SampleBatch batch = sampleDao.getSampleBatch(batchID);
 
@@ -803,7 +799,7 @@ public class RemarkController {
 
     //抗菌药调查
     @RequestMapping(value = "viewClinic", method = RequestMethod.GET)
-    public String viewClinic(@RequestParam(value = "clinicID") Integer clinicID , ModelMap model) {
+    public String viewClinic(@RequestParam(value = "clinicID") Integer clinicID, ModelMap model) {
         Clinic clinic = reviewService.getClinic(clinicID);
         clinic.setDoctorName(PinyinUtil.replaceName(clinic.getDoctorName()));
         clinic.setApothecaryName(PinyinUtil.replaceName(clinic.getApothecaryName()));
@@ -826,10 +822,10 @@ public class RemarkController {
     //抗菌药调查
     @RequestMapping(value = "viewInPatient1", method = RequestMethod.GET)
     public String viewInPatient1(@RequestParam(value = "inPatientID") Integer inPatientID, @RequestParam(value = "batchID") Integer batchID, ModelMap model) {
-        com.zcreate.review.model.InPatient inPatient = reviewService.getInPatient(inPatientID);
+        com.zcreate.review.model.InPatient inPatient = reviewService.getInPatient(inPatientID, 1);
         if (inPatient != null) {
-            log.debug("viewInPatient:" + inPatient.getDepartment());
-            log.debug("reviewService:" + reviewService);
+           /* log.debug("viewInPatient:" + inPatient.getDepartment());
+            log.debug("reviewService:" + reviewService);*/
             //inPatient.setDepartCode(reviewService.getDepartCode(inPatient.getDepartment()));
             SampleBatch batch = sampleDao.getSampleBatch(batchID);
             inPatient.setMasterDoctorName(PinyinUtil.replaceName(inPatient.getMasterDoctorName()));
@@ -852,10 +848,10 @@ public class RemarkController {
     //医嘱点评
     @RequestMapping(value = "viewInPatient0", method = RequestMethod.GET)
     public String viewInPatient0(@RequestParam(value = "inPatientID") Integer inPatientID, ModelMap model) {
-        com.zcreate.review.model.InPatient inPatient = reviewService.getInPatient(inPatientID);
+        com.zcreate.review.model.InPatient inPatient = reviewService.getInPatient(inPatientID, 0);
         if (inPatient != null) {
-            log.debug("viewInPatient:" + inPatient.getDepartment());
-            log.debug("reviewService:" + reviewService);
+            /*log.debug("viewInPatient:" + inPatient.getDepartment());
+            log.debug("reviewService:" + reviewService);*/
             //inPatient.setDepartCode(reviewService.getDepartCode(inPatient.getDepartment()));
             //SampleBatch batch = sampleDao.getSampleBatch(batchID);
             inPatient.setMasterDoctorName(PinyinUtil.replaceName(inPatient.getMasterDoctorName()));

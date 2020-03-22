@@ -933,7 +933,7 @@
                 json.用药合理性评价 = rational;
 
                 json.备注 = $('#form-field-memo').val();
-                json.reviewType = 2;
+                json.reviewType = 1;
                 // console.log("json:" + JSON.stringify(json));
 
                 $.ajax({

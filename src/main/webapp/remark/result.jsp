@@ -138,7 +138,7 @@
                     {"data": "diagnosis", "sClass": "center", defaultContent: ''},
                     {"data": "department", "sClass": "center"},
                     {"data": "masterDoctorName", "sClass": "center"},
-                    /*{"data": "result", "sClass": "center", defaultContent: ''},*/
+                    {"data": "review", "sClass": "center", defaultContent: ''},
                     /*{"data": "rational", "sClass": "center"},*/
                     {"data": "reviewTime", "sClass": "center"},
                     {"data": "reviewUser", "sClass": "center"},
@@ -162,26 +162,26 @@
                     {"orderable": false, "targets": 6, title: '诊断'},
                     {"orderable": false, "targets": 7, title: '科室', defaultContent: ''},
                     {"orderable": false, "targets": 8, title: '主管医生', defaultContent: ''},
-                    /*  {
-                          "orderable": false, "targets": 9, title: '点评内容', render: function (data) {
-                              //console.log("data:"+data);
-                              if (data !== undefined && data.length > 12) return data.substring(0, 10) + "...";
-                              return data;
-                          }
-                      },
+                    {
+                        "orderable": false, "targets": 9, title: '点评内容', render: function (data) {
+                            console.log("data:" + data);
+                            if (data !== undefined && data.length > 12) return data.substring(0, 10) + "...";
+                            return data;
+                        }
+                    },/*
                       {
                           "orderable": false, "targets": 10, title: '结果', render: function (data) {
                               return data === 1 ? "√" : "×";
                           }
                       },*/
-                    {"orderable": false, "targets": 9, title: '点评日期'},
-                    {"orderable": false, "targets": 10, title: '点评人'},
+                    {"orderable": false, "targets": 10, title: '点评日期'},
+                    {"orderable": false, "targets": 11, title: '点评人'},
                     {
-                        "orderable": false, "targets": 11, title: '查看', render: function (data, type, row, meta) {
-                            if (row["reviewType"] === 1)
+                        "orderable": false, "targets": 12, title: '查看', render: function (data, type, row, meta) {
+                            if (row["reviewType"] === 0)
                                 return '<div class="hidden-sm hidden-xs action-buttons">' +
                                     /*'<a class="hasDetail" href="#" data-Url="/index.jspa?content=/remark/viewInPatient.jspa&inPatientID={0}">'.format(data) +*/
-                                    '<a class="hasDetail" href="#" data-Url="/remark/viewInPatient{0}.jspa?inPatientID={1}">'.format(row["reviewType"] - 1, data) +
+                                    '<a class="hasDetail" href="#" data-Url="/remark/viewInPatient{0}.jspa?inPatientID={1}">'.format(row["reviewType"], data) +
                                     '<i class="ace-icon fa fa-eye bigger-130"></i>' +
                                     '</a>' +
                                     '</div>';

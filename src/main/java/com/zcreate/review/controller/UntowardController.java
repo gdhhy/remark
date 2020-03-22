@@ -124,7 +124,7 @@ public class UntowardController {
                 Clinic clinic = reviewService.getClinic(objectID);
                 modelMap.put("clinic", clinic);
             } else {
-                InPatient inPatient = reviewService.getInPatient(objectID);
+                InPatient inPatient = reviewService.getInPatient(objectID,0);
                 //inPatient.setDepartCode(reviewService.getDepartCode(inPatient.getDepartment()));
                 modelMap.put("inPatient", inPatient);
             }

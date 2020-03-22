@@ -794,7 +794,7 @@
                 review.review = $('#form-field-review').val();
                 review.rational = $("input[name='form-field-rational']:checked").val();
                 json.点评 = review;
-                json.reviewType = 1;
+                json.reviewType = 0;
                 console.log("json:" + JSON.stringify(json));
                 $.ajax({
                     type: "POST",

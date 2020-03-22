@@ -39,7 +39,7 @@ public class InPatientDAOImpl extends SqlSessionDaoSupport implements InPatientD
     }
 
     @SuppressWarnings("unchecked")
-    public com.zcreate.review.model.InPatient getInPatient(int inPatientID) {
+    public com.zcreate.review.model.InPatient getInPatient(int inPatientID, int reviewType) {
         com.zcreate.review.model.InPatient inPatient = getSqlSession().selectOne("InPatient.selectInPatientByID", inPatientID);
 
         if (inPatient == null) return null;
@@ -53,6 +53,7 @@ public class InPatientDAOImpl extends SqlSessionDaoSupport implements InPatientD
         Map<String, Object> param = new HashMap<>();
         //param.put("inPatientID", inPatientID);
         param.put("hospID", inPatient.getHospID());
+        param.put("reviewType", reviewType);
         param.put("AdviceItemTable", "AdviceItem_" + inPatient.getYear());
 
         inPatient.setMicrobeCheck(getSqlSession().selectOne("InPatient.selectInPatientMicrobeCheck", param));
@@ -63,13 +64,7 @@ public class InPatientDAOImpl extends SqlSessionDaoSupport implements InPatientD
     }
 
     private InPatientReview getInPatientReview(Map param) {
-        InPatientReview review = getSqlSession().selectOne("InPatient.selectInPatientReview", param);
-        if (review != null) {
-           /*  review.setDiagnosis(getSqlSession().selectList("AdviceItem.selectDiagnosis", param));
-           review.setLongAdvice(getSqlSession().selectList("AdviceItem.selectLongAdviceItemReview", param));
-            review.setShortAdvice(getSqlSession().selectList("AdviceItem.selectShortAdviceItemReview", param));*/
-        }
-        return review;
+        return getSqlSession().selectOne("InPatient.selectInPatientReview", param);
     }
 
     public int getInPatientCount(Map param) {
@@ -148,7 +143,6 @@ public class InPatientDAOImpl extends SqlSessionDaoSupport implements InPatientD
         else
             return getSqlSession().selectList("AdviceItem.selectShortAdviceItem", param);
     }
-
 
 
     @SuppressWarnings("unchecked")

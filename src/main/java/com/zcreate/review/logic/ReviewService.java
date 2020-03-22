@@ -15,7 +15,7 @@ import java.util.Map;
 public interface ReviewService {
     Clinic getClinic(int clinicID);
 
-    InPatient getInPatient(int recipeID);
+    InPatient getInPatient(int recipeID,int reviewType);
 
    // int getObjectCount(int type, String fromDate, String toDate, int clinicType, String department, String doctorNo, int western, String medicineNo, int special, int incision);
 

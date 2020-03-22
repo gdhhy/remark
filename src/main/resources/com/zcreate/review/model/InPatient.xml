@@ -161,7 +161,7 @@
      </select>-->
     <select id="selectInPatientByID" parameterType="int" resultMap="InPatientResult">
         SELECT TOP 1 inPatientID, hospID, hospNo, patientID, patientName, sex, age, inDate, outDate, inHospitalDay, department, diagnosis, diagnosis2, money, medicineMoney, drugNum,
-                     masterDoctorID, masterDoctorName, disItem, rational, publish, antiNum, concurAntiNum, archive, appealState,surgery
+                     masterDoctorID, masterDoctorName, disItem, rational, publish, antiNum, concurAntiNum, archive, appealState, surgery
         FROM InPatient P
         where inPatientID = #{inPatientID:INTEGER}
     </select>
@@ -206,7 +206,7 @@
         reviewTime, reviewUser,disItem,rational,publish,antiNum,concurAntiNum,archive,appealState,surgery,reviewType
         FROM (SELECT P.inPatientID,P.hospID,P.hospNo,P.patientID,P.patientName,P.sex,P.age,P.inDate,P.outDate,P.inHospitalDay,
         P.department,P.diagnosis,P.diagnosis2,P.drugNum,P.money,P.medicineMoney, P.masterDoctorID,P.masterDoctorName,
-        V.reviewTime,V.reviewUser,P.disItem,P.rational,P.publish,P.antiNum,P.concurAntiNum,P.archive,P.appealState,P.surgery,V.reviewType
+        V.reviewTime,V.reviewUser,V.review,P.disItem,P.rational,P.publish,P.antiNum,P.concurAntiNum,P.archive,P.appealState,P.surgery,V.reviewType
         FROM InPatient P
         left join InPatientReview V on P.hospID=V.hospID
         <if test="goodsID>0">
@@ -237,9 +237,9 @@
         </selectKey>
     </insert>
     <select id="selectInPatientReview" parameterType="java.util.Map" resultMap="InPatientReviewResult">
-        SELECT inPatientReviewID,hospID,reviewType,review,reviewUser,reviewTime,interDepart,reviewJson
+        SELECT inPatientReviewID, hospID, reviewType, review, reviewUser, reviewTime, interDepart, reviewJson
         FROM InPatientReview
-        WHERE hospID = #{hospID:VARCHAR}
+        WHERE hospID = #{hospID:VARCHAR} and reviewType = #{reviewType:INTEGER}
     </select>
     <update id="updateInPatientReview" parameterType="com.zcreate.review.model.InPatientReview" flushCache="true">
         UPDATE InPatientReview
@@ -276,9 +276,8 @@
     </select>
 
     <select id="selectInPatientListForExcel" parameterType="java.util.Map" resultType="java.util.HashMap">
-        SELECT P.hospID,P.department,P.patientID,P.patientName,P.masterDoctorName, (select distinct disease+'，' from Diagnosis where hospID=P.hospID for XML PATH(''))
-        diagnosis ,
-        P.inHospitalDay,P.rational ,P.concurAntiNum,V.surgeryName,V.incision,V.afterStopDrug,V.beforeDrug,P.antiNum,
+        SELECT P.hospID,P.department,P.patientID,P.patientName,P.masterDoctorName, (select distinct disease+'，' from Diagnosis where hospID=P.hospID for XML PATH('')) diagnosis ,
+        P.inHospitalDay,P.rational ,P.concurAntiNum,V.reviewType,V.review,P.antiNum,
         (SELECT count(*) FROM medicine M,${AdviceItemTable} I where P.hospID=I.hospID and western>1 and M.route=2 and M.goodsID=I.goodsID) chineseInjectNum
         FROM InPatientReview V , InPatient P where P.hospID=V.hospID
         <if test="@com.zcreate.util.Ognl@isNotEmpty(sampleBatchID)">AND P.inPatientID in (SELECT objectID FROM SampleList WHERE sampleBatchID = #{sampleBatchID:INTEGER})</if>

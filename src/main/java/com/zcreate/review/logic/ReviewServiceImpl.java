@@ -19,7 +19,7 @@ import java.util.*;
 public class ReviewServiceImpl implements ReviewService {
     static Logger logger = Logger.getLogger(ReviewServiceImpl.class);
     private static ClinicDAO clinicDao;
-    private static InPatientDAO recipeDao;
+    private static InPatientDAO inPatientDao;
     private static SampleDAO sampleDao;
     private static IncompatibilityDAO incompatibilityDAO;
     private DictService dictService;
@@ -32,9 +32,9 @@ public class ReviewServiceImpl implements ReviewService {
         clinicDao.setSqlSessionTemplate(sqlMapClient);
         ReviewServiceImpl.clinicDao = clinicDao;
 
-        InPatientDAOImpl recipeDAO = new InPatientDAOImpl();
-        recipeDAO.setSqlSessionTemplate(sqlMapClient);
-        ReviewServiceImpl.recipeDao = recipeDAO;
+        InPatientDAOImpl inPatientDAO = new InPatientDAOImpl();
+        inPatientDAO.setSqlSessionTemplate(sqlMapClient);
+        ReviewServiceImpl.inPatientDao = inPatientDAO;
 
         SampleDAOImpl sampleDao = new SampleDAOImpl();
         sampleDao.setSqlSessionTemplate(sqlMapClient);
@@ -46,31 +46,31 @@ public class ReviewServiceImpl implements ReviewService {
 
     }
 
-    public InPatient getInPatient(int recipeID) {
-        InPatient recipe = recipeDao.getInPatient(recipeID);
+    public InPatient getInPatient(int inPatientID,int reviewType) {
+        InPatient inPatient = inPatientDao.getInPatient(inPatientID,reviewType);
 
-        InPatientReview review = recipe.getReview();
+        InPatientReview review = inPatient.getReview();
         if (review == null) {
             // System.out.println("----------review is null  ");
             review = new InPatientReview();
             review.setReviewJson("{}");
-            review.setHospID(recipe.getHospID());
+            review.setHospID(inPatient.getHospID());
             //设置手术信息
-           /* if (recipe.getSurgerys().size() > 0) {
-                review.setSurgeryName((String) recipe.getSurgerys().get(0).get("surgeryName"));
-                review.setSurgeryDate(DateUtils.formatSqlDateTime((Timestamp) recipe.getSurgerys().get(0).get("surgeryDate")));
-                review.setIncision((String) recipe.getSurgerys().get(0).get("incision"));
+           /* if (inPatient.getSurgerys().size() > 0) {
+                review.setSurgeryName((String) inPatient.getSurgerys().get(0).get("surgeryName"));
+                review.setSurgeryDate(DateUtils.formatSqlDateTime((Timestamp) inPatient.getSurgerys().get(0).get("surgeryDate")));
+                review.setIncision((String) inPatient.getSurgerys().get(0).get("incision"));
             }*/
             //微生物送检 todo 药师提出名字优化 能写在sql吗？ 少一次读数据库
-           /* List<AdviceItem> germItem = recipeDao.getAdviceItemWithGerm(recipe.gethospID());
+           /* List<AdviceItem> germItem = inPatientDao.getAdviceItemWithGerm(inPatient.gethospID());
             if (germItem.size() > 0) {
                 review.setGermCheck(1);
                 review.setCheckDate(DateUtils.formatSqlDateTime(germItem.get(0).getInPatientDate()));
                 review.setSample(germItem.get(0).getAdvice());
             }*/
             HashMap<String, Object> param = new HashMap<>();
-            param.put("hospID", recipe.getHospID());
-            param.put("AdviceItemTable", "AdviceItem_" + recipe.getYear());
+            param.put("hospID", inPatient.getHospID());
+            param.put("AdviceItemTable", "AdviceItem_" + inPatient.getYear());
             //寻找配伍禁忌药品
             List<HashMap<String, Object>> incompatiMap = incompatibilityDAO.queryByhospID(param);
             HashMap<Integer, String> resultMap = new HashMap<Integer, String>();
@@ -88,13 +88,13 @@ public class ReviewServiceImpl implements ReviewService {
             review.setReview(result);
 
             //完毕，填充回来
-            recipe.setReview(review);
+            inPatient.setReview(review);
         } else {
             if (review.getReviewJson() == null || "".equals(review.getReviewJson()))
                 review.setReviewJson("{}");
         }
 
-        return recipe;
+        return inPatient;
     }
 
     /**
@@ -174,12 +174,12 @@ public class ReviewServiceImpl implements ReviewService {
         } else {
             if (year > 0 && month > 0) {
                 Calendar cal = DateUtils.parseCalendarDayFormat(year + "-" + month + "-01");
-                param.put("recipeDateFrom", ((Calendar) cal.clone()).getTime());
+                param.put("inPatientDateFrom", ((Calendar) cal.clone()).getTime());
 
                 cal.add(Calendar.MONTH, 1);
-                param.put("recipeDateTo", cal.getTime());
+                param.put("inPatientDateTo", cal.getTime());
             }
-            return recipeDao.getInPatientCount(param);
+            return inPatientDao.getInPatientCount(param);
         }
     }*/
 
@@ -209,7 +209,7 @@ public class ReviewServiceImpl implements ReviewService {
             param.put("AdviceItemTable", "AdviceItem_" + fromDate.substring(0, 4));
             param.put("outDateTo", toCal.getTime());
             //param.put("outHospital", true);
-            return recipeDao.getInPatientCount(param);
+            return inPatientDao.getInPatientCount(param);
         }
     }
 
@@ -217,8 +217,8 @@ public class ReviewServiceImpl implements ReviewService {
         return clinicDao.save(clinic) == 1;
     }
 
-    public boolean saveInPatient(InPatient recipe) {
-        return recipeDao.save(recipe) == 1;
+    public boolean saveInPatient(InPatient inPatient) {
+        return inPatientDao.save(inPatient) == 1;
     }
 
     /*   public void setRxDao(RxDAO clinicDao) {
@@ -226,9 +226,9 @@ public class ReviewServiceImpl implements ReviewService {
         ReviewServiceImpl.clinicDao = clinicDao;
     }
 
-    public void setInPatientDao(InPatientDAO recipeDao) {
+    public void setInPatientDao(InPatientDAO inPatientDao) {
         //  logger.debug("setRxDao");
-        ReviewServiceImpl.recipeDao = recipeDao;
+        ReviewServiceImpl.inPatientDao = inPatientDao;
     }*/
 
 
@@ -276,18 +276,18 @@ public class ReviewServiceImpl implements ReviewService {
             param.put("outDateTo", param.get("clinicDateTo"));
             //param.put("outHospital", true);
             if (sampleBatch.getSampleType() == 1)//随机
-                return recipeDao.getRandomInPatientID(param);
+                return inPatientDao.getRandomInPatientID(param);
             else {//等差
                 //不调用存储过程，效率低
                 // 先产生等差随机数列
-                int array[] = linearArray(recipeDao.getInPatientCount(param), sampleBatch.getNum());
-                List<Integer> recipeIDs = recipeDao.selectInPatientIDForLinear(param);
+                int array[] = linearArray(inPatientDao.getInPatientCount(param), sampleBatch.getNum());
+                List<Integer> inPatientIDs = inPatientDao.selectInPatientIDForLinear(param);
                 List<Integer> result = new ArrayList<Integer>(array.length);
                 for (int index : array)
-                    if (index < recipeIDs.size())
-                        result.add(recipeIDs.get(index));
+                    if (index < inPatientIDs.size())
+                        result.add(inPatientIDs.get(index));
                 return result;
-                //return recipeDao.getLinearInPatientID(param);
+                //return inPatientDao.getLinearInPatientID(param);
             }
         }
     }
@@ -317,7 +317,7 @@ public class ReviewServiceImpl implements ReviewService {
         if (type == 1)
             return clinicDao.getClinicByIDList(ids);
         else
-            return recipeDao.getInPatientByIDList(ids);
+            return inPatientDao.getInPatientByIDList(ids);
     }
 
 
@@ -331,15 +331,15 @@ public class ReviewServiceImpl implements ReviewService {
 
     public List getInPatientList(Map<String, Object> param) {
         if (param.get("atLeastMoney") == null || (Integer) param.get("start") > 0)
-            param.put("orderField", "recipeID");
+            param.put("orderField", "inPatientID");
         else
             param.put("orderField", "money");
         //param.put("outHospital", true); 应新丰要求，未出院的可以选择填写传染病报告，备注掉
-        return recipeDao.getInPatientList(param);
+        return inPatientDao.getInPatientList(param);
     }
 
     public List<HashMap<String, Object>> getInPatientListForExcel(Map<String, Object> param) {
-        return recipeDao.getInPatientListForExcel(param);
+        return inPatientDao.getInPatientListForExcel(param);
     }
 
     public List<HashMap<String, Object>> getAdviceItemForExcel(Integer hospID, int medicineType) {
@@ -349,7 +349,7 @@ public class ReviewServiceImpl implements ReviewService {
             param.put("chineseInjection", 1);
         else
             param.put("antiClass", 1);
-        return recipeDao.getAdviceItemForExcel(param);
+        return inPatientDao.getAdviceItemForExcel(param);
     }
 
     /*public int getClinicCount(Map<String, Object> param) {
@@ -357,7 +357,7 @@ public class ReviewServiceImpl implements ReviewService {
     }*/
 
    /* public int getInPatientCount(Map<String, Object> param) {
-        return recipeDao.getInPatientCount(param);
+        return inPatientDao.getInPatientCount(param);
     }*/
 
     /*  public static void setSampleDao(SampleDAO sampleDao) {
@@ -373,8 +373,8 @@ public class ReviewServiceImpl implements ReviewService {
             for (Object clinic : objects) {
                 dealClinicIntoSample((Clinic) clinic, sampleBatch);
             }
-        else for (Object recipe : objects) {
-            dealInPatientIntoSample((InPatient) recipe, sampleBatch);
+        else for (Object inPatient : objects) {
+            dealInPatientIntoSample((InPatient) inPatient, sampleBatch);
         }
         return objects.size();
     }
@@ -408,7 +408,7 @@ public class ReviewServiceImpl implements ReviewService {
             for (Object rx : objectIds) {
                 boolean exist = false;
                 for (HashMap<String, Object> detail : detailList) {
-                    if (detail.get("recipeID").equals(((InPatient) rx).getInPatientID())) {
+                    if (detail.get("inPatientID").equals(((InPatient) rx).getInPatientID())) {
                         //if (detail.gethospID().equals(clinic.gethospID()) && detail.getPrescribeDate().equals(clinic.getPrescribeDate())) {
                         exist = true;
                         break;
@@ -423,9 +423,9 @@ public class ReviewServiceImpl implements ReviewService {
         return succeedCount;
     }
 
-    private void dealInPatientIntoSample(InPatient recipe, SampleBatch sampleBatch) {
+    private void dealInPatientIntoSample(InPatient inPatient, SampleBatch sampleBatch) {
         SampleList sample = new SampleList();
-        sample.setObjectID(recipe.getInPatientID());
+        sample.setObjectID(inPatient.getInPatientID());
         sample.setSampleBatchID(sampleBatch.getSampleBatchID());
         sampleDao.insertSampleDetail(sample);
     }
@@ -482,24 +482,24 @@ public class ReviewServiceImpl implements ReviewService {
         return clinicDao.save(clinic) == 1 && (publishType != 2 || clinicDao.publish(param));
     }
 
-    public boolean publishInPatient(int recipeID, int publishType) {
-        InPatient recipe = new InPatient();
-        recipe.setInPatientID(recipeID);
-        recipe.setPublish(publishType);
+    public boolean publishInPatient(int inPatientID, int publishType) {
+        InPatient inPatient = new InPatient();
+        inPatient.setInPatientID(inPatientID);
+        inPatient.setPublish(publishType);
 
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("type", 2);
-        param.put("objectID", recipeID);
+        param.put("objectID", inPatientID);
 
-        return recipeDao.save(recipe) == 1 && (publishType != 2 || clinicDao.publish(param));
+        return inPatientDao.save(inPatient) == 1 && (publishType != 2 || clinicDao.publish(param));
     }
 
     public boolean saveInPatientReview(InPatientReview review) {
-        return recipeDao.saveInPatientReview(review) > 0;
+        return inPatientDao.saveInPatientReview(review) > 0;
     }
 
-    /* public InPatientReview getInPatientReview(int recipeID) {
-        return recipeDao.getInPatientReview(recipeID);
+    /* public InPatientReview getInPatientReview(int inPatientID) {
+        return inPatientDao.getInPatientReview(inPatientID);
     }*/
 /*
     public List<Course> getCourse(Integer hospID) {
@@ -515,22 +515,22 @@ public class ReviewServiceImpl implements ReviewService {
         param.put("hospID", hospID);
         param.put("longAdvice", longAdvice);
         param.put("AdviceItemTable", "AdviceItem_" + year);
-        List<AdviceItem> recipeItemList = recipeDao.getAdviceItemList(param);
-        for (int i = 1; i < recipeItemList.size(); i++) {
-            if (recipeItemList.get(i).getGroupID().equals(recipeItemList.get(i - 1).getGroupID())) {
-                recipeItemList.get(i).setAdviceDate(null);
+        List<AdviceItem> inPatientItemList = inPatientDao.getAdviceItemList(param);
+        for (int i = 1; i < inPatientItemList.size(); i++) {
+            if (inPatientItemList.get(i).getGroupID().equals(inPatientItemList.get(i - 1).getGroupID())) {
+                inPatientItemList.get(i).setAdviceDate(null);
             }
         }
         List<HashMap<String, Object>> map = incompatibilityDAO.queryByhospID(param);
         //标记配伍禁忌药品，显示为红色
         for (HashMap aMap : map)
-            for (AdviceItem item : recipeItemList) {
+            for (AdviceItem item : inPatientItemList) {
                 if (aMap.get("itemID1").equals(item.getAdviceItemID()) || aMap.get("itemID2").equals(item.getAdviceItemID())) {
                     item.setIncompatibility(Boolean.TRUE);
                     item.setTaboo(aMap.get("medicineName1") + " + " + aMap.get("medicineName2") + " : " + aMap.get("result"));
                 }
             }
-        return recipeItemList;
+        return inPatientItemList;
     }
 
     public int saveDiagnosis(Integer hospID, String diagnosisNos, String diseases) {
@@ -548,8 +548,8 @@ public class ReviewServiceImpl implements ReviewService {
 
                 diagnosisList.add(map);
             }
-            recipeDao.deleteDiagnosis(hospID, 1);
-            return recipeDao.saveDiagnosis(diagnosisList);
+            inPatientDao.deleteDiagnosis(hospID, 1);
+            return inPatientDao.saveDiagnosis(diagnosisList);
         }
         return 0;
     }
@@ -563,17 +563,17 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     public int getSurgeryCount(Integer hospID) {
-        return recipeDao.getSurgeryCount(hospID);
+        return inPatientDao.getSurgeryCount(hospID);
     }
 
     public List<HashMap<String, Object>> getAdviceItemCount(Integer hospID) {
-        return recipeDao.getAdviceItemCount(hospID);
+        return inPatientDao.getAdviceItemCount(hospID);
     }
 
     /* public int saveChooseDiagnosis(Integer hospID, int[] ids) {
         List<Integer> list = new ArrayList<Integer>(ids.length);
         for (int i : ids) list.add(i);
-        return recipeDao.saveChooseDiagnosis(hospID, list);
+        return inPatientDao.saveChooseDiagnosis(hospID, list);
     }*/
 
     public DictService getDictService() {
@@ -584,6 +584,6 @@ public class ReviewServiceImpl implements ReviewService {
         this.dictService = dictService;
     }
     /* public List<HashMap<String, Object>> getSurgeryList(Integer hospID) {
-        return recipeDao.getSurgeryList(hospID);
+        return inPatientDao.getSurgeryList(hospID);
     }*/
 }

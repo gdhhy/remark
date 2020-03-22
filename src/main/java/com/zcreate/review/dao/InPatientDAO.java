@@ -21,7 +21,7 @@ public interface InPatientDAO {
 
     List<HashMap<String, Object>> getInPatientList(Map<String, Object> param);
 
-    com.zcreate.review.model.InPatient getInPatient(int inPatientID);
+    com.zcreate.review.model.InPatient getInPatient(int inPatientID,int reviewType);
 
     int getInPatientCount(Map param);
 
