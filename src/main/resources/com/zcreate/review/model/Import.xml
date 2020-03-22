@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Import">
+    <!--cache eviction="LRU" readOnly="false" flushInterval="86400000" size="1000"/-->
+    <resultMap id="RecordResult" type="com.zcreate.review.model.ImportLog">
+        <result column="exeID" jdbcType="INTEGER" property="exeID"/>
+        <result column="exeTime" jdbcType="TIMESTAMP" property="exeTime"/>
+        <result column="method" jdbcType="VARCHAR" property="method"/>
+        <result column="timeFrom" jdbcType="TIMESTAMP" property="timeFrom"/>
+        <result column="timeTo" jdbcType="TIMESTAMP" property="timeTo"/>
+        <result column="timeSpent" jdbcType="INTEGER" property="timeSpent"/>
+
+        <result column="lastMedicineID" jdbcType="INTEGER" property="lastMedicineID"/>
+        <result column="lastDoctorID" jdbcType="INTEGER" property="lastDoctorID"/>
+        <result column="lastRxID" jdbcType="INTEGER" property="lastRxID"/>
+        <result column="lastRxDetailID" jdbcType="INTEGER" property="lastRxDetailID"/>
+        <result column="lastClinicRxID" jdbcType="INTEGER" property="lastClinicRxID"/>
+        <result column="lastClinicRxDetailID" jdbcType="INTEGER" property="lastClinicRxDetailID"/>
+        <result column="lastSurgeryID" jdbcType="INTEGER" property="lastSurgeryID"/>
+        <result column="lastInPatientID" jdbcType="INTEGER" property="lastInPatientID"/>
+        <result column="lastAdviceItemID" jdbcType="INTEGER" property="lastAdviceItemID"/>
+
+        <result column="insertMedicineCount" jdbcType="INTEGER" property="insertMedicineCount"/>
+        <result column="insertDoctorCount" jdbcType="INTEGER" property="insertDoctorCount"/>
+        <result column="insertRxCount" jdbcType="INTEGER" property="insertRxCount"/>
+        <result column="insertRxDetailCount" jdbcType="INTEGER" property="insertRxDetailCount"/>
+        <result column="insertInPatientCount" jdbcType="INTEGER" property="insertInPatientCount"/>
+        <result column="insertAdviceItemCount" jdbcType="INTEGER" property="insertAdviceItemCount"/>
+        <result column="insertSurgeryCount" jdbcType="INTEGER" property="insertSurgeryCount"/>
+
+        <result column="updateMedicineCount" jdbcType="INTEGER" property="updateMedicineCount"/>
+        <result column="updateDoctorCount" jdbcType="INTEGER" property="updateDoctorCount"/>
+        <result column="updateInPatientCount" jdbcType="INTEGER" property="updateInPatientCount"/>
+        <result column="updateAdviceItemCount" jdbcType="INTEGER" property="updateAdviceItemCount"/>
+
+        <result column="doctorCount" jdbcType="INTEGER" property="doctorCount"/>
+        <result column="summaryCount" jdbcType="INTEGER" property="summaryCount"/>
+        <result column="medicineCount" jdbcType="INTEGER" property="medicineCount"/>
+        <result column="departMedicineCount" jdbcType="INTEGER" property="departMedicineCount"/>
+        <result column="departCount" jdbcType="INTEGER" property="departCount"/>
+        <result column="buildClinicInsertCount" jdbcType="INTEGER" property="buildClinicInsertCount"/>
+        <result column="buildClinicUpdateCount" jdbcType="INTEGER" property="buildClinicUpdateCount"/>
+        <result column="incompatibilityRxCount" jdbcType="INTEGER" property="incompatibilityRxCount"/>
+        <result column="errMsg" jdbcType="VARCHAR" property="errMsg"/>
+    </resultMap>
+    <parameterMap id="dailyParam" type="java.util.Map">
+        <parameter property="fromDate" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+        <parameter property="toDate" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+    </parameterMap>
+    <parameterMap id="buildClinicInPatientParam" type="java.util.Map">
+        <parameter property="logID" jdbcType="INTEGER" javaType="java.lang.Integer" mode="IN"/>
+        <parameter property="fromDate" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+        <parameter property="toDate" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+    </parameterMap>
+ <!--   <parameterMap id="dailyStatParam" type="java.util.Map">
+        <parameter property="fromDate" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+        <parameter property="toDate" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+        <parameter property="logID" jdbcType="INTEGER" javaType="java.lang.Integer" mode="OUT"/>
+    </parameterMap>-->
+    <sql id="queryWhere">
+        <where>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(exeTime)">AND exeTime=#{hospID:TIMESTAMP}</if>
+        </where>
+    </sql>
+    <select id="queryImportLog" parameterType="java.util.Map" resultMap="RecordResult">
+        select TOP ${limit}
+        exeID ,exeTime,method,timeFrom,timeTo,timeSpent,
+        lastMedicineID,lastDoctorID,lastRxID,lastRxDetailID,lastSurgeryID,lastInPatientID,lastAdviceItemID,lastStoreID,lastStoreItemID,
+        insertMedicineCount,insertDoctorCount,insertRxCount, insertRxDetailCount,insertInPatientCount,insertAdviceItemCount,insertSurgeryCount,insertStoreCount,insertStoreItemCount,
+        updateMedicineCount,updateDoctorCount,updateInPatientCount,updateAdviceItemCount ,
+        doctorCount,summaryCount, medicineCount,departMedicineCount,departCount,buildClinicInsertCount,buildClinicUpdateCount,incompatibilityRxCount,errMsg
+        FROM
+        (SELECT exeID ,exeTime,method,timeFrom,timeTo,timeSpent,
+        lastMedicineID,lastDoctorID,lastRxID,lastRxDetailID,lastSurgeryID,lastInPatientID,lastAdviceItemID,lastStoreID,lastStoreItemID,
+        insertMedicineCount,insertDoctorCount,insertRxCount, insertRxDetailCount,insertInPatientCount,insertAdviceItemCount,insertSurgeryCount,insertStoreCount,insertStoreItemCount,
+        updateMedicineCount,updateDoctorCount,updateInPatientCount,updateAdviceItemCount,
+        doctorCount,summaryCount, medicineCount,departMedicineCount,departCount,buildClinicInsertCount,buildClinicUpdateCount,incompatibilityRxCount,errMsg
+        FROM importLog) A
+        <if test="start!=null and start > 0">
+            where exeID &lt; (
+            select min(exeID) from (select top ${start} exeID FROM importLog
+            <include refid="queryWhere"/>
+            order by exeID desc ) A )
+        </if>
+        order by exeID desc
+    </select>
+    <select id="queryImportLogCount" parameterType="java.util.Map" resultType="int">
+        select count(*) from importLog
+        <include refid="queryWhere"/>
+    </select>
+
+    <update id="daily" parameterMap="dailyParam" statementType="CALLABLE">
+        {call daily(?, ?)}
+    </update>
+    <!--测试环境，把处方日期提到最近-->
+    <!--  <update id="updateDate" statementType="CALLABLE">
+          {call updateDate(?, ?)}
+      </update>-->
+    <update id="buildClinicInPatient" parameterMap="buildClinicInPatientParam" statementType="CALLABLE">
+        {call buildClinicInPatient(?, ?, ?)}
+    </update>
+    <!-- <update id="dailyStat" parameterMap="dailyStatParam" statementType="CALLABLE">
+         {call dailyStat(?, ?, ?)}
+     </update>-->
+    <update id="monthlyStat" statementType="CALLABLE">
+        {call monthly()}
+    </update>
+    <update id="backup" parameterType="java.lang.String">
+        BACKUP DATABASE review TO DISK = #{path:VARCHAR} WITH INIT, NOUNLOAD, NOSKIP, STATS = 10, NOFORMAT
+    </update>
+    <select id="selectForPortal" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT TOP ${recordCount} CONVERT(BIGINT, datediff(S, '1970-1-1 00:00:00', L.exeTime)) * 1000 exeTime,
+                                  D.dataDate, D.rxDetailCount, D.lydmxCount, D.adviceItemCount, L.timeSpent, L.errMsg
+        FROM MonitorTaskLog L, MonitorDataRowCount D
+        WHERE D.dataDate >= L.timeFrom AND D.dataDate &lt;= L.TimeTo AND L.method = '导入亿通HIS数据'
+        ORDER BY exeTime DESC
+    </select>
+</mapper>

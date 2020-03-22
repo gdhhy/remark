@@ -15,13 +15,13 @@ import java.util.Map;
 public interface ReviewService {
     Clinic getClinic(int clinicID);
 
-    Recipe getRecipe(int recipeID);
+    InPatient getInPatient(int recipeID);
 
    // int getObjectCount(int type, String fromDate, String toDate, int clinicType, String department, String doctorNo, int western, String medicineNo, int special, int incision);
 
     boolean saveClinic(Clinic clinic);
 
-    boolean saveRecipe(Recipe recipe);
+    boolean saveInPatient(InPatient recipe);
 
     List<Integer> createSampling(SampleBatch sampleBatch);
 
@@ -33,25 +33,25 @@ public interface ReviewService {
 
     List getClinicList(Map<String, Object> param);
 
-    List getRecipeList(Map<String, Object> param);
+    List getInPatientList(Map<String, Object> param);
 
-    List<HashMap<String, Object>> getRecipeListForExcel(Map<String, Object> param);
+    List<HashMap<String, Object>> getInPatientListForExcel(Map<String, Object> param);
 
-    List<HashMap<String, Object>> getRecipeItemForExcel(Integer hospID, int medicineType);
+    List<HashMap<String, Object>> getAdviceItemForExcel(Integer hospID, int medicineType);
 
   /*  int getClinicCount(Map<String, Object> param);
 
-    int getRecipeCount(Map<String, Object> param);*/
+    int getInPatientCount(Map<String, Object> param);*/
 
     int addSampleToBatch(SampleBatch sampleBatch, String clinicIDs);
 
     boolean publishClinic(int clinicID, int publishType);
 
-    boolean publishRecipe(int recipeID, int publishType);
+    boolean publishInPatient(int recipeID, int publishType);
 
-    boolean saveRecipeReview(RecipeReview review);
+    boolean saveInPatientReview(InPatientReview review);
 
-    List<RecipeItem> getRecipeItemList(Integer hospID, int longAdvice,String year);
+    List<AdviceItem> getAdviceItemList(Integer hospID, int longAdvice,String year);
 
     List<HashMap<String, Object>> getLastReview(int topRecount);
 
@@ -59,7 +59,7 @@ public interface ReviewService {
 
     int getSurgeryCount(Integer hospID);
 
-    List<HashMap<String, Object>> getRecipeItemCount(Integer hospID);
+    List<HashMap<String, Object>> getAdviceItemCount(Integer hospID);
 
     int saveDiagnosis(Integer hospID, String diagnosisNos, String diseases);
 }

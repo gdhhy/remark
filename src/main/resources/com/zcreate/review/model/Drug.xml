@@ -257,18 +257,18 @@
                rtrim(M2.chnName) medicineName2
         FROM RxIncompatibility I,
              Incompatibility P,
-             (SELECT R.hospID, R.recipeItemID, R.goodsID, M.chnName, M.matchDrugID
-              FROM ${RecipeItemTable} R,
+             (SELECT R.hospID, R.adviceItemID, R.goodsID, M.chnName, M.matchDrugID
+              FROM ${AdviceItemTable} R,
                    Medicine M
               WHERE R.goodsID = M.goodsID
                 AND R.hospID = #{hospID:INTEGER}) M1,
-             (SELECT R.hospID, R.recipeItemID, R.goodsID, M.chnName, M.matchDrugID
-              FROM ${RecipeItemTable} R,
+             (SELECT R.hospID, R.adviceItemID, R.goodsID, M.chnName, M.matchDrugID
+              FROM ${AdviceItemTable} R,
                    Medicine M
               WHERE R.goodsID = M.goodsID
                 AND R.hospID = #{hospID:INTEGER}) M2
-        WHERE I.itemID1 = M1.recipeItemID
-          AND I.itemID2 = M2.recipeItemID
+        WHERE I.itemID1 = M1.adviceItemID
+          AND I.itemID2 = M2.adviceItemID
           AND P.incompatibilityID = I.incompatibilityID
     </select>
     <sql id="queryWhere2">
@@ -278,10 +278,10 @@
         <if test="@com.zcreate.util.Ognl@isNotEmpty(clinicDateTo)">
             AND D.clinicDate &lt; #{clinicDateTo:TIMESTAMP}
         </if>
-        <if test="@com.zcreate.util.Ognl@isNotEmpty(recipeDateFrom)">
-            AND I.objectID IN (SELECT DISTINCT hospID FROM ${RecipeItemTable} WHERE recipeDate >= #{recipeDateFrom:VARCHAR}
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(recipeDateTo)">
-                AND recipeDate &lt; #{recipeDateTo:TIMESTAMP}
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(adviceDateFrom)">
+            AND I.objectID IN (SELECT DISTINCT hospID FROM ${AdviceItemTable} WHERE adviceDate >= #{adviceDateFrom:VARCHAR}
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(adviceDateTo)">
+                AND adviceDate &lt; #{adviceDateTo:TIMESTAMP}
             </if>)
         </if>
 
@@ -302,11 +302,11 @@
         WHERE I.incompatibilityID=A.incompatibilityID ORDER BY A.num DESC
     </select>
     <!--分页没有标识id，做不到，一次新读入-->
-    <select id="queryHasInterRecipe" parameterType="java.util.Map" resultType="java.util.HashMap">
+    <select id="queryHasInterInPatient" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT A.incompatibilityID,I.result,I.level,I.inBody, rtrim(M1.chnName) chnName1, rtrim(M2.chnName) chnName2,A.num,A.useNum,i.warning
         FROM incompatibility I
         LEFT JOIN Drug M1 ON M1.drugID=I.drugID1 LEFT JOIN Drug M2 ON M2.drugID=I.drugID2,
-        (SELECT incompatibilityID,count(DISTINCT I.objectID) num,count(I.objectID) useNum FROM Recipe D,RxIncompatibility I WHERE D.hospID=I.objectID AND I.type=2
+        (SELECT incompatibilityID,count(DISTINCT I.objectID) num,count(I.objectID) useNum FROM InPatient D,RxIncompatibility I WHERE D.hospID=I.objectID AND I.type=2
         <include refid="queryWhere2"/>
         GROUP BY incompatibilityID) A
         WHERE I.incompatibilityID=A.incompatibilityID ORDER BY A.num DESC

@@ -3,7 +3,7 @@
     as
     declare
         @ixName varchar(100), @ddlSql varchar(1000)
-    --set @tabname = 'RecipeItem_2020' --表名
+    --set @tabname = 'AdviceItem_2020' --表名
 
     begin
         if (object_id('tempdb.dbo.#IDX') is not null)

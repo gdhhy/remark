@@ -8,9 +8,10 @@ import java.util.List;
 /**
  * User: 黄海晏
  * Date: 12-8-15
+ * todo InPatient=>InPatient,AdviceItem=>AdviceItem
  */
-public class Recipe implements Serializable {
-    private Integer recipeID;
+public class InPatient implements Serializable {
+    private Integer inPatientID;
     private Integer hospID;    //住院：入院号，标识病人，门诊：就诊标识
     private String hospNo;    //住院：入院号，标识病人，门诊：就诊标识
     /*病人资料*/
@@ -36,12 +37,9 @@ public class Recipe implements Serializable {
     //住院主管医生
     private Integer masterDoctorID;
     private String masterDoctorName;
+    private Integer surgery;
 
-    /*点评信息*/
-    //点评日期
-    private Timestamp reviewDate;
-    private String reviewUser;
-    //点评结果
+   //点评结果
     //private String result;
     //不合理项目
     private String disItem;
@@ -51,11 +49,11 @@ public class Recipe implements Serializable {
     private Integer antiNum;
     private Integer concurAntiNum;
 
-    /*private List<RecipeItem> longItems;
-    private List<RecipeItem> shortItems;*/
+    /*private List<AdviceItem> longItems;
+    private List<AdviceItem> shortItems;*/
     private List<HashMap<String, Object>> surgerys;
     // private List<HashMap<String, Object>> incompatibilitys;
-    private RecipeReview review;
+    private InPatientReview review;
     //private List<Course> course;
     //private History History;
     /*private Integer longItemNum;
@@ -64,7 +62,7 @@ public class Recipe implements Serializable {
     private Integer incompatNum;
     private Integer microbeCheck;
     private Integer archive;//0:编辑中，1：已归档，-1：退回重新编辑
-    //仅展示时用,ReviewAction.viewRecipe
+    //仅展示时用,ReviewAction.viewInPatient
     private String departCode;
     private int queryTimes = 0;
     private Integer appealState;
@@ -72,12 +70,12 @@ public class Recipe implements Serializable {
     private AntiResearch research;
     private String year;
 
-    public Integer getRecipeID() {
-        return recipeID;
+    public Integer getInPatientID() {
+        return inPatientID;
     }
 
-    public void setRecipeID(Integer recipeID) {
-        this.recipeID = recipeID;
+    public void setInPatientID(Integer inPatientID) {
+        this.inPatientID = inPatientID;
     }
 
     public Integer getHospID() {
@@ -216,22 +214,6 @@ public class Recipe implements Serializable {
         this.masterDoctorName = masterDoctorName;
     }
 
-    public Timestamp getReviewDate() {
-        return reviewDate;
-    }
-
-    public void setReviewDate(Timestamp reviewDate) {
-        this.reviewDate = reviewDate;
-    }
-
-    public String getReviewUser() {
-        return reviewUser;
-    }
-
-    public void setReviewUser(String reviewUser) {
-        this.reviewUser = reviewUser;
-    }
-
    /* public String getResult() {
         return result;
     }
@@ -296,11 +278,11 @@ public class Recipe implements Serializable {
         this.surgerys = surgerys;
     }
 
-    public RecipeReview getReview() {
+    public InPatientReview getReview() {
         return review;
     }
 
-    public void setReview(RecipeReview review) {
+    public void setReview(InPatientReview review) {
         this.review = review;
     }
 /*
@@ -406,5 +388,13 @@ public class Recipe implements Serializable {
 
     public void setYear(String year) {
         this.year = year;
+    }
+
+    public Integer getSurgery() {
+        return surgery;
+    }
+
+    public void setSurgery(Integer surgery) {
+        this.surgery = surgery;
     }
 }

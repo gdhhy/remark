@@ -36,7 +36,7 @@ public class ParamUtils {
 
             param.put("RxDetailTable", "RxDetail_" + fromDate.substring(0, 4));
             param.put("DrugRecordsTable", "DrugRecords_" + fromDate.substring(0, 4));
-            param.put("RecipeItemTable", "RecipeItem_" + fromDate.substring(0, 4));
+            param.put("AdviceItemTable", "AdviceItem_" + fromDate.substring(0, 4));
         }
         if (!"".equals(toDate)) {
             Calendar cal = DateUtils.parseCalendarDayFormat(toDate);

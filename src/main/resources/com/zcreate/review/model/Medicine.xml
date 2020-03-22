@@ -142,7 +142,7 @@
             <if test="@com.zcreate.util.Ognl@isNotEmpty(liveChnName)">AND chnName LIKE '${liveChnName}%'</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(livePinyin)">AND pinyin LIKE '${livePinyin}%'</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(liveNo)">AND no LIKE '${liveNo}%'</if>
-            <if test="antiClass == 0">AND antiClass >=0</if>
+            <!--<if test="antiClass == 0">AND antiClass >=0</if>-->
             <if test="isDelete == 0">AND isDelete=0</if>
         </where>
     </sql>

@@ -30,7 +30,7 @@ public class StatDAOImpl extends SqlSessionDaoSupport implements StatDAO, Serial
         HashMap<String, Object> vdPatient = getSqlSession().selectOne("RxDetail.selectVDPatient", param);
         HashMap<String, Object> emeryPatient = getSqlSession().selectOne("RxDetail.selectEmergencyPatient", param);
 
-        HashMap<String, Object> antiIncision = getSqlSession().selectOne("RecipeItem.antiIncision", param);
+        HashMap<String, Object> antiIncision = getSqlSession().selectOne("AdviceItem.antiIncision", param);
         summary.putAll(antiIncision);
         summary.putAll(emeryPatient);
         summary.putAll(vdPatient);

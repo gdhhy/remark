@@ -1,25 +1,25 @@
-exec sp_copy_table 'RecipeItem', 'RecipeItem_2017';
-exec sp_copy_index 'RecipeItem', 'RecipeItem_2017';
-exec sp_copy_table 'RecipeItem', 'RecipeItem_2018';
-exec sp_copy_index 'RecipeItem', 'RecipeItem_2018';
+exec sp_copy_table 'AdviceItem', 'AdviceItem_2017';
+exec sp_copy_index 'AdviceItem', 'AdviceItem_2017';
+exec sp_copy_table 'AdviceItem', 'AdviceItem_2018';
+exec sp_copy_index 'AdviceItem', 'AdviceItem_2018';
 
-insert into RecipeItem_2017 (recipeItemID, hospID, longAdvice, recipeDate, advice, medicineNo, doctorName, nurseName, endDate, endDoctorName,
+insert into AdviceItem_2017 (adviceItemID, hospID, longAdvice, adviceDate, inPatient, medicineNo, doctorName, nurseName, endDate, endDoctorName,
                              endNurseName, quantity, unit, adviceType, orderID, groupID, problemCode, problemDesc)
 SELECT *
-FROM RecipeItem
-where hospID in (select hospID from Recipe where outdate > '2017-01-01' and outDate < '2018-01-01');
-insert into RecipeItem_2018 (recipeItemID, hospID, longAdvice, recipeDate, advice, medicineNo, doctorName, nurseName, endDate, endDoctorName,
+FROM AdviceItem
+where hospID in (select hospID from InPatient where outdate > '2017-01-01' and outDate < '2018-01-01');
+insert into AdviceItem_2018 (adviceItemID, hospID, longAdvice, adviceDate, inPatient, medicineNo, doctorName, nurseName, endDate, endDoctorName,
                              endNurseName, quantity, unit, adviceType, orderID, groupID, problemCode, problemDesc)
 SELECT *
-FROM RecipeItem
-where hospID in (select hospID from Recipe where outdate > '2018-01-01' and outDate < '2019-01-01');
+FROM AdviceItem
+where hospID in (select hospID from InPatient where outdate > '2018-01-01' and outDate < '2019-01-01');
 
-truncate  table  RecipeItem_2019;
-insert into RecipeItem_2019 (recipeItemID, hospID, longAdvice, recipeDate, advice, medicineNo, doctorName, nurseName, endDate, endDoctorName,
+truncate  table  AdviceItem_2019;
+insert into AdviceItem_2019 (adviceItemID, hospID, longAdvice, adviceDate, inPatient, medicineNo, doctorName, nurseName, endDate, endDoctorName,
                              endNurseName, quantity, unit, adviceType, orderID, groupID, problemCode, problemDesc)
 SELECT *
-FROM RecipeItem
-where hospID in (select hospID from Recipe where outdate > '2019-01-01' or outdate is null);
+FROM AdviceItem
+where hospID in (select hospID from InPatient where outdate > '2019-01-01' or outdate is null);
 
 
 exec sp_copy_table 'RxDetail', 'RxDetail_2018';

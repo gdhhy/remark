@@ -54,7 +54,7 @@ public class StatServiceImpl implements StatService {
         HashMap<String, Object> param = produceMap(fromDate, toDate);
 
         HashMap<String, Object> sunning = sunningMapper.getSunning(param);
-        HashMap<String, Object> inOutPatient = sunningMapper.getSunningRecipe (param);
+        HashMap<String, Object> inOutPatient = sunningMapper.getSunningInPatient(param);
 
         sunning.putAll(inOutPatient);
         return sunning;

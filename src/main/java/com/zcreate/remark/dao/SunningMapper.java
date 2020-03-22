@@ -9,6 +9,6 @@ import java.util.Map;
 @Mapper
 public interface SunningMapper {
     public HashMap<String, Object> getSunning(Map param);
-    public HashMap<String, Object> getSunningRecipe(Map param);
-    public HashMap<String, Object> getSunningRecipeItem(Map param);
+    public HashMap<String, Object> getSunningInPatient(Map param);
+    public HashMap<String, Object> getSunningAdviceItem(Map param);
 }

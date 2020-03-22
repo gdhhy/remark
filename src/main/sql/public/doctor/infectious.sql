@@ -3,7 +3,7 @@ DROP TABLE Infectious;
 CREATE TABLE Infectious
 (
     infectiousID    INT IDENTITY PRIMARY KEY,
-    objectID        INTEGER,                       --执行clinicID或recipeID
+    objectID        INTEGER,                       --执行clinicID或inPatientID
     objectType      INTEGER,                       --1门诊，2：住院
     reportNo        VARCHAR(30),
     reportType      INT,                           --1:初次报告，2:订正报告
@@ -43,7 +43,7 @@ DROP TABLE Contagion;
 CREATE TABLE Contagion
 (
     contagionID     INT IDENTITY PRIMARY KEY,
-    objectID        INTEGER,       --执行clinicID或recipeID
+    objectID        INTEGER,       --执行clinicID或inPatientID
     objectType      INTEGER,       --1门诊，2：住院
     department      VARCHAR(20),
     patientName     VARCHAR(20),   --姓名

@@ -25,8 +25,8 @@
     jQuery(function ($) {
         var startDate = moment().month(moment().month() - 1).startOf('month');
         var endDate = moment().month(moment().month() - 1).endOf('month');
-        var urlParam = "reviewDateFrom={0}&reviewDateTo={1}&queryItem={2}&queryField={3}&rational={4}";
-        var url = "/remark/getClinicReviewList.jspa?" + urlParam;
+        var urlParam = "fromDate={0}&toDate={1}&queryItem={2}&queryField={3}&goodsID={4}";
+        var url = "/remark/getClinicList.jspa?" + urlParam;
 
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');
@@ -45,11 +45,7 @@
                     {"data": "diagnosis", "sClass": "center"},
                     {"data": "department", "sClass": "center"},
                     {"data": "doctorName", "sClass": "center"},
-                    {"data": "result", "sClass": "center", defaultContent: ''},
-                    {"data": "rational", "sClass": "center"},
-                    {"data": "reviewDate", "sClass": "center"},
-                    {"data": "reviewUser", "sClass": "center"},
-                    {"data": "clinicID", "sClass": "center"}
+                    {"data": "reviewDate", "sClass": "center"}
                 ],
                 'columnDefs': [
                     {
@@ -70,23 +66,10 @@
                     {"orderable": false, "targets": 7, title: '科室'},
                     {"orderable": false, "targets": 8, title: '医生'},
                     {
-                        "orderable": false, "targets": 9, title: '点评内容', render: function (data) {
-                            //console.log("data:"+data);
-                            if (data !== undefined && data.length > 12) return data.substring(0, 10) + "...";
-                            return data;
-                        }
-                    },
-                    {
-                        "orderable": false, "targets": 10, title: '结果', render: function (data) {
-                            return data === 1 ? "√" : "×";
-                        }
-                    },
-                    {"orderable": false, "targets": 11, title: '点评日期'},
-                    {"orderable": false, "targets": 12, title: '点评人'}, {
-                        "orderable": false, "targets": 13, title: '查看', width: 45, render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 9, title: '点评', width: 45, render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
-                                '<a class="hasDetail" href="#" data-Url="/remark/viewClinic.jspa?clinicID={0}">'.format(data) +
-                                '<i class="ace-icon fa fa-eye bigger-130"></i>' +
+                                '<a class="hasDetail" href="#" data-Url="/remark/viewClinic.jspa?clinicID={0}">'.format(row['clinicID']) +
+                                (data === null ? '<i class="ace-icon glyphicon glyphicon-pencil  bigger-130"></i>' : data.substring(0, 10)) +
                                 '</a>' +
                                 '</div>';
                         }
@@ -121,7 +104,7 @@
         });
 
 
-        var url2 = "/remark/getHospitalReviewList.jspa?" + urlParam;
+        var url2 = "/remark/getHospitalList.jspa?" + urlParam;
         var dynamicTable2 = $('#dynamic-table2');
         var myTable2 = dynamicTable2
         //.wrap("<div class='dataTables_borderWrap' />") //if you are applying horizontal scrolling (sScrollX)
@@ -130,19 +113,15 @@
                 bProcessing: true,
                 "columns": [
                     {"data": "inPatientID", "sClass": "center"},
-                    {"data": "inDate", "sClass": "center"},
+                    {"data": "outDate", "sClass": "center"},
                     {"data": "hospNo", "sClass": "center"},
                     {"data": "patientName", "sClass": "center"},
                     {"data": "sex", "sClass": "center"},//4
                     {"data": "age", "sClass": "center"},
                     {"data": "diagnosis", "sClass": "center", defaultContent: ''},
-                    {"data": "department", "sClass": "center"},
-                    {"data": "masterDoctorName", "sClass": "center"},
-                    /*{"data": "result", "sClass": "center", defaultContent: ''},*/
-                    /*{"data": "rational", "sClass": "center"},*/
-                    {"data": "reviewTime", "sClass": "center"},
-                    {"data": "reviewUser", "sClass": "center"},
-                    {"data": "inPatientID", "sClass": "center"}
+                    {"data": "department", "sClass": "center", defaultContent: ''},
+                    {"data": "masterDoctorName", "sClass": "center", defaultContent: ''},
+                    {"data": "reviewTime", "sClass": "center", defaultContent: ''}
                 ],
                 'columnDefs': [
                     {
@@ -150,7 +129,7 @@
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     },
-                    {"orderable": false, "targets": 1, title: '入院日期'},
+                    {"orderable": false, "targets": 1, title: '出院日期'},
                     {"orderable": false, "targets": 2, title: '住院号'},
                     {"orderable": false, "targets": 3, title: '病人姓名'},
                     {
@@ -160,32 +139,16 @@
                     },
                     {"orderable": false, "targets": 5, title: '年龄'},
                     {"orderable": false, "targets": 6, title: '诊断'},
-                    {"orderable": false, "targets": 7, title: '科室', defaultContent: ''},
-                    {"orderable": false, "targets": 8, title: '主管医生', defaultContent: ''},
-                    /*  {
-                          "orderable": false, "targets": 9, title: '点评内容', render: function (data) {
-                              //console.log("data:"+data);
-                              if (data !== undefined && data.length > 12) return data.substring(0, 10) + "...";
-                              return data;
-                          }
-                      },
-                      {
-                          "orderable": false, "targets": 10, title: '结果', render: function (data) {
-                              return data === 1 ? "√" : "×";
-                          }
-                      },*/
-                    {"orderable": false, "targets": 9, title: '点评日期'},
-                    {"orderable": false, "targets": 10, title: '点评人'},
+                    {"orderable": false, "targets": 7, title: '科室'},
+                    {"orderable": false, "targets": 8, title: '主管医生'},
                     {
-                        "orderable": false, "targets": 11, title: '查看', render: function (data, type, row, meta) {
-                            if (row["reviewType"] === 1)
-                                return '<div class="hidden-sm hidden-xs action-buttons">' +
-                                    /*'<a class="hasDetail" href="#" data-Url="/index.jspa?content=/remark/viewInPatient.jspa&inPatientID={0}">'.format(data) +*/
-                                    '<a class="hasDetail" href="#" data-Url="/remark/viewInPatient{0}.jspa?inPatientID={1}">'.format(row["reviewType"] - 1, data) +
-                                    '<i class="ace-icon fa fa-eye bigger-130"></i>' +
-                                    '</a>' +
-                                    '</div>';
-                            else return row['reviewTime'].substring(0, 10);
+                        "orderable": false, "targets": 9, title: '点评', render: function (data, type, row, meta) {
+                            return '<div class="hidden-sm hidden-xs action-buttons">' +
+                                /*'<a class="hasDetail" href="#" data-Url="/index.jspa?content=/remark/viewInPatient.jspa&inPatientID={0}">'.format(data) +*/
+                                '<a class="hasDetail" href="#" data-Url="/remark/viewInPatient{0}.jspa?inPatientID={1}">'.format(0, row['inPatientID']) +
+                                (data === undefined ? '<i class="ace-icon glyphicon glyphicon-pencil  bigger-130"></i>' : data.substring(0, 10)) +
+                                '</a>' +
+                                '</div>';
                         }
                     }
                 ],
@@ -241,26 +204,15 @@
 
 
         $('.btn-success').click(function () {//查询
-            var rational = $('input:radio[name="rational"]:checked').val() === undefined ? "" : $('input:radio[name="rational"]:checked').val();
-
             if ($('#form-type').val() === '1') {
                 myTable.ajax.url(
-                    url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), $('#queryItem').val(), $('#queryField').val(), rational)
+                    url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), $('#queryItem').val(), $('#queryField').val(), $('#form-goodsID').val())
                 ).load();
             } else {
                 myTable2.ajax.url(
-                    url2.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), $('#queryItem').val(), $('#queryField').val(), rational)
+                    url2.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), $('#queryItem').val(), $('#queryField').val(), $('#form-goodsID').val())
                 ).load();
             }
-        });
-        $('.btn-info').click(function () {
-            var rational = $('input:radio[name="rational"]:checked').val() === undefined ? "" : $('input:radio[name="rational"]:checked').val();
-            if ($('#form-type').val() === '1')
-                window.location.href = "/excel/getClinicList.jspa?" + urlParam
-                    .format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), $('#queryItem').val(), $('#queryField').val(), rational);
-            else
-                window.location.href = "/excel/getInPatientList.jspa?" + urlParam
-                    .format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), $('#queryItem').val(), $('#queryField').val(), rational);
         });
 
         $('#form-type').on('change', function (e) {
@@ -268,8 +220,9 @@
                 $('#dt2').addClass("hide");
                 $('#dt').removeClass("hide");
                 $("#queryItem option:first").remove();
-                $("#queryItem").prepend("<option value='hospNo'>门诊号</option>");
+                $("#queryItem").prepend("<option value='hospID'>门诊号</option>");
                 $("#queryItem option:first").attr("selected", true);
+                $("#dateLabel").html("处方日期：");
                 //$("#queryItem option:first").val("门诊号");
             } else {
                 $('#dt').addClass("hide");
@@ -277,6 +230,7 @@
                 $("#queryItem option:first").remove();
                 $("#queryItem").prepend("<option value='hospNo'>住院号</option>");
                 $("#queryItem option:first").attr("selected", true);
+                $("#dateLabel").html("出院日期：");
             }
             $('#queryField').attr("placeholder", $("#queryItem option:first").text());
         });
@@ -284,6 +238,44 @@
             $('#queryField').attr("placeholder", this.options[this.selectedIndex].innerHTML);
         });
 
+
+        //https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
+        $('#form-medicine').typeahead({hint: true},
+            {
+                limit: 1000,
+                source: function (queryStr, processSync, processAsync) {
+                    var params = {queryChnName: queryStr, length: 1000};
+                    $.getJSON('/medicine/liveMedicine.jspa', params, function (json) {
+                        //medicineLiveCount = json.iTotalRecords;
+                        //console.log("count:" + medicineLiveCount);
+                        return processAsync(json.data);
+                    });
+                },
+                display: function (item) {
+                    return item.chnName + " - " + item.spec;
+                },
+                templates: {
+                    header: function (query) {//header or footer
+                        //console.log("query:" + JSON.stringify(query, null, 4));
+                        if (query.suggestions.length > 1)
+                            return '<div style="text-align:center" class="green" >发现 {0} 项</div>'.format(query.suggestions.length);
+                    },
+                    suggestion: Handlebars.compile('<div style="font-size: 9px">' +
+                        '<div style="font-weight:bold">{{chnName}}</div>' +
+                        '<span class="light-grey">编码：</span>{{goodsNo}}<span class="space-4"/> <span class="light-grey">规格：</span>{{spec}}</div>'),
+                    pending: function (query) {
+                        return '<div>查询中...</div>';
+                    },
+                    notFound: '<div class="red">没匹配</div>'
+                }
+            }
+        );
+        $('.typeahead').bind('typeahead:select', function (ev, suggestion) {
+            $('#form-goodsID').val(suggestion["goodsID"]);
+        });
+        $('#form-medicine').on("input propertychange", function () {
+            $('#form-goodsID').val("");
+        });
     })
 </script>
 
@@ -320,7 +312,7 @@
 
             <div class="input-group">
                 <select class="nav-search-input   ace" id="queryItem" name="queryItem" style="font-size: 9px;color: black">
-                    <option value="hospNo">门诊号</option>
+                    <option value="hospID">门诊号</option>
                     <option value="doctorName">医生</option>
                     <option value="patientName">病人</option>
                 </select>&nbsp;
@@ -328,7 +320,7 @@
                        style="width: 120px;font-size: 9px;color: black"
                        placeholder="处方号"/>
             </div> &nbsp;&nbsp;&nbsp;
-            <label>点评日期：</label>
+            <label id="dateLabel">处方日期：</label>
             <!-- #section:plugins/date-time.datepicker -->
             <div class="input-group">
                 <input class="form-control nav-search-input" name="dateRangeString" id="form-dateRange"
@@ -337,23 +329,16 @@
                 <span class="input-group-addon"><i class="fa fa-calendar bigger-100"></i></span>
             </div>&nbsp;&nbsp;&nbsp;
 
-            <label>结果：</label>
+            <label class=" control-label no-padding-right" for="form-medicine">药品名称： </label>
             <div class="input-group">
-                <label style="white-space: nowrap">
-                    <input type="radio" name="rational" value="1" class="ace">&nbsp;&nbsp;&nbsp;
-                    <span class="lbl">合理</span></label>
-                <label style="white-space: nowrap">
-                    <input type="radio" name="rational" value="0" class="ace">&nbsp;&nbsp;&nbsp;
-                    <span class="lbl">不合理</span></label>
+                <input class="typeahead scrollable nav-search-input" type="text" id="form-medicine" name="form-medicine"
+                       autocomplete="off" style="width: 250px;font-size: 9px;color: black"
+                       placeholder="编码或拼音匹配，鼠标选择"/><input type="hidden" id="form-goodsID"/>
             </div>&nbsp;&nbsp;&nbsp;
 
             <button type="button" class="btn btn-sm btn-success">
                 查询
                 <i class="ace-icon glyphicon glyphicon-search icon-on-right bigger-100"></i>
-            </button>
-            <button type="button" class="btn btn-sm btn-info">
-                导出
-                <i class="ace-icon fa fa-file-excel-o icon-on-right bigger-100"></i>
             </button>
         </form>
     </div><!-- /.page-header -->
@@ -364,8 +349,7 @@
             <div class="row">
 
                 <div class="col-xs-12">
-                    <div class="table-header">
-                        点评结果
+                    <div class="table-header">查询结果
                         <div class="pull-right tableTools-container"></div>
 
                     </div>

@@ -5,7 +5,7 @@ import com.zcreate.rbac.web.DeployRunning;
 import com.zcreate.remark.dao.DrugRecordsMapper;
 import com.zcreate.remark.util.ParamUtils;
 import com.zcreate.review.dao.ClinicDAO;
-import com.zcreate.review.dao.RecipeDAO;
+import com.zcreate.review.dao.InPatientDAO;
 import com.zcreate.review.logic.AntibiosisService;
 import com.zcreate.review.logic.StatService;
 import com.zcreate.util.DataFormat;
@@ -54,7 +54,7 @@ public class ExcelController {
     @Autowired
     private ClinicDAO clinicDao;
     @Autowired
-    private RecipeDAO recipeDao;
+    private InPatientDAO inPatientDao;
     String templateDir = "template";
     String downloadDir = "tmp";
 
@@ -375,8 +375,8 @@ public class ExcelController {
         }
     }
 
-    @RequestMapping(value = "getRecipeList", method = RequestMethod.GET)
-    public void getRecipeList(HttpServletResponse response, @RequestParam(value = "fromDate", required = false) String fromDate,
+    @RequestMapping(value = "getInPatientList", method = RequestMethod.GET)
+    public void getInPatientList(HttpServletResponse response, @RequestParam(value = "fromDate", required = false) String fromDate,
                               @RequestParam(value = "toDate", required = false) String toDate,
                               @RequestParam(value = "queryItem", required = false) String queryItem,
                               @RequestParam(value = "queryField", required = false) String queryField,
@@ -398,13 +398,13 @@ public class ExcelController {
         param.put("rational", rational);
         param.put("start", 0);
         param.put("limit", 10000);
-        param.put("orderField", "recipeID");
+        param.put("orderField", "inPatientID");
         /*else
             param.put("orderField", "money");*/
-        List list = recipeDao.getRecipeList(param);
+        List list = inPatientDao.getInPatientList(param);
 
         String headers[] = {"入院日期", "住院号", "病人", "年龄", "诊断", "科室", "主管医生", "点评内容", "点评时间"};
-        String prop[] = {"inDate", "patientNo", "patientName", "age", "diagnosis", "department", "masterDoctorName", "result", "reviewDate"};
+        String prop[] = {"inDate", "hospNo", "patientName", "age", "diagnosis", "department", "masterDoctorName", "result", "reviewDate"};
 
         OutputStream out = null;
         try {

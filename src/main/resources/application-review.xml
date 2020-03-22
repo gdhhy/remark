@@ -128,7 +128,7 @@
         <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
         <property name="reviewConfig" ref="reviewConfig"/>
     </bean>
-    <bean id="recipeDao" class="com.zcreate.review.dao.RecipeDAOImpl">
+    <bean id="inPatientDao" class="com.zcreate.review.dao.InPatientDAOImpl">
         <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
         <property name="reviewConfig" ref="reviewConfig"/>
     </bean>
@@ -238,12 +238,12 @@
     <!--<aop:config proxy-target-class="true">
         <aop:pointcut id="rbacTxPointcut2"
                       expression="execution(* com.zcreate.review.dao..*(..))"/>
-        <aop:advisor advice-ref="transactionManagerAdivice" pointcut-ref="rbacTxPointcut2"/>
+        <aop:advisor inPatient-ref="transactionManagerAdivice" pointcut-ref="rbacTxPointcut2"/>
     </aop:config>
     <aop:config proxy-target-class="true">
         <aop:pointcut id="rbacTxPointcut3"
                       expression="execution(* com.zcreate.review.logic..*(..))"/>
-        <aop:advisor advice-ref="transactionManagerAdivice" pointcut-ref="rbacTxPointcut3"/>
+        <aop:advisor inPatient-ref="transactionManagerAdivice" pointcut-ref="rbacTxPointcut3"/>
     </aop:config>
 
     <bean id="incompatibilityAspect" class="com.zcreate.review.logic.IncompatibilityAspect"/>

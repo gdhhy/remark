@@ -129,17 +129,25 @@
                     $("#taskTable tbody").append($tr);
                 });
 
-                $('#taskTable tbody tr').find(".fa-trash-o").bind("click", function () {
+                $('#taskTable tbody tr').find(".glyphicon-trash").bind("click", function () {
                     deleteDialog($(this).attr("data-id"), $(this).attr("data-time"), $(this).attr("data-name"))
                 });
             });
         }
 
         listTask();
-        $.getJSON("/monitor/getRunningThread.jspa", function (result) {
-            // if (result.data.length > 0)
-            $('#threadInfo').html(result.threadInfo);
-        });
+
+        function getRunningThread() {
+            $.getJSON("/monitor/getRunningThread.jspa", function (result) {
+                // if (result.data.length > 0)
+                $('#threadInfo').html(result.threadInfo);
+            });
+             setTimeout(function () {
+                getRunningThread();
+            }, 1000);
+        }
+
+        getRunningThread();
 
         function rendeTimerTime(value, timerMode) {
             var dateValue = moment(value);
@@ -207,7 +215,7 @@
                 buttons: [{
                     html: "<i class='ace-icon fa fa-check bigger-110'></i>&nbsp; 提交", "class": "btn  btn-xs btn-success btn-primary", click: function () {
                         var param = {
-                            runType: $("input[name='runType']:checked").val(),
+                            taskType: $("input[name='runType']:checked").val(),
                             timerMode: $('#timerMode').children('option:selected').val(),
                             exeDateField: $('#execDate').val(),
                             exeTimeField: $('#execTime').children('option:selected').val(),
@@ -262,8 +270,8 @@
         });
         $("input[name='runType']").on('change', function () {
             //console.log("value:" + $(this).val());
-            var tips = ["执行从医院HIS系统导入数据（相当于每日定时：review.daily)", "统计每张处方使用药品情况，例如抗菌药、基本药物、注射等",
-                "生成部门、医生、药品等维度的日统计汇总", "根据药物相互作用，搜索疑有配伍禁忌处方，生成处方点评的配伍禁忌处方模块数据"];
+            var tips = ["执行从医院HIS系统导入数据（相当于每日定时导入)", "统计处方、医嘱使用药品情况，例如抗菌药物、基本药物、药理分类等相关数据",
+                "根据药物相互作用，搜索疑有配伍禁忌处方，生成处方点评的配伍禁忌处方模块数据"];
             $('#taskInfo').html(tips[$(this).val() - 1]);
         });
         //datepicker plugin
@@ -323,11 +331,6 @@
         }
 
         function deleteDialog(taskID, taskTime, taskName) {
-
-            /*    console.log("taskID:" + taskID);
-                console.log("taskTime:" + taskTime);
-                console.log("taskName:" + taskName);
-                return;*/
             $('#deleteTaskTime').text(taskTime);
             $('#deleteTaskName').text(taskName);
             $("#dialog-delete").removeClass('hide').dialog({
@@ -464,7 +467,7 @@
                     </div>
 
                     <%--<div class="space-6"></div>--%>
-                    <div class="alert alert-danger no-padding  hide" style="margin-bottom: 0">
+                    <div class="alert alert-danger no-padding hide" style="margin-bottom: 0">
                         <button type="button" class="close" data-dismiss="alert">
                             <i class="ace-icon fa fa-times"></i>
                         </button>
@@ -476,7 +479,7 @@
                             <div class="widget-box">
                                 <div class="widget-header widget-header-small">
                                     <h6 class="widget-title smaller">
-                                        执行结果
+                                        <strong>执行结果</strong>
                                     </h6>
                                 </div>
 
@@ -526,31 +529,25 @@
                     <div class="row">
                         <label class="col-xs-3 bolder blue" style="white-space: nowrap;margin-top: 10px;">任务类型</label>
                         <div class="col-xs-9">
-                            <div class="radio">
-                                <label>
-                                    <input name="runType" type="radio" class="ace" value="3" checked>
-                                    <span class="lbl"> 每日统计汇总</span>
-                                </label>
-                            </div>
 
                             <div class="radio">
                                 <label>
                                     <input name="runType" type="radio" class="ace" value="2">
-                                    <span class="lbl">重建处方数据</span>
+                                    <span class="lbl"> 重建处方数据</span>
                                 </label>
                             </div>
-
-                            <div class="radio">
-                                <label>
-                                    <input name="runType" type="radio" class="ace" value="4">
-                                    <span class="lbl" style="white-space: nowrap">搜索有配伍禁忌处方</span>
-                                </label>
-                            </div>
+                            <%--
+                                                        <div class="radio">
+                                                            <label>
+                                                                <input name="runType" type="radio" class="ace" value="4">
+                                                                <span class="lbl" style="white-space: nowrap">搜索有配伍禁忌处方</span>
+                                                            </label>
+                                                        </div>--%>
 
                             <div class="radio">
                                 <label>
                                     <input name="runType" type="radio" class="ace" value="1">
-                                    <span class="lbl" style="white-space: nowrap"> 亿通HIS->处方点评</span>
+                                    <span class="lbl" style="white-space: nowrap"> 力锦HIS->处方点评</span>
                                 </label>
                             </div>
                         </div>

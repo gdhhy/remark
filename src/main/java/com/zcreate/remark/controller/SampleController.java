@@ -3,13 +3,13 @@ package com.zcreate.remark.controller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.zcreate.review.dao.ClinicDAO;
-import com.zcreate.review.dao.RecipeDAO;
+import com.zcreate.review.dao.InPatientDAO;
 import com.zcreate.review.dao.SampleDAO;
 import com.zcreate.review.his.Course;
 import com.zcreate.review.his.HisDAO;
 import com.zcreate.review.his.History;
 import com.zcreate.review.logic.ReviewService;
-import com.zcreate.review.model.RecipeItem;
+import com.zcreate.review.model.AdviceItem;
 import com.zcreate.review.model.SampleBatch;
 import com.zcreate.util.DateUtils;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ public class SampleController {
     @Autowired
     private ClinicDAO clinicDao;
     @Autowired
-    private RecipeDAO recipeDao;
+    private InPatientDAO inPatientDao;
     @Autowired
     private HisDAO hisDao;
     @Autowired
@@ -130,12 +130,12 @@ public class SampleController {
         } else {
             Map<String, Object> dateParam = new HashMap<String, Object>();
             dateParam.put("outDateFrom", DateUtils.parseSqlDate(date[0]));
-            dateParam.put("RecipeItemTable", "RecipeItem_" + date[0].substring(0, 4));
+            dateParam.put("AdviceItemTable", "AdviceItem_" + date[0].substring(0, 4));
             dateParam.put("outDateTo", toCal.getTime());
-            result.put("outPatientNum", recipeDao.getRecipeCount(dateParam));
+            result.put("outPatientNum", inPatientDao.getInPatientCount(dateParam));
 
             param.putAll(dateParam);
-            result.put("count", recipeDao.getRecipeCount(param));
+            result.put("count", inPatientDao.getInPatientCount(param));
         }
 
         return gson.toJson(result);
@@ -190,7 +190,7 @@ public class SampleController {
         if (type == 1) {
             data = clinicDao.getClinicByIDList(ids);
         } else {
-            data = recipeDao.getRecipeByIDList(ids);
+            data = inPatientDao.getInPatientByIDList(ids);
         }
 
         return wrap(data);
@@ -240,19 +240,19 @@ public class SampleController {
 
 
     @ResponseBody //带这个返回json，不带返回jsp视图
-    @RequestMapping(value = "getRecipeItemList", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
-    public String getRecipeItemList(@RequestParam(value = "hospID") Integer hospID, @RequestParam(value = "year") String year,
+    @RequestMapping(value = "getAdviceItemList", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
+    public String getAdviceItemList(@RequestParam(value = "hospID") Integer hospID, @RequestParam(value = "year") String year,
                                     @RequestParam(value = "longAdvice", defaultValue = "1") int longAdvice) {
-        //      log.debug("getRecipeItemList");
-        List<RecipeItem> adviceList = reviewService.getRecipeItemList(hospID, longAdvice, year);
-//   log.debug("getRecipeItemList2");
+        //      log.debug("getAdviceItemList");
+        List<AdviceItem> adviceList = reviewService.getAdviceItemList(hospID, longAdvice, year);
+//   log.debug("getAdviceItemList2");
         return wrap(adviceList);
     }
 
     @ResponseBody //带这个返回json，不带返回jsp视图
     @RequestMapping(value = "getSurgerys", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
     public String getSurgerys(@RequestParam(value = "hospID") Integer hospID) {
-        List<HashMap<String, Object>> surgerys = recipeDao.selectSurgery(hospID);
+        List<HashMap<String, Object>> surgerys = inPatientDao.selectSurgery(hospID);
         return wrap(surgerys);
     }
 

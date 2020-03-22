@@ -41,7 +41,7 @@
                     {"data": "hospNo", "sClass": "center", defaultContent: ''},
                     {"data": "patientName", "sClass": "center"},
                     {"data": "age", "sClass": "center"},
-                    {"data": "inDate", "sClass": "center"},//4
+                  /*  {"data": "inDate", "sClass": "center"},//4*/
                     {"data": "outDate", "sClass": "center"},
                     {"data": "inHospitalDay", "sClass": "center"},
                     {"data": "drugNum", "sClass": "center"},
@@ -49,9 +49,9 @@
                     {"data": "medicineMoney", "sClass": "center"},//9
                     {"data": "diagnosis2", "sClass": "center"},
                     {"data": "masterDoctorName", "sClass": "center"},
-                    {"data": "rational", "sClass": "center"},
+                  /*  {"data": "rational", "sClass": "center"},*/
                     {"data": "disItem", "sClass": "center"},
-                    {"data": "recipeID", "sClass": "center"}//14
+                    {"data": "inPatientID", "sClass": "center"}//14
                 ],
 
                 'columnDefs': [
@@ -63,27 +63,27 @@
                     {"orderable": false, "targets": 1, title: '住院号', width: 60},
                     {"orderable": false, "targets": 2, title: '病人', width: 60},
                     {"orderable": false, "targets": 3, title: '年龄'},
-                    {"orderable": false, "targets": 4, title: '入院日期', width: 130},
-                    {"orderable": false, "targets": 5, title: '出院日期', width: 130},
-                    {"orderable": false, "targets": 6, title: '住院天数'},
-                    {"orderable": false, "targets": 7, title: '药品组数'},
-                    {"orderable": false, "targets": 8, title: '总金额', defaultContent: '', align : 'right'},
-                    {"orderable": false, "targets": 9, title: '药品金额', defaultContent: ''},
-                    {"orderable": false, "targets": 10, title: '出院诊断', defaultContent: ''},
-                    {"orderable": false, "targets": 11, title: '主管医生', defaultContent: '', width: 60},
-                    {
-                        "orderable": false, "targets": 12, title: '合理', defaultContent: '', render: function (data, type, row, meta) {
+                    /*{"orderable": false, "targets": 4, title: '入院日期', width: 130},*/
+                    {"orderable": false, "targets": 4, title: '出院日期', width: 130},
+                    {"orderable": false, "targets": 5, title: '住院天数', width: 45},
+                    {"orderable": false, "targets": 6, title: '药品组数', width: 45},
+                    {"orderable": false, "targets": 7, title: '总金额', defaultContent: '', align : 'right'},
+                    {"orderable": false, "targets": 8, title: '药品金额', defaultContent: ''},
+                    {"orderable": false, "targets": 9, title: '出院诊断', defaultContent: ''},
+                    {"orderable": false, "targets": 10, title: '主管<br/>医生', defaultContent: '', width: 60},
+                 /*   {
+                        "orderable": false, "targets": 11, title: '合理', defaultContent: '', render: function (data, type, row, meta) {
                             if (data === 1) return '是';
                             return '否';
                         }
-                    },
-                    {"orderable": false, searchable: false, "targets": 13, title: '问题代码'},
+                    },*/
+                    {"orderable": false, searchable: false, "targets": 11, title: '问题代码', width: 45},
                     {
-                        "orderable": false, "targets": 14, title: '点评', render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 12, title: '点评', render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
-                                /*'<a class="hasDetail" href="#" data-Url="/index.jspa?content=/remark/viewRecipe.jspa&recipeID={0}">'.format(data) +*/
-                                '<a class="hasDetail" href="#" data-Url="/remark/viewRecipe{0}.jspa?recipeID={1}&batchID={2}">'.format(remarkType, data, sampleBatchID) +
-                                '<i class="ace-icon glyphicon glyphicon-pencil  bigger-130"></i>' +
+                                /*'<a class="hasDetail" href="#" data-Url="/index.jspa?content=/remark/viewInPatient.jspa&inPatientID={0}">'.format(data) +*/
+                                '<a class="hasDetail" href="#" data-Url="/remark/viewInPatient{0}.jspa?inPatientID={1}&batchID={2}">'.format(remarkType, data, sampleBatchID) +
+                                (row['reviewTime'] === undefined ? '<i class="ace-icon glyphicon glyphicon-pencil  bigger-130"></i>' : row['reviewTime'].substring(0, 10)) +
                                 '</a>' +
                                 '</div>';
                         }

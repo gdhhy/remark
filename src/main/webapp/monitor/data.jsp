@@ -35,20 +35,16 @@
                     {"data": "monitorID", "sClass": "center"},
                     {"data": "dataDate", "sClass": "center", orderable: false},
                     {"data": "clinicCount", "sClass": "center", orderable: false},
-                    {"data": "rxDetailCount", "sClass": "center", orderable: false,defaultContent:''},
-                    {"data": "rxDetailYearCount", "sClass": "center", orderable: false,defaultContent:''},//4
-                    {"data": "rxCount", "sClass": "center", orderable: false},
-                    {"data": "lydCount", "sClass": "center", orderable: false,defaultContent:''},
-                    {"data": "lydmxCount", "sClass": "center", orderable: false,defaultContent:''},
+                    {"data": "rxDetailYearCount", "sClass": "center", orderable: false,defaultContent:''},
+                    {"data": "rxCount", "sClass": "center", orderable: false},//4
                     {"data": "drugRecordsCount", "sClass": "center", orderable: false,defaultContent:''},
-                    {"data": "recipeCount", "sClass": "center", orderable: false},//9
-                    {"data": "recipeItemCount", "sClass": "center", orderable: false,defaultContent:''},
-                    {"data": "recipeItemYearCount", "sClass": "center", orderable: false,defaultContent:''},
+                    {"data": "inPatientCount", "sClass": "center", orderable: false},
+                    {"data": "adviceItemYearCount", "sClass": "center", orderable: false,defaultContent:''},
                     {"data": "doctorCount", "sClass": "center", orderable: false},
-                    {"data": "medicineCount", "sClass": "center", orderable: false},
-                    {"data": "surgeryCount", "sClass": "center", orderable: false},//14
+                    {"data": "medicineCount", "sClass": "center", orderable: false},//9
+                    {"data": "surgeryCount", "sClass": "center", orderable: false},
                     {"data": "updateTime", "sClass": "center", orderable: false},
-                    {"data": "dataDate", "sClass": "center", orderable: false},
+                    {"data": "dataDate", "sClass": "center", orderable: false}
                 ],
                 'columnDefs': [
                     {
@@ -56,7 +52,7 @@
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     }, {
-                        'targets': 16, 'searchable': false, 'orderable': false,
+                        'targets': 12, 'searchable': false, 'orderable': false,
                         render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 '<a class="hasDetail" href="#" data-Url="javascript:deleteDialog(\'{0}\');">'.format(data) +
@@ -377,15 +373,11 @@
                             <th style="text-align: center">序号</th>
                             <th style="text-align: center">数据日期</th>
                             <th style="text-align: center">处方</th>
-                            <th style="text-align: center">处方明细</th>
                             <th style="text-align: center">处方年明细</th>
                             <th style="text-align: center">原始处方</th>
-                            <th style="text-align: center">药房领用单</th>
-                            <th style="text-align: center">药房明细</th>
-                            <th style="text-align: center">药房年明细</th>
+                            <th style="text-align: center">发药明细</th>
                             <th style="text-align: center">出院病人</th>
                             <th style="text-align: center">住院医嘱</th>
-                            <th style="text-align: center">住院年医嘱</th>
                             <th style="text-align: center">医生</th>
                             <th style="text-align: center">药品</th>
                             <th style="text-align: center">手术数</th>

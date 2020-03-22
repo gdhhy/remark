@@ -217,13 +217,21 @@ public class MedicineController {
     @Transactional
     @RequestMapping(value = "/saveMedicine", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
     public String saveMedicine(@ModelAttribute("medicine") Medicine medicine) {
-        log.debug("medicine = " + medicine);
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Map<String, Object> map = new HashMap<>();
-        int result;
-        map.put("title", "保存药品资料");
-
-        result = medicineDao.save(medicine);
-        map.put("succeed", result > 0);
+        if (principal instanceof UserDetails) {
+            UserDetails ud = (UserDetails) principal;
+            log.debug("medicine = " + medicine);
+            int result;
+            map.put("title", "保存药品资料");
+            medicine.setUpdateUser(ud.getUsername());
+            result = medicineDao.save(medicine);
+            map.put("succeed", result > 0);
+        } else {
+            map.put("title", "保存药品资料");
+            map.put("succeed", false);
+            map.put("message", "没登录用户信息，请重新登录！");
+        }
 
         return gson.toJson(map);
     }

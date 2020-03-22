@@ -109,6 +109,15 @@
                     <b class="arrow"></b>
                 </li>
                 <li class="">
+                    <a href="index.jspa?content=/remark/query.jsp&menuID=16" id="16">
+                        <%--<i class="menu-icon fa fa-caret-right"></i>--%>
+                        <i class="menu-icon fa fa-search"></i>
+                        <span class="menu-text">查询点评</span>
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+                <li class="">
                     <a href="index.jspa?content=/remark/result.jsp&menuID=15" id="15">
                         <i class="menu-icon fa fa-history"></i>
                         <span class="menu-text"> 点评结果</span>

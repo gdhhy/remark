@@ -32,7 +32,7 @@ public class SampleDAOImpl extends SqlSessionDaoSupport implements SampleDAO, Se
             PinyinUtil.replaceName(list, "apothecaryName");
             PinyinUtil.replaceName(list, "confirmName");
         } else {
-            list = getSqlSession().selectList("SampleList.selectSampleRecipe", param);
+            list = getSqlSession().selectList("SampleList.selectSampleInPatient", param);
             PinyinUtil.replaceName(list, "masterDoctorName");
         }
 
@@ -128,8 +128,8 @@ public class SampleDAOImpl extends SqlSessionDaoSupport implements SampleDAO, Se
         return getSqlSession().selectOne("SampleList.selectReviewClinicCount", param);
     }
 
-    @SuppressWarnings("unchecked")
-    public int getReviewHospitalCount(Map param) {
+
+   /* public int getReviewHospitalCount(Map param) {
         return getSqlSession().selectOne("SampleList.selectReviewHospitalCount", param);
-    }
+    }*/
 }

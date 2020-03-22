@@ -120,7 +120,7 @@
                     {
                         'targets': 10, 'searchable': false, 'orderable': false, width: 80, title: '点评/删除',
                         render: function (data, type, row, meta) {
-                            var jsp = row['type'] === 1 ? "clinic_list.jsp" : "recipe_list.jsp";
+                            var jsp = row['type'] === 1 ? "clinic_list.jsp" : "inpatient_list.jsp";
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 '<a class="hasDetail green" href="#" data-Url="/index.jspa?content=/remark/{2}&sampleBatchID={0}&remarkType={1}&menuID=14&batchName={3}">'.format(data, row["remarkType"], jsp, encodeURI(encodeURI(row["name"]))) +
                                 '<i class="ace-icon fa fa-chain bigger-110"></i>' +
@@ -520,7 +520,7 @@
                     ordering: false,
                     "destroy": true,
                     "columns": [
-                        {"data": "recipeID"},
+                        {"data": "inPatientID"},
                         {"data": "hospID", "sClass": "center"},
                         {"data": "inDate", "sClass": "center"},
                         {"data": "outDate", "sClass": "center"},

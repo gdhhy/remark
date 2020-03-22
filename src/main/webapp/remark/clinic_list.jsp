@@ -25,7 +25,7 @@
 <script type="text/javascript">
     jQuery(function ($) {
         var sampleBatchID = $.getUrlParam("sampleBatchID");
-        var remarkType = $.getUrlParam("remarkType");
+      //  var remarkType = $.getUrlParam("remarkType");
         $("#batchName").text(decodeURI($.getUrlParam("batchName")));
         var url = "/remark/listDetails.jspa?sampleBatchID=" + sampleBatchID + '&type=1';
         //var editor = new $.fn.dataTable.Editor({});
@@ -39,7 +39,7 @@
                 "columns": [
                     {"data": "detailID"},
                     {"data": "mzNo", "sClass": "center"},
-                    {"data": "clinicDate", "sClass": "center"},
+                    {"data": "clinicTime", "sClass": "center"},
                     {"data": "patientName", "sClass": "center"},
                     {"data": "age", "sClass": "center"},//4
                     {"data": "diagnosis", "sClass": "center"},
@@ -64,8 +64,8 @@
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     },
-                    {"orderable": false, "targets": 1, title: '门诊号', width: 60},
-                    {"orderable": false, "targets": 2, title: '时间', width: 55},//, width: 85
+                    {"orderable": false, "targets": 1, title: '门诊号', width: 120},
+                    {"orderable": false, "targets": 2, title: '时间', width: 45},//, width: 85
                     {"orderable": false, "targets": 3, title: '姓名', width: 60},
                     {"orderable": false, "targets": 4, title: '年龄', width: 50},
                     {"orderable": false, "targets": 5, title: '诊断'},
@@ -84,8 +84,8 @@
                     {
                         "orderable": false, "targets": 16, title: '点评', width: 45, render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
-                                '<a class="hasDetail" href="#" data-Url="/remark/viewClinic.jspa?clinicID={1}&batchID={2}">'.format(remarkType, row['clinicID'], sampleBatchID) +
-                                '<i class="ace-icon glyphicon glyphicon-pencil  bigger-130"></i>' +
+                                '<a class="hasDetail" href="#" data-Url="/remark/viewClinic.jspa?clinicID={0}">'.format(row['clinicID']) +
+                                (data === undefined ? '<i class="ace-icon glyphicon glyphicon-pencil  bigger-130"></i>' : data.substring(0, 10)) +
                                 '</a>' +
                                 '</div>';
                         }

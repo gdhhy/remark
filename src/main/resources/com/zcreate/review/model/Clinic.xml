@@ -47,38 +47,38 @@
       </resultMap>-->
     <sql id="queryWhere">
         <where>
-            <if test="clinicID > 0">AND clinicID=#{clinicID}</if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(hospID)">AND hospID=#{hospID}</if>
+            <if test="clinicID > 0">AND C.clinicID=#{clinicID}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(hospID)">AND C.hospID=#{hospID}</if>
             <!--<if test="year>0">AND datepart(year,clinicDate)=#{year:INTEGER}</if>-->
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(clinicDate)">AND clinicDate=#{clinicDate}</if>
-            <if test="untoward>0">AND clinicID not in(select objectID from untoward where objectType=1)</if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(clinicDateFrom)">AND clinicDate >= #{clinicDateFrom:TIMESTAMP}</if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(clinicDateTo)">AND clinicDate &lt; #{clinicDateTo:TIMESTAMP}</if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(reviewDateFrom)">AND reviewDate >= #{reviewDateFrom:VARCHAR}</if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(reviewDateTo)">AND reviewDate &lt; #{reviewDateTo:TIMESTAMP}</if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(department)">AND department = #{department:VARCHAR}</if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(doctorID)">AND doctorID = #{doctorID:INTEGER}</if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(doctorName)">AND doctorName = #{doctorName:VARCHAR}</if>
-            <if test="western>=1">AND isWestern = #{western:INTEGER}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(clinicDate)">AND C.clinicDate=#{clinicDate}</if>
+            <if test="untoward>0">AND C.clinicID not in(select objectID from untoward where objectType=1)</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(clinicDateFrom)">AND C.clinicDate >= #{clinicDateFrom:DATE}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(clinicDateTo)">AND C.clinicDate &lt; #{clinicDateTo:DATE}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(reviewDateFrom)">AND C.reviewDate >= #{reviewDateFrom:DATE}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(reviewDateTo)">AND C.reviewDate &lt; #{reviewDateTo:DATE}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(department)">AND C.department = #{department:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(doctorID)">AND C.doctorID = #{doctorID:INTEGER}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(doctorName)">AND C.doctorName = #{doctorName:VARCHAR}</if>
+            <if test="western>=1">AND C.isWestern = #{western:INTEGER}</if>
             <!--0是默认值，最好不要用0代表-->
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(patientName)">AND patientName = #{patientName:VARCHAR}</if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(likePatientName)">AND patientName like '%${likePatientName}%'</if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(disItem)">AND disItem LIKE '%${disItem}%'</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(patientName)">AND C.patientName = #{patientName:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(likePatientName)">AND C.patientName like '%${likePatientName}%'</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(disItem)">AND C.disItem LIKE '%${disItem}%'</if>
             <choose>
-                <when test="atLeastMoney>0">AND MONEY>#{atLeastMoney:DOUBLE} AND isWestern=1 AND drugNum>0</when>
-                <when test="atLeastDrugNum>0">AND drugNum>#{atLeastDrugNum:INTEGER} AND isWestern=1</when>
+                <when test="atLeastMoney>0">AND C.MONEY>#{atLeastMoney:DOUBLE} AND C.isWestern=1 AND C.drugNum>0</when>
+                <when test="atLeastDrugNum>0">AND C.drugNum>#{atLeastDrugNum:INTEGER} AND C.isWestern=1</when>
                 <!--<if test="@com.zcreate.util.Ognl@isEmpty(healthNo)">AND drugNum>0</if> todo 不能删除,8月６日增加的,保留观察-->
-                <when test="@com.zcreate.util.Ognl@isNotEmpty(ALLDISITEM)">AND (drugNum>5 OR MONEY>300)</when>
-                <when test="@com.zcreate.util.Ognl@isEmpty(atLeastDrugNum)">AND drugNum>0</when>
+                <when test="@com.zcreate.util.Ognl@isNotEmpty(ALLDISITEM)">AND (C.drugNum>5 OR MONEY>300)</when>
+                <when test="@com.zcreate.util.Ognl@isEmpty(atLeastDrugNum)">AND C.drugNum>0</when>
             </choose>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(oldFolks)">AND dAge > 60</if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(children)">AND dAge &lt;= 14</if>
-            <if test="incompatibilityID>0">AND clinicID IN ( SELECT objectID FROM RxIncompatibility WHERE incompatibilityID=#{incompatibilityID} AND TYPE=1)</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(oldFolks)">AND C.dAge > 60</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(children)">AND C.dAge &lt;= 14</if>
+            <if test="incompatibilityID>0">AND C.clinicID IN ( SELECT objectID FROM RxIncompatibility WHERE incompatibilityID=#{incompatibilityID} AND TYPE=1)</if>
             <choose>
                 <when test="@com.zcreate.util.Ognl@isNotEmpty(healthNo)">
-                    AND clinicID IN (SELECT DISTINCT R.clinicID FROM ${RxDetailTable} R JOIN medicine M ON R.goodsID = M.goodsID WHERE M.healthNo LIKE '${healthNo}%' )
+                    AND C.clinicID IN (SELECT DISTINCT R.clinicID FROM ${RxDetailTable} R JOIN medicine M ON R.goodsID = M.goodsID WHERE M.healthNo LIKE '${healthNo}%' )
                 </when>
-                <when test="antiClass != null and antiClass >-1">AND clinicID IN (SELECT DISTINCT R.clinicID FROM ${RxDetailTable} R JOIN medicine M ON R.goodsID = M.goodsID
+                <when test="antiClass != null and antiClass >-1">AND C.clinicID IN (SELECT DISTINCT R.clinicID FROM ${RxDetailTable} R JOIN medicine M ON R.goodsID = M.goodsID
                     <where>
                         <if test="antiClass==0">AND M.antiClass >= 0</if>
                         <if test="antiClass >0">AND M.antiClass = #{antiClass:INTEGER}</if>
@@ -86,39 +86,50 @@
                     )
                 </when>
             </choose>
-            <if test="medicine1>0">AND clinicID IN(SELECT clinicID FROM ${RxDetailTable} R WHERE R.goodsID=#{medicine1:INTEGER})</if>
-            <if test="medicine2>0">AND clinicID IN(SELECT clinicID FROM ${RxDetailTable} R WHERE R.goodsID=#{medicine2:INTEGER})</if>
+            <!--   <if test="medicine1>0">AND clinicID IN(SELECT clinicID FROM ${RxDetailTable} R WHERE R.goodsID=#{medicine1:INTEGER})</if>
+               <if test="medicine2>0">AND clinicID IN(SELECT clinicID FROM ${RxDetailTable} R WHERE R.goodsID=#{medicine2:INTEGER})</if>-->
             <if test="@com.zcreate.util.Ognl@isNotEmpty(reviewDateNotNull)">AND reviewDate IS NOT NULL
                 <!--  <if test="rational>=0">AND rational = #{rational:INTEGER}</if>-->
             </if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(rational)">AND rational = #{rational:INTEGER}</if>
-            <if test="publish>2">AND publish>0</if>
-            <if test="appeal>0">AND appealState >0</if>
-            <if test="publish==1 or publish==2">AND publish &amp; #{publish:INTEGER} = #{publish:INTEGER}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(rational)">AND C.rational = #{rational:INTEGER}</if>
+            <if test="publish>2">AND C.publish>0</if>
+            <if test="appeal>0">AND C.appealState >0</if>
+            <if test="publish==1 or publish==2">AND C.publish &amp; #{publish:INTEGER} = #{publish:INTEGER}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(isStatWestern)">AND isWestern=1</if>
             <choose>   <!--抗菌药专项点评，不同时出现-->
-                <when test="@com.zcreate.util.Ognl@isNotEmpty(antiDrugNum)">AND antiNum=#{antiDrugNum:INTEGER} AND isWestern=1</when>
-                <when test="@com.zcreate.util.Ognl@isNotEmpty(atLeastAntiDrugNum)">AND antiNum>#{atLeastAntiDrugNum:INTEGER} AND isWestern=1</when>
-                <when test="@com.zcreate.util.Ognl@isNotEmpty(sameAntiNum)">AND sameAntiNum>1</when>
-                <when test="@com.zcreate.util.Ognl@isNotEmpty(sameOrallyAntiNum)">AND sameOrallyAntiNum>1</when>
-                <when test="@com.zcreate.util.Ognl@isNotEmpty(sameInjectAntiNum)">AND sameInjectAntiNum>1</when>
+                <when test="@com.zcreate.util.Ognl@isNotEmpty(antiDrugNum)">AND C.antiNum=#{antiDrugNum:INTEGER} AND C.isWestern=1</when>
+                <when test="@com.zcreate.util.Ognl@isNotEmpty(atLeastAntiDrugNum)">AND C.antiNum>#{atLeastAntiDrugNum:INTEGER} AND C.isWestern=1</when>
+                <when test="@com.zcreate.util.Ognl@isNotEmpty(sameAntiNum)">AND C.sameAntiNum>1</when>
+                <when test="@com.zcreate.util.Ognl@isNotEmpty(sameOrallyAntiNum)">AND C.sameOrallyAntiNum>1</when>
+                <when test="@com.zcreate.util.Ognl@isNotEmpty(sameInjectAntiNum)">AND C.sameInjectAntiNum>1</when>
             </choose>
-            <if test="clinicType==1">AND clinicType!='急诊'</if>
-            <if test="clinicType==2">AND clinicType='急诊'</if>
+            <if test="clinicType==1">AND C.clinicType!='急诊'</if>
+            <if test="clinicType==2">AND C.clinicType='急诊'</if>
+            <if test="goodsID>0">AND D.goodsID=#{goodsID:INTEGER}</if>
         </where>
     </sql>
     <select id="selectClinicList" parameterType="java.util.Map" resultMap="ClinicResult">
         SELECT TOP ${limit}
-        A.clinicID, A.hospID,A.mzNo, A.rxCount, A.clinicType, A.clinicDate,A.patientName, A.sex, A.age, A.department, A.diagnosis, A.money, A.doctorID, A.confirmNo, A.apothecaryNo,
-        A.isWestern,A.copyNum, A.doctorName, A.confirmName, A.apothecaryName, A. drugNum, A.baseDrugNum, A.baseDrugMoney, A.antiNum, A.antiMoney, A.insuranceMoney, A.sameAntiNum,
-        A.injectionAntiNum, A.injectionAntiMoney, A.orallyAntiNum, A.orallyAntiMoney, A.injectionNum, A.sameInjectAntiNum, A.sameOrallyAntiNum, A.specAntiMoney, A.reviewDate,
-        A.reviewUser, A.publish, A.result, A.appealState, A.disItem, A.rational
-        FROM (SELECT * FROM Clinic
+        clinicID, hospID,mzNo, rxCount, clinicType, clinicDate,patientName, sex, age, department, diagnosis, money, doctorID, confirmNo, apothecaryNo,
+        isWestern,copyNum, doctorName, confirmName, apothecaryName,  drugNum, baseDrugNum, baseDrugMoney, antiNum, antiMoney, insuranceMoney, sameAntiNum,
+        injectionAntiNum, injectionAntiMoney, orallyAntiNum, orallyAntiMoney, injectionNum, sameInjectAntiNum, sameOrallyAntiNum, specAntiMoney, reviewDate,
+        reviewUser, publish, result, appealState, disItem, rational
+        FROM (SELECT C.clinicID, C.hospID,C.mzNo, C.rxCount, C.clinicType, C.clinicDate,C.patientName, C.sex, C.age, C.department, C.diagnosis, C.money, C.doctorID, C.confirmNo,
+        C.apothecaryNo,
+        C.isWestern,C.copyNum, C.doctorName, C.confirmName, C.apothecaryName, C. drugNum, C.baseDrugNum, C.baseDrugMoney, C.antiNum, C.antiMoney, C.insuranceMoney, C.sameAntiNum,
+        C.injectionAntiNum, C.injectionAntiMoney, C.orallyAntiNum, C.orallyAntiMoney, C.injectionNum, C.sameInjectAntiNum, C.sameOrallyAntiNum, C.specAntiMoney, C.reviewDate,
+        C.reviewUser, C.publish, C.result, C.appealState, C.disItem, C.rational FROM Clinic C
+        <if test="goodsID>0">
+            LEFT JOIN ${RxDetailTable} D ON C.clinicID = D.clinicID
+        </if>
         <include refid="queryWhere"/>
         )A
         <if test="start!=null and start > 0">
-            WHERE clinicID &lt; ( SELECT min(clinicID) FROM (SELECT TOP ${start} clinicID FROM
-            Clinic
+            WHERE clinicID &lt; ( SELECT min(clinicID) FROM (SELECT TOP ${start} C.clinicID FROM
+            Clinic C
+            <if test="goodsID>0">
+                LEFT JOIN ${RxDetailTable} D ON C.clinicID = D.clinicID
+            </if>
             <include refid="queryWhere"/>
             ORDER BY ${orderField} DESC ) A)
         </if>
@@ -132,7 +143,10 @@
         WHERE clinicID = #{clinicID:INTEGER}
     </select>
     <select id="selectClinicCount" parameterType="java.util.Map" resultType="int">
-        SELECT count(*) FROM Clinic
+        SELECT count(*) FROM Clinic C
+        <if test="goodsID>0">
+            LEFT JOIN ${RxDetailTable} D ON C.clinicID = D.clinicID
+        </if>
         <include refid="queryWhere"/>
     </select>
     <!--点评存盘-->
@@ -141,7 +155,7 @@
         <set>
             <if test="publish > 0">publish = publish | #{publish:INTEGER},</if>
             <if test="result != null">result = #{result:VARCHAR},</if>
-            <if test="reviewDate != null">reviewDate = #{reviewDate:TIMESTAMP},</if>
+            <if test="reviewDate != null">reviewDate = #{reviewDate:DATE},</if>
             <if test="reviewUser != null">reviewUser = #{reviewUser:VARCHAR},</if>
             <if test="disItem != null">disItem = #{disItem:VARCHAR},</if>
             <if test="rational != null">rational = #{rational:INTEGER},</if>
@@ -151,12 +165,12 @@
     </update>
     <!--产生随机抽样-->
     <select id="selectRandomClinicID" parameterType="java.util.Map" resultType="int">
-        SELECT TOP ${limit} clinicID FROM Clinic
+        SELECT TOP ${limit} clinicID FROM Clinic C
         <include refid="queryWhere"/>
         ORDER BY newid() DESC
     </select>
     <select id="selectClinicIDForLinear" parameterType="java.util.HashMap" resultType="int">
-        SELECT clinicID FROM Clinic
+        SELECT clinicID FROM Clinic C
         <include refid="queryWhere"/>
         ORDER BY clinicDate
     </select>
@@ -176,8 +190,8 @@
         LEFT JOIN ${RxDetailTable} R ON P.clinicID=R.clinicID
         LEFT JOIN Medicine M ON R.goodsID=M.goodsID
         LEFT JOIN doctor D ON P.doctorID = D.doctorID WHERE M.antiClass>=1 AND M.antiClass>D.antiClass
-        <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND P.clinicDate >= #{fromDate:TIMESTAMP}</if>
-        <if test="@com.zcreate.util.Ognl@isNotEmpty(toDate)">AND P.clinicDate &lt; #{toDate:TIMESTAMP}</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND P.clinicDate >= #{fromDate:DATE}</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(toDate)">AND P.clinicDate &lt; #{toDate:DATE}</if>
         <if test="antiClass==0">AND M.antiClass >0</if>
         <if test="antiClass>0">AND M.antiClass = #{antiClass:INTEGER}</if>
     </select>
@@ -187,8 +201,8 @@
         LEFT JOIN ${RxDetailTable} R ON P.clinicID=R.clinicID
         LEFT JOIN Medicine M ON R.goodsID=M.goodsID
         LEFT JOIN doctor D ON P.doctorID = D.doctorID WHERE M.antiClass=3
-        <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND P.clinicDate >= #{fromDate:TIMESTAMP}</if>
-        <if test="@com.zcreate.util.Ognl@isNotEmpty(toDate)">AND P.clinicDate &lt; #{toDate:TIMESTAMP}</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND P.clinicDate >= #{fromDate:DATE}</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(toDate)">AND P.clinicDate &lt; #{toDate:DATE}</if>
     </select>
     <update id="reviewAlertDoctor" parameterType="java.util.Map" statementType="CALLABLE">
         { call reviewAlertDoctor(#{objectID:INTEGER}, #{type:INTEGER})}

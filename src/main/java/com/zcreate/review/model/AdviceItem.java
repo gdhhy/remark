@@ -7,12 +7,12 @@ import java.sql.Timestamp;
  * User: 黄海晏
  * Date: 12-8-15
  */
-public class RecipeItem implements Serializable {
-    private Integer recipeItemID;
+public class AdviceItem implements Serializable {
+    private Integer adviceItemID;
     private String hospID;
-    //private String recipeNo;    //住院：领用单号，门诊：空白
+    //private String adviceNo;    //住院：领用单号，门诊：空白
     private Integer longAdvice;//长期医嘱：1,   临时医嘱：2
-    private Timestamp recipeDate;//对应 kyzsj
+    private Timestamp adviceDate;//对应 kyzsj
     private String advice;//医嘱信息 ，对应yzxx
     private String spec;//医嘱信息 ，对应yzxx
     private Integer goodsID;
@@ -46,12 +46,12 @@ public class RecipeItem implements Serializable {
     private Boolean incompatibility;
     private String taboo;
 
-    public Integer getRecipeItemID() {
-        return recipeItemID;
+    public Integer getAdviceItemID() {
+        return adviceItemID;
     }
 
-    public void setRecipeItemID(Integer recipeItemID) {
-        this.recipeItemID = recipeItemID;
+    public void setAdviceItemID(Integer adviceItemID) {
+        this.adviceItemID = adviceItemID;
     }
 
     public String gethospID() {
@@ -71,12 +71,12 @@ public class RecipeItem implements Serializable {
         this.longAdvice = longAdvice;
     }
 
-    public Timestamp getRecipeDate() {
-        return recipeDate;
+    public Timestamp getAdviceDate() {
+        return adviceDate;
     }
 
-    public void setRecipeDate(Timestamp recipeDate) {
-        this.recipeDate = recipeDate;
+    public void setAdviceDate(Timestamp adviceDate) {
+        this.adviceDate = adviceDate;
     }
 
     public String getAdvice() {

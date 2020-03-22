@@ -64,7 +64,7 @@
                count(distinct case
                                   when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and adviceID = 0 and antiClass > 0 and route = 2 and clinicType = '急诊' then M.goodsID
                                   else null end) emergAntiInjectDrugNum,
-               --基于Recipe出入院
+               --基于InPatient出入院
                count(distinct case when InDate >= #{fromDate:DATE} and InDate &lt; #{toDate:DATE} then P.hospID else null end) inHospitalPatient,
                count(distinct case when outDate >= #{fromDate:DATE} and outDate &lt; #{toDate:DATE} then P.hospID else null end) outHospitalPatient,
                count(distinct case when outDate >= #{fromDate:DATE} and outDate &lt; #{toDate:DATE} and route = 2 then P.hospID else null end) outInjectPatient,--todo change M.injection = 1 else =hospitalVdPatient
@@ -82,9 +82,9 @@
         from (select adviceID, hospID, goodsID, amount, clinicType, dispensingDate pDate, quantity, usage, cast(hospID as VARCHAR(10)) + cast(goodsID as VARCHAR(10)) patientDrug
               from DrugRecords_2019) D
                  left join Medicine M on D.goodsID = M.goodsID
-                 left join Recipe P on D.hospID = P.hospID
+                 left join InPatient P on D.hospID = P.hospID
     </select>
-    <!-- <select id="getSunningRecipeItem" parameterType="java.util.Map" resultType="java.util.HashMap">
+    <!-- <select id="getSunningAdviceItem" parameterType="java.util.Map" resultType="java.util.HashMap">
          select count(distinct case when InDate > #{fromDate:DATE} and InDate &lt; #{toDate:DATE} then P.hospID else null end) inHospitalPatient,
                 count(distinct case when outDate > #{fromDate:DATE} and outDate &lt; #{toDate:DATE} then P.hospID else null end) outHospitalPatient,
                 count(distinct
@@ -99,10 +99,10 @@
                                    else null end) outAntiNum,
                 count(distinct case when outDate > #{fromDate:DATE} and outDate &lt; #{toDate:DATE} and route = 2 then P.hospID else null end) hospitalVdPatient
          from ${DrugRecordsTable} R
-                  left join Recipe P on R.hospID = P.hospID
+                  left join InPatient P on R.hospID = P.hospID
                   left join Medicine M on R.goodsID = M.goodsID
      </select>-->
-    <select id="getSunningRecipe" parameterType="java.util.Map" resultType="java.util.HashMap">
+    <select id="getSunningInPatient" parameterType="java.util.Map" resultType="java.util.HashMap">
         select sum(datediff(day, inDate, outDate) + 1) hospitalDay,
                sum(case when checkItem &amp; 1 = 1 then 1 else 0 end) microbeCheckPatient,--送检但不一定用抗菌药
                sum(case when checkItem &amp; 4 = 4 then 1 else 0 end) microbeLimitPatient,
@@ -111,10 +111,10 @@
                sum(case when incision &amp; 1 = 1 then 1 else 0 end) oneIncisionPatient,
                sum(case when incision &amp; 8 = 8 then 1 else 0 end) oneAntiPatient,
                sum(case when incision &amp; 16 = 16 then 1 else 0 end) onePrevAntiPatient
-        from Recipe
+        from InPatient
         where stay = 0 and outDate > #{fromDate:DATE} and outDate &lt; #{toDate:DATE}
     </select>
     <!--&#45;&#45; stay留观标志
-    &#45;&#45;     checkItem incision的计算在buildClinicRecipe.sql-->
+    &#45;&#45;     checkItem incision的计算在buildClinicInPatient.sql-->
 
 </mapper>

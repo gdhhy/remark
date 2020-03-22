@@ -3,27 +3,26 @@
 <script src="../components/datatables/jquery.dataTables.bootstrap.min.js"></script>
 <script src="../components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
 <script src="../components/datatables/dataTables.select.min.js"></script>
-<%--<script src="../assets/js/ace.js"></script>--%>
 <script src="../assets/js/jquery.ui.touch-punch.min.js"></script>
 <%--<script src="../assets/js/jquery.gritter.min.js"></script>--%>
 <script src="../js/accounting.min.js"></script>
 <script src="../js/render_func.js"></script>
 <script src="../js/jquery.cookie.min.js"></script>
 <script src="../assets/js/jquery.validate.min.js"></script>
-<script src="../components/moment/moment.min.js"></script>
+<%--<script src="../components/moment/moment.min.js"></script>--%>
+<script src="../components/moment/min/moment-with-locales.min.js"></script>
 <script src="../components/typeahead.js/dist/typeahead.bundle.min.js"></script>
 <script src="../components/typeahead.js/handlebars.js"></script>
 <script src="../components/chosen/chosen.jquery.js"></script>
-<script type="text/javascript" src="../components/jquery.easyui/jquery.easyui.min.js"></script>
-<%--<script type="text/javascript" src="../components/jquery.easyui/easyloader.js"></script>
-<script type="text/javascript" src="../components/jquery.easyui/plugins/jquery.combotree.js"></script>--%>
+<script type="text/javascript" src="../components/jquery-easyui-1.9.4/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="../components/jquery-easyui-1.9.4/locale/easyui-lang-zh_CN.js"></script>
 
 <!-- bootstrap & fontawesome -->
 
 <link rel="stylesheet" href="../components/font-awesome/css/font-awesome.css"/>
 <link rel="stylesheet" href="../components/chosen/chosen.min.css"/>
-<link rel="stylesheet" type="text/css" href="../components/jquery.easyui/themes/default/easyui.css">
-<link rel="stylesheet" type="text/css" href="../components/jquery.easyui/themes/icon.css">
+<link rel="stylesheet" type="text/css" href="../components/jquery-easyui-1.9.4/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="../components/jquery-easyui-1.9.4/themes/icon.css">
 <style>
     .form-group {
         margin-bottom: 3px;
@@ -136,20 +135,6 @@
             return "";
         }
 
-        //todo 统一到一个对话框
-        function showDialog(title, content) {
-            $("#errorText").html(content);
-            $("#dialog-error").removeClass('hide').dialog({
-                modal: true,
-                width: 600,
-                title: title,
-                buttons: [{
-                    text: "确定", "class": "btn btn-primary btn-xs", click: function () {
-                        $(this).dialog("close");
-                    }
-                }]
-            });
-        }
 
         $('.btn-success').click(function () {
             if ($('#form-goodsNo').val() !== '') {
@@ -159,6 +144,58 @@
                 myTable.ajax.url("/medicine/getMedicineList.jspa?queryChnName={0}&matchType={1}&type={2}"
                     .format($('#form-medicine').val(), $('#matchType').val(), $('#type').val())).load();
             }
+        });
+
+        $('.btn-info').click(function () {
+            $('#fromDate').datebox('setValue', moment().startOf('year').format("YYYY-MM-DD"));
+            $('#toDate').datebox('setValue', moment().format("YYYY-MM-DD"));
+
+            $("#dialog-applyData").removeClass('hide').dialog({
+                resizable: false,
+                modal: true,
+                title: "套用药品资料更新数据",
+                buttons: [{
+                    text: '执行',
+                    iconCls: 'ace-icon fa fa-bolt bigger-110',
+                    handler: function () {
+                        //todo 同一年判断
+                        var param = {
+                            taskType: 2,
+                            timerMode: 2,
+                            exeDateField: '',
+                            exeTimeField: '',
+                            timeFrom: $('#fromDate').datebox('getValue'),
+                            timeTo: $('#toDate').datebox('getValue'),
+                        };
+                        //console.log("param:" + JSON.stringify(param));
+                        $.ajax({
+                            type: "POST",
+                            url: "/monitor/submitTask.jspa",
+                            data: param,
+                            contentType: "application/x-www-form-urlencoded; charset=UTF-8", //https://www.cnblogs.com/yoyotl/p/5853206.html
+                            cache: false,
+                            success: function (response, textStatus) {
+                                var msg = response.message;
+                                if (response.succeed)
+                                    msg += '<br/>可以在“导入任务”查看执行结果和耗时。';
+                                $.messager.alert("执行结果", msg);
+
+                                $('#dialog-applyData').dialog("close");
+                            },
+                            error: function (response, textStatus) {/*能够接收404,500等错误*/
+                                $.messager.alert("请求状态码：" + response.status, response.responseText);
+                            }
+                        });
+                    }
+                }, {
+                    text: '关闭',
+                    iconCls: 'ace-icon fa fa-times bigger-130 red',
+                    handler: function () {
+                        $('#dialog-applyData').dialog('close');
+                    }
+                }],
+                title_html: true
+            });
         });
         //https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
         $('#form-medicine').typeahead({hint: true},
@@ -367,7 +404,7 @@
             },
 
             submitHandler: function (form) {
-                //console.log(medicineForm.serialize());// + "&productImage=" + av atar_ele.get(0).src);
+                console.log(medicineForm.serialize());// + "&productImage=" + av atar_ele.get(0).src);
                 //console.log("form:" + form);
                 $.ajax({
                     type: "POST",
@@ -439,7 +476,10 @@
                 $('#base').text(renderBase2(result.base));
                 //$("#base").attr("disabled", true);
                 $('#mental').val(result.mental);
-                $('#healthNo').combotree('setValue', result.healthNo);
+                if (result.healthNo !== null) {
+                    // console.log("healthNo非空！:" + result.healthNo);
+                    $('#healthNo').combotree('setValue', result.healthNo);
+                }
                 $("input[name='isStat'][value='" + result.isStat + "']").attr("checked", true);
 
                 $("#route option[value='" + result.route + "']").attr("selected", "selected");
@@ -620,7 +660,7 @@
                         $('#instructionContent').html(respObject.instruction);
                 },
                 error: function (response, textStatus) {/*能够接收404,500等错误*/
-                    showDialog("请求状态码：" + response.status, response.responseText);
+                    $.messager.alert("请求状态码：" + response.status, response.responseText);
                 },
             });
         }
@@ -634,7 +674,7 @@
             <i class="ace-icon fa fa-home home-icon"></i>
             <a href="/index.jspa">首页</a>
         </li>
-        <li class="active">抗菌药按品种统计</li>
+        <li class="active">本院药品</li>
 
     </ul><!-- /.breadcrumb -->
 
@@ -683,6 +723,10 @@
             <button type="button" class="btn btn-sm btn-success">
                 查询
                 <i class="ace-icon glyphicon glyphicon-search icon-on-right bigger-100"></i>
+            </button> &nbsp;&nbsp;&nbsp;
+            <button type="button" class="btn btn-sm btn-info">
+                套用
+                <i class="ace-icon glyphicon glyphicon-asterisk icon-on-right bigger-100"></i>
             </button>
         </form>
     </div><!-- /.page-header -->
@@ -734,6 +778,29 @@
             <!-- PAGE CONTENT ENDS -->
         </div><!-- /.col -->
     </div><!-- /.row -->
+    <div id="dialog-applyData" class="hide" data-options="iconCls:'icon-save',modal:true" style="width:400px;height:300px;">
+        <div class="col-xs-12" style="padding-top: 10px">
+            <!-- PAGE CONTENT BEGINS -->
+            <form class="form-horizontal" role="form" id="applyForm">
+                <div>
+                    <label for="fromDate">开始日期:</label>
+                    <input id="fromDate" type="text" class="easyui-datebox" required="required">
+                </div>
+                <div>
+                    <label for="toDate">结束日期:</label>
+                    <input id="toDate" type="text" class="easyui-datebox" required="required">
+                </div>
+                <div>
+                    说明：
+                    <ul>
+                        <li>修改药品资料后，需要把门诊处方、住院医嘱和发药数据按修改后的药品资料更新，例如更新抗菌药物、基药、药理分类相关数据等。</li>
+                        <li>每次执行的开始日期与结束日期限定在同一年内。</li>
+                        <li>一般操作是把今年、去年分别执行一次。</li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+    </div>
     <div id="dialog-edit" class="hide" data-options="iconCls:'icon-save',modal:true">
         <div class="col-xs-12" style="padding-top: 10px">
             <!-- PAGE CONTENT BEGINS -->
@@ -839,7 +906,7 @@
                     <div class="form-group">
                         <label for="healthNo" class="col-sm-3 control-label no-padding-right">药理分类</label>
                         <div class="col-sm-9">
-                            <input id="healthNo" name="healthNo" type="text" class="easyui-combotree"
+                            <input id="healthNo" name="healthNo" type="text" width="200" class="easyui-combotree" style="width:250px;"
                                    data-options="url:'/health/easyUITree.jspa?healthID=1', method: 'get'"/>
                         </div>
                     </div>
@@ -1001,3 +1068,6 @@
     </div>
 </div>
 <!-- /.page-content -->
+<div id="dialog-error" class="hide alert" title="提示">
+    <p id="errorText">保存失败，请稍后再试，或与系统管理员联系。</p>
+</div>

@@ -43,11 +43,11 @@ CREATE NONCLUSTERED INDEX DrugRecords_2015_dispensingDate3
     ON [dbo].[DrugRecords_2015] ([dispensingDate])
     INCLUDE ([dispensingNo],[goodsNo],[adviceType]);
 
-CREATE NONCLUSTERED INDEX RecipeItem_hospID
-    ON [dbo].[RecipeItem] ([hospID])
+CREATE NONCLUSTERED INDEX AdviceItem_hospID
+    ON [dbo].[AdviceItem] ([hospID])
     INCLUDE ([medicineNo]);
-CREATE NONCLUSTERED INDEX  Recipe_outDate
-    ON [dbo].[Recipe] ([outDate])
+CREATE NONCLUSTERED INDEX  InPatient_outDate
+    ON [dbo].[InPatient] ([outDate])
     INCLUDE ([hospID]);
 
 CREATE NONCLUSTERED INDEX  IX_RxDetail_PrescribeDate2

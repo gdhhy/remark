@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.zcreate.review.dao.UntowardDAO;
 import com.zcreate.review.logic.ReviewService;
 import com.zcreate.review.model.Clinic;
-import com.zcreate.review.model.Recipe;
+import com.zcreate.review.model.InPatient;
 import com.zcreate.review.model.Untoward;
 import com.zcreate.security.dao.UserMapper;
 import com.zcreate.util.Verify;
@@ -17,7 +17,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -125,9 +124,9 @@ public class UntowardController {
                 Clinic clinic = reviewService.getClinic(objectID);
                 modelMap.put("clinic", clinic);
             } else {
-                Recipe recipe = reviewService.getRecipe(objectID);
-                //recipe.setDepartCode(reviewService.getDepartCode(recipe.getDepartment()));
-                modelMap.put("recipe", recipe);
+                InPatient inPatient = reviewService.getInPatient(objectID);
+                //inPatient.setDepartCode(reviewService.getDepartCode(inPatient.getDepartment()));
+                modelMap.put("inPatient", inPatient);
             }
         }
         modelMap.put("success", true);

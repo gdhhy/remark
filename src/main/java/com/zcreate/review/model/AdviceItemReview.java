@@ -10,8 +10,8 @@ import java.sql.Timestamp;
  * Time: 下午6:37
  * @deprecated
  */
-public class RecipeItemReview implements Serializable {
-    private Integer recipeItemReviewID;
+public class AdviceItemReview implements Serializable {
+    private Integer adviceItemReviewID;
     private String hospID;
     private Integer orderID;
     private Integer groupID;
@@ -22,25 +22,25 @@ public class RecipeItemReview implements Serializable {
 
     private Float dosis;//一次剂量,要么用s，use……，要么用每次量*含量，单位g，遇到mg，转换为g
     private String frequency;//频率
-    private Integer dayNum;//用药天数，通过recipeDate,endDate计算
+    private Integer dayNum;//用药天数，通过adviceDate,endDate计算
     private Float totalQuantity;//总用量=dosis*frequency*dayNum
     private String route;//给药途径
     private String menstruum;//溶媒
     private Integer purpose = 0;//预防、治疗
     private String problemCode;
     private String problemDesc;
-    //sql：recipeItemReviewID,hospID,orderID,groupID,longAdvice,advice,usage,quantity,dosis,frequency,dayNum,totalQuantity,route,menstruum,purpose,problemCode,problemDesc
+    //sql：adviceItemReviewID,hospID,orderID,groupID,longAdvice,advice,usage,quantity,dosis,frequency,dayNum,totalQuantity,route,menstruum,purpose,problemCode,problemDesc
     ////////////////////////////
-    private Timestamp recipeDate;
+    private Timestamp adviceDate;
     private Timestamp endDate;
     private String adviceType;//准备删除 用法,抄原来Sig:后面的
 
-    public Integer getRecipeItemReviewID() {
-        return recipeItemReviewID;
+    public Integer getAdviceItemReviewID() {
+        return adviceItemReviewID;
     }
 
-    public void setRecipeItemReviewID(Integer recipeItemReviewID) {
-        this.recipeItemReviewID = recipeItemReviewID;
+    public void setAdviceItemReviewID(Integer adviceItemReviewID) {
+        this.adviceItemReviewID = adviceItemReviewID;
     }
 
     public String gethospID() {
@@ -100,14 +100,14 @@ public class RecipeItemReview implements Serializable {
     }
     ////////////////////////////
 
-    public Long getRecipeDate() {
-        if (recipeDate != null)
-            return recipeDate.getTime();
+    public Long getAdviceDate() {
+        if (adviceDate != null)
+            return adviceDate.getTime();
         else return 0L;
     }
 
-    public void setRecipeDate(Timestamp recipeDate) {
-        this.recipeDate = recipeDate;
+    public void setAdviceDate(Timestamp adviceDate) {
+        this.adviceDate = adviceDate;
     }
 
     public Long getEndDate() {

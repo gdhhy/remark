@@ -1,7 +1,7 @@
 -- 不良反应报告
 CREATE TABLE Untoward (
   untowardID        INT PRIMARY KEY IDENTITY,
-  objectID          INT UNIQUE, --执行clinicID或recipeID
+  objectID          INT UNIQUE, --执行clinicID或inPatientID
   objectType        TINYINT, --1门诊，2：住院
   untowardNo        VARCHAR(50),
   untowardType      INT, --头部选项（首次报告、报告类型等）
@@ -78,4 +78,4 @@ CREATE TABLE UntowardDrug (
 );
 
 ALTER TABLE clinic ADD appealState INT DEFAULT 0;
-ALTER TABLE Recipe ADD appealState INT DEFAULT 0;
+ALTER TABLE InPatient ADD appealState INT DEFAULT 0;

@@ -110,7 +110,7 @@
                     {
                         'targets': 11, 'searchable': false, 'orderable': false, width: 110, title: '走势/科室/医生',
                         render: function (data, type, row, meta) {
-                            var jsp = row['type'] === 1 ? "clinic_list.jsp" : "recipe_list.jsp";
+                            var jsp = row['type'] === 1 ? "clinic_list.jsp" : "inpatient_list.jsp";
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 '<a class="hasDetail" href="#" data-Url="javascript:showMedicineChart({0},\'{1}\');">'.format(data, row["chnName"]) +
                                 '<i class="ace-icon fa fa-line-chart bigger-110"></i>' +
@@ -522,3 +522,6 @@
     </div>
 </div>
 <!-- /.page-content -->
+<div id="dialog-error" class="hide alert" title="提示">
+    <p id="errorText">保存失败，请稍后再试，或与系统管理员联系。</p>
+</div>

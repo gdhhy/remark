@@ -110,12 +110,12 @@
         jQuery(function ($) {
             /*   document.addEventListener("mousewheel", fn, {passive: true});
                document.addEventListener("touchstart", fn, {passive: true});*/
-            var recipeID = '${recipe.recipeID}';
-            if (recipeID === '') {
+            var inPatientID = '${inPatient.inPatientID}';
+            if (inPatientID === '') {
                 showDialog("加载失败", "请检查数据或联系系统开发！");
                 return;
             }
-            var saveJson = JSON.parse('${recipe.review.reviewJson}');
+            var saveJson = JSON.parse('${inPatient.review.reviewJson}');
             //console.log("saveJson:" + JSON.stringify(saveJson));
 
             var drugTable = $('#drugTable').DataTable({
@@ -124,7 +124,7 @@
                 paging: false, searching: false, ordering: false, "destroy": true,
                 'columnDefs': [
                     {
-                        "orderable": false, "data": 'recipeItemID', "targets": 0, width: 50, className: 'center', title: '治疗<br/>预防', render: function (data, type, row, meta) {
+                        "orderable": false, "data": 'adviceItemID', "targets": 0, width: 50, className: 'center', title: '治疗<br/>预防', render: function (data, type, row, meta) {
                             return '<input type="radio" name="{0}" value="治疗" {1}>□<br/><input type="radio" name="{2}" value="预防" {3}>△'
                                 .format(data, row["purpose"] === "治疗" ? "checked" : "", data, row["purpose"] === "预防" ? "checked" : "");
                         }
@@ -155,7 +155,7 @@
                         }
                     },
                     {
-                        "orderable": false, "data": "recipeDate", "targets": 6, className: 'center', title: '起止时间<br/><span class="light-grey" style="font-size: 7px">月日时分</span>',
+                        "orderable": false, "data": "adviceDate", "targets": 6, className: 'center', title: '起止时间<br/><span class="light-grey" style="font-size: 7px">月日时分</span>',
                         render: function (data, type, row, meta) {
                             return '<a href="#" data-value="{0}" data-type="text" >{1}</a>'.format(data, data);
                         }
@@ -196,11 +196,11 @@
                 select: {style: 'multi', selector: 'td:first-child :checkbox'},
                 'columnDefs': [
                     {
-                        targets: 0, data: "recipeItemID", defaultContent: '', orderable: false, width: 10, /*className: 'select-checkbox',*/ render: function (data, type, row, meta) {
+                        targets: 0, data: "adviceItemID", defaultContent: '', orderable: false, width: 10, /*className: 'select-checkbox',*/ render: function (data, type, row, meta) {
                             if (row['antiClass'] > 0) {
                                 if (typeof (saveJson.用药情况) !== 'undefined')
                                     for (var i = 0; i < saveJson.用药情况.length; i++) {
-                                        if (saveJson.用药情况[i].recipeItemID === data)
+                                        if (saveJson.用药情况[i].adviceItemID === data)
                                             return '<input type="checkbox" checked>';
                                     }
                                 return '<input type="checkbox">';
@@ -208,7 +208,7 @@
                             return "";
                         }
                     },
-                    {"orderable": false, "data": "recipeDate", "targets": 1, title: '开始时间', width: 90, className: 'center'},
+                    {"orderable": false, "data": "adviceDate", "targets": 1, title: '开始时间', width: 90, className: 'center'},
                     {
                         "orderable": false, "data": "advice", "targets": 2, title: '医嘱内容', defaultContent: '', width: 120, render: function (data, type, row, meta) {
                             var advice;
@@ -249,7 +249,7 @@
 
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getRecipeItemList.jspa?longAdvice=1&hospID=${recipe.hospID}&year=${recipe.year}",
+                    url: "/remark/getAdviceItemList.jspa?longAdvice=1&hospID=${inPatient.hospID}&year=${inPatient.year}",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -263,11 +263,11 @@
                 select: {style: 'multi', selector: 'td:first-child :checkbox'},
                 'columnDefs': [
                     {
-                        targets: 0, data: "recipeItemID", defaultContent: '', orderable: false, width: 10, /*className: 'select-checkbox',*/ render: function (data, type, row, meta) {
+                        targets: 0, data: "adviceItemID", defaultContent: '', orderable: false, width: 10, /*className: 'select-checkbox',*/ render: function (data, type, row, meta) {
                             if (row['antiClass'] > 0) {
                                 if (typeof (saveJson.用药情况) !== 'undefined')
                                     for (var i = 0; i < saveJson.用药情况.length; i++) {
-                                        if (saveJson.用药情况[i].recipeItemID === data)
+                                        if (saveJson.用药情况[i].adviceItemID === data)
                                             return '<input type="checkbox" checked>';
                                     }
                                 return '<input type="checkbox">';
@@ -275,7 +275,7 @@
                             return "";
                         }
                     },
-                    {"orderable": false, "data": "recipeDate", "targets": 1, title: '开始时间', width: 95, className: 'center'},
+                    {"orderable": false, "data": "adviceDate", "targets": 1, title: '开始时间', width: 95, className: 'center'},
                     {
                         "orderable": false, "data": "advice", "targets": 2, title: '医嘱内容', defaultContent: '', width: 120, render: function (data, type, row, meta) {
                             var advice;
@@ -317,7 +317,7 @@
 
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getRecipeItemList.jspa?longAdvice=2&hospID=${recipe.hospID}&year=${recipe.year}",
+                    url: "/remark/getAdviceItemList.jspa?longAdvice=2&hospID=${inPatient.hospID}&year=${inPatient.year}",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -366,7 +366,7 @@
                 //先判断是否存在，如存在不添加
                 drugTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
                     //console.log("item:" + JSON.stringify(this.data()));
-                    if (typeof (this.data()) !== 'undefined' && rowData["recipeItemID"] === this.data()["recipeItemID"])
+                    if (typeof (this.data()) !== 'undefined' && rowData["adviceItemID"] === this.data()["adviceItemID"])
                         exists = true;
                 });
                 if (exists) return;
@@ -376,11 +376,11 @@
 
                 //不是每一行都有日期，向前找日期
                 var dateIndex = -1;
-                if (rowData['recipeDate'] == null || rowData['recipeDate'] === '') {
+                if (rowData['adviceDate'] == null || rowData['adviceDate'] === '') {
                     for (var aa = index - 1; aa >= 0; aa--)
-                        if (shortTable.row(aa).data()['recipeDate'] !== '') {
+                        if (shortTable.row(aa).data()['adviceDate'] !== '') {
                             dateIndex = aa;
-                            rowData['recipeDate'] = shortTable.row(aa).data()['recipeDate'];
+                            rowData['adviceDate'] = shortTable.row(aa).data()['adviceDate'];
                             break;
                         }
                 } else dateIndex = index;
@@ -388,7 +388,7 @@
                 //向后找 用法
                 /* for (var cc = index + 1; cc < index + 10; cc++) {//增加表行数判断
                      // console.log("goodsID:" +JSON.stringify( shortTable.row(cc).data()));
-                     if (shortTable.row(cc).data()['recipeDate'] > 0) break;
+                     if (shortTable.row(cc).data()['adviceDate'] > 0) break;
                      if (typeof (shortTable.row(cc).data()['adviceType']) !== 'undefined' && shortTable.row(cc).data()['adviceType'] === 's') {
                          rowData['adviceType'] = shortTable.row(cc).data()['advice'].replace('Sig:', '').replace(/(^\s+)|(\s+$)/g, '');
                          break;
@@ -424,9 +424,9 @@
                             break;
                         }
                     }
-                //console.log("recipeDate:" + rowData['recipeDate'].replace(/20\d\d-/g, ''));
-                if (rowData['recipeDate'] !== null && rowData['recipeDate'] !== '')
-                    rowData['recipeDate'] = rowData['recipeDate'].replace(/20\d\d-/g, '');
+                //console.log("adviceDate:" + rowData['adviceDate'].replace(/20\d\d-/g, ''));
+                if (rowData['adviceDate'] !== null && rowData['adviceDate'] !== '')
+                    rowData['adviceDate'] = rowData['adviceDate'].replace(/20\d\d-/g, '');
 
                 drugTable.row.add(rowData).draw(true);
             }).on('deselect', function (e, dt, type, indexes) {
@@ -434,7 +434,7 @@
 
                 drugTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
                     // console.log("item:" + JSON.stringify(this.data()));
-                    if (typeof (this.data()) !== 'undefined' && rowData["recipeItemID"] === this.data()["recipeItemID"])
+                    if (typeof (this.data()) !== 'undefined' && rowData["adviceItemID"] === this.data()["adviceItemID"])
                         drugTable.row(rowIdx).remove().draw();
                 });
             });
@@ -478,7 +478,7 @@
                 //先判断是否存在，如存在不添加
                 drugTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
                     //console.log("item:" + JSON.stringify(this.data()));
-                    if (typeof (this.data()) !== 'undefined' && rowData["recipeItemID"] === this.data()["recipeItemID"])
+                    if (typeof (this.data()) !== 'undefined' && rowData["adviceItemID"] === this.data()["adviceItemID"])
                         exists = true;
                 });
                 if (exists) return;
@@ -494,24 +494,24 @@
 
                 //不是每一行都有日期，向前找日期
                 var dateIndex = -1;
-                if (rowData['recipeDate'] == null || rowData['recipeDate'] === '') {
+                if (rowData['adviceDate'] == null || rowData['adviceDate'] === '') {
                     for (var aa = index - 1; aa >= 0; aa--)
-                        if (longTable.row(aa).data()['recipeDate'] !== '') {
+                        if (longTable.row(aa).data()['adviceDate'] !== '') {
                             dateIndex = aa;
-                            rowData['recipeDate'] = longTable.row(aa).data()['recipeDate'];
+                            rowData['adviceDate'] = longTable.row(aa).data()['adviceDate'];
                             break;
                         }
                 } else dateIndex = index;
 
                 //向后找 用法
-              /*  for (var cc = index + 1; cc < index + 10; cc++) {//增加表行数判断
-                    // console.log("goodsID:" +JSON.stringify( longTable.row(cc).data()));
-                    if (longTable.row(cc).data()['recipeDate'] > 0) break;
-                    if (typeof (longTable.row(cc).data()['adviceType']) !== 'undefined' && longTable.row(cc).data()['adviceType'] === 's') {
-                        rowData['adviceType'] = longTable.row(cc).data()['advice'].replace('Sig:', '').replace(/(^\s+)|(\s+$)/g, '');
-                        break;
-                    }
-                }*/
+                /*  for (var cc = index + 1; cc < index + 10; cc++) {//增加表行数判断
+                      // console.log("goodsID:" +JSON.stringify( longTable.row(cc).data()));
+                      if (longTable.row(cc).data()['adviceDate'] > 0) break;
+                      if (typeof (longTable.row(cc).data()['adviceType']) !== 'undefined' && longTable.row(cc).data()['adviceType'] === 's') {
+                          rowData['adviceType'] = longTable.row(cc).data()['advice'].replace('Sig:', '').replace(/(^\s+)|(\s+$)/g, '');
+                          break;
+                      }
+                  }*/
                 rowData['adviceType'] = rowData["usage"];
                 //找 大输液
                 if (dateIndex >= 0)
@@ -540,14 +540,14 @@
                             break;
                         }
                     }
-                //console.log("recipeDate:" + rowData['recipeDate'].replace(/20\d\d-/g, ''));
-                //console.log("recipeDate:" + rowData['recipeDate'] );
+                //console.log("adviceDate:" + rowData['adviceDate'].replace(/20\d\d-/g, ''));
+                //console.log("adviceDate:" + rowData['adviceDate'] );
 
                 if (rowData['endDate'] === null)
                     rowData['endDate'] = '<fmt:formatDate value='${outDate}' pattern='MM-dd HH:mm'/>';
-                if (rowData['recipeDate'] !== null && rowData['recipeDate'] !== '')
-                    rowData['recipeDate'] = rowData['recipeDate'].replace(/20\d\d-/g, '');
-                rowData['recipeDate'] = rowData['recipeDate'] + "～" + rowData['endDate'];
+                if (rowData['adviceDate'] !== null && rowData['adviceDate'] !== '')
+                    rowData['adviceDate'] = rowData['adviceDate'].replace(/20\d\d-/g, '');
+                rowData['adviceDate'] = rowData['adviceDate'] + "～" + rowData['endDate'];
 
                 drugTable.row.add(rowData).draw(true);
             }).on('deselect', function (e, dt, type, indexes) {
@@ -555,7 +555,7 @@
 
                 drugTable.rows().every(function (rowIdx, tableLoop, rowLoop) {
                     // console.log("item:" + JSON.stringify(this.data()));
-                    if (typeof (this.data()) !== 'undefined' && rowData["recipeItemID"] === this.data()["recipeItemID"])
+                    if (typeof (this.data()) !== 'undefined' && rowData["adviceItemID"] === this.data()["adviceItemID"])
                         drugTable.row(rowIdx).remove().draw();
                 });
             });
@@ -565,7 +565,7 @@
                 select: {style: 'single', selector: 'td:first-child :radio'},
                 "columns": [
                     {"data": "surgeryID"},
-                    {"data": "surgeryDate", "sClass": "center"},
+                    {"data": "surgeryDate", "sClass": "center", defaultContent: ''},
                     {"data": "incision", "sClass": "center"},
                     {"data": "surgeryName", "sClass": "center"},
                     {"data": "healOver", "sClass": "center"}
@@ -589,7 +589,7 @@
                 },
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getSurgerys.jspa?hospID=${recipe.hospID}",//${recipe.hospID}
+                    url: "/remark/getSurgerys.jspa?hospID=${inPatient.hospID}",//${inPatient.hospID}
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -643,7 +643,7 @@
                 },
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getDiagnosis.jspa?hospID=${recipe.hospID}",
+                    url: "/remark/getDiagnosis.jspa?hospID=${inPatient.hospID}",
                     //url: "/remark/getDiagnosis.jspa?hospID=0000593702&archive=1",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
@@ -658,7 +658,8 @@
                 var exists = false;
                 /*先判断是否存在，如存在不添加*/
                 $("#chooseDiagnosis tr").each(function (i, item) {
-                    if (rowData["diagnosisNo"] === $(item).attr("data-id"))
+                    if ("" + rowData["diagnosisNo"] === $(item).attr("data-id"))
+                    //if ($(item).attr("data-id") !== undefined && no === $(item).attr("data-id"))
                         exists = true;
                 });
                 if (exists) return;
@@ -701,8 +702,8 @@
             var loadData = 0;
             $('#courseTabIndex').click(function () {
                 if ((loadData & 1) === 0)
-                //$.getJSON("/remark/getCourse.jspa?hospID=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
-                    $.getJSON("/remark/getCourse.jspa?hospID=${recipe.hospID}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                //$.getJSON("/remark/getCourse.jspa?hospID=0014196001&departCode=${inPatient.departCode}&archive=${inPatient.archive}", function (result) {
+                    $.getJSON("/remark/getCourse.jspa?hospID=${inPatient.hospID}&departCode=${inPatient.departCode}&archive=${inPatient.archive}", function (result) {
                         var template = Handlebars.compile($('#courseContent').html());
                         var htmlArray = [];
                         $.each(result.data, function (index, value) {
@@ -717,8 +718,8 @@
             });
             $('#historyTabIndex').click(function () {
                 if ((loadData & 2) === 0)
-                //$.getJSON("/remark/showHistory.jspa?hospID=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
-                    $.getJSON("/remark/getCourse.jspa?hospID=${recipe.hospID}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                //$.getJSON("/remark/showHistory.jspa?hospID=0014196001&departCode=${inPatient.departCode}&archive=${inPatient.archive}", function (result) {
+                    $.getJSON("/remark/getCourse.jspa?hospID=${inPatient.hospID}&departCode=${inPatient.departCode}&archive=${inPatient.archive}", function (result) {
                         var template = Handlebars.compile($('#historyContent').html());
 
                         $('#historyContent').html(template(result));
@@ -788,10 +789,15 @@
             });
             //导出
             $('.btn-info').on('click', function (e) {
-                window.location.href = "getRecipeExcel.jspa?recipeID=${recipe.recipeID}&batchID=${batchID}";
+                window.location.href = "getInPatientAntiExcel.jspa?inPatientID=${inPatient.inPatientID}&batchID=${batchID}";
             });
 
-            var json = {recipeID: '${recipe.recipeID}', hospID: '${recipe.hospID}', recipeReviewID: '${recipe.review.recipeReviewID}', reviewUser: '${currentUser.name}'};
+            var json = {
+                inPatientID: '${inPatient.inPatientID}',
+                hospID: '${inPatient.hospID}',
+                inPatientReviewID: '${inPatient.review.inPatientReviewID}',
+                reviewUser: '${currentUser.name}'
+            };
             //保存
             $('.btn-success').on('click', function (e) {
                 var baseInfo = {};
@@ -887,7 +893,7 @@
                     if (typeof (this.data()) !== 'undefined') {
                         var trRow = $("#drugTable tbody tr").eq(rowIdx);
                         drug.push({
-                            "recipeItemID": this.data()["recipeItemID"],
+                            "adviceItemID": this.data()["adviceItemID"],
                             "advice": this.data()["advice"],
                             "price": this.data()["price"],
                             "goodsID": this.data()["goodsID"],
@@ -897,7 +903,7 @@
                             "quantity": trRow.find("td:eq(5)").text(),
                             "menstruum": this.data()["menstruum"],
                             "purpose": trRow.find('input:radio:checked').val() ? trRow.find('input:radio:checked').val() : "",
-                            "recipeDate": this.data()["recipeDate"]
+                            "adviceDate": this.data()["adviceDate"]
                         });
                     }
                 });
@@ -927,12 +933,12 @@
                 json.用药合理性评价 = rational;
 
                 json.备注 = $('#form-field-memo').val();
-
+                json.reviewType = 2;
                 // console.log("json:" + JSON.stringify(json));
 
                 $.ajax({
                     type: "POST",
-                    url: 'saveRecipe.jspa',
+                    url: 'saveInPatient.jspa',
                     data: JSON.stringify(json),
                     contentType: "application/json; charset=utf-8",
                     cache: false,
@@ -940,7 +946,7 @@
                         showDialog(response.succeed ? "保存成功" : "保存失败", response.message);
                         if (response.succeed) {
                             $('.btn-info').removeClass("hidden");
-                            json.recipeReviewID = response.recipeReviewID;
+                            json.inPatientReviewID = response.inPatientReviewID;
                         }
                     },
                     error: function (response, textStatus) {/*能够接收404,500等错误*/
@@ -1103,7 +1109,7 @@
                             </div>
                         </h4>
 
-                        <form id="recipeForm">
+                        <form id="inPatientForm">
                             <!-- #section:elements.tab.position -->
                             <div class="tabbable tabs-left">
                                 <ul class="nav nav-tabs" id="myTab3">
@@ -1133,14 +1139,15 @@
                                             <div class="control-group col-xs-12">
                                                 <span class="lbl">性别：</span>
                                                 <input name="form-field-radio-sex" type="radio" class="ace" value="男"
-                                                       <c:if test="${recipe.sex}">checked</c:if> />
+                                                       <c:if test="${inPatient.sex}">checked</c:if> />
                                                 <span class="lbl">男</span>
-                                                <input name="form-field-radio-sex" type="radio" class="ace" value="女" <c:if test="${!recipe.sex}">checked</c:if>/>
+                                                <input name="form-field-radio-sex" type="radio" class="ace" value="女" <c:if test="${!inPatient.sex}">checked</c:if>/>
                                                 <span class="lbl">女</span>
                                             </div>
                                             <div class="form-inline col-xs-12" style="margin-top: 10px;">
                                                 <label class="control-label" for="form-field-age" style="text-overflow:ellipsis; white-space:nowrap;">年龄</label>
-                                                <input type="text" id="form-field-age" placeholder="年龄" class="no-padding" style="width: 60px;text-align: center" value="${recipe.age.trim()}"/>
+                                                <input type="text" id="form-field-age" placeholder="年龄" class="no-padding" style="width: 60px;text-align: center"
+                                                       value="${inPatient.age.trim()}"/>
                                                 <span class="lbl light-grey">年龄的单位分别为：天、周、月或岁</span>
                                             </div>
                                             <div class="form-inline col-xs-12" style="margin-top: 10px;">
@@ -1494,7 +1501,8 @@
                                                     </div>
                                                 </div>
                                                 <div class="form-inline col-xs-12" style="margin-top: 10px;">
-                                                    <label class="control-label no-padding" for="id-surgeryTime1" style="text-overflow:ellipsis; white-space:nowrap;;width:100px;">手术开始时间</label>
+                                                    <label class="control-label no-padding" for="id-surgeryTime1"
+                                                           style="text-overflow:ellipsis; white-space:nowrap;;width:100px;">手术开始时间</label>
                                                     <div class="input-group">
                                                         <input class="no-padding" style="width: 130px" id="id-surgeryTime1" type="text" data-date-format="YYYY-MM-DD HH:mm"
                                                                value="<fmt:formatDate value='${inDate}' pattern='YYYY-MM-dd HH:mm'/>"/>
@@ -1502,7 +1510,8 @@
                                                     </div>
                                                 </div>
                                                 <div class="form-inline col-xs-12" style="margin-top: 10px;">
-                                                    <label class="control-label no-padding" for="id-surgeryTime2" style="text-overflow:ellipsis; white-space:nowrap;width:100px;">手术结束时间</label>
+                                                    <label class="control-label no-padding" for="id-surgeryTime2"
+                                                           style="text-overflow:ellipsis; white-space:nowrap;width:100px;">手术结束时间</label>
                                                     <div class="input-group">
                                                         <input class="no-padding" style="width: 130px" id="id-surgeryTime2" type="text" data-date-format="YYYY-MM-DD HH:mm"
                                                                value="<fmt:formatDate value='${outDate}' pattern='YYYY-MM-dd HH:mm'/>"/>
@@ -1593,12 +1602,12 @@
                                         <div class="well well-sm" style="height: 150px">
                                             <div class="input-group col-xs-12">
                                                 <label class="control-label" for="form-field-money" style="text-overflow:ellipsis; white-space:nowrap; width:130px;">住院总费用</label>
-                                                <input type="text" id="form-field-money" placeholder="元" class="no-padding" value="${recipe.money}"/>
+                                                <input type="text" id="form-field-money" placeholder="元" class="no-padding" value="${inPatient.money}"/>
                                                 <label class="control-label" for="form-field-money" style="text-overflow:ellipsis; white-space:nowrap;">元</label>
                                             </div>
                                             <div class="input-group col-xs-12" style="margin-top: 10px">
                                                 <label class="control-label" for="form-field-medicineMoney" style="text-overflow:ellipsis; white-space:nowrap; width:130px;">住院药品总费用</label>
-                                                <input type="text" id="form-field-medicineMoney" placeholder="元" class="no-padding" value="${recipe.medicineMoney}"/>
+                                                <input type="text" id="form-field-medicineMoney" placeholder="元" class="no-padding" value="${inPatient.medicineMoney}"/>
                                                 <label class="control-label" for="form-field-medicineMoney" style="text-overflow:ellipsis; white-space:nowrap;">元</label>
                                             </div>
                                             <div class="input-group col-xs-12" style="margin-top: 10px">
@@ -1726,7 +1735,7 @@
                     <div class="col-sm-6 widget-container-col" id="widget-container-col-13">
                         <div class="widget-box transparent" id="widget-box-13">
                             <div class="widget-header">
-                                <h4 class="widget-title lighter">住院号：${recipe.patientID}，姓名：${recipe.patientName}</h4>
+                                <h4 class="widget-title lighter">住院号：${inPatient.hospNo}，姓名：${inPatient.patientName}</h4>
 
                                 <div class="widget-toolbar no-border" id="tabDiv">
                                     <ul class="nav nav-tabs" id="myTab2">
@@ -1735,8 +1744,8 @@
                                         <li><a data-toggle="tab" href="#longTab">长嘱</a></li>
                                         <li><a data-toggle="tab" href="#shortTab">临嘱</a></li>
                                         <li><a data-toggle="tab" href="#surgeryTab">手术</a></li>
-                                        <li><a data-toggle="tab" href="#courseTab" id="courseTabIndex">病程记录</a></li>
-                                        <li><a data-toggle="tab" href="#historyTab" id="historyTabIndex">住院病历</a></li>
+                                        <%--  <li><a data-toggle="tab" href="#courseTab" id="courseTabIndex">病程记录</a></li> 还有检验
+                                          <li><a data-toggle="tab" href="#historyTab" id="historyTabIndex">住院病历</a></li>--%>
                                     </ul>
                                 </div>
                             </div>
@@ -1750,11 +1759,11 @@
                                                 <tbody>
                                                 <tr>
                                                     <td class="col-sm-2">住院号</td>
-                                                    <td class="col-sm-4">${recipe.patientID}</td>
+                                                    <td class="col-sm-4">${inPatient.hospNo}</td>
 
                                                     <td class="col-sm-2">姓名</td>
 
-                                                    <td class="col-sm-4">${recipe.patientName}</td>
+                                                    <td class="col-sm-4">${inPatient.patientName}</td>
                                                 </tr>
                                                 <tr>
                                                     <td class="col-sm-2">入院日期</td>
@@ -1765,41 +1774,41 @@
                                                 </tr>
                                                 <tr>
                                                     <td class="col-sm-2">住院天数</td>
-                                                    <td class="col-sm-4">${recipe.inHospitalDay}</td>
+                                                    <td class="col-sm-4">${inPatient.inHospitalDay}</td>
 
                                                     <td class="col-sm-2">年龄</td>
-                                                    <td class="col-sm-4">${recipe.age}</td>
+                                                    <td class="col-sm-4">${inPatient.age}</td>
                                                 </tr>
                                                 <tr>
                                                     <td class="col-sm-2">性别</td>
                                                     <td class="col-sm-4">
-                                                        <c:if test="${recipe.sex}">男</c:if>
-                                                        <c:if test="${!recipe.sex}">女</c:if>
+                                                        <c:if test="${inPatient.sex}">男</c:if>
+                                                        <c:if test="${!inPatient.sex}">女</c:if>
                                                     </td>
 
                                                     <td class="col-sm-2">就诊科室</td>
-                                                    <td class="col-sm-4">${recipe.department}</td>
+                                                    <td class="col-sm-4">${inPatient.department}</td>
                                                 </tr>
                                                 <tr>
                                                     <td class="col-sm-2">主管医生</td>
-                                                    <td class="col-sm-4">${recipe.masterDoctorName}</td>
+                                                    <td class="col-sm-4">${inPatient.masterDoctorName}</td>
 
                                                     <td class="col-sm-2">药品组数</td>
-                                                    <td class="col-sm-4">${recipe.drugNum}</td>
+                                                    <td class="col-sm-4">${inPatient.drugNum}</td>
                                                 </tr>
                                                 <tr>
                                                     <td class="col-sm-2">总金额</td>
-                                                    <td class="col-sm-4">${recipe.money}</td>
+                                                    <td class="col-sm-4">${inPatient.money}</td>
 
                                                     <td class="col-sm-2">药品金额</td>
-                                                    <td class="col-sm-4">${recipe.medicineMoney}</td>
+                                                    <td class="col-sm-4">${inPatient.medicineMoney}</td>
                                                 </tr>
                                                 <tr>
                                                     <td class="col-sm-2">抗菌药品种数</td>
-                                                    <td class="col-sm-4">${recipe.antiNum}</td>
+                                                    <td class="col-sm-4">${inPatient.antiNum}</td>
 
                                                     <td class="col-sm-3">抗菌药联用数</td>
-                                                    <td class="col-sm-4">${recipe.concurAntiNum}</td>
+                                                    <td class="col-sm-4">${inPatient.concurAntiNum}</td>
                                                 </tr>
                                                 </tbody>
                                             </table>

@@ -7,12 +7,11 @@ import com.zcreate.pinyin.PinyinUtil;
 import com.zcreate.rbac.web.DeployRunning;
 import com.zcreate.review.dao.AppealDAO;
 import com.zcreate.review.dao.ClinicDAO;
-import com.zcreate.review.dao.RecipeDAO;
+import com.zcreate.review.dao.InPatientDAO;
 import com.zcreate.review.dao.SampleDAO;
 import com.zcreate.review.logic.ReviewService;
+import com.zcreate.review.model.InPatientReview;
 import com.zcreate.review.model.Clinic;
-import com.zcreate.review.model.Recipe;
-import com.zcreate.review.model.RecipeReview;
 import com.zcreate.review.model.SampleBatch;
 import com.zcreate.util.DataFormat;
 import com.zcreate.util.DateUtils;
@@ -52,7 +51,7 @@ public class RemarkController {
     @Autowired
     private ClinicDAO clinicDao;
     @Autowired
-    private RecipeDAO recipeDao;
+    private InPatientDAO inPatientDao;
 
     private Gson gson = new GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd HH: mm").create();
 
@@ -65,6 +64,7 @@ public class RemarkController {
     private DictService dictService;
     @Autowired
     private AppealDAO appealDao;
+    private Map<String, Object> retMap;
 
     static int CLINIC_COLUMN_COUNT = 15;
     static int HOSPITAL_COLUMN_COUNT = 20;
@@ -73,16 +73,16 @@ public class RemarkController {
     String templateDir = "excel";
 
     @ResponseBody
-    @RequestMapping(value = "saveRecipe", method = RequestMethod.POST, produces = "application/json; charset=UTF-8")
-    public String saveRecipe(@RequestBody String string) {
+    @RequestMapping(value = "saveInPatient", method = RequestMethod.POST, produces = "application/json; charset=UTF-8")
+    public String saveInPatient(@RequestBody String string) {
         //log.debug("SecurityContextHolder.getContext().getAuthentication().getPrincipal()=" + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         Map<String, Object> result = new HashMap<>();
-        //out.println("string = " + string);
-        //  reviewService.saveRecipe(recipe);
+        //out.println("string = " + string); 
         JsonObject json = (JsonObject) parser.parse(string);
         //JsonObject baseInfo = json.getAsJsonObject("基本情况");
-        RecipeReview review = new RecipeReview();
-        review.setRecipeReviewID(json.getAsJsonPrimitive("recipeReviewID").getAsInt());
+        InPatientReview review = new InPatientReview();
+        review.setInPatientReviewID(json.getAsJsonPrimitive("inPatientReviewID").getAsInt());
+        review.setReviewType(json.get("reviewType").getAsInt());
         //Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         //System.out.println("principal = " + principal);
        /* if (principal instanceof UserDetails) {
@@ -95,14 +95,14 @@ public class RemarkController {
         review.setReviewJson(string);
         boolean succeed;
         try {
-            succeed = reviewService.saveRecipeReview(review);
-            log.debug("review.getRecipeReviewID():" + review.getRecipeReviewID());
+            succeed = reviewService.saveInPatientReview(review);
+            log.debug("review.getInPatientReviewID():" + review.getInPatientReviewID());
             result.put("succeed", succeed);
             if (succeed)
                 result.put("message", "已保存！");
             else
                 result.put("message", "保存失败，请联系管理员。");
-            result.put("recipeReviewID", review.getRecipeReviewID());
+            result.put("inPatientReviewID", review.getInPatientReviewID());
         } catch (Exception e) {
             e.printStackTrace();
             result.put("succeed", false);
@@ -133,7 +133,7 @@ public class RemarkController {
         boolean succeed;
         try {
             succeed = reviewService.saveClinic(clinic);
-            //log.debug("review.getRecipeReviewID():" + review.getRecipeReviewID());
+            //log.debug("review.getInPatientReviewID():" + review.getInPatientReviewID());
             result.put("succeed", succeed);
             result.put("message", "已保存！");
         } catch (Exception e) {
@@ -145,24 +145,24 @@ public class RemarkController {
 
     }
 
-    @RequestMapping("getRecipeExcel0")
-    public void getRecipeExcel0(HttpServletResponse response, @RequestParam(value = "recipeID") int recipeID, @RequestParam(value = "batchID") int batchID) throws IOException {
-        Recipe recipe = reviewService.getRecipe(recipeID);
-        RecipeReview review = recipe.getReview();
+    @RequestMapping("getInPatientExcel0")
+    public void getInPatientExcel0(HttpServletResponse response, @RequestParam(value = "inPatientID") int inPatientID) throws IOException {
+        com.zcreate.review.model.InPatient inPatient = reviewService.getInPatient(inPatientID);
+        InPatientReview review = inPatient.getReview();
         //SampleBatch batch = sampleDao.getSampleBatch(batchID);
         JsonObject json = (JsonObject) parser.parse(review.getReviewJson());
         HashSet problemCodeSet = new HashSet(5);
 
         HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "reviewHospital.xls"));//getSurgery 0 or 1
-        // String downFileName = "非手术病人抗菌药物使用情况调查表" + recipeID + ".xls";
+        // String downFileName = "非手术病人抗菌药物使用情况调查表" + inPatientID + ".xls";
         HSSFSheet sheet = wb.getSheet("Sheet1");
         JsonObject baseInfo = json.getAsJsonObject("基本情况");
-        sheet.getRow(1).getCell(0).setCellValue("科室：" + recipe.getDepartment());
-        sheet.getRow(1).getCell(5).setCellValue("病历号：" + recipe.getPatientID());
-        sheet.getRow(1).getCell(7).setCellValue("病人姓名：" + recipe.getPatientName());
-        sheet.getRow(2).getCell(2).setCellValue("性别：" + baseInfo.get("sex").getAsString() + baseInfo.get("age").getAsString() + "岁");//(recipe.getSex() ? "男" : "女") + "   年龄：" + String.valueOf(recipe.getAge()) + "岁"
-        sheet.getRow(2).getCell(5).setCellValue("入院时间：" + baseInfo.get("inHospital").getAsString());//DateUtils.formatDate(recipe.getInDate(), "yy-M-d")
-        sheet.getRow(2).getCell(7).setCellValue("出院时间：" + baseInfo.get("outHospital").getAsString());// DateUtils.formatDate(recipe.getOutDate(), "yy-M-d")
+        sheet.getRow(1).getCell(0).setCellValue("科室：" + inPatient.getDepartment());
+        sheet.getRow(1).getCell(5).setCellValue("病历号：" + inPatient.getPatientID());
+        sheet.getRow(1).getCell(7).setCellValue("病人姓名：" + inPatient.getPatientName());
+        sheet.getRow(2).getCell(2).setCellValue("性别：" + baseInfo.get("sex").getAsString() + baseInfo.get("age").getAsString() + "岁");//(inPatient.getSex() ? "男" : "女") + "   年龄：" + String.valueOf(inPatient.getAge()) + "岁"
+        sheet.getRow(2).getCell(5).setCellValue("入院时间：" + baseInfo.get("inHospital").getAsString());//DateUtils.formatDate(inPatient.getInDate(), "yy-M-d")
+        sheet.getRow(2).getCell(7).setCellValue("出院时间：" + baseInfo.get("outHospital").getAsString());// DateUtils.formatDate(inPatient.getOutDate(), "yy-M-d")
 
         /*诊断*/
         String inDiagnosis = "入院诊断：", outDiagnosis = "出院诊断：";
@@ -210,8 +210,8 @@ public class RemarkController {
         sheet.getRow(14).getCell(6).setCellValue(drugInfo.get("symptom2").getAsString());
         //署名、日期
         sheet.getRow(16).getCell(0).setCellValue("点评人：" + json.get("reviewUser").getAsString());
-        sheet.getRow(16).getCell(3).setCellValue("时间：" + DateUtils.formatDate(recipe.getReview().getReviewTime(), "yyyy年M月d日"));
-        sheet.getRow(16).getCell(8).setCellValue(recipe.getMasterDoctorName());
+        sheet.getRow(16).getCell(3).setCellValue("时间：" + DateUtils.formatDate(inPatient.getReview().getReviewTime(), "yyyy年M月d日"));
+        sheet.getRow(16).getCell(8).setCellValue(inPatient.getMasterDoctorName());
 
 
         HSSFCellStyle centerAndWrap = wb.createCellStyle();
@@ -238,7 +238,7 @@ public class RemarkController {
                 //log.debug("item.getRoute()=" + item.get("adviceType").getAsString());
                 aRow.getCell(2).setCellValue(item.get("advice").getAsString());
                 aRow.getCell(4).setCellValue(item.get("adviceType").getAsString());
-                aRow.getCell(5).setCellValue(item.get("recipeDate").getAsString());
+                aRow.getCell(5).setCellValue(item.get("adviceDate").getAsString());
                 aRow.getCell(8).setCellValue("设置".equals(item.get("question").getAsString()) ? "" : item.get("question").getAsString());
 
                 if (item.get("question").getAsString().indexOf(",") > 0) {
@@ -279,7 +279,7 @@ public class RemarkController {
 
                 aRow.getCell(2).setCellValue(item.get("advice").getAsString());
                 aRow.getCell(4).setCellValue(item.get("adviceType").getAsString());
-                aRow.getCell(5).setCellValue(item.get("recipeDate").getAsString());
+                aRow.getCell(5).setCellValue(item.get("adviceDate").getAsString());
                 aRow.getCell(8).setCellValue("设置".equals(item.get("question").getAsString()) ? "" : item.get("question").getAsString());
 
                 if (item.get("question").getAsString().indexOf(",") > 0) {
@@ -328,7 +328,7 @@ public class RemarkController {
             // response.setContentType("image/jpeg;charset=UTF-8");
             response.setContentType("application/vnd.ms-excel;charset=UTF-8");
             response.setHeader("Content-Disposition", "attachment; filename*=utf-8'zh_cn'" +
-                    java.net.URLEncoder.encode("医嘱点评工作表", "UTF-8") + recipeID + ".xls");//chrome 、 firefox都正常
+                    java.net.URLEncoder.encode("医嘱点评工作表", "UTF-8") + inPatientID + ".xls");//chrome 、 firefox都正常
             out = response.getOutputStream(); // 输出到文件流
             wb.write(out);
             out.flush();
@@ -341,14 +341,17 @@ public class RemarkController {
         }
     }
 
-    @RequestMapping("getRecipeExcel")
-    public void getRecipeAntiExcel(HttpServletResponse response, @RequestParam(value = "recipeID") int recipeID, @RequestParam(value = "batchID") int batchID) throws IOException {
-        Recipe recipe = reviewService.getRecipe(recipeID);
-        RecipeReview review = recipe.getReview();
+    @RequestMapping("getInPatientAntiExcel")
+    public void getInPatientAntiExcel(HttpServletResponse response, @RequestParam(value = "inPatientID") int inPatientID, @RequestParam(value = "batchID") int batchID) throws IOException {
+        com.zcreate.review.model.InPatient inPatient = reviewService.getInPatient(inPatientID);
+        InPatientReview review = inPatient.getReview();
         SampleBatch batch = sampleDao.getSampleBatch(batchID);
+
         JsonObject json = (JsonObject) parser.parse(review.getReviewJson());
         HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "hospital_" + batch.getSurgery() + ".xls"));//getSurgery 0 or 1
-        // String downFileName = "非手术病人抗菌药物使用情况调查表" + recipeID + ".xls";
+
+        String downFileName = (batch.getSurgery() == 1 ? java.net.URLEncoder.encode("手术病人抗菌药物使用情况调查表_", "UTF-8") :
+                java.net.URLEncoder.encode("非手术病人抗菌药物使用情况调查表_", "UTF-8")) + inPatientID + ".xls";
         HSSFSheet sheet = wb.getSheet("Sheet1");
         int startRow = 1, cellIndex = 3;
 //抽样
@@ -360,7 +363,7 @@ public class RemarkController {
         string = Optional.ofNullable(sheet.getRow(startRow).getCell(0).getStringCellValue())
                 .orElse("病人所属科室：%s   病历号：%s       序号：%s");
 
-        sheet.getRow(startRow++).getCell(0).setCellValue(String.format(string, recipe.getDepartment(), recipe.getPatientID(), "1"));
+        sheet.getRow(startRow++).getCell(0).setCellValue(String.format(string, inPatient.getDepartment(), inPatient.getPatientID(), "1"));
 //基本情况
         string = Optional.ofNullable(sheet.getRow(startRow).getCell(cellIndex).getStringCellValue())
                 .orElse("性别 %s  年龄 %s  体重 %s kg   入院时间： %s 出院时间： %s");
@@ -489,7 +492,7 @@ public class RemarkController {
             sheet.getRow(startRow + i).getCell(cellIndex + 3).setCellValue(drug.get("frequency").getAsString());
             sheet.getRow(startRow + i).getCell(cellIndex + 4).setCellValue(drug.get("adviceType").getAsString());
             sheet.getRow(startRow + i).getCell(cellIndex + 5).setCellValue(drug.get("quantity").getAsString());
-            sheet.getRow(startRow + i).getCell(cellIndex + 6).setCellValue(drug.get("recipeDate").getAsString());
+            sheet.getRow(startRow + i).getCell(cellIndex + 6).setCellValue(drug.get("adviceDate").getAsString());
 
             sheet.getRow(startRow + i + 1).getCell(cellIndex).setCellValue(Optional.ofNullable(drug.get("menstruum")).map(JsonElement::getAsString).orElse(""));
         }
@@ -548,8 +551,7 @@ public class RemarkController {
         try {
             // response.setContentType("image/jpeg;charset=UTF-8");
             response.setContentType("application/vnd.ms-excel;charset=UTF-8");
-            response.setHeader("Content-Disposition", "attachment; filename*=utf-8'zh_cn'" +
-                    java.net.URLEncoder.encode("非手术病人抗菌药物使用情况调查表_", "UTF-8") + recipeID + ".xls");//chrome 、 firefox都正常
+            response.setHeader("Content-Disposition", "attachment; filename*=utf-8'zh_cn'" + downFileName);//chrome 、 firefox都正常
             out = response.getOutputStream(); // 输出到文件流
             wb.write(out);
             out.flush();
@@ -737,7 +739,7 @@ public class RemarkController {
                 antiNum = ((Number) row.get("concurAntiNum")).shortValue();
             else if (antiNum == null)
                 antiNum = 0;
-            aRow.getCell(0).setCellValue((Integer) row.get("patientNo"));
+            aRow.getCell(0).setCellValue((String) row.get("hospNo"));
             aRow.getCell(1).setCellValue(getRoman((Short) row.get("field1_2")) + "(" + antiNum + ")");
             aRow.getCell(2).setCellValue(string(row.get("field2_2")) + "/" + getTrueFalse(row.get("field2_1")));
             aRow.getCell(3).setCellValue(getTrueFalse(row.get("field3")));
@@ -801,7 +803,7 @@ public class RemarkController {
 
     //抗菌药调查
     @RequestMapping(value = "viewClinic", method = RequestMethod.GET)
-    public String viewClinic(@RequestParam(value = "clinicID") Integer clinicID, @RequestParam(value = "batchID") Integer batchID, ModelMap model) {
+    public String viewClinic(@RequestParam(value = "clinicID") Integer clinicID , ModelMap model) {
         Clinic clinic = reviewService.getClinic(clinicID);
         clinic.setDoctorName(PinyinUtil.replaceName(clinic.getDoctorName()));
         clinic.setApothecaryName(PinyinUtil.replaceName(clinic.getApothecaryName()));
@@ -811,63 +813,64 @@ public class RemarkController {
             model.addAttribute("appeal", appealDao.getAppeal(clinicID, 1));
         }
         log.debug("clinic:" + clinic.getAntiMoney());
-        SampleBatch batch = sampleDao.getSampleBatch(batchID);
+
+        //SampleBatch batch = sampleDao.getSampleBatch(batchID);
         model.addAttribute("clinic", clinic);
         //model.addAttribute("deployLocation", reviewConfig.getDeployLocation());
-        model.addAttribute("batchID", batchID);
-        model.addAttribute("batch", batch);
+        /*model.addAttribute("batchID", batchID);
+        model.addAttribute("batch", batch);*/
         model.addAttribute("currentUser", SecurityContextHolder.getContext().getAuthentication().getPrincipal());//todo
         return "/remark/clinic";
     }
 
     //抗菌药调查
-    @RequestMapping(value = "viewRecipe1", method = RequestMethod.GET)
-    public String viewRecipe1(@RequestParam(value = "recipeID") Integer recipeID, @RequestParam(value = "batchID") Integer batchID, ModelMap model) {
-        Recipe recipe = reviewService.getRecipe(recipeID);
-        if (recipe != null) {
-            log.debug("viewRecipe:" + recipe.getDepartment());
+    @RequestMapping(value = "viewInPatient1", method = RequestMethod.GET)
+    public String viewInPatient1(@RequestParam(value = "inPatientID") Integer inPatientID, @RequestParam(value = "batchID") Integer batchID, ModelMap model) {
+        com.zcreate.review.model.InPatient inPatient = reviewService.getInPatient(inPatientID);
+        if (inPatient != null) {
+            log.debug("viewInPatient:" + inPatient.getDepartment());
             log.debug("reviewService:" + reviewService);
-            //recipe.setDepartCode(reviewService.getDepartCode(recipe.getDepartment()));
+            //inPatient.setDepartCode(reviewService.getDepartCode(inPatient.getDepartment()));
             SampleBatch batch = sampleDao.getSampleBatch(batchID);
-            recipe.setMasterDoctorName(PinyinUtil.replaceName(recipe.getMasterDoctorName()));
-            if (recipe.getReview().getRecipeReviewID() == null)
-                recipe.getReview().setGermCheck(recipe.getMicrobeCheck() > 0 ? 1 : 0);
+            inPatient.setMasterDoctorName(PinyinUtil.replaceName(inPatient.getMasterDoctorName()));
+           /* if (inPatient.getReview().getInPatientReviewID() == null)
+                inPatient.getReview().setGermCheck(inPatient.getMicrobeCheck() > 0 ? 1 : 0);*/
 
-            model.addAttribute("recipe", recipe);
+            model.addAttribute("inPatient", inPatient);
             //model.addAttribute("deployLocation", reviewConfig.getDeployLocation());
-        /*model.addAttribute("inDate", DateUtils.formatSqlDateTime(recipe.getInDate()));
-        model.addAttribute("outDate", DateUtils.formatSqlDateTime(recipe.getOutDate()));*/
-            model.addAttribute("inDate", new Date(recipe.getInDate().getTime()));
-            model.addAttribute("outDate", new java.util.Date(recipe.getOutDate().getTime()));
+        /*model.addAttribute("inDate", DateUtils.formatSqlDateTime(inPatient.getInDate()));
+        model.addAttribute("outDate", DateUtils.formatSqlDateTime(inPatient.getOutDate()));*/
+            model.addAttribute("inDate", new Date(inPatient.getInDate().getTime()));
+            model.addAttribute("outDate", new java.util.Date(inPatient.getOutDate().getTime()));
             model.addAttribute("batchID", batchID);
             model.addAttribute("batch", batch);
             model.addAttribute("currentUser", SecurityContextHolder.getContext().getAuthentication().getPrincipal());//todo change spring security
         }
-        return "/remark/recipe1";
+        return "remark/inpatient1";
     }
 
     //医嘱点评
-    @RequestMapping(value = "viewRecipe0", method = RequestMethod.GET)
-    public String viewRecipe0(@RequestParam(value = "recipeID") Integer recipeID, @RequestParam(value = "batchID") Integer batchID, ModelMap model) {
-        Recipe recipe = reviewService.getRecipe(recipeID);
-        if (recipe != null) {
-            log.debug("viewRecipe:" + recipe.getDepartment());
+    @RequestMapping(value = "viewInPatient0", method = RequestMethod.GET)
+    public String viewInPatient0(@RequestParam(value = "inPatientID") Integer inPatientID, ModelMap model) {
+        com.zcreate.review.model.InPatient inPatient = reviewService.getInPatient(inPatientID);
+        if (inPatient != null) {
+            log.debug("viewInPatient:" + inPatient.getDepartment());
             log.debug("reviewService:" + reviewService);
-            //recipe.setDepartCode(reviewService.getDepartCode(recipe.getDepartment()));
-            SampleBatch batch = sampleDao.getSampleBatch(batchID);
-            recipe.setMasterDoctorName(PinyinUtil.replaceName(recipe.getMasterDoctorName()));
-            if (recipe.getReview().getRecipeReviewID() == null)
-                recipe.getReview().setGermCheck(recipe.getMicrobeCheck() > 0 ? 1 : 0);
+            //inPatient.setDepartCode(reviewService.getDepartCode(inPatient.getDepartment()));
+            //SampleBatch batch = sampleDao.getSampleBatch(batchID);
+            inPatient.setMasterDoctorName(PinyinUtil.replaceName(inPatient.getMasterDoctorName()));
+           /* if (inPatient.getReview().getInPatientReviewID() == null)
+                inPatient.getReview().setGermCheck(inPatient.getMicrobeCheck() > 0 ? 1 : 0);*/
 
-            model.addAttribute("recipe", recipe);
+            model.addAttribute("inPatient", inPatient);
             //model.addAttribute("deployLocation", reviewConfig.getDeployLocation());
-            model.addAttribute("inDate", new Date(recipe.getInDate().getTime()));
-            model.addAttribute("outDate", new java.util.Date(recipe.getOutDate().getTime()));
-            model.addAttribute("batchID", batchID);
-            model.addAttribute("batch", batch);
+            model.addAttribute("inDate", new Date(inPatient.getInDate().getTime()));
+            model.addAttribute("outDate", new java.util.Date(inPatient.getOutDate().getTime()));
+          /*  model.addAttribute("batchID", batchID);
+            model.addAttribute("batch", batch);*/
             model.addAttribute("currentUser", SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         }
-        return "/remark/recipe0";
+        return "remark/inpatient0";
     }
 
     public static String getBox(Boolean box) {
@@ -912,24 +915,26 @@ public class RemarkController {
         return element != null && element.getAsString().equals(compare) ? "√" : " ";
     }
 
+    //仅仅用在点评结果
     @ResponseBody
-    @RequestMapping(value = "getClinicList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public String getClinicList(@RequestParam(value = "fromDate", required = false) String fromDate,
-                                @RequestParam(value = "toDate", required = false) String toDate,
-                                @RequestParam(value = "queryItem", required = false) String queryItem,
-                                @RequestParam(value = "queryField", required = false) String queryField,
-                                @RequestParam(value = "department", required = false) String department,
-                                @RequestParam(value = "rational", required = false) Integer rational,
-                                @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
-                                @RequestParam(value = "start", required = false, defaultValue = "0") int start,
-                                @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
+    @RequestMapping(value = "getClinicReviewList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String getClinicReviewList(@RequestParam(value = "reviewDateFrom", required = false) String reviewDateFrom,
+                                      @RequestParam(value = "reviewDateTo", required = false) String reviewDateTo,
+                                      @RequestParam(value = "queryItem", required = false) String queryItem,
+                                      @RequestParam(value = "queryField", required = false) String queryField,
+                                      @RequestParam(value = "department", required = false) String department,
+                                      @RequestParam(value = "rational", required = false) Integer rational,
+                                      @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
+                                      @RequestParam(value = "start", required = false, defaultValue = "0") int start,
+                                      @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
         Map<String, Object> param = new HashMap<String, Object>();
-        param.put("reviewDateFrom", fromDate);
-        if (!"".equals(toDate)) {
-            Calendar cal = DateUtils.parseCalendarDayFormat(toDate);
-            cal.add(Calendar.DATE, 1);
-            param.put("reviewDateTo", cal.getTime());
+        if (!"".equals(reviewDateFrom)) {
+            param.put("reviewDateFrom", DateUtils.parseDateDayFormat(reviewDateFrom));
+            param.put("RxDetailTable", "RxDetail_" + reviewDateFrom.substring(0, 4));
         }
+
+        if (!"".equals(reviewDateTo))
+            param.put("reviewDateTo", DateUtils.getNextDay(DateUtils.parseDateDayFormat(reviewDateTo)));
         // param.put("reviewDateNotNull", true);
         if (queryItem != null && !"".equals(queryItem) &&
                 queryField != null && !"".equals(queryField))
@@ -958,25 +963,27 @@ public class RemarkController {
         return gson.toJson(result);
     }
 
+    //仅仅用在点评结果
     @ResponseBody
-    @RequestMapping(value = "getHospitalList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public String getHospitalList(@RequestParam(value = "fromDate", required = false) String fromDate,
-                                  @RequestParam(value = "toDate", required = false) String toDate,
-                                  @RequestParam(value = "queryItem", required = false) String queryItem,
-                                  @RequestParam(value = "queryField", required = false) String queryField,
-                                  @RequestParam(value = "department", required = false) String department,
-                                  @RequestParam(value = "rational", required = false) Integer rational,
-                                  @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
-                                  @RequestParam(value = "start", required = false, defaultValue = "0") int start,
-                                  @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
+    @RequestMapping(value = "getHospitalReviewList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String getHospitalReviewList(@RequestParam(value = "reviewDateFrom", required = false) String reviewDateFrom,
+                                        @RequestParam(value = "reviewDateTo", required = false) String reviewDateTo,
+                                        @RequestParam(value = "queryItem", required = false) String queryItem,
+                                        @RequestParam(value = "queryField", required = false) String queryField,
+                                        @RequestParam(value = "department", required = false) String department,
+                                        @RequestParam(value = "rational", required = false) Integer rational,
+                                        @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
+                                        @RequestParam(value = "start", required = false, defaultValue = "0") int start,
+                                        @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
         Map<String, Object> param = new HashMap<String, Object>();
-        param.put("reviewDateFrom", fromDate);
-        param.put("RecipeItemTable", "RecipeItem_" + fromDate.substring(0, 4));
-        if (!"".equals(toDate)) {
-            Calendar cal = DateUtils.parseCalendarDayFormat(toDate);
-            cal.add(Calendar.DATE, 1);
-            param.put("reviewDateTo", cal.getTime());
+        if (!"".equals(reviewDateFrom)) {
+            param.put("reviewTimeFrom", DateUtils.parseDateDayFormat(reviewDateFrom));
+            param.put("AdviceItemTable", "AdviceItem_" + reviewDateFrom.substring(0, 4));
         }
+
+        if (!"".equals(reviewDateTo))
+            param.put("reviewTimeTo", DateUtils.getNextDay(DateUtils.parseDateDayFormat(reviewDateTo)));
+
         // param.put("reviewDateNotNull", true);
         if (queryItem != null && !"".equals(queryItem) &&
                 queryField != null && !"".equals(queryField))
@@ -987,14 +994,14 @@ public class RemarkController {
         param.put("start", start);
         param.put("limit", limit);
         // if ((Integer) param.get("start") > 0)
-        param.put("orderField", "recipeID");
+        param.put("orderField", "inPatientID");
         /*else
             param.put("orderField", "money");*/
-        List<HashMap<String, Object>> list = recipeDao.getRecipeList(param);
+        List<HashMap<String, Object>> list = inPatientDao.getInPatientList(param);
         int totalCount = list.size();
         //System.out.println("totalCount = " + totalCount);
         if (start > 0 || totalCount == limit)
-            totalCount = recipeDao.getRecipeCount(param);
+            totalCount = inPatientDao.getInPatientCount(param);
 
         Map<String, Object> result = new HashMap<>();
         result.put("data", list);
@@ -1003,6 +1010,97 @@ public class RemarkController {
         result.put("iTotalDisplayRecords", totalCount);
 
         return gson.toJson(result);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "getClinicList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String getClinicList(@RequestParam(value = "fromDate", required = false) String fromDate,
+                                @RequestParam(value = "toDate", required = false) String toDate,
+                                @RequestParam(value = "goodsID", required = false, defaultValue = "") String goodsID,
+                                @RequestParam(value = "queryItem", required = false) String queryItem,
+                                @RequestParam(value = "queryField", required = false) String queryField,
+                                @RequestParam(value = "department", required = false) String department,
+                                @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
+                                @RequestParam(value = "start", required = false, defaultValue = "0") int start,
+                                @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
+        HashMap<String, Object> param = new HashMap<>();
+        if (!"".equals(fromDate)) {
+            Calendar date = DateUtils.parseCalendarDayFormat(fromDate);
+            param.put("clinicDateFrom", DateUtils.parseDateDayFormat(fromDate));
+            param.put("RxDetailTable", "RxDetail_" + date.get(Calendar.YEAR));
+        }
+        if (!"".equals(toDate))
+            param.put("clinicDateTo", DateUtils.getNextDay(DateUtils.parseDateDayFormat(toDate)));
+        // param.put("reviewDateNotNull", true);
+        if (queryItem != null && !"".equals(queryItem) &&
+                queryField != null && !"".equals(queryField))
+            param.put(queryItem, queryField);
+
+        param.put("goodsID", goodsID);
+        param.put("department", department);
+        //param.put("rational", rational);
+        param.put("start", start);
+        param.put("limit", limit);
+        // if ((Integer) param.get("start") > 0)
+        param.put("orderField", "clinicID");
+        /*else
+            param.put("orderField", "money");*/
+        List<Clinic> list = clinicDao.getClinicList(param);
+        int totalCount = list.size();
+        if (start > 0 || totalCount == limit)
+            totalCount = clinicDao.getClinicCount(param);
+        return returnJson(list, draw, totalCount);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "getHospitalList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String getHospitalList(@RequestParam(value = "fromDate", required = false) String fromDate,
+                                  @RequestParam(value = "toDate", required = false) String toDate,
+                                  @RequestParam(value = "goodsID", required = false, defaultValue = "") String goodsID,
+                                  @RequestParam(value = "queryItem", required = false) String queryItem,
+                                  @RequestParam(value = "queryField", required = false) String queryField,
+                                  @RequestParam(value = "department", required = false) String department,
+                                  @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
+                                  @RequestParam(value = "start", required = false, defaultValue = "0") int start,
+                                  @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
+        HashMap<String, Object> param = new HashMap<>();
+        if (!"".equals(fromDate)) {
+            Calendar date = DateUtils.parseCalendarDayFormat(fromDate);
+            param.put("outDateFrom", date.getTime());
+            param.put("AdviceItemTable1", "AdviceItem_" + date.get(Calendar.YEAR));
+            param.put("AdviceItemTable2", "AdviceItem_" + (date.get(Calendar.YEAR) - 1));
+        }
+        if (!"".equals(toDate))
+            param.put("outDateTo", DateUtils.getNextDay(DateUtils.parseDateDayFormat(toDate)));
+        // param.put("reviewDateNotNull", true);
+        if (queryItem != null && !"".equals(queryItem) &&
+                queryField != null && !"".equals(queryField))
+            param.put(queryItem, queryField);
+
+        param.put("goodsID", goodsID);
+        param.put("department", department);
+        param.put("start", start);
+        param.put("limit", limit);
+        // if ((Integer) param.get("start") > 0)
+        param.put("orderField", "inPatientID");
+        /*else
+            param.put("orderField", "money");*/
+        List<HashMap<String, Object>> list = inPatientDao.getInPatientList(param);
+        int totalCount = list.size();
+        if (start > 0 || totalCount == limit)
+            totalCount = inPatientDao.getInPatientCount(param);
+
+        return returnJson(list, draw, totalCount);
+    }
+
+    private String returnJson(List list, Integer draw, int totalCount) {
+        retMap = new HashMap<>();
+        retMap.put("sEcho", draw);
+        retMap.put("data", list);
+        retMap.put("iTotalRecords", totalCount);
+        retMap.put("iTotalDisplayRecords", totalCount);
+
+        return gson.toJson(retMap);
     }
 
 }

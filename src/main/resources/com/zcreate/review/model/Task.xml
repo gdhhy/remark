@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Task">
+    <resultMap id="RecordResult" type="com.zcreate.review.model.Task">
+        <result column="taskID" jdbcType="INTEGER" property="taskID"/>
+        <result column="taskName" jdbcType="VARCHAR" property="taskName"/>
+        <result column="taskType" jdbcType="INTEGER" property="taskType"/>
+        <result column="timerMode" jdbcType="INTEGER" property="timerMode"/>
+        <result column="timerTime" jdbcType="TIMESTAMP" property="timerTime"/>
+        <result column="param1" jdbcType="VARCHAR" property="param1"/>
+        <result column="param2" jdbcType="VARCHAR" property="param2"/>
+        <result column="exeTime" jdbcType="TIMESTAMP" property="exeTime"/>
+    </resultMap>
+    <!--马上 要执行的任务-->
+    <!--避免三种情况：
+    一、遗漏执行：假设执行间隔是1小时，即时18:59:59 000执行一次，耗时2秒，下一次是 20:00:01 000执行
+    任务设定 20:00:00执行，那么在  18:59:59 000 这次肯定没执行，通过abs求绝对值让他在20:00:01 000执行
+
+    二、重复执行1：  假设执行间隔是1小时，即时19:00:00 000执行一次，耗时0秒，下一次是 20:00:00 000执行，耗时也是0秒，再下次是21:00:00 000
+    任务设定 20:00:00执行，没有用<=，肯定是20:00:00执行，
+
+    三、重复执行2：  假设执行间隔是1小时，即时19:00:01 000执行一次，耗时0秒，下一次是 20:00:01 000执行，耗时也是0秒，再下次是21:00:01 000
+    任务设定 20:00:00执行，在19:00:01 000满足条件启动任务，到20:00:00 000开始执行，但没更新 exeTime！ 到20:00:01 再次满足条件启动它？ todo
+    -->
+    <select id="selectTask" parameterType="int" resultMap="RecordResult"> <!--exeTime 重新定义为将要执行的时间-->
+        SELECT taskID,taskName,taskType,timerMode,timerTime, param1,param2,
+        CASE WHEN timerMode=0 THEN dateadd(DAY,datediff(DAY,timerTime,getdate()) ,timerTime) WHEN timerMode=2 THEN dateadd(M,datediff(M,timerTime,getdate()) ,timerTime) ELSE
+        timerTime END 'exeTime'
+        FROM timerTask
+        WHERE (timerMode=0 AND abs(datediff(S,getdate(),dateadd(DAY,datediff(DAY,timerTime,getdate()) ,timerTime))) &lt; #{interval:INTEGER} AND (exeTime IS NULL OR
+        datediff(S,exeTime,getdate()) > #{interval:INTEGER} ) )
+        OR (timerMode=1 AND exeTime IS NULL AND abs(datediff(S,getdate(),timerTime)) &lt; #{interval:INTEGER} )
+        OR (timerMode=2 AND abs(datediff(S,getdate(),dateadd(M,datediff(M,timerTime,getdate()) ,timerTime))) &lt; #{interval:INTEGER} AND (exeTime IS NULL OR
+        datediff(S,exeTime,getdate()) > #{interval:INTEGER} ))
+    </select>
+    <!--获取没执行的任务-->
+    <select id="selectTodoTask" parameterType="long" resultMap="RecordResult">
+        SELECT taskID, taskName, taskType, timerMode, timerTime, exeTime, param1, param2
+        FROM timerTask
+        WHERE timerMode != 1 OR (datediff(S, getdate(), timerTime) > #{interval:INTEGER} AND exeTime IS NULL)
+    </select>
+    <update id="updateTask" parameterType="com.zcreate.review.model.Task">
+        UPDATE timerTask
+        SET exeTime = #{exeTime:TIMESTAMP}
+        WHERE taskID = #{taskID:INTEGER}
+    </update>
+    <insert id="insertTask" parameterType="com.zcreate.review.model.Task">
+        INSERT INTO timerTask (taskName,taskType,timerMode,timerTime,exeTime,param1,param2)
+        VALUES(#{taskName:VARCHAR},#{taskType:INTEGER},#{timerMode:INTEGER},#{timerTime:TIMESTAMP},#{exeTime:TIMESTAMP},#{param1:TIMESTAMP},#{param2:TIMESTAMP})
+        <selectKey resultType="int" order="AFTER" keyProperty="taskID">
+            select @@IDENTITY as taskID
+        </selectKey>
+    </insert>
+    <delete id="deleteTask" parameterType="int">
+        DELETE timerTask WHERE taskID = #{taskID:INTEGER}
+    </delete>
+    <!--统计数据量-->
+    <sql id="queryWhere">
+        <where>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND dataDate >= #{fromDate:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(toDate)">AND dataDate &lt; #{toDate:VARCHAR}</if>
+        </where>
+    </sql>
+    <select id="selectMonitorDataRowCount" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT TOP ${limit} monitorID,updateTime,dataDate,clinicCount,rxCount, inPatientCount,doctorCount,medicineCount,surgeryCount,
+        drugRecordsCount,adviceItemYearCount,rxDetailYearCount
+        FROM (SELECT * FROM MonitorDataRowCount<include refid="queryWhere"/>)A
+        <if test="start!=null and start > 0">
+            WHERE dataDate &lt; ( SELECT min(dataDate) FROM (SELECT TOP ${start} dataDate FROM MonitorDataRowCount
+            <include refid="queryWhere"/>
+            ORDER BY dataDate DESC ) A)
+        </if>
+        ORDER BY dataDate DESC
+    </select>
+    <select id="selectMonitorDataRowCountCount" parameterType="java.util.Map" resultType="int">
+        SELECT count(*) FROM MonitorDataRowCount
+        <include refid="queryWhere"/>
+    </select>
+    <parameterMap id="procedureParam" type="java.util.Map">
+        <parameter property="fromDate" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+        <parameter property="toDate" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+    </parameterMap>
+    <parameterMap id="deleteDataParam" type="java.util.Map">
+        <parameter property="fromDate" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+        <parameter property="toDate" jdbcType="VARCHAR" javaType="java.lang.String" mode="IN"/>
+        <parameter property="deleteRowCount" jdbcType="INTEGER" javaType="java.lang.Integer" mode="OUT"/>
+    </parameterMap>
+    <update id="calcDataRowCount" parameterMap="procedureParam" statementType="CALLABLE">
+        {call monitorCalcDataRowCount(?, ?)}
+    </update>
+    <update id="deleteData" parameterMap="deleteDataParam" statementType="CALLABLE">
+        {call monitorDeleteData(?, ?, ?)}
+    </update>
+    <!--新的任务日志管理-->
+    <select id="selectTaskLog" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT TOP ${limit} logID,exeTime,method,timeFrom,timeTo,timeSpent,deleteCount,insertCount,updateCount,errMsg
+        FROM MonitorTaskLog
+        <if test="start!=null and start > 0">
+            WHERE logID &lt; ( SELECT min(logID) FROM (SELECT TOP ${start} logID FROM MonitorTaskLog
+            ORDER BY logID DESC ) A)
+        </if>
+        ORDER BY logID DESC
+    </select>
+    <select id="selectTaskLogCount" resultType="int">
+        SELECT count(*) FROM MonitorTaskLog
+    </select>
+    <select id="selectTaskDetail" parameterType="int" resultType="java.util.HashMap">
+        SELECT detailID, logID, procedureName, tableName, lastID, deleteCount, insertCount, updateCount, exeTime, timeSpent FROM MonitorTaskDetail WHERE logID = #{logID:INTEGER}
+        ORDER BY detailID DESC
+    </select>
+    <select id="selectTaskByTable" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT detailID, logID, procedureName, tableName, lastID, deleteCount, insertCount, updateCount, exeTime, timeSpent FROM MonitorTaskDetail
+        WHERE tableName = #{tableName:VARCHAR} AND logID in(select logID from MonitorTaskLog where timeFrom=#{timeFrom:VARCHAR}) ORDER BY detailID DESC
+    </select>
+</mapper>

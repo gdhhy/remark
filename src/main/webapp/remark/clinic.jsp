@@ -193,7 +193,7 @@
                         showDialog(response.succeed ? "保存成功" : "保存失败", response.message);
                         if (response.succeed) {
                             $('.btn-info').removeClass("hidden");
-                            json.recipeReviewID = response.recipeReviewID;
+                            json.inPatientReviewID = response.inPatientReviewID;
                         }
                     },
                     error: function (response, textStatus) {/*能够接收404,500等错误*/
@@ -265,7 +265,7 @@
                                     <td width="81" align="right" style="color: #368E9D;" bgColor="#ffffff">处方张数</td>
                                     <td width="78" align="center">${clinic.rxCount}</td>
                                     <td width="81" align="right" style="color: #368E9D;" bgColor="#ffffff">时间</td>
-                                    <td width="119" align="center"><fmt:formatDate value='${clinic.clinicDate}' pattern="yyyy-MM-dd HH:mm"/></td>
+                                    <td width="119" align="center"><fmt:formatDate value='${clinic.clinicDate}' pattern="HH:mm"/></td>
                                     <td width="81" align="right" style="color: #368E9D;" bgColor="#ffffff">品种数</td>
                                     <td width="119" align="center">${clinic.drugNum}</td>
                                 </tr>

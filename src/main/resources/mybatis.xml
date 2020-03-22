@@ -20,8 +20,8 @@
         <mapper resource="com/zcreate/review/model/Import.xml"/>
         <mapper resource="com/zcreate/review/model/Task.xml"/>
         <mapper resource="com/zcreate/review/model/Doctor.xml"/>
-        <mapper resource="com/zcreate/review/model/Recipe.xml"/>
-        <mapper resource="com/zcreate/review/model/RecipeItem.xml"/>
+        <mapper resource="com/zcreate/review/model/InPatient.xml"/>
+        <mapper resource="com/zcreate/review/model/AdviceItem.xml"/>
 
 
         <mapper resource="com/zcreate/review/model/Search.xml"/>
@@ -33,7 +33,6 @@
         <!--<mapper resource="com/zcreate/message/model/Message.xml"/>-->
         <mapper resource="com/zcreate/review/model/Rational.xml"/>
         <mapper resource="com/zcreate/review/model/RationalDepartConfig.xml"/>
-        <mapper resource="com/zcreate/review/model/Sunning.xml"/>
         <mapper resource="com/zcreate/review/model/Infectious.xml"/>
         <mapper resource="com/zcreate/review/his/PatientInfo.xml"/>
 

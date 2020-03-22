@@ -62,9 +62,9 @@
                 select: {style: 'multi', selector: 'td:first-child'},
                 'columnDefs': [
                     {targets: 0, data: null, defaultContent: '', orderable: false, width: 10, className: 'select-checkbox'},
-                    {"orderable": false, "data": "recipeDate", "targets": 1, title: '开始时间', width: 130},
+                    {"orderable": false, "data": "adviceDate", "targets": 1, title: '开始时间', width: 130},
                     {"orderable": false, "data": "adviceType", "targets": 2, title: '&nbsp;'},
-                    {"orderable": false, "data": "advice", "targets": 3, title: '医嘱内容', width: 160},
+                    {"orderable": false, "data": "inPatient", "targets": 3, title: '医嘱内容', width: 160},
                     {"orderable": false, "data": "quantity", "targets": 4, title: '数量', width: 60},
                     {"orderable": false, "data": "unit", "targets": 5, title: '单位', width: 60},
                     {"orderable": false, "data": "doctorName", "targets": 6, title: '医生'},
@@ -79,7 +79,7 @@
                 },
                 scrollY: '55vh',
                 "ajax": {
-                    url: "/remark/getRecipeItemList.jspa?longAdvice=1&hospID=${recipe.hospID}",
+                    url: "/remark/getAdviceItemList.jspa?longAdvice=1&hospID=${inPatient.hospID}",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -93,9 +93,9 @@
                 select: {style: 'multi', selector: 'td:first-child'},
                 'columnDefs': [
                     {targets: 0, data: null, defaultContent: '', orderable: false, width: 10, className: 'select-checkbox'},
-                    {"orderable": false, "data": "recipeDate", "targets": 1, title: '开始时间', width: 130},
+                    {"orderable": false, "data": "adviceDate", "targets": 1, title: '开始时间', width: 130},
                     {"orderable": false, "data": "adviceType", "targets": 2, title: '&nbsp;'},
-                    {"orderable": false, "data": "advice", "targets": 3, title: '医嘱内容', width: 160},
+                    {"orderable": false, "data": "inPatient", "targets": 3, title: '医嘱内容', width: 160},
                     {"orderable": false, "data": "quantity", "targets": 4, title: '数量', width: 60},
                     {"orderable": false, "data": "unit", "targets": 5, title: '单位', width: 60},
                     {"orderable": false, "data": "doctorName", "targets": 6, title: '医生'},
@@ -110,7 +110,7 @@
                 },
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getRecipeItemList.jspa?longAdvice=2&hospID=${recipe.hospID}",
+                    url: "/remark/getAdviceItemList.jspa?longAdvice=2&hospID=${inPatient.hospID}",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -147,7 +147,7 @@
                 },
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getSurgerys.jspa?hospID=${recipe.hospID}",
+                    url: "/remark/getSurgerys.jspa?hospID=${inPatient.hospID}",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -185,7 +185,7 @@
                 },
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getDiagnosis.jspa?hospID=${recipe.hospID}&archive=${recipe.archive}",
+                    url: "/remark/getDiagnosis.jspa?hospID=${inPatient.hospID}&archive=${inPatient.archive}",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -229,8 +229,8 @@
             var loadData = 0;
             $('#courseTabIndex').click(function () {
                 if ((loadData & 1) === 0)
-                    $.getJSON("/remark/getCourse.jspa?hospID=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
-                        //$.getJSON("/remark/getCourse.jspa?hospID=${recipe.hospID}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                    $.getJSON("/remark/getCourse.jspa?hospID=0014196001&departCode=${inPatient.departCode}&archive=${inPatient.archive}", function (result) {
+                        //$.getJSON("/remark/getCourse.jspa?hospID=${inPatient.hospID}&departCode=${inPatient.departCode}&archive=${inPatient.archive}", function (result) {
                         var template = Handlebars.compile($('#courseContent').html());
                         var htmlArray = [];
                         $.each(result.data, function (index, value) {
@@ -245,8 +245,8 @@
             });
             $('#historyTabIndex').click(function () {
                 if ((loadData & 2) === 0)
-                    $.getJSON("/remark/showHistory.jspa?hospID=0014196001&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
-                        //$.getJSON("/remark/getCourse.jspa?hospID=${recipe.hospID}&departCode=${recipe.departCode}&archive=${recipe.archive}", function (result) {
+                    $.getJSON("/remark/showHistory.jspa?hospID=0014196001&departCode=${inPatient.departCode}&archive=${inPatient.archive}", function (result) {
+                        //$.getJSON("/remark/getCourse.jspa?hospID=${inPatient.hospID}&departCode=${inPatient.departCode}&archive=${inPatient.archive}", function (result) {
                         var template = Handlebars.compile($('#historyContent').html());
 
                         $('#historyContent').html(template(result));
@@ -395,7 +395,7 @@
                             <div class="col-sm-7 widget-container-col" id="widget-container-col-13">
                                 <div class="widget-box transparent" id="widget-box-13">
                                     <div class="widget-header">
-                                        <h4 class="widget-title lighter">住院号：${recipe.patientNo}，姓名：${recipe.patientName}</h4>
+                                        <h4 class="widget-title lighter">住院号：${inPatient.hospNo}，姓名：${inPatient.patientName}</h4>
 
                                         <div class="widget-toolbar no-border" id="tabDiv">
                                             <ul class="nav nav-tabs" id="myTab2">
@@ -436,11 +436,11 @@
                                                         <tbody>
                                                         <tr>
                                                             <td class="col-sm-2">住院号</td>
-                                                            <td class="col-sm-4">${recipe.patientNo}</td>
+                                                            <td class="col-sm-4">${inPatient.hospNo}</td>
 
                                                             <td class="col-sm-2">姓名</td>
 
-                                                            <td class="col-sm-4">${recipe.patientName}</td>
+                                                            <td class="col-sm-4">${inPatient.patientName}</td>
                                                         </tr>
                                                         <tr>
                                                             <td class="col-sm-2">入院日期</td>
@@ -451,41 +451,41 @@
                                                         </tr>
                                                         <tr>
                                                             <td class="col-sm-2">住院天数</td>
-                                                            <td class="col-sm-4">${recipe.inHospitalDay}</td>
+                                                            <td class="col-sm-4">${inPatient.inHospitalDay}</td>
 
                                                             <td class="col-sm-2">年龄</td>
-                                                            <td class="col-sm-4">${recipe.age}</td>
+                                                            <td class="col-sm-4">${inPatient.age}</td>
                                                         </tr>
                                                         <tr>
                                                             <td class="col-sm-2">性别</td>
                                                             <td class="col-sm-4">
-                                                                <c:if test="${recipe.sex}">男</c:if>
-                                                                <c:if test="${!recipe.sex}">女</c:if>
+                                                                <c:if test="${inPatient.sex}">男</c:if>
+                                                                <c:if test="${!inPatient.sex}">女</c:if>
                                                             </td>
 
                                                             <td class="col-sm-2">就诊科室</td>
-                                                            <td class="col-sm-4">${recipe.department}</td>
+                                                            <td class="col-sm-4">${inPatient.department}</td>
                                                         </tr>
                                                         <tr>
                                                             <td class="col-sm-2">主管医生</td>
-                                                            <td class="col-sm-4">${recipe.masterDoctorName}</td>
+                                                            <td class="col-sm-4">${inPatient.masterDoctorName}</td>
 
                                                             <td class="col-sm-2">药品组数</td>
-                                                            <td class="col-sm-4">${recipe.drugNum}</td>
+                                                            <td class="col-sm-4">${inPatient.drugNum}</td>
                                                         </tr>
                                                         <tr>
                                                             <td class="col-sm-2">总金额</td>
-                                                            <td class="col-sm-4">${recipe.money}</td>
+                                                            <td class="col-sm-4">${inPatient.money}</td>
 
                                                             <td class="col-sm-2">药品金额</td>
-                                                            <td class="col-sm-4">${recipe.medicineMoney}</td>
+                                                            <td class="col-sm-4">${inPatient.medicineMoney}</td>
                                                         </tr>
                                                         <tr>
                                                             <td class="col-sm-2">抗菌药品种数</td>
-                                                            <td class="col-sm-4">${recipe.antiNum}</td>
+                                                            <td class="col-sm-4">${inPatient.antiNum}</td>
 
                                                             <td class="col-sm-3">抗菌药联用数</td>
-                                                            <td class="col-sm-4">${recipe.concurAntiNum}</td>
+                                                            <td class="col-sm-4">${inPatient.concurAntiNum}</td>
                                                         </tr>
                                                         </tbody>
                                                     </table>

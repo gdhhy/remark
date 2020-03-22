@@ -89,7 +89,7 @@
                     {
                         'targets': 8, 'searchable': false, 'orderable': false, width: 110, title: '科室明细',
                         render: function (data, type, row, meta) {
-                            var jsp = row['type'] === 1 ? "clinic_list.jsp" : "recipe_list.jsp";
+                            var jsp = row['type'] === 1 ? "clinic_list.jsp" : "inpatient_list.jsp";
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 '<a class="hasDetail" href="#" data-Url="javascript:showDepartmentDetail(\'{0}\');">'.format(data) +
                                 '<i class="ace-icon glyphicon  glyphicon-list  bigger-130"></i>' +

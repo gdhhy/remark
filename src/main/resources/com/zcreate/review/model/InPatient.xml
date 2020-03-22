@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="InPatient">
+    <cache eviction="LRU" readOnly="false" flushInterval="600000" size="1000"/>
+    <resultMap id="InPatientResult" type="com.zcreate.review.model.InPatient">
+        <result column="inPatientID" jdbcType="INTEGER" property="inPatientID"/>
+        <result column="hospID" jdbcType="INTEGER" property="hospID"/>
+        <result column="hospNo" jdbcType="VARCHAR" property="hospNo"/>
+
+        <result column="patientID" jdbcType="VARCHAR" property="patientID"/>
+        <result column="patientName" jdbcType="VARCHAR" property="patientName"/>
+        <result column="sex" jdbcType="BOOLEAN" property="sex"/>
+        <result column="age" jdbcType="VARCHAR" property="age"/>
+
+        <result column="inDate" jdbcType="TIMESTAMP" property="inDate"/>
+        <result column="outDate" jdbcType="TIMESTAMP" property="outDate"/>
+        <result column="department" jdbcType="VARCHAR" property="department"/>
+
+        <result column="diagnosis" jdbcType="VARCHAR" property="diagnosis"/>
+        <result column="diagnosis2" jdbcType="VARCHAR" property="diagnosis2"/>
+        <result column="money" jdbcType="DOUBLE" property="money"/>
+        <result column="medicineMoney" jdbcType="DOUBLE" property="medicineMoney"/>
+        <result column="drugNum" jdbcType="DOUBLE" property="drugNum"/>
+        <result column="masterDoctorID" jdbcType="VARCHAR" property="masterDoctorID"/>
+        <result column="masterDoctorName" jdbcType="VARCHAR" property="masterDoctorName"/>
+        <result column="surgery" jdbcType="INTEGER" property="surgery"/>
+
+        <!--<result column="result" jdbcType="VARCHAR" property="result"/>-->
+        <result column="disItem" jdbcType="VARCHAR" property="disItem"/>
+        <result column="rational" jdbcType="INTEGER" property="rational"/>
+        <result column="publish" jdbcType="INTEGER" property="publish"/>
+        <result column="antiNum" jdbcType="INTEGER" property="antiNum"/>
+        <result column="concurAntiNum" jdbcType="INTEGER" property="concurAntiNum"/>
+        <!--  <result column="shortItemNum" jdbcType="INTEGER" property="shortItemNum"/>-->
+        <result column="courseNum" jdbcType="INTEGER" property="courseNum"/>
+        <result column="incompatNum" jdbcType="INTEGER" property="incompatNum"/>
+        <result column="microbeCheck" jdbcType="INTEGER" property="microbeCheck"/>
+        <result column="archive" jdbcType="INTEGER" property="archive"/>
+        <result column="appealState" jdbcType="INTEGER" property="appealState"/>
+    </resultMap>
+    <resultMap id="InPatientReviewResult" type="com.zcreate.review.model.InPatientReview">
+        <result column="inPatientReviewID" jdbcType="INTEGER" property="inPatientReviewID"/>
+        <result column="hospID" jdbcType="INTEGER" property="hospID"/>
+        <result column="reviewType" jdbcType="INTEGER" property="reviewType"/>
+        <result column="review" jdbcType="VARCHAR" property="review"/>
+        <result column="reviewUser" jdbcType="VARCHAR" property="reviewUser"/>
+        <result column="reviewTime" jdbcType="TIMESTAMP" property="reviewTime"/>
+        <result column="interDepart" jdbcType="INTEGER" property="interDepart"/>
+        <result column="reviewJson" jdbcType="VARCHAR" property="reviewJson"/>
+    </resultMap>
+
+    <sql id="queryWhere">
+        <where>
+            <if test="inPatientID > 0">AND P.inPatientID=#{inPatientID}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(hospID)">AND P.hospID=#{hospID}</if>
+            <!--  <if test="@com.zcreate.util.Ognl@isNotEmpty(adviceDateFrom)">
+                AND ((inDate >= #{adviceDateFrom:TIMESTAMP} )
+                <if test="@com.zcreate.util.Ognl@isEmpty(adviceDateTo)">AND (outDate is null OR outDate &lt; #{adviceDateFrom:TIMESTAMP}) )</if>
+                <if test="@com.zcreate.util.Ognl@isNotEmpty(adviceDateTo)">AND (outDate is null OR outDate &lt; #{adviceDateTo:TIMESTAMP}) )</if>
+            </if>-->
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(reviewTimeFrom)">AND V.reviewTime >= #{reviewTimeFrom:DATE}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(reviewTimeTo)">AND V.reviewTime &lt; #{reviewTimeTo:DATE}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(outDateFrom)">AND P.outDate >= #{outDateFrom:DATE}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(outDateTo)">AND P.outDate &lt; #{outDateTo:DATE}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(reviewDateNotNull)">AND V.reviewTime is not null
+                <if test="rational>=0">AND P.rational = #{rational:INTEGER}</if>
+            </if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(department)">AND P.department = #{department:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(hasResearch)">AND P.hospID in (select hospID from AntiResearch)</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(doctorID)">AND P.masterDoctorID = #{doctorID:INTEGER}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(doctorName)">AND P.masterDoctorName = #{doctorName:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(patientID)">AND P.patientID = #{patientID:INTEGER}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(patientName)">AND P.patientName = #{patientName:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(likePatientName)">AND P.patientName like '%${likePatientName}%'</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(outHospital)">AND P.inHospitalDay >0</if>
+            <!--不可能有中药住院-->
+            <if test="western==2">AND P.inPatientID=0</if>
+            <if test="appeal>0">AND P.appealState >0</if>
+
+            <if test="atLeastMoney>0">AND P.medicineMoney>#{atLeastMoney:DOUBLE}</if>
+            <if test="atLeastDrugNum>0">AND P.drugNum>#{atLeastDrugNum:INTEGER}</if>
+            <choose>   <!--抗菌药专项点评，不同时出现-->
+                <when test="@com.zcreate.util.Ognl@isNotEmpty(antiDrugNum)">AND P.concurAntiNum=#{antiDrugNum:INTEGER}</when>
+                <when test="@com.zcreate.util.Ognl@isNotEmpty(atLeastAntiDrugNum)">AND P.concurAntiNum>#{atLeastAntiDrugNum:INTEGER}</when>
+            </choose>
+            <if test="medicine1>0">AND P.hospID IN(SELECT DISTINCT hospID FROM ${AdviceItemTable} R WHERE R.goodsID=#{medicine1:INTEGER})</if>
+            <if test="medicine2>0">AND P.hospID IN(SELECT DISTINCT hospID FROM ${AdviceItemTable} R WHERE R.goodsID=#{medicine2:INTEGER})</if>
+
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(oldFolks)">AND P.dAge > 60</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(children)">AND P.dAge &lt;= 14</if>
+            <if test="incompatibilityID>0">AND P.hospID IN (SELECT objectID FROM RxIncompatibility WHERE incompatibilityID=#{incompatibilityID} AND TYPE=2)</if>
+            <choose>
+                <when test="@com.zcreate.util.Ognl@isNotEmpty(healthNo)">
+                    AND P.hospID IN (SELECT DISTINCT R.hospID FROM ${AdviceItemTable} R JOIN medicine M ON R.goodsID = M.goodsID WHERE M.healthNo LIKE '${healthNo}%' )
+                </when>
+                <when test="@com.zcreate.util.Ognl@isNotEmpty(antiClass)">
+                    AND P.hospID IN (SELECT DISTINCT R.hospID FROM ${AdviceItemTable} R JOIN medicine M ON R.goodsID = M.goodsID
+                    <where>
+                        <if test="antiClass==0">AND M.antiClass >= 0</if>
+                        <if test="antiClass >0">AND M.antiClass = #{antiClass:INTEGER}</if>
+                    </where>
+                    )
+                </when>
+            </choose>
+            <if test="publish>2">AND P.publish>0</if>
+            <if test="publish==1 or publish==2">AND P.publish &amp; #{publish:INTEGER} = #{publish:INTEGER}</if>
+            <choose>
+                <when test="surgery == 1">AND P.patientID in (select patientID from surgery
+                    <where>
+                        <if test="incision ==1 or incision==3 or incision==5 or incision==7">OR incision=1</if>
+                        <if test="incision == 2 or incision == 3 or incision==6  or incision==7 ">OR incision=2</if>
+                        <if test="incision >= 4">OR incision=3</if>
+                    </where>
+                    )
+                </when>
+                <when test="surgery == 0">AND P.patientID not in (select patientID from surgery )</when>
+                <!--<otherwise>AND patientID not in (select patientID from surgery)</otherwise>-->
+            </choose>
+            <!-- <if test="year>0">AND hospID in (select distinct hospID from ${AdviceItemTable} where datepart(year,adviceDate)=#{year:INTEGER} )</if>-->
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(adviceDateFrom)">
+                AND P.hospID IN (SELECT DISTINCT hospID FROM ${AdviceItemTable}
+                <where>
+                    <if test="@com.zcreate.util.Ognl@isNotEmpty(adviceDateFrom)">AND adviceDate >= #{adviceDateFrom:DATE}</if>
+                    <if test="@com.zcreate.util.Ognl@isNotEmpty(adviceDateTo)">AND adviceDate &lt; #{adviceDateTo:DATE}</if>
+                </where>
+                )
+            </if>
+            <if test="goodsID>0">AND A.goodsID=#{goodsID:INTEGER}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(hospNo)">AND P.hospNo=#{hospNo:VARCHAR}</if>
+        </where>
+    </sql>
+    <!--产生随机抽样-->
+    <select id="selectRandomInPatientID" parameterType="java.util.Map" resultType="int">
+        SELECT TOP ${limit} inPatientID FROM InPatient P
+        <include refid="queryWhere"/>
+        ORDER BY newid() DESC
+    </select>
+    <!--产生等差抽样-->
+    <!--取全部adviceID，作为数列，然后等差抽样-->
+    <select id="selectInPatientIDForLinear" parameterType="java.util.HashMap" resultType="int">
+        SELECT inPatientID FROM InPatient P
+        <include refid="queryWhere"/>
+        ORDER BY inDate
+    </select>
+    <select id="selectInPatientInIDs" parameterType="java.util.Collection" resultMap="InPatientResult">
+        SELECT DISTINCT inPatientID,hospID,hospNo,patientID,patientName,sex,age,inDate,outDate,inHospitalDay,department,diagnosis,diagnosis2,money,medicineMoney,drugNum,masterDoctorID,
+        masterDoctorName,disItem,rational,publish,antiNum,concurAntiNum,archive,appealState,surgery FROM InPatient P
+        <foreach separator="," item="item" index="index" open=" WHERE inPatientID in (" close=")" collection="list">
+            #{item}
+        </foreach>
+    </select>
+    <!--todo count（*） moto ajax-->
+    <!-- <select id="selectInPatient" parameterType="java.util.Map" resultMap="InPatientResult">
+         SELECT TOP 1 inPatientID,hospID,hospNo,patientID,patientName,sex,age,inDate,outDate,inHospitalDay,department,diagnosis,diagnosis2,money,medicineMoney,drugNum,masterDoctorID,
+         masterDoctorName,disItem,rational,publish,antiNum,concurAntiNum,archive,appealState,
+         (SELECT count(*) FROM RxIncompatibility WHERE objectID=InPatient.hospID) incompatNum,
+         (SELECT count(*) FROM ${AdviceItemTable} WHERE hospID= InPatient.hospID AND longAdvice=2 AND (advice LIKE '%涂片%' or advice LIKE '%细菌培养%')) microbeCheck
+         FROM InPatient P
+         <include refid="queryWhere"/>
+     </select>-->
+    <select id="selectInPatientByID" parameterType="int" resultMap="InPatientResult">
+        SELECT TOP 1 inPatientID, hospID, hospNo, patientID, patientName, sex, age, inDate, outDate, inHospitalDay, department, diagnosis, diagnosis2, money, medicineMoney, drugNum,
+                     masterDoctorID, masterDoctorName, disItem, rational, publish, antiNum, concurAntiNum, archive, appealState,surgery
+        FROM InPatient P
+        where inPatientID = #{inPatientID:INTEGER}
+    </select>
+    <!--&#45;&#45;, (SELECT count(*) FROM ${AdviceItemTable} WHERE hospID= InPatient.hospID AND longAdvice=2 AND (advice LIKE '%涂片%' or advice LIKE '%细菌培养%')) microbeCheck-->
+    <select id="selectInPatientMicrobeCheck" parameterType="java.util.Map" resultType="int">
+        SELECT count(*) microbeCheck
+        FROM ${AdviceItemTable}
+        WHERE hospID = #{hospID:INTEGER} AND longAdvice = 2 AND (advice LIKE '%涂片%' or advice LIKE '%细菌培养%')
+    </select>
+    <!--(SELECT count(*) FROM RxIncompatibility WHERE objectID=InPatient.hospID) incompatNum-->
+    <select id="selectIncompatNum" parameterType="int" resultType="int">
+        SELECT count(*)
+        FROM RxIncompatibility
+        WHERE objectID = #{hospID:INTEGER}
+    </select>
+
+    <update id="updateInPatient" parameterType="com.zcreate.review.model.InPatient" flushCache="true">
+        UPDATE InPatient
+        <set>
+            <if test="publish>0">publish = publish | #{publish:INTEGER},</if>
+            <if test="disItem != null">disItem = #{disItem:VARCHAR},</if>
+            <if test="rational != null">rational = #{rational:INTEGER},</if>
+            <if test="appealState != null">appealState = #{appealState:INTEGER},</if>
+        </set>
+        WHERE inPatientID = #{inPatientID:INTEGER}
+    </update>
+    <select id="selectInPatientCount" parameterType="java.util.Map" resultType="int">
+        SELECT count(*) FROM InPatient P left join InPatientReview V on P.hospID=V.hospID
+        <if test="goodsID>0">
+            LEFT JOIN (select hospID,goodsID from ${AdviceItemTable1}
+            union select hospID,goodsID from ${AdviceItemTable2}) A ON P.hospID = A.hospID
+        </if>
+        <include refid="queryWhere"/>
+    </select>
+    <!-- <select id="selectOutPatientCount" parameterType="java.util.Map" resultType="int">
+         SELECT count(*) FROM InPatient
+     </select>-->
+    <select id="selectInPatientList" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT TOP ${limit}
+        inPatientID,hospID,hospNo,patientID,patientName,sex,age,inDate,outDate,inHospitalDay,
+        department,diagnosis,diagnosis2,drugNum,money,medicineMoney, masterDoctorID,masterDoctorName,
+        reviewTime, reviewUser,disItem,rational,publish,antiNum,concurAntiNum,archive,appealState,surgery,reviewType
+        FROM (SELECT P.inPatientID,P.hospID,P.hospNo,P.patientID,P.patientName,P.sex,P.age,P.inDate,P.outDate,P.inHospitalDay,
+        P.department,P.diagnosis,P.diagnosis2,P.drugNum,P.money,P.medicineMoney, P.masterDoctorID,P.masterDoctorName,
+        V.reviewTime,V.reviewUser,P.disItem,P.rational,P.publish,P.antiNum,P.concurAntiNum,P.archive,P.appealState,P.surgery,V.reviewType
+        FROM InPatient P
+        left join InPatientReview V on P.hospID=V.hospID
+        <if test="goodsID>0">
+            LEFT JOIN (select hospID,goodsID from ${AdviceItemTable1}
+            union select hospID,goodsID from ${AdviceItemTable2}) A ON P.hospID = A.hospID
+        </if>
+        <include refid="queryWhere"/>)A
+        <if test="start!=null and start > 0">
+            WHERE A.inPatientID &lt; ( SELECT min(inPatientID) FROM (SELECT TOP ${start} inPatientID FROM InPatient P
+            left join InPatientReview V on P.hospID=V.hospID
+            <if test="goodsID>0">
+                LEFT JOIN (select hospID,goodsID from ${AdviceItemTable1}
+                union select hospID,goodsID from ${AdviceItemTable2}) A ON P.hospID = A.hospID
+            </if>
+            <include refid="queryWhere"/>
+            ORDER BY ${orderField} DESC ) A )
+        </if>
+        ORDER BY ${orderField} DESC
+    </select>
+
+
+    <!--InPatientReview-->
+    <insert id="insertInPatientReview" parameterType="com.zcreate.review.model.InPatientReview">
+        INSERT INTO InPatientReview (hospID,reviewType,review,reviewUser,reviewTime,interDepart,reviewJson )
+        VALUES (#{hospID:INTEGER},#{reviewType:INTEGER},#{review:VARCHAR},#{reviewUser:VARCHAR},getdate(),#{interDepart:INTEGER},#{reviewJson:VARCHAR})
+        <selectKey resultType="int" order="AFTER" keyProperty="inPatientReviewID">
+            select @@IDENTITY as inPatientReviewID
+        </selectKey>
+    </insert>
+    <select id="selectInPatientReview" parameterType="java.util.Map" resultMap="InPatientReviewResult">
+        SELECT inPatientReviewID,hospID,reviewType,review,reviewUser,reviewTime,interDepart,reviewJson
+        FROM InPatientReview
+        WHERE hospID = #{hospID:VARCHAR}
+    </select>
+    <update id="updateInPatientReview" parameterType="com.zcreate.review.model.InPatientReview" flushCache="true">
+        UPDATE InPatientReview
+        <set>
+            <if test="hospID != null">hospID = #{hospID:INTEGER},</if>
+            <if test="reviewType != null">reviewType = #{reviewType:INTEGER},</if>
+            <if test="review != null">review = #{review:VARCHAR},</if>
+            <if test="reviewUser != null">reviewUser = #{reviewUser:VARCHAR},</if>
+            <if test="reviewTime != null">reviewTime = getDate(),</if>
+            <if test="interDepart != null">interDepart = #{interDepart:INTEGER},</if>
+            <if test="reviewJson != null">reviewJson = #{reviewJson:VARCHAR}</if>
+        </set>
+        WHERE inPatientReviewID = #{inPatientReviewID:INTEGER}
+    </update>
+    <delete id="deleteInPatientReview" parameterType="int">
+        DELETE InPatientReview
+        WHERE inPatientReviewID = #{inPatientReviewID:INTEGER}
+    </delete>
+
+    <!--越级使用抗菌药-->
+    <select id="bypass" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+        P.inPatientID,P.patientID,P.patientName,P.age,P.department,P.inDate,P.inHospitalDay,P.diagnosis,diagnosis2,P.drugNum,P.antiNum,P.concurAntiNum,P.money,P.medicineMoney,M.antiClass
+        mAntiClass,D.antiClass dAntiClass,P.masterDoctorName,A.doctorName,P.archive, P.appealState,P.surgery
+        FROM InPatient P
+        LEFT JOIN ${AdviceItemTable} A ON P.hospID = A.hospID
+        LEFT JOIN Medicine M ON A.goodsID=M.goodsID
+        LEFT JOIN doctor D ON A.doctorName = D.name
+        WHERE M.antiClass>=1 AND M.antiClass>D.antiClass
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND A.adviceDate >= #{fromDate:DATE}</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(toDate)">AND A.adviceDate &lt; #{toDate:DATE}</if>
+        <if test="antiClass==0">AND M.antiClass >0</if>
+        <if test="antiClass>0">AND M.antiClass = #{antiClass:INTEGER}</if>
+    </select>
+
+    <select id="selectInPatientListForExcel" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT P.hospID,P.department,P.patientID,P.patientName,P.masterDoctorName, (select distinct disease+'，' from Diagnosis where hospID=P.hospID for XML PATH(''))
+        diagnosis ,
+        P.inHospitalDay,P.rational ,P.concurAntiNum,V.surgeryName,V.incision,V.afterStopDrug,V.beforeDrug,P.antiNum,
+        (SELECT count(*) FROM medicine M,${AdviceItemTable} I where P.hospID=I.hospID and western>1 and M.route=2 and M.goodsID=I.goodsID) chineseInjectNum
+        FROM InPatientReview V , InPatient P where P.hospID=V.hospID
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(sampleBatchID)">AND P.inPatientID in (SELECT objectID FROM SampleList WHERE sampleBatchID = #{sampleBatchID:INTEGER})</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(sampleBatchIDs)">AND P.inPatientID in (SELECT objectID FROM SampleList
+            <foreach separator="," item="item" index="index" open=" WHERE sampleBatchID in (" close=")" collection="sampleBatchIDs">
+                #{item}
+            </foreach>)
+        </if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(department)">AND P.department = #{department:VARCHAR}</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(reviewDateFrom)">AND V.reviewTime >= #{reviewDateFrom:DATE}</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(reviewDateTo)">AND V.reviewTime &lt; #{reviewDateTo:DATE}</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(rational)">AND P.rational &lt; #{rational:INTEGER}</if>
+    </select>
+
+    <update id="clearCache" flushCache="true" parameterType="string">
+        UPDATE InPatient
+        SET hospID = #{hospID:INTEGER}
+        WHERE hospID = #{hospID:INTEGER}
+    </update>
+    <select id="selectInPatientAntiStat" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT A.*, D.skipRank, D.AUD, D.DDDs, D.first3, D.hospitalDay, D.amount, D.antiAmount, D.insuranceRatio, D.baseRatio, E.medicineRatio, E.amount2, E.medicineAmount,
+               CASE WHEN D.amount > 0 THEN D.antiAmount / D.amount ELSE 0 END antiAmountRatio
+        FROM (SELECT P.department,
+                     count(DISTINCT P.inPatientID) adviceNum,
+                     COUNT(DISTINCT CASE WHEN P.incision &amp; 1 = 1 THEN P.hospID ELSE NULL END) incisionNum,
+                     COUNT(DISTINCT CASE WHEN P.incision &amp; 9 = 9 AND P.antiMoney > 0 THEN P.hospID ELSE NULL END) incisionAntiNum,
+                     COUNT(DISTINCT CASE WHEN P.antiMoney > 0 THEN P.hospID ELSE NULL END) antiNum,
+                     COUNT(DISTINCT CASE WHEN P.checkItem &amp; 1 = 1 THEN P.hospID ELSE NULL END) germiCulture,
+                     COUNT(DISTINCT CASE WHEN P.checkItem &amp; 2 = 2 THEN P.hospID ELSE NULL END) drugSen
+              FROM InPatient P
+              WHERE P.outDate > #{fromDate:VARCHAR} AND P.outDate &lt; #{toDate:VARCHAR}
+              GROUP BY P.department) A
+                 LEFT JOIN
+             (SELECT department,
+                     sum(skipRank) skipRank,
+                     CASE WHEN sum(hospitalDay) > 0 THEN sum(DDDs) * 100.0 / sum(hospitalday) ELSE 0 END AUD,
+                     sum(DDDs) DDDs,
+                     sum(hospitalDay) hospitalDay,
+                     sum(clinicAmount + hospitalAmount) amount,
+                     sum(clinicAntiAmount + hospitalAntiAmount) antiAmount,
+                     sum(clinicInsuranceAmount + hospitalInsuranceAmount) * 1.0 / sum(clinicAmount + hospitalAmount) insuranceRatio,
+                     sum(clinicBaseAmount + hospitalBaseAmount) * 1.0 / sum(clinicAmount + hospitalAmount) baseRatio,
+                     (SELECT top 3 M.chnName + '；'
+                      FROM dailydepartmedicine D
+                               LEFT JOIN Medicine M ON M.goodsID = D.goodsID
+                      WHERE D.department = DailyDepart.department AND date > #{fromDate:VARCHAR} AND date &lt; #{toDate:VARCHAR} AND M.antiClass > 0 AND isStat > 0
+                      GROUP BY M.goodsID, M.chnName
+                      order by sum(hospitalAmount + clinicAmount) desc FOR XML PATH ('')) first3
+              FROM DailyDepart
+              WHERE date > #{fromDate:VARCHAR} AND date &lt; #{toDate:VARCHAR}
+              GROUP BY department) D
+             ON A.department = D.department
+                 left join (SELECT month, department, medicineAmount / amount medicineRatio, amount amount2, medicineAmount
+                            FROM MonthDepartIncome
+                            WHERE month = #{month:VARCHAR} and departType = 1 and amount > 0) E ON A.department = E.department
+        order by A.adviceNum
+    </select>
+    <select id="selectInPatientWithSurgery" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT R.hospID,R.hospNo, R.patientName, R.outDate, R.department, R.masterDoctorID, R.masterDoctorName, S.incision, S.surgeryName, S.surgeryDate, B.inPatient,
+        CASE WHEN a.hospID IS NOT NULL THEN '是' ELSE '' END antiDrug
+        FROM InPatient R JOIN Surgery S ON S.patientID = R.patientID
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(incisionType)">AND S.incision = #{incisionType:VARCHAR}</if>
+        LEFT JOIN
+        (SELECT S.hospID FROM Surgery S JOIN ${AdviceItemTable} R ON S.patientID = R.patientID
+        WHERE S.incision = 'Ⅰ' AND datediff(DAY, S.surgeryDate, R.adviceDate) = 0
+        AND (R.advice LIKE '%术前半小时%' OR R.advice LIKE '%术前30分%' OR R.advice LIKE '%带入手术室%')) A
+        ON a.hospID = R.hospID
+        LEFT JOIN
+        (SELECT DISTINCT S.hospID, R.inPatient
+        FROM Surgery S JOIN ${AdviceItemTable} R ON S.patientID = R.patientID
+        WHERE S.incision = 'Ⅰ' AND datediff(DAY, S.surgeryDate, R.adviceDate) = 0
+        AND R.goodsID IN (SELECT goodsID FROM Medicine WHERE antiClass > 0)
+        AND S.hospID IN (SELECT hospID FROM InPatient WHERE outDate >= #{fromDate:VARCHAR} AND outDate &lt; #{toDate:VARCHAR}) ) B
+        ON B.hospID = R.hospID
+    </select>
+</mapper>

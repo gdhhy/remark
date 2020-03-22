@@ -32,11 +32,12 @@ public class MonitorController {
     private ImportDAO importDao;
     @Autowired
     private TimerThread timerThread;
-    private String[] taskTypeName =new String[]{"导入数据", "重建处方数据", "每日统计汇总", "搜索疑有配伍禁忌处方", "刷新日期", "月统计", "科室收入药比计算"};
+    private String[] taskTypeName = new String[]{"导入数据", "重建处方、医嘱数据", "搜索疑有配伍禁忌处方", "月统计", "科室收入药比计算"};
     private boolean threadAlive;
 
     private Map<String, Object> retMap;
     private Gson gson = new GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd HH:mm").create();
+    private Gson gson2 = new GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 
     @ResponseBody
     @RequestMapping(value = "getDataList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
@@ -96,8 +97,8 @@ public class MonitorController {
         if (ms < 1000) return ms + "毫秒";
         else if (ms < 10 * 1000) return df2.format(ms * 1.0 / 1000) + "秒";
         else if (ms < 60 * 1000) return ms / 1000 + "秒";
-        else if (ms < 60 * 60 * 1000) return df.format(Math.floor(ms / (60 * 1000))) + "分" + Math.round(ms % (60 * 1000) / 1000) + "秒";
-        else return df.format(Math.floor(ms / (60 * 60 * 1000))) + "小时" + Math.round(ms % (60 * 60 * 1000) / (60 * 1000)) + "分";
+        else if (ms < 60 * 60 * 1000) return df.format(Math.floor(ms / (60.0 * 1000))) + "分" + Math.round(ms % (60.0 * 1000) / 1000) + "秒";
+        else return df.format(Math.floor(ms / (60.0 * 60 * 1000))) + "小时" + Math.round(ms % (60 * 60 * 1000) / (60.0 * 1000)) + "分";
     }
 
     @ResponseBody
@@ -135,7 +136,13 @@ public class MonitorController {
     public String getTaskDetailList(@RequestParam(value = "logID", required = false, defaultValue = "0") int logID,
                                     @RequestParam(value = "draw", required = false) Integer draw) {
         List<HashMap<String, Object>> logList = taskDao.getTaskDetailList(logID);
-        return returnJson(logList, draw);
+        retMap = new HashMap<>();
+        retMap.put("sEcho", draw);
+        retMap.put("data", logList);
+        retMap.put("iTotalRecords", logList.size());
+        retMap.put("iTotalDisplayRecords", logList.size());
+
+        return gson2.toJson(retMap);
     }
 
     @ResponseBody
@@ -175,33 +182,34 @@ public class MonitorController {
 
         return gson.toJson(retMap);
     }
+
     @ResponseBody
     @RequestMapping(value = "deleteTask", method = RequestMethod.POST, produces = "application/json; charset=UTF-8")
-    public String deleteTask(@RequestParam(value = "taskID") int taskID ) {
+    public String deleteTask(@RequestParam(value = "taskID") int taskID) {
         retMap = new HashMap<>();
-        boolean succeed=taskDao.deleteTask(taskID);
-        retMap.put("succeed",  succeed);
-        if(succeed)
-            retMap.put("message","删除任务成功！");
+        boolean succeed = taskDao.deleteTask(taskID);
+        retMap.put("succeed", succeed);
+        if (succeed)
+            retMap.put("message", "删除任务成功！");
         else
-            retMap.put("message","删除任务失败！");
+            retMap.put("message", "删除任务失败！");
         return gson.toJson(retMap);
     }
 
 
     @ResponseBody
     @RequestMapping(value = "submitTask", method = RequestMethod.POST, produces = "application/json; charset=UTF-8")
-    public String submitTask(@RequestParam(value = "runType") int runType,
+    public String submitTask(@RequestParam(value = "taskType") int taskType,
                              @RequestParam(value = "timerMode") int timerMode,
                              @RequestParam(value = "timeFrom") String timeFrom,
                              @RequestParam(value = "timeTo") String timeTo,
                              @RequestParam(value = "exeDateField") String exeDateField,
                              @RequestParam(value = "exeTimeField") String exeTimeField) {
 
-        logger.debug("runType=" + runType);
+        logger.debug("taskType=" + taskType);
         logger.debug("timeFrom=" + timeFrom);
         if (timerMode == 2) { //立即执行
-            return exeTask(runType, timeFrom, timeTo);
+            return exeTask(taskType, timeFrom, timeTo);
         } else {//定时
             logger.debug("exeDateField=" + exeDateField);
             logger.debug("exeTimeField=" + exeTimeField);
@@ -212,12 +220,12 @@ public class MonitorController {
                 retMap.put("succeed", false);
             } else {
                 Task task = new Task();
-                task.setTaskType(runType);
+                task.setTaskType(taskType);
                 task.setTimerMode(timerMode);
                 task.setParam1(timeFrom);
                 task.setParam2(timeTo);
                 task.setTimerTime(timerTime);
-                task.setTaskName(taskTypeName[runType - 1]);
+                task.setTaskName(taskTypeName[taskType - 1]);
                 retMap.put("succeed", taskDao.insertTask(task));
                 logger.debug("task.getTaskID() = " + task.getTaskID());
 
@@ -231,7 +239,7 @@ public class MonitorController {
     }
 
     //立即执行
-    private String exeTask(int runType, String timeFrom, String timeTo) {
+    private String exeTask(int taskType, String timeFrom, String timeTo) {
         retMap = new HashMap<>();
         // System.out.println("timerThread = " + timerThread);
         LinkedList<CallProcedure> list = timerThread.getRunningProcedure();
@@ -243,11 +251,11 @@ public class MonitorController {
                 return gson.toJson(retMap);
             }
 
-        Method method = timerThread.getProcedure(runType);
+        Method method = timerThread.getProcedure(taskType);
 
-        CallProcedure procedure = new CallProcedure(importDao, method, runType);
-        if (runType <= 4) {//1,2,3,4
-            Object[] param= new Object[2];
+        CallProcedure procedure = new CallProcedure(importDao, method, taskType);
+        if (taskType <= 4) {//1,2,3,4
+            Object[] param = new Object[2];
             param[0] = timeFrom;
             param[1] = timeTo;
             procedure.setParam(param);
