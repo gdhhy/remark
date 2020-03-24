@@ -388,7 +388,7 @@
                 var dateIndex = -1;
                 if (rowData['adviceDate'] == null || rowData['adviceDate'] === '') {
                     for (var aa = index - 1; aa >= 0; aa--)
-                        if (shortTable.row(aa).data()['adviceDate'] !== '') {
+                        if (shortTable.row(aa).data()['adviceDate'] !== '' && shortTable.row(aa).data()['adviceDate'] !== null) {
                             dateIndex = aa;
                             rowData['adviceDate'] = shortTable.row(aa).data()['adviceDate'];
                             break;
@@ -456,7 +456,7 @@
                 var dateIndex = -1;
                 if (rowData['adviceDate'] == null || rowData['adviceDate'] === '') {
                     for (var aa = index - 1; aa >= 0; aa--)
-                        if (longTable.row(aa).data()['adviceDate'] !== '') {
+                        if (longTable.row(aa).data()['adviceDate'] !== '' && longTable.row(aa).data()['adviceDate'] !== null) {
                             dateIndex = aa;
                             rowData['adviceDate'] = longTable.row(aa).data()['adviceDate'];
                             break;
@@ -493,10 +493,10 @@
                 select: {style: 'single', selector: 'td:first-child :radio'},
                 "columns": [
                     {"data": "surgeryID"},
-                    {"data": "surgeryDate", "sClass": "center"},
-                    {"data": "incision", "sClass": "center"},
-                    {"data": "surgeryName", "sClass": "center"},
-                    {"data": "healOver", "sClass": "center"}
+                    {"data": "surgeryDate", "sClass": "center", defaultContent: ''},
+                    {"data": "incision", "sClass": "center", defaultContent: ''},
+                    {"data": "surgeryName", "sClass": "left"}/*,
+                    {"data": "healOver", "sClass": "center"}*/
                 ],
 
                 'columnDefs': [
@@ -505,10 +505,10 @@
                             return '<input name="a123" type="radio">';
                         }
                     },
-                    {"orderable": false, "targets": 1, title: '手术时间', width: 130},
-                    {"orderable": false, "targets": 2, title: '切口类型'},
-                    {"orderable": false, "targets": 3, title: '操作名称'},
-                    {"orderable": false, "targets": 4, title: '愈合方式'}
+                    {"orderable": false, "targets": 1, title: '手术时间', width: 140},
+                    {"orderable": false, "targets": 2, title: '切口类型', width: 100},
+                    {"orderable": false, "targets": 3, title: '操作名称'}/*,
+                    {"orderable": false, "targets": 4, title: '愈合方式'}*/
                 ],
                 "aaSorting": [],
                 language: {

@@ -35,8 +35,8 @@
                 bAutoWidth: false,
                 bProcessing: true,
                 "columns": [
-                    {"data": "doctorName", "sClass": "center"},
-                    {"data": "doctorName", "sClass": "center"},
+                    {"data": "doctorName", "sClass": "center",defaultContent:''},
+                    {"data": "doctorName", "sClass": "center",defaultContent:''},
                     {"data": "amount", "sClass": "center"},
                     {"data": "clinicAmount", "sClass": "center"},
                     {"data": "hospitalAmount", "sClass": "center"},//4

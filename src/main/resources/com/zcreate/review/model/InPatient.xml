@@ -106,16 +106,16 @@
             <if test="publish>2">AND P.publish>0</if>
             <if test="publish==1 or publish==2">AND P.publish &amp; #{publish:INTEGER} = #{publish:INTEGER}</if>
             <choose>
-                <when test="surgery == 1">AND P.patientID in (select patientID from surgery
+                <when test="surgery == 1">AND P.hospID in (select hospID from surgery
                     <where>
-                        <if test="incision ==1 or incision==3 or incision==5 or incision==7">OR incision=1</if>
-                        <if test="incision == 2 or incision == 3 or incision==6  or incision==7 ">OR incision=2</if>
-                        <if test="incision >= 4">OR incision=3</if>
+                        <if test="incision ==1 or incision==3 or incision==5 or incision==7">OR incision='Ⅰ'</if>
+                        <if test="incision == 2 or incision == 3 or incision==6  or incision==7 ">OR incision='Ⅱ'</if>
+                        <if test="incision >= 4">OR incision='Ⅲ'</if>
                     </where>
                     )
                 </when>
-                <when test="surgery == 0">AND P.patientID not in (select patientID from surgery )</when>
-                <!--<otherwise>AND patientID not in (select patientID from surgery)</otherwise>-->
+                <when test="surgery == 0">AND P.hospID not in (select hospID from surgery )</when>
+                <!--<otherwise>AND hospID not in (select hospID from surgery)</otherwise>-->
             </choose>
             <!-- <if test="year>0">AND hospID in (select distinct hospID from ${AdviceItemTable} where datepart(year,adviceDate)=#{year:INTEGER} )</if>-->
             <if test="@com.zcreate.util.Ognl@isNotEmpty(adviceDateFrom)">

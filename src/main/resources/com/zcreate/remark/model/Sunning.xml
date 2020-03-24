@@ -80,7 +80,7 @@
                sum(case when outDate > #{fromDate:DATE} and outDate &lt; #{toDate:DATE} and M.ddd > 0 and P.stay = 0 and usage != '出院带药' then contents * quantity / ddd else 0 end) DDDs
 
         from (select adviceID, hospID, goodsID, amount, clinicType, dispensingDate pDate, quantity, usage, cast(hospID as VARCHAR(10)) + cast(goodsID as VARCHAR(10)) patientDrug
-              from DrugRecords_2019) D
+              from ${DrugRecordsTable}) D
                  left join Medicine M on D.goodsID = M.goodsID
                  left join InPatient P on D.hospID = P.hospID
     </select>

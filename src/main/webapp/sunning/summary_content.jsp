@@ -38,15 +38,15 @@
             </tr>
             <tr>
                 <td bgColor="#75c8cc" align="center">平均药费</td>
-                <td align="right">-</td>
-                <td align="right">￥<fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.clinicAmount/stat.clinicPatient}"/></td>
-                <td align="right">￥<fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.hospitalAmount/stat.outHospitalPatient}"/></td>
+                <td align="right">-</td> 
+                <td align="right">￥<c:if test="stat.clinicPatient>0"><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.clinicAmount/stat.clinicPatient}"/></c:if></td>
+                <td align="right">￥<c:if test="stat.outHospitalPatient>0"><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.hospitalAmount/stat.outHospitalPatient}"/></c:if></td>
                 <td align="left">门诊：每次就诊费用<br/>住院：总金额／出院人数</td>
             </tr>
             <tr>
                 <td bgColor="#75c8cc" align="center">平均品种数</td>
                 <td align="right">-</td>
-                <td align="right"><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.clinicDrugNum*1.0/stat.clinicPatient}"/></td>
+                <td align="right"><c:if test="stat.clinicPatient>0"><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.clinicDrugNum*1.0/stat.clinicPatient}"/></c:if></td>
                 <td align="right"><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.hospitalDrugNum*1.0/stat.outHospitalPatient}"/></td>
                 <td align="left">门诊：人均就诊品种数（含草药）<br/>住院：总用药品种数／出院人数</td>
             </tr>
@@ -66,20 +66,20 @@
             </tr>
             <tr>
                 <td bgColor="#75c8cc" align="center">甲类医保品种比例</td>
-                <td align="right"><fmt:formatNumber type="PERCENT" maxFractionDigits="2"
-                                                    value="${(stat.clinic_A_DrugNum+stat.hospital_A_DrugNum)*1.0/(stat.clinicDrugNum+stat.hospitalDrugNum)}"/>
+                <td align="right"><c:if test="stat.clinicDrugNum+stat.hospitalDrugNum>0"><fmt:formatNumber type="PERCENT" maxFractionDigits="2"
+                                                                                                         value="${(stat.clinic_A_DrugNum+stat.hospital_A_DrugNum)*1.0/(stat.clinicDrugNum+stat.hospitalDrugNum)}"/></c:if>
                 </td>
-                <td align="right"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.clinic_A_DrugNum*1.0/stat.clinicDrugNum}"/></td>
-                <td align="right"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.hospital_A_DrugNum*1.0/stat.hospitalDrugNum}"/></td>
+                <td align="right"><c:if test="stat.clinicDrugNum>0"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.clinic_A_DrugNum*1.0/stat.clinicDrugNum}"/></c:if></td>
+                <td align="right"><c:if test="stat.hospitalDrugNum>0"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.hospital_A_DrugNum*1.0/stat.hospitalDrugNum}"/></c:if></td>
                 <td align="left">甲类医保药品种数／总用药品种数</td>
             </tr>
             <tr>
                 <td bgColor="#75c8cc" align="center">乙类医保品种比例</td>
-                <td align="right"><fmt:formatNumber type="PERCENT" maxFractionDigits="2"
-                                                    value="${(stat.clinic_B_DrugNum+stat.hospital_B_DrugNum)*1.0/(stat.clinicDrugNum+stat.hospitalDrugNum)}"/>
+                <td align="right"><c:if test="stat.clinicDrugNum+stat.hospitalDrugNum>0"><fmt:formatNumber type="PERCENT" maxFractionDigits="2"
+                                                                                                         value="${(stat.clinic_B_DrugNum+stat.hospital_B_DrugNum)*1.0/(stat.clinicDrugNum+stat.hospitalDrugNum)}"/></c:if>
                 </td>
-                <td align="right"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.clinic_B_DrugNum*1.0/stat.clinicDrugNum}"/></td>
-                <td align="right"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.hospital_B_DrugNum*1.0/stat.hospitalDrugNum}"/></td>
+                <td align="right"><c:if test="stat.clinicDrugNum>0"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.clinic_B_DrugNum*1.0/stat.clinicDrugNum}"/></c:if></td>
+                <td align="right"><c:if test="stat.hospitalDrugNum>0"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.hospital_B_DrugNum*1.0/stat.hospitalDrugNum}"/></c:if></td>
                 <td align="left">乙类医保药品种数／总用药品种数</td>
             </tr>
             <tr>
@@ -91,16 +91,16 @@
             </tr>
             <tr>
                 <td bgColor="#75c8cc" align="center">基本药物比例</td>
-                <td align="right"><fmt:formatNumber type="PERCENT" maxFractionDigits="2"
-                                                    value="${(stat.clinicBaseDrugNum+stat.hospitalBaseDrugNum)*1.0/(stat.clinicDrugNum+stat.hospitalDrugNum)}"/></td>
-                <td align="right"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.clinicBaseDrugNum*1.0/stat.clinicDrugNum}"/></td>
-                <td align="right"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.hospitalBaseDrugNum*1.0/stat.hospitalDrugNum}"/></td>
+                <td align="right"><c:if test="stat.hospitalDrugNum>0"><fmt:formatNumber type="PERCENT" maxFractionDigits="2"
+value="${(stat.clinicBaseDrugNum+stat.hospitalBaseDrugNum)*1.0/(stat.clinicDrugNum+stat.hospitalDrugNum)}"/></c:if></td>
+                <td align="right"><c:if test="stat.clinicDrugNum>0"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.clinicBaseDrugNum*1.0/stat.clinicDrugNum}"/></c:if></td>
+                <td align="right"><c:if test="stat.hospitalDrugNum>0"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.hospitalBaseDrugNum*1.0/stat.hospitalDrugNum}"/></c:if></td>
                 <td align="left">基药品种数／总用药品种数</td>
             </tr>
             <tr>
                 <td bgColor="#75c8cc" align="center">注射剂使用率</td>
                 <td align="right">-</td>
-                <td align="right"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.clinicInjectPatient*1.0/stat.clinicPatient}"/></td>
+                <td align="right"><c:if test="stat.clinicPatient>0"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.clinicInjectPatient*1.0/stat.clinicPatient}"/></c:if></td>
                 <td align="right"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.outInjectPatient*1.0/stat.outHospitalPatient}"/></td>
                 <td align="left">门诊：使用注射剂人数／门诊人数 <br/> 住院：出院病人用注射剂人数<br/>／出院人数</td>
             </tr>
@@ -175,24 +175,24 @@
             <tr align="right">
                 <td bgColor="#75c8cc" align="center">抗菌药金额</td>
                 <td>￥<fmt:formatNumber type="number" maxFractionDigits="0" value="${stat.clinicAntiAmount+stat.hospitalAntiAmount}"/></td>
-                <td>￥<fmt:formatNumber type="number" maxFractionDigits="0" value="${stat.clinicAntiAmount}"/></td>
-                <td>￥<fmt:formatNumber type="number" maxFractionDigits="0" value="${stat.hospitalAntiAmount}"/></td>
+                <td>￥<c:if test="stat.clinicAntiAmount>0"><fmt:formatNumber type="number" maxFractionDigits="0" value="${stat.clinicAntiAmount}"/></c:if></td>
+                <td>￥<c:if test="stat.hospitalAntiAmount>0"><fmt:formatNumber type="number" maxFractionDigits="0" value="${stat.hospitalAntiAmount}"/></c:if></td>
                 <td align="left">门诊：含急诊、儿科、草药</td>
             </tr>
             <tr align="right">
                 <td bgColor="#75c8cc" align="center">金额比例</td>
-                <td><fmt:formatNumber type="number" maxFractionDigits="2"
-                                      value="${(stat.clinicAntiAmount+stat.hospitalAntiAmount) * 100.0 / (stat.clinicAmount+stat.hospitalAmount) }"/>%
+                <td><c:if test="stat.clinicAmount+stat.hospitalAmount>0"><fmt:formatNumber type="number" maxFractionDigits="2"
+                                      value="${(stat.clinicAntiAmount+stat.hospitalAntiAmount) * 100.0 / (stat.clinicAmount+stat.hospitalAmount) }"/></c:if>%
                 </td>
-                <td><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.clinicAntiAmount * 100.0 / stat.clinicAmount}"/>%</td>
-                <td><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.hospitalAntiAmount * 100.0 / stat.hospitalAmount}"/>%</td>
+                <td><c:if test="stat.clinicAmount>0"><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.clinicAntiAmount * 100.0 / stat.clinicAmount}"/></c:if>%</td>
+                <td><c:if test="stat.hospitalAmount>0"><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.hospitalAntiAmount * 100.0 / stat.hospitalAmount}"/></c:if>%</td>
                 <td align="left">抗菌药金额／总药品金额</td>
             </tr>
             <tr align="right">
                 <td bgColor="#75c8cc" align="center">使用率</td>
                 <td>-</td>
-                <td><fmt:formatNumber type="percent" maxFractionDigits="2" value="${stat.clinicAntiPatient2 * 1.0 / stat.clinicPatient2}"/></td>
-                <td><fmt:formatNumber type="percent" maxFractionDigits="2" value="${stat.outAntiPatient * 1.0 / stat.outHospitalPatient}"/></td>
+                <td><c:if test="stat.clinicPatient2>0"><fmt:formatNumber type="percent" maxFractionDigits="2" value="${stat.clinicAntiPatient2 * 1.0 / stat.clinicPatient2}"/></c:if></td>
+                <td><c:if test="stat.outHospitalPatient>0"><fmt:formatNumber type="percent" maxFractionDigits="2" value="${stat.outAntiPatient * 1.0 / stat.outHospitalPatient}"/></c:if></td>
                 <td align="left">门诊：抗菌药处方数／就诊人次(${stat.clinicPatient2})<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;（急诊、儿科、草药除外）
                     <br/>住院：抗菌药用药人数／出院人数(${stat.outHospitalPatient}) <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;（整个住院期间用过抗菌药的）
                 </td>
@@ -200,30 +200,30 @@
             <tr align="right">
                 <td bgColor="#75c8cc" align="center">平均费用</td>
                 <td>-</td>
-                <td>￥<fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.clinicAntiAmount2 / stat.clinicAntiPatient2}"/></td>
-                <td>￥<fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.outAntiAmount / stat.outAntiPatient}"/></td>
+                <td>￥<c:if test="stat.clinicAntiPatient2>0"><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.clinicAntiAmount2 / stat.clinicAntiPatient2}"/></c:if></td>
+                <td>￥<c:if test="stat.outAntiPatient>0"><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.outAntiAmount / stat.outAntiPatient}"/></c:if></td>
                 <td align="left">抗菌药总金额／抗菌药用药人数<br/>(门诊：${stat.clinicAntiPatient2}，住院：${stat.outAntiPatient})</td>
             </tr>
             <tr align="right">
                 <td bgColor="#75c8cc" align="center">平均品种数</td>
                 <td>-</td>
-                <td><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.clinicAntiNum * 1.0 / stat.clinicAntiPatient2}"/></td>
-                <td><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.outAntiNum * 1.0 / stat.outAntiPatient}"/></td>
+                <td><c:if test="stat.clinicAntiPatient2>0"><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.clinicAntiNum * 1.0 / stat.clinicAntiPatient2}"/></c:if></td>
+                <td><c:if test="stat.outAntiPatient>0"><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.outAntiNum * 1.0 / stat.outAntiPatient}"/></c:if></td>
                 <td align="left">抗菌药品种数／抗菌药用药人数</td>
             </tr>
             <tr align="right">
                 <td bgColor="#75c8cc" align="center">注射金额比例</td>
-                <td><fmt:formatNumber type="number" maxFractionDigits="2"
-                                      value="${(stat.clinicInjectAntiAmount+stat.hospitalInjectAntiAmount)*100.0/(stat.clinicAmount+stat.hospitalAmount)}"/>%
+                <td><c:if test="stat.clinicAmount+stat.hospitalAmount>0"><fmt:formatNumber type="number" maxFractionDigits="2"
+                                      value="${(stat.clinicInjectAntiAmount+stat.hospitalInjectAntiAmount)*100.0/(stat.clinicAmount+stat.hospitalAmount)}"/></c:if>%
                 </td>
-                <td><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.clinicInjectAntiAmount*100.0/stat.clinicAmount}"/>%</td>
-                <td><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.hospitalInjectAntiAmount*100.0/stat.hospitalAmount}"/>%</td>
+                <td><c:if test="stat.clinicAmount>0"><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.clinicInjectAntiAmount*100.0/stat.clinicAmount}"/></c:if>%</td>
+                <td><c:if test="stat.hospitalAmount>0"><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.hospitalInjectAntiAmount*100.0/stat.hospitalAmount}"/></c:if>%</td>
                 <td align="left">注射抗菌药药品金额／药品总金额</td>
             </tr>
             <tr align="right">
                 <td bgColor="#75c8cc" align="center">注射使用率</td>
                 <td>-</td>
-                <td><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.clinicInjectAntiPatient*1.0/stat.clinicPatient}"/></td>
+                <td><c:if test="stat.clinicPatient2>0">fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.clinicInjectAntiPatient*1.0/stat.clinicPatient}"/></c:if></td>
                 <td><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.outInjectAntiPatient*1.0/stat.outHospitalPatient}"/></td>
                 <td align="left">门诊：注射抗菌药人数(${stat.clinicInjectAntiPatient})／门诊人数<br/>住院：注射抗菌药出院人数(${stat.outInjectAntiPatient})<br/>／出院人数
                 </td>
@@ -232,7 +232,7 @@
                 <td bgColor="#75c8cc" align="center">抗菌药物<br/>使用强度</td>
                 <td>-</td>
                 <td>-</td>
-                <td><fmt:formatNumber type="NUMBER" maxFractionDigits="2" value="${stat.DDDs*100.0/stat.hospitalDay}"/></td>
+                <td><c:if test="stat.hospitalDay>0"><fmt:formatNumber type="NUMBER" maxFractionDigits="2" value="${stat.DDDs*100.0/stat.hospitalDay}"/></c:if></td>
                 <td align="left">抗菌药物消耗量（累计DDD数）*100 <br/>／同期收治患者住院天数(${stat.hospitalDay}) <br/>（去除出院带药，不含留观号）</td>
             </tr>
           <%--  <tr align="right">
@@ -244,19 +244,19 @@
             </tr>--%>
             <tr align="right">
                 <td bgColor="#75c8cc" align="center">特殊品种费用<br/>占抗菌药比例</td>
-                <td><fmt:formatNumber type="PERCENT" maxFractionDigits="2"
-                                      value="${(stat.clinicSpecAntiAmount+stat.hospitalSpecAntiAmount)*1.0/(stat.clinicAntiAmount+stat.hospitalAntiAmount)}"/></td>
-                <td><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.clinicSpecAntiAmount*1.0/stat.clinicAntiAmount}"/></td>
-                <td><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.hospitalSpecAntiAmount*1.0/stat.hospitalAntiAmount}"/></td>
+                <td><c:if test="stat.clinicAntiAmount+stat.hospitalAntiAmount>0"><fmt:formatNumber type="PERCENT" maxFractionDigits="2"
+                                      value="${(stat.clinicSpecAntiAmount+stat.hospitalSpecAntiAmount)*1.0/(stat.clinicAntiAmount+stat.hospitalAntiAmount)}"/></c:if></td>
+                <td><c:if test="stat.clinicAntiAmount>0"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.clinicSpecAntiAmount*1.0/stat.clinicAntiAmount}"/></c:if></td>
+                <td><c:if test="stat.hospitalAntiAmount>0"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.hospitalSpecAntiAmount*1.0/stat.hospitalAntiAmount}"/></c:if></td>
                 <td align="left">特殊抗菌药金额／抗菌药总金额</td>
             </tr>
             <tr align="right">
                 <td bgColor="#75c8cc" align="center">口服抗菌药<br/>占抗菌药金额</td>
-                <td><fmt:formatNumber type="number" maxFractionDigits="2"
-                                      value="${(stat.clinicOrallyAntiAmount+stat.hospitalOrallyAntiAmount)*100.0/(stat.clinicAntiAmount+stat.hospitalAntiAmount)}"/>%
+                <td><c:if test="stat.clinicAntiAmount+stat.hospitalAntiAmount>0"><fmt:formatNumber type="number" maxFractionDigits="2"
+                                      value="${(stat.clinicOrallyAntiAmount+stat.hospitalOrallyAntiAmount)*100.0/(stat.clinicAntiAmount+stat.hospitalAntiAmount)}"/></c:if>%
                 </td>
-                <td><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.clinicOrallyAntiAmount*100.0/stat.clinicAntiAmount}"/>%</td>
-                <td><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.hospitalOrallyAntiAmount*100.0/stat.hospitalAntiAmount}"/>%</td>
+                <td><c:if test="stat.clinicAntiAmount>0"><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.clinicOrallyAntiAmount*100.0/stat.clinicAntiAmount}"/></c:if>%</td>
+                <td><c:if test="stat.hospitalAntiAmount>0"><fmt:formatNumber type="number" maxFractionDigits="2" value="${stat.hospitalOrallyAntiAmount*100.0/stat.hospitalAntiAmount}"/></c:if>%</td>
                 <td align="left">口服抗菌药金额／抗菌药总金额</td>
             </tr>
             <tr>
@@ -270,7 +270,7 @@
                 <td bgColor="#75c8cc" align="center" rowspan="5">急诊指标</td>
                 <td align="center" colspan="3">急诊抗菌药物处方比例<%--<br>
                     <span style="font-size:70%">急诊抗菌药病人数／急诊用药病人数</span>--%></td>
-                <td align="center"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.emergAntiPatient*1.0/stat.emergPatient}"/></td>
+                <td align="center"><c:if test="stat.emergPatient>0"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.emergAntiPatient*1.0/stat.emergPatient}"/></c:if></td>
             </tr>
             <tr>
                 <td align="center" colspan="3">急诊用抗菌药品种数</td>

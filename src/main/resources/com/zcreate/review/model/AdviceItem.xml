@@ -78,7 +78,7 @@
         ORDER BY R.groupID, R.orderID
     </select>
     <select id="selectSurgery" parameterType="int" resultType="java.util.HashMap">
-        SELECT surgeryID, incision, surgeryDate, surgeryName, healOver
+        SELECT surgeryID, hospID, inEmrID,no, surgeryName, incision, surgeryDate, operTime
         FROM Surgery
         WHERE hospID = #{hospID:INTEGER}
     </select>
