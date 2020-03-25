@@ -181,10 +181,10 @@ BEGIN
                    'FROM InPatient R,' +
                    '  (SELECT S.hospID,' +
                    '      max(case when S.surgeryID>0 then 1 else 0 end) surgery,' +
-                   '      max(CASE WHEN S.incision = ''Ⅰ'' THEN 1 ELSE 0 END) + max(CASE WHEN S.incision = ''Ⅱ''  THEN 2 ELSE 0 END) + max(CASE WHEN S.incision = ''Ⅲ''  THEN 4 ELSE 0 END)+
-                            max(CASE WHEN S.incision = ''Ⅰ'' AND M.antiClass > 0 THEN 8 ELSE 0 END) + ' +-- 一类切口使用抗菌药
-                   '        max(CASE WHEN S.incision = ''Ⅰ''  AND M.antiClass > 0 AND ' +
-                   '          (datediff(mi, I.adviceDate, S.surgeryDate) between 30 and 120 or advice LIKE ''%术前半小时%'' OR advice LIKE ''%术前30%'' OR advice LIKE ''%带入手术室%'') THEN 16 ELSE 0 END) incision, ' +-- 一类切口术前0.5-2小时预防用药
+                   '      max(CASE WHEN S.incision = ''Ⅰ'' OR S.incision = ''Ⅰ'' THEN 1 ELSE 0 END) + max(CASE WHEN S.incision = ''Ⅱ''  OR S.incision = ''II'' THEN 2 ELSE 0 END) + ' +
+                   '        max(CASE WHEN S.incision = ''Ⅲ''  OR S.incision = ''III'' THEN 4 ELSE 0 END)+ max(CASE WHEN S.incision = ''Ⅰ'' OR S.incision = ''Ⅰ'' AND M.antiClass > 0 THEN 8 ELSE 0 END) + ' +-- 一类切口使用抗菌药
+                   '        max(CASE WHEN S.incision = ''Ⅰ'' OR S.incision = ''Ⅰ''  AND M.antiClass > 0 AND ' +
+                   '          ( advice LIKE ''%术前半小时%'' OR advice LIKE ''%术前30%'' OR advice LIKE ''%带入手术室%'') THEN 16 ELSE 0 END) incision, ' +-- 一类切口术前0.5-2小时预防用药  datediff(mi, I.adviceDate, S.surgeryDate) between 30 and 120 or
                    '      max(CASE WHEN (advice LIKE ''%涂片%'' OR advice LIKE ''%细菌培养%'') THEN 1 ELSE 0 END) checkItem0,' +----送检但不一定用抗菌药
                    '      max(CASE WHEN (advice LIKE ''%涂片%'' OR advice LIKE ''%细菌培养%'') and M.antiClass=1 THEN 2 ELSE 0 END) checkItem1,' +--非限制
                    '      max(CASE WHEN (advice LIKE ''%涂片%'' OR advice LIKE ''%细菌培养%'') and M.antiClass=2 THEN 4 ELSE 0 END) checkItem2,' +--microbeLimit 微生物送检限制级
@@ -197,7 +197,7 @@ BEGIN
                    '        LEFT JOIN Medicine M ON I.goodsID = M.goodsID' +
                    '   GROUP BY S.hospID) A ' +
                    'WHERE R.hospID = A.hospID AND (R.outDate BETWEEN ''' + @beginTime + ''' AND ''' + @nextDate + ''' ' +
-                   '                               OR R.hospID in (select hospID from Surgery where openTimer between ''' + @beginTime + ''' AND ''' + @nextDate + ''') )';
+                   '                               OR R.hospID in (select hospID from Surgery where operTime between ''' + @beginTime + ''' AND ''' + @nextDate + ''') )';
   -- OR outDate IS NULL
   select @sqlString as 'sql5';
   exec (@sqlString);
@@ -231,4 +231,3 @@ BEGIN
   EXEC monitorUpdateTaskLog @logID, 'buildClinicInPatient', 'InPatient', -1, -1, -1, @updateRowCount, @startTime;
 END;
 go
-

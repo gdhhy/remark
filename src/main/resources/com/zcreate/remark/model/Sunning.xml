@@ -112,7 +112,7 @@
                sum(case when incision &amp; 8 = 8 then 1 else 0 end) oneAntiPatient,
                sum(case when incision &amp; 16 = 16 then 1 else 0 end) onePrevAntiPatient
         from InPatient
-        where stay = 0 and outDate > #{fromDate:DATE} and outDate &lt; #{toDate:DATE}
+        where stay = 0 and outDate >= #{fromDate:DATE} and outDate &lt; #{toDate:DATE}
     </select>
     <!--&#45;&#45; stay留观标志
     &#45;&#45;     checkItem incision的计算在buildClinicInPatient.sql-->

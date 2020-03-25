@@ -118,7 +118,7 @@
                     {"data": "patientName", "sClass": "center"},
                     {"data": "sex", "sClass": "center"},//4
                     {"data": "age", "sClass": "center"},
-                    {"data": "diagnosis", "sClass": "center", defaultContent: ''},
+                    {"data": "diagnosis2", "sClass": "center", defaultContent: ''},
                     {"data": "department", "sClass": "center", defaultContent: ''},
                     {"data": "masterDoctorName", "sClass": "center", defaultContent: ''},
                     {"data": "reviewTime", "sClass": "center", defaultContent: ''}
@@ -138,7 +138,12 @@
                         }
                     },
                     {"orderable": false, "targets": 5, title: '年龄'},
-                    {"orderable": false, "targets": 6, title: '诊断'},
+                    {"orderable": false, "targets": 6, title: '诊断', render: function (data) {
+                            //console.log("data:"+data);
+                            if (data !== undefined && data.length > 40) return data.substring(0, 38) + "...";
+                            return data;
+                        }
+                    },
                     {"orderable": false, "targets": 7, title: '科室'},
                     {"orderable": false, "targets": 8, title: '主管医生'},
                     {
@@ -324,7 +329,7 @@
             <!-- #section:plugins/date-time.datepicker -->
             <div class="input-group">
                 <input class="form-control nav-search-input" name="dateRangeString" id="form-dateRange"
-                       style="color: black"
+                       style="color: black;width:200px"
                        data-date-format="YYYY-MM-DD"/>
                 <span class="input-group-addon"><i class="fa fa-calendar bigger-100"></i></span>
             </div>&nbsp;&nbsp;&nbsp;
