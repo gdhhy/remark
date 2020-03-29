@@ -6,11 +6,12 @@
     <!--600000毫秒为10分钟-->
     <sql id="queryWhere">
         <where>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND T.dispensingDate >= #{fromDate:TIMESTAMP}</if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(toDate)">AND T.dispensingDate &lt; #{toDate:TIMESTAMP}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND T.dispensingDate >= #{fromDate:DATE}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(toDate)">AND T.dispensingDate &lt; #{toDate:DATE}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(patient)">AND T.patientName = #{patient:VARCHAR}</if>
             <choose>
                 <when test="@com.zcreate.util.Ognl@isNotEmpty(doctorName)">AND T.doctorName = #{doctorName:VARCHAR}</when>
+                <when test="@com.zcreate.util.Ognl@isNotEmpty(doctorID)">AND T.doctorID = #{doctorID:INTEGER}</when>
                 <when test="@com.zcreate.util.Ognl@isNotEmpty(doctors)">
                     <foreach separator="," item="item" index="index" open=" AND T.doctorName in (" close=")" collection="doctors">
                         #{item}
@@ -308,5 +309,51 @@
         group by T.goodsID) A
         LEFT JOIN Medicine M on M.goodsID=A.goodsID
         order by a.amount desc
+    </select>
+    <!--力锦-->
+    <select id="selectAntiGroupDepartment" parameterType="java.util.Map" resultType="java.util.HashMap">
+        select A.*, B.hospitalDay, A.DDDs * 100.0 / hospitalDay AUD
+        from (select replace(D.department, '门诊', '') department,
+                     sum(case when D.dispensingDate between #{fromDate:DATE} and #{toDate:DATE} and M.antiClass > 0 then amount else 0 end) antiAmount,
+                     sum(case when D.dispensingDate between #{fromDate:DATE} and #{toDate:DATE} then amount else 0 end) amount,
+                     sum(case when D.dispensingDate between #{fromDate:DATE} and #{toDate:DATE} and M.antiClass > 0 then quantity else 0 end) antiQty,
+                     count(distinct case when P.outDate between #{fromDate:DATE} and #{toDate:DATE} then D.hospID else null end) outPatient,
+                     count(distinct case when P.outDate between #{fromDate:DATE} and #{toDate:DATE} and M.antiClass > 0 then D.hospID else null end) outAntiPatient,
+                     sum(case when outDate between #{fromDate:DATE} and #{toDate:DATE} and ddd > 0 and stay = 0 and usage != '出院带药' then contents * quantity / ddd else 0 end) DDDs,
+                     count(distinct case when D.dispensingDate between #{fromDate:DATE} and #{toDate:DATE} and D.adviceID = 0 then D.hospID else null end) clinicPatient,
+                     count(distinct case when dispensingDate between #{fromDate:DATE} and #{toDate:DATE} and adviceID = 0 and antiClass > 0 then D.hospID else null end) clinicAntiPatient
+              from ${DrugRecordsTable} D
+                       left join Medicine M on M.goodsID = D.goodsID
+                       left join InPatient P on P.hospID = D.hospID
+              group by replace(D.department, '门诊', '')) A
+                 left join
+             (select department, sum(datediff(day, inDate, outDate) + 1) hospitalDay
+              from InPatient P
+              where stay = 0 and P.outDate between #{fromDate:DATE} and #{toDate:DATE}
+              group by department) B
+             on A.department = B.department;
+    </select>
+    <!--力锦-->
+    <select id="selectAntiGroupDoctor" parameterType="java.util.Map" resultType="java.util.HashMap">
+        select D.name doctorName, A.*, B.hospitalDay, A.DDDs * 100.0 / hospitalDay AUD
+        from (select doctorID,
+                     sum(case when D.dispensingDate between #{fromDate:DATE} and #{toDate:DATE} and M.antiClass > 0 then amount else 0 end) antiAmount,
+                     sum(case when D.dispensingDate between #{fromDate:DATE} and #{toDate:DATE} then amount else 0 end) amount,
+                     sum(case when D.dispensingDate between #{fromDate:DATE} and #{toDate:DATE} and M.antiClass > 0 then quantity else 0 end) antiQty,
+                     count(distinct case when P.outDate between #{fromDate:DATE} and #{toDate:DATE} then D.hospID else null end) outPatient,
+                     count(distinct case when P.outDate between #{fromDate:DATE} and #{toDate:DATE} and M.antiClass > 0 then D.hospID else null end) outAntiPatient,
+                     sum(case when P.outDate between #{fromDate:DATE} and #{toDate:DATE} and M.ddd > 0 and P.stay = 0 and usage != '出院带药' then contents * quantity / ddd else 0 end) DDDs,
+                     count(distinct case when D.dispensingDate between #{fromDate:DATE} and #{toDate:DATE} and adviceID = 0 then D.hospID else null end) clinicPatient,
+                     count(distinct case when D.dispensingDate between #{fromDate:DATE} and #{toDate:DATE} and adviceID = 0 and antiClass > 0 then D.hospID else null end) clinicAntiPatient
+              from DrugRecords_2020 D
+                       left join Medicine M on M.goodsID = D.goodsID
+                       left join InPatient P on P.hospID = D.hospID
+              group by doctorID) A
+                 left join
+             (select masterDoctorID, sum(datediff(day, inDate, outDate) + 1) hospitalDay
+              from InPatient P
+              where stay = 0 and P.outDate between #{fromDate:DATE} and #{toDate:DATE}
+              group by masterDoctorID) B on A.doctorID = B.masterDoctorID
+                 left join Doctor D on A.doctorID = D.doctorID
     </select>
 </mapper>

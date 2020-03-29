@@ -144,22 +144,6 @@
             $(this).prev().focus();
         });
 
-
-        //todo 统一到一个对话框
-        function showDialog(title, content) {
-            $("#errorText").html(content);
-            $("#dialog-error").removeClass('hide').dialog({
-                modal: true,
-                width: 600,
-                title: title,
-                buttons: [{
-                    text: "确定", "class": "btn btn-primary btn-xs", click: function () {
-                        $(this).dialog("close");
-                    }
-                }]
-            });
-        }
-
         $('.btn-success').click(function () {
             myTable.ajax.url(url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"))).load();
         });
@@ -243,7 +227,7 @@
             <!-- #section:plugins/date-time.datepicker -->
             <div class="input-group">
                 <input class="form-control nav-search-input" name="dateRangeString" id="form-dateRange"
-                       style="color: black"
+                       style="color: black;width:200px"
                        data-date-format="YYYY-MM-DD"/>
                 <span class="input-group-addon"><i class="fa fa-calendar bigger-100"></i></span>
             </div>&nbsp;&nbsp;&nbsp;

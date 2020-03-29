@@ -50,11 +50,12 @@
     }
 </style>
 <script type="text/javascript">
+
     jQuery(function ($) {
         var startDate = moment().month(moment().month() - 1).startOf('month');
         var endDate = moment().month(moment().month() - 1).endOf('month');
-        var url = "/sunning/byDepart.jspa?fromDate={0}&toDate={1}&goodsID={2}";
-
+        var url = "/sunning/doctorAnti.jspa?fromDate={0}&toDate={1}&goodsID={2}";
+        var totalAntiAmount;
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');
         var myTable = dynamicTable
@@ -63,15 +64,21 @@
                 bAutoWidth: false,
                 bProcessing: true,
                 "columns": [
-                    {"data": "department", "sClass": "center"},
-                    {"data": "department", "sClass": "center"},
-                    {"data": "amount", "sClass": "center"},
-                    {"data": "clinicAmount", "sClass": "center"},
-                    {"data": "hospitalAmount", "sClass": "center"},//4
-                    {"data": "amountRatio", "sClass": "center"},
-                    {"data": "insuranceAmount", "sClass": "center"},
-                    {"data": "insuranceRatio", "sClass": "center"},
-                    {"data": "department", "sClass": "center"}
+                    {"data": "doctorID", "sClass": "center"},
+                    {"data": "doctorName", "sClass": "center", defaultContent: ''},
+                    {"data": "antiAmount", "sClass": "center"},
+                    {"data": "antiQty", "sClass": "center"},
+                    {"data": "amountRatio", "sClass": "center"},//4
+                    {"data": "antiAmountRatio", "sClass": "center"},//求和后计算
+                    {"data": "outAntiPatient", "sClass": "center"},
+                    {"data": "antiPatientRatio", "sClass": "center"},
+                    {"data": "hospitalDay", "sClass": "center", defaultContent: ''},
+                    {"data": "DDDs", "sClass": "center"},//9
+                    {"data": "AUD", "sClass": "center"},
+                    {"data": "clinicAntiPatient", "sClass": "center"},
+                    {"data": "clinicAntiPatientRatio", "sClass": "center"},
+                    {"data": "clinicAntiCompose", "sClass": "center"},
+                    {"data": "doctorID", "sClass": "center"}
                 ],
                 'columnDefs': [
                     {
@@ -79,19 +86,25 @@
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     },
-                    {"orderable": false, "targets": 1, title: '科室', searchable: true},
-                    {"orderable": false, "targets": 2, title: '金额', render: renderAmount},
-                    {"orderable": false, "targets": 3, title: '门诊金额', render: renderAmount},
-                    {"orderable": false, "targets": 4, title: '住院金额', render: renderAmount},
-                    {"orderable": false, "targets": 5, title: '科室占全院', render: renderPercent1},
-                    {"orderable": false, "targets": 6, title: '医保金额', render: renderAmount},
-                    {"orderable": false, "targets": 7, title: '医保比例', render: renderPercent1},
+                    {"orderable": false, "targets": 1, title: '医生', searchable: true},
+                    {"orderable": false, "targets": 2, title: '抗菌药<br/>金额', render: renderAmount},
+                    {"orderable": false, "targets": 3, title: '抗菌药<br/>数量'},
+                    {"orderable": false, "targets": 4, title: '抗菌药金<br/>额比例', render: renderPercent1},
+                    {"orderable": false, "targets": 5, title: '占总抗菌<br/>药比例', render: renderPercent1},
+                    {"orderable": false, "targets": 6, title: '住院抗菌<br/>药病人数'},
+                    {"orderable": false, "targets": 7, title: '住院抗菌<br/>药医嘱率', render: renderPercent1},
+                    {"orderable": false, "targets": 8, title: '出院患者<br/>住院天数'},
+                    {"orderable": false, "targets": 9, title: 'DDDs', render: renderAmount0},
+                    {"orderable": false, "targets": 10, title: '使用强度', render: renderAmount0},
+                    {"orderable": false, "targets": 11, title: '门诊抗菌</br>药处方数'},
+                    {"orderable": false, "targets": 12, title: '门诊抗菌药</br>处方比例', render: renderPercent1},
+                    {"orderable": false, "targets": 13, title: '门诊抗菌药</br>处方占比', render: renderPercent1},
                     {
-                        'targets': 8, 'searchable': false, 'orderable': false, width: 110, title: '科室明细',
+                        'targets': 14, 'searchable': false, 'orderable': false, width: 110, title: '医生明细',
                         render: function (data, type, row, meta) {
-                            var jsp = row['type'] === 1 ? "clinic_list.jsp" : "inpatient_list.jsp";
+
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
-                                '<a class="hasDetail" href="#" data-Url="javascript:showDepartmentDetail(\'{0}\');">'.format(data) +
+                                '<a class="hasDetail" href="#" data-Url="javascript:showDoctorDetail(\'{0}\',\'{1}\');">'.format(data, row['doctorName']) +
                                 '<i class="ace-icon glyphicon  glyphicon-list  bigger-130"></i>' +
                                 '</a>&nbsp;&nbsp;&nbsp;' +
                                 '</div>';
@@ -100,7 +113,18 @@
                 "aaSorting": [],
                 language: {
                     url: '../components/datatables/datatables.chinese.json'
-                },
+                },/* drawCallback: function () {
+                    var api = this.api();
+
+                    //Calculates the total of the column
+                    totalAntiAmount = api
+                        .column(5)  //the salary column
+                        .data()
+                        .reduce(function (a, b) {
+                            return a + b;
+                        }, 0);
+                    console.log(totalAntiAmount);
+                },*/
                 "ajax": {
                     url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), ""),
                     "data": function (d) {//删除多余请求参数
@@ -109,7 +133,7 @@
                                 delete d[key];
                     }
                 },
-                'paging': false,
+                //'paging': false,
                 // "processing": true,
                 //"serverSide": true,
                 select: {
@@ -119,6 +143,7 @@
         myTable.on('draw', function () {
             $('#dynamic-table tr').find('.hasDetail').click(function () {
                 if ($(this).attr("data-Url").indexOf('javascript:') >= 0) {
+                    console.log($(this).attr("data-Url"));
                     eval($(this).attr("data-Url"));
                 } else
                     window.open($(this).attr("data-Url"), "_blank");
@@ -146,17 +171,19 @@
             $(this).prev().focus();
         });
 
+
         $('.btn-success').click(function () {
             var goodsID = $('#form-goodsID').val();
             // console.log("medicine:" + goodsID);
             myTable.ajax.url(url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), goodsID)).load();
         });
         $('.btn-info').click(function () {
-            window.location.href = "/excel/byDepart.jspa?fromDate={0}&toDate={1}".format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"));
+            window.location.href = "/excel/byDoctorAnti.jspa?fromDate={0}&toDate={1}".format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"));
         });
         //https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
         $('#form-medicine').typeahead({hint: true},
             {
+
                 limit: 1000,
                 source: function (queryStr, processSync, processAsync) {
                     var params = {queryChnName: queryStr, length: 1000};
@@ -192,22 +219,20 @@
             $('#form-goodsID').val("");
         });
 
-        function showDepartmentDetail(department) {
-            var url = "/sunning/medicineList.jspa?fromDate={0}&toDate={1}&department={2}&limit=1000";
+        function showDoctorDetail(doctorID, doctorName) {
+            var url = "/sunning/medicineList.jspa?fromDate={0}&toDate={1}&doctorID={2}&limit=1000&antiClass=0";
 
             //console.log("text=" + $('#disItem').val());
             $.ajax({
                 type: "GET",
-                url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), department),
+                url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), doctorID),
                 contentType: "application/json; charset=utf-8",
                 cache: false,
                 success: function (response, textStatus) {
                     var respObject = JSON.parse(response);
                     if (respObject.data.length > 0) {
-                        //if($("#departmentTable tbody tr").length === 0)
-                        //$('#departmentTable').empty();
 
-                        $('#departmentTable tbody tr').remove();
+                        $('#doctorTable tbody tr').remove();
                         var i = 0;
                         $.each(respObject.data, function () {
                             var $tr = ('<tr><td style="text-align: center">{0}</td><td style="text-align: center">{1}</td>' +
@@ -215,9 +240,9 @@
                                 '<td style="text-align: right">{4}</td><td style="text-align: right">{5}</td></tr>'
                             ).format(++i, this.chnName, this.spec, this.quantity, accounting.format(this.amount, 2), accounting.format(this.amountRatio * 100, 2) + '%');
                             // console.log($tr);
-                            $("#departmentTable tbody").append($tr);
+                            $("#doctorTable tbody").append($tr);
                         });
-                        $('#dialog-title').text(department + " - 用药明细");
+                        $('#dialog-title').text(doctorName + " - 用药明细");
                         $('#showDepartDoctorDialog').modal();
                         //console.log("i=" + i);
                     }
@@ -248,7 +273,7 @@
             <i class="ace-icon fa fa-home home-icon"></i>
             <a href="/index.jspa">首页</a>
         </li>
-        <li class="active">科室用药趋势</li>
+        <li class="active">医生用药趋势</li>
 
     </ul><!-- /.breadcrumb -->
 
@@ -327,12 +352,12 @@
                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
                             <span class="white">&times;</span>
                         </button>
-                        <span id="dialog-title">科室用药明细</span>
+                        <span id="dialog-title">医生用药明细</span>
                     </div>
                 </div>
 
                 <div class="modal-body no-padding">
-                    <table id="departmentTable" class="table table-striped table-bordered table-hover no-margin-bottom no-border-top">
+                    <table id="doctorTable" class="table table-striped table-bordered table-hover no-margin-bottom no-border-top">
                         <thead>
                         <tr>
                             <th class="col-xs-1" style="text-align: center">排名</th>

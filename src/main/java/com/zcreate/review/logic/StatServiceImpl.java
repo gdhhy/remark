@@ -145,4 +145,33 @@ public class StatServiceImpl implements StatService {
         return dailyDao.getDailyInOut(param);
     }
 
+    @Override
+    public List<HashMap<String, Object>> getAntiGroupDepartment(String fromDate, String toDate) {
+        HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate);
+        List<HashMap<String, Object>> list = drugRecordsMapper.selectAntiGroupDepartment(param);
+
+        StatMath.ratio(list, "antiAmount", "amount", "amountRatio");
+        StatMath.ratio(list, "outAntiPatient", "outPatient", "antiPatientRatio");
+        StatMath.sumAndCalcRatio(list, "antiAmount", "antiAmountRatio");
+        StatMath.ratio(list, "clinicAntiPatient", "clinicPatient", "clinicAntiPatientRatio");
+        StatMath.sumAndCalcRatio(list, "clinicAntiPatient", "clinicAntiCompose");
+        StatMath.sumAndCalcRatio(list, "AUD", "AUDRatio");
+
+        return list;
+    }
+
+    @Override
+    public List<HashMap<String, Object>> getAntiGroupDoctor(String fromDate, String toDate) {
+        HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate);
+        List<HashMap<String, Object>> list = drugRecordsMapper.selectAntiGroupDoctor(param);
+
+        StatMath.ratio(list, "antiAmount", "amount", "amountRatio");
+        StatMath.ratio(list, "outAntiPatient", "outPatient", "antiPatientRatio");
+        StatMath.sumAndCalcRatio(list, "antiAmount", "antiAmountRatio");
+        StatMath.ratio(list, "clinicAntiPatient", "clinicPatient", "clinicAntiPatientRatio");
+        StatMath.sumAndCalcRatio(list, "clinicAntiPatient", "clinicAntiCompose");
+        StatMath.sumAndCalcRatio(list, "AUD", "AUDRatio");
+
+        return list;
+    }
 }

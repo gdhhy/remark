@@ -236,6 +236,24 @@
 
                     <b class="arrow"></b>
                 </li>
+                <li class="">
+                    <a href="index.jspa?content=/anti/department.jsp&menuID=33" id="33">
+                        <!--<i class="menu-icon fa fa-user"></i>-->
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        <span class="menu-text"> 科室抗菌药统计</span>
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+                <li class="">
+                    <a href="index.jspa?content=/anti/doctor.jsp&menuID=34" id="34">
+                        <!--<i class="menu-icon fa fa-user"></i>-->
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        <span class="menu-text"> 医生抗菌药统计</span>
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
                 <%--  <li class="">
                       <a href="index.jspa?content=/admin/roles.jsp&menuID=31" id="31">
                           <!--<i class="menu-icon fa 	fa-certificate"></i>-->

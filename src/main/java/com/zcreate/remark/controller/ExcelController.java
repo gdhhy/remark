@@ -105,6 +105,34 @@ public class ExcelController {
         exportExcel(response, wb, 3, "科室用药统计", result, prop);
     }
 
+    //--力锦
+    @RequestMapping(value = "byDepartAnti", method = RequestMethod.GET)
+    public void byDepartAnti(HttpServletResponse response, @RequestParam(value = "fromDate") String fromDate, @RequestParam(value = "toDate") String toDate) throws Exception {
+        //HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, "");
+        List<HashMap<String, Object>> result = statService.getAntiGroupDepartment(fromDate, toDate);
+
+        String[] prop = {"department", "antiAmount", "antiQty", "amountRatio", "antiAmountRatio", "outAntiPatient", "antiPatientRatio", "hospitalDay",
+                "DDDs", "AUD", "AUDRatio", "clinicAntiPatient", "clinicAntiPatientRatio", "clinicAntiCompose"};
+
+        HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "antiByDepart.xls"));
+
+        exportExcel(response, wb, 3, "科室抗菌药统计", result, prop);
+    }
+
+    //--力锦
+    @RequestMapping(value = "byDoctorAnti", method = RequestMethod.GET)
+    public void byDoctorAnti(HttpServletResponse response, @RequestParam(value = "fromDate") String fromDate, @RequestParam(value = "toDate") String toDate) throws Exception {
+        //HashMap<String, Object> param = ParamUtils.produceMap(fromDate, toDate, "");
+        List<HashMap<String, Object>> result = statService.getAntiGroupDoctor(fromDate, toDate);
+
+        String[] prop = {"doctorName", "antiAmount", "amount", "amountRatio", "antiAmountRatio", "outAntiPatient", "antiPatientRatio",
+                "DDDs", "hospitalDay",  "AUDRatio", "clinicAntiPatient", "clinicAntiPatientRatio", "clinicAntiCompose"};
+
+        HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "antiByDoctor.xls"));
+
+        exportExcel(response, wb, 3, "医生抗菌药统计", result, prop);
+    }
+
     @RequestMapping(value = "antiDrug", method = RequestMethod.GET)
     public void antiDrug(HttpServletResponse response,
                          @RequestParam(value = "quarter", required = false, defaultValue = "") String quarter,
@@ -377,11 +405,11 @@ public class ExcelController {
 
     @RequestMapping(value = "getInPatientList", method = RequestMethod.GET)
     public void getInPatientList(HttpServletResponse response, @RequestParam(value = "fromDate", required = false) String fromDate,
-                              @RequestParam(value = "toDate", required = false) String toDate,
-                              @RequestParam(value = "queryItem", required = false) String queryItem,
-                              @RequestParam(value = "queryField", required = false) String queryField,
-                              @RequestParam(value = "department", required = false) String department,
-                              @RequestParam(value = "rational", required = false) Integer rational) throws Exception {
+                                 @RequestParam(value = "toDate", required = false) String toDate,
+                                 @RequestParam(value = "queryItem", required = false) String queryItem,
+                                 @RequestParam(value = "queryField", required = false) String queryField,
+                                 @RequestParam(value = "department", required = false) String department,
+                                 @RequestParam(value = "rational", required = false) Integer rational) throws Exception {
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("reviewDateFrom", fromDate);
         if (!"".equals(toDate)) {

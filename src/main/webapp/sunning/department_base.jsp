@@ -112,7 +112,7 @@
                                 delete d[key];
                     }
                 },
-
+                'paging': false,
                 // "processing": true,
                 //"serverSide": true,
                 select: {
@@ -235,7 +235,7 @@
             <!-- #section:plugins/date-time.datepicker -->
             <div class="input-group">
                 <input class="form-control nav-search-input" name="dateRangeString" id="form-dateRange"
-                       style="color: black"
+                       style="color: black;width:200px"
                        data-date-format="YYYY-MM-DD"/>
                 <span class="input-group-addon"><i class="fa fa-calendar bigger-100"></i></span>
             </div>&nbsp;&nbsp;&nbsp;

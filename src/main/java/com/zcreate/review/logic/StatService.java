@@ -19,4 +19,8 @@ public interface StatService {
     List<HashMap<String, Object>> getDepartDetail(String fromDate, String toDate, String depart, int type, String healthNo, int antiClass);
 
     List<HashMap<String, Object>> getDailyInOut(int recordCount);
+
+    List<HashMap<String, Object>> getAntiGroupDepartment(String fromDate, String toDate);
+
+    List<HashMap<String, Object>> getAntiGroupDoctor(String fromDate, String toDate);
 }

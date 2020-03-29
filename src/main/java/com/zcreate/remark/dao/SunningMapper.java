@@ -5,10 +5,12 @@ import org.apache.ibatis.annotations.Mapper;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 @Mapper
 public interface SunningMapper {
-    public HashMap<String, Object> getSunning(Map param);
-    public HashMap<String, Object> getSunningInPatient(Map param);
-    public HashMap<String, Object> getSunningAdviceItem(Map param);
+    HashMap<String, Object> getSunning(Map<String, Object> param);
+
+    HashMap<String, Object> getSunningInPatient(Map<String, Object> param);
+
 }

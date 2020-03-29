@@ -70,9 +70,6 @@
                count(distinct case when outDate >= #{fromDate:DATE} and outDate &lt; #{toDate:DATE} and route = 2 then P.hospID else null end) outInjectPatient,--todo change M.injection = 1 else =hospitalVdPatient
                sum(case when outDate >= #{fromDate:DATE} and outDate &lt; #{toDate:DATE} and antiClass > 0 then D.amount else 0 end) outAntiAmount,
                count(distinct case when outDate >= #{fromDate:DATE} and outDate &lt; #{toDate:DATE} and antiClass > 0 then P.hospID else null end) outAntiPatient,
-               count(distinct case when outDate >= #{fromDate:DATE} and outDate &lt; #{toDate:DATE} and antiClass = 2 then P.hospID else null end) outAntiLimitPatient,
-               count(distinct case when outDate >= #{fromDate:DATE} and outDate &lt; #{toDate:DATE} and antiClass = 3 then P.hospID else null end) outAntiSpecPatient,
-               count(distinct case when outDate >= #{fromDate:DATE} and outDate &lt; #{toDate:DATE} and antiClass > 0 and route = 2 then P.hospID else null end) outInjectAntiPatient,
                count(distinct case
                                   when outDate >= #{fromDate:DATE} and outDate &lt; #{toDate:DATE} and antiClass > 0 then cast(P.hospID as VARCHAR(10)) + cast(M.goodsID as VARCHAR(10))
                                   else null end) outAntiNum,
