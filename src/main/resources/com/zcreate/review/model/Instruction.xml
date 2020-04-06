@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Instruction">
+    <cache eviction="LRU" readOnly="false" flushInterval="86400000" size="1000"/>
+    <resultMap id="RecordResult" type="com.zcreate.review.model.Instruction">
+        <result column="instructionID" jdbcType="INTEGER" property="instructionID"/>
+        <result column="healthNo" jdbcType="VARCHAR" property="healthNo"/>
+        <result column="chnName" jdbcType="VARCHAR" property="chnName"/>
+        <result column="engName" jdbcType="VARCHAR" property="engName"/>
+        <result column="pinyin" jdbcType="VARCHAR" property="pinyin"/>
+        <result column="hasInstruction" jdbcType="BOOLEAN" property="hasInstruction"/>
+        <result column="instruction" jdbcType="VARCHAR" property="instruction" />
+        <!-- <result column="pharmacology" jdbcType="CLOB" property="pharmacology"
+                 typeHandler="org.apache.ibatis.type.ClobTypeHandler"/>
+         <result column="indication" jdbcType="CLOB" property="indication"
+                 typeHandler="org.apache.ibatis.type.ClobTypeHandler"/>
+         <result column="untowardEffect" jdbcType="CLOB" property="untowardEffect"
+                 typeHandler="org.apache.ibatis.type.ClobTypeHandler"/>
+         <result column="taboo" jdbcType="CLOB" property="taboo" typeHandler="org.apache.ibatis.type.ClobTypeHandler"/>
+         <result column="usage" jdbcType="CLOB" property="usage" typeHandler="org.apache.ibatis.type.ClobTypeHandler"/>
+         <result column="reciprocity" jdbcType="CLOB" property="reciprocity"
+                 typeHandler="org.apache.ibatis.type.ClobTypeHandler"/>
+         <result column="dosage" jdbcType="CLOB" property="dosage" typeHandler="org.apache.ibatis.type.ClobTypeHandler"/>-->
+        <result column="dose" jdbcType="VARCHAR" property="dose"/>
+        <result column="generalInstrID" jdbcType="INTEGER" property="generalInstrID"/>
+        <result column="general" jdbcType="INTEGER" property="general"/>
+        <result column="finish" jdbcType="INTEGER" property="finish"/>
+        <result column="updateTime" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="createDate" jdbcType="TIMESTAMP" property="createDate"/>
+        <result column="source" jdbcType="VARCHAR" property="source"/>
+        <result column="deployLocation" jdbcType="VARCHAR" property="deployLocation"/>
+        <result column="refID" jdbcType="INTEGER" property="refID"/>
+        <result column="producer" jdbcType="VARCHAR" property="producer"/>
+        <result column="createUser" jdbcType="VARCHAR" property="createUser"/>
+        <result column="updateUser" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="healthName" jdbcType="VARCHAR" property="healthName"/>
+        <result column="matchGeneralName" jdbcType="VARCHAR" property="matchGeneralName"/>
+    </resultMap>
+    <sql id="queryWhere">
+        <where>
+            <if test="instructionID > 0">AND instructionID = #{instructionID}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(healthNo)">AND healthNo LIKE '${healthNo}%'</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(source)">AND SOURCE = #{source}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(chnName)">AND chnName LIKE '%${chnName}%'</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(generalName)">AND generalInstrID IN(SELECT instructionID FROM Instruction WHERE chnName LIKE '%${generalName}%')</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(instrIDs)">AND generalInstrID IN(SELECT distinct generalInstrID FROM Instruction
+                <foreach separator="," item="item" index="index" open=" WHERE instructionID in (" close=")" collection="instrIDs">
+                    #{item}
+                </foreach>)
+            </if>
+            <!--live自动完成用的，匹配开头-->
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(liveChnName)">AND chnName LIKE '${liveChnName}%'</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(livePinyin)">AND pinyin LIKE '${livePinyin}%'</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(liveGeneralName)">AND generalInstrID IN(SELECT instructionID FROM Instruction WHERE chnName LIKE '${liveGeneralName}%')</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(liveGeneralPinyin)">AND generalInstrID IN(SELECT instructionID FROM Instruction WHERE pinyin LIKE '${liveGeneralPinyin}%')
+                AND instructionID IN(SELECT DISTINCT generalInstrID FROM instruction)
+            </if>
+            <!--完全匹配-->
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(equalGeneralName)">AND (generalInstrID IN(SELECT instructionID FROM Instruction WHERE chnName = #{equalGeneralName})
+                OR (chnName= #{equalGeneralName} AND general=1) )
+            </if>
+
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(pinyin)">AND pinyin LIKE '${pinyin}%'</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(engName)">AND engName=#{engName}</if>
+            <if test="generalInstrID > 0">AND generalInstrID=#{generalInstrID:INTEGER} <!--and instructionID != #{generalInstrID:INTEGER}--></if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(hasInstruction)">AND hasInstruction=#{hasInstruction}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(general)">AND general=#{general}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(finish)">AND finish=#{finish}</if>
+            <!--<if test="@com.zcreate.util.Ognl@isNotEmpty(medicaDict)">AND ( instructionID=generalInstrID OR generalInstrID IS NULL)</if>-->
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(nullSource)">AND (SOURCE IS NULL AND producer IS NULL)</if>
+        </where>
+    </sql>
+    <select id="queryInstruction" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT A.*,B.chnName matchGeneralName,H.chnName healthName,B.hasInstruction matchInstruction,B.producer matchProducer,B.source matchSource ,C.instNum generalInstNum
+        FROM (
+        SELECT TOP ${limit} instructionID,healthNo,    chnName,engName,pinyin,hasInstruction,dose,generalInstrID,general,finish,updateTime,createDate,source,
+        deployLocation,producer,createUser,updateUser
+        FROM ( SELECT * FROM Instruction
+        <include refid="queryWhere"/>
+        ) I
+        <if test="start!=null and start > 0">
+            WHERE ${orderField} &lt; ( SELECT min( ${orderField}) FROM (SELECT TOP ${start} ${orderField} FROM Instruction
+            <include refid="queryWhere"/>
+            ORDER BY ${orderField} DESC)AS T)
+        </if>
+        ORDER BY ${orderField} DESC) AS A
+        LEFT JOIN Instruction B ON A.generalInstrID=B.instructionID
+        LEFT JOIN (SELECT generalInstrID,sum(hasInstruction) instNum FROM instruction GROUP BY generalInstrID) C ON A.generalInstrID=C.generalInstrID
+        LEFT JOIN Health H ON A.healthNo=H.healthNo
+        ORDER BY A.${orderField} DESC
+    </select>
+    <select id="queryInstructionCount" parameterType="java.util.Map" resultType="int">
+        SELECT count(instructionID) FROM Instruction
+        <include refid="queryWhere"/>
+    </select>
+    <select id="selectInstruction" parameterType="int" resultMap="RecordResult">
+        SELECT A.instructionID, A.healthNo, A.chnName, A.engName, A.pinyin, A.hasInstruction, A.instruction, A.dose, A.generalInstrID, A.general, A.finish,
+        A.updateTime, A.createDate, A.source,A.deployLocation, A.producer, A.createUser, A.updateUser, B.chnName matchGeneralName, H.chnName healthName
+        FROM Instruction A
+            LEFT JOIN Instruction B
+                ON A.generalInstrID = B.instructionID
+            LEFT JOIN Health H
+                ON A.healthNo = H.healthNo
+        WHERE A.instructionID = #{instructionID:INTEGER}
+    </select>
+    <select id="viewInstructionByID" parameterType="int" resultMap="RecordResult">
+        SELECT A.instructionID, A.healthNo, A.chnName, A.engName, A.pinyin, A.hasInstruction, A.instruction, A.dose, A.generalInstrID, A.general, A.finish,
+        A.updateTime, A.createDate, A.source, A.deployLocation, A.producer, A.createUser, A.updateUser
+        FROM Instruction A
+        WHERE A.instructionID = #{instructionID:INTEGER}
+    </select>
+    <select id="viewInstrByGeneralInstrID" parameterType="int" resultMap="RecordResult">
+        SELECT TOP 1 A.instructionID, A.healthNo, A.chnName, A.engName, A.pinyin, A.hasInstruction, A.instruction, A.dose, A.generalInstrID, A.general, A.finish, A.updateTime,
+        A.createDate, A.source,A.deployLocation, A.producer, A.createUser, A.updateUser
+        FROM Instruction A
+        WHERE A.generalInstrID = #{instructionID:INTEGER} AND hasInstruction = 1
+    </select>
+    <insert id="insertInstruction" parameterType="com.zcreate.review.model.Instruction" flushCache="true">
+        INSERT INTO Instruction (healthNo,chnName,engName,pinyin,hasInstruction,instruction,
+        dose,generalInstrID,general,finish,source,deployLocation,refID,producer,createUser,updateUser)
+        VALUES (#{healthNo:VARCHAR}, #{chnName:VARCHAR}, #{engName:VARCHAR}, #{pinyin:VARCHAR}, #{hasInstruction:BOOLEAN}, #{instruction:VARCHAR}, #{dose:VARCHAR},
+        #{generalInstrID:INTEGER}, #{general:INTEGER},#{finish:INTEGER},#{source:VARCHAR},#{deployLocation:VARCHAR},#{refID:INTEGER},#{producer:VARCHAR},#{createUser:VARCHAR},
+        #{updateUser:VARCHAR});
+        <selectKey resultType="int" order="AFTER" keyProperty="instructionID">
+            SELECT @@IDENTITY AS instructionID
+        </selectKey>
+    </insert>
+    <update id="updateInstructionByPrimaryKeySelective" parameterType="com.zcreate.review.model.Instruction" flushCache="true">
+        UPDATE Instruction
+        <set>
+            updateTime = getdate(),
+            <if test="healthNo != null">healthNo = #{healthNo:VARCHAR},</if>
+            <if test="chnName != null">chnname = #{chnName:VARCHAR},</if>
+            <if test="engName != null">engname = #{engName:VARCHAR},</if>
+            <if test="pinyin != null">pinyin = #{pinyin:VARCHAR},</if>
+            <if test="instruction != null">instruction = #{instruction:VARCHAR},</if>
+            <if test="hasInstruction != null">hasInstruction = #{hasInstruction:INTEGER},</if>
+            <if test="dose != null">dose = #{dose:VARCHAR},</if>
+            <if test="generalInstrID != null ">generalInstrID = #{generalInstrID:INTEGER},</if>
+            <if test="updateUser != null ">updateUser = #{updateUser:VARCHAR},</if>
+            <if test="general  != null">general = #{general:INTEGER},</if>
+            <if test="source  != null">SOURCE = #{source:VARCHAR},</if>
+            <if test="producer  != null">producer = #{producer:VARCHAR},</if>
+        </set>
+        WHERE instructionID = #{instructionID:INTEGER}
+    </update>
+    <delete id="deleteInstruction" parameterType="int" flushCache="true">
+        DELETE FROM Instruction WHERE instructionID = #{instructionID}
+    </delete>
+    <update id="setNewGeneral" parameterType="java.util.Map" flushCache="true">
+        UPDATE Instruction SET general = 0, generalInstrID = #{newGeneralID:INTEGER} WHERE generalInstrID = #{oldGeneralID:INTEGER};
+        UPDATE Instruction SET general = 1 WHERE instructionID = #{newGeneralID:INTEGER};
+    </update>
+
+    <select id="selectSource" resultType="string">
+        SELECT  DISTINCT source   FROM instruction  where LEN(source)>=2
+    </select>
+    <select id="selectProducer" resultType="string">
+        SELECT  DISTINCT producer FROM instruction  where LEN(producer)>3
+    </select>
+</mapper>

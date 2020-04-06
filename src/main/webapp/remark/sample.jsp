@@ -8,57 +8,20 @@
 <%--<script src="../assets/js/jquery.gritter.min.js"></script>--%>
 <script src="../js/accounting.min.js"></script>
 <script src="../js/jquery.cookie.min.js"></script>
-<script src="../assets/js/jquery.validate.min.js"></script><%--
-<script src="../components/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
-<script src="../components/bootstrap-timepicker/js/bootstrap-timepicker.js"></script>--%>
+<script src="../assets/js/jquery.validate.min.js"></script>
 <script src="../components/monthpicker/MonthPicker.js"></script>
 <script src="../components/moment/moment.min.js"></script>
 <script src="../components/bootstrap-daterangepicker/daterangepicker.js"></script>
 <script src="../components/bootstrap-daterangepicker/daterangepicker.zh-CN.js"></script>
 <script src="../components/typeahead.js/dist/typeahead.bundle.min.js"></script>
 <script src="../components/typeahead.js/handlebars.js"></script>
-<%--
-<link rel="stylesheet" href="../components/bootstrap-datepicker/css/bootstrap-datepicker3.css"/>
-<link rel="stylesheet" href="../components/bootstrap-timepicker/css/bootstrap-timepicker.css"/>--%>
 <link rel="stylesheet" href="../components/bootstrap-daterangepicker/daterangepicker.css"/>
-<%--<script src="../assets/js/chosen.jquery.min.js"></script>
-<link rel="stylesheet" href="../assets/css/chosen.css"/>--%>
-<%--
-<script src="../components/chosen/chosen.jquery.min.js"></script>
-<link rel="stylesheet" href="../components/chosen/chosen.min.css"/>
---%>
 
 
 <!-- bootstrap & fontawesome -->
 
 <link rel="stylesheet" href="../components/monthpicker/MonthPicker.css"/>
-
-<%--<link rel="stylesheet" href="../components/jquery-ui.custom/jquery-ui.custom.min.css"/>--%>
-
-<%--<link rel="stylesheet" href="../assets/css/jquery.gritter.css"/>--%>
-<%--<link rel="stylesheet" href="../css/joinbuy.css"/>--%>
 <style>
-    /* body {
-         font-size: 12px;
-         font-family: Verdana, Arial, sans-serif;
-     }*/
-
-    /*  .icon {
-          vertical-align: bottom;
-          margin-top: 2px;
-          margin-bottom: 3px;
-          cursor: pointer;
-      }
-
-      .icon:active {
-          opacity: .5;
-      }
-
-      .ui-button-text {
-          padding: .4em .6em;
-          line-height: 0.8;
-      }*/
-
     .month-year-input {
         width: 80px;
         margin-right: 2px;
@@ -72,7 +35,7 @@
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');
         var myTable = dynamicTable
-        //.wrap("<div class='dataTables_borderWrap' />")  //if you are applying horizontal scrolling (sScrollX)
+            //.wrap("<div class='dataTables_borderWrap' />")  //if you are applying horizontal scrolling (sScrollX)
             .DataTable({
                 bAutoWidth: false,
                 "columns": [
@@ -106,7 +69,7 @@
                     }, {
                         "orderable": false, "targets": 6, title: '手术', render: function (data, type, row, meta) {
                             if (row['type'] === 1) return "";
-                            return data === 1 ? "手术" : "非手术";
+                            return data === 1 ? "仅手术" : "全部";
                         }
                     },
                     {
@@ -371,20 +334,6 @@
                 //name: 'result-list',
                 limit: 100,
                 source: doctorBloodHound.ttAdapter(),
-                /*source: function (query, processSync, processAsync) {
-                  //processSync(['This suggestion appears immediately', 'This one too']);
-                  var params = {
-                    pinyin: query
-                  };
-
-                  $.getJSON('/remark/liveDoctor.jspa', params, function (json) {
-                    //console.log("json:" + json.data);
-                    if (json.iTotalRecords > 0) {
-                      //console.log("json:" + json.data);
-                      return processAsync(json.data);
-                    }
-                  });
-                },*/
                 display: function (item) {
                     return item.name
                 },
@@ -475,7 +424,7 @@
 
         function showSampleDialog() {
             loadDepartment();
-
+            sampleForm.find("input[name='form-field-incision']").attr("disabled", true);
             $("#dialog-edit").removeClass('hide').dialog({
                 resizable: false,
                 width: 760,
@@ -508,9 +457,6 @@
         }
 
         function showSampleResult(result) {
-            /*console.log("rxID:" + result.sampleBatch.ids);
-            console.log("serialize():" + result.sampleBatch.ids);
-            console.log("type:" + result.sampleBatch.type);*/
             if (result.sampleBatch.type === 2)
                 $('#dynamic-table2').DataTable({
                     // bAutoWidth: false,
@@ -669,30 +615,6 @@
             e.preventDefault();
             showSampleDialog(null);
         });
-        //select/deselect all rows according to table header checkbox
-        /* $('#dynamic-table > thead > tr > th input[type=checkbox], #dynamic-table_wrapper input[type=checkbox]').eq(0).on('click', function () {
-             var th_checked = this.checked;//checkbox inside "TH" table header
-
-             dynamicTable.find('tbody > tr').each(function () {
-                 var row = this;
-                 if (th_checked) myTable.row(row).select();
-                 else myTable.row(row).deselect();
-             });
-         });
-
-         //select/deselect a row when the checkbox is checked/unchecked
-         dynamicTable.on('click', 'td input[type=checkbox]', function () {
-             var row = $(this).closest('tr').get(0);
-             if (this.checked) myTable.row(row).deselect();
-             else myTable.row(row).select();
-         });*/
-
-
-        /* $(document).on('click', '#dynamic-table .dropdown-toggle', function (e) {
-             e.stopImmediatePropagation();
-             e.stopPropagation();
-             e.preventDefault();
-         });*/
         //设置批次名称
         sampleForm.find(" #form-department,#form-doctor,#form-medicine,#form-dateRange").change(function () {
             /*var batchName = $('#form-type').children('option:selected').val() === "1" ? "门诊" : "住院";*/
@@ -709,22 +631,6 @@
         });
 
         //计算符合条件的数量
-        /*sampleForm.find("input[type=checkbox][name='form-field-surgery'],#form-dateRange").change(function () {
-            var p1 = sampleForm.find('#form-type').children('option:selected').val();//这就是selected的值 门诊为1,住院未2
-            // console.log("p1:" + p1);
-            if (p1 === '2') {
-                var surgery = sampleForm.find("input[name='form-field-surgery']").is(':checked');//=1
-                var params = {
-                    type: 2,
-                    surgery: surgery ? 1 : 0,
-                    dateRange: $('#form-dateRange').val(),
-                    draw: Math.random()
-                };
-
-                $('.icon_total2').addClass("ace-icon fa fa-spinner fa-spin fa-3x fa-fw");//动画
-
-            }
-        });*/
         sampleForm.find("#form-type,#form-department,#form-doctor,#form-western,#form-medicine,input[type=checkbox],#form-dateRange").change(function () {//[name!='form-field-surgery']
             var p1 = sampleForm.find('#form-type').children('option:selected').val();//这就是selected的值 门诊为1,住院未2
             console.log("p2:" + p1);
@@ -993,7 +899,7 @@
                             <label class="col-sm-3 control-label no-padding-right surgeryTypeLbl">手术</label>
                             <div class="checkbox col-sm-4">
                                 <label>
-                                    <input name="form-field-surgery" checked type="checkbox" class="ace" value="1"/>
+                                    <input name="form-field-surgery" type="checkbox" class="ace" value="1"/>
                                     <span class="lbl surgeryTypeLbl">是</span>
                                 </label>
                             </div>

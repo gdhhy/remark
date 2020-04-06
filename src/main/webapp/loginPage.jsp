@@ -125,7 +125,9 @@
                                         </fieldset>
                                     </form>
                                     <br/>
-                                    <div class="light-grey center">请使用浏览器Chrome，点击<a href="soft/Chrome_Google_v49.0.2623.112.exe">下载</a>。 访问<a href="http://168.168.168.6">旧版点评</a></div>
+                                    <div class="light-grey center">请使用<a href="soft/Chrome_Google_v49.0.2623.112.exe">Chrome</a>浏览器。
+                                        <a href="http://168.168.168.6">旧版</a>，
+                                        <a href="http://168.168.168.78:8080">亿通新版</a></div>
                                 </div><!-- /widget-main -->
                             </div><!-- /widget-body -->
                         </div><!-- /login-box -->

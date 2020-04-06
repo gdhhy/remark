@@ -43,8 +43,8 @@ public class InPatient implements Serializable {
     //private String result;
     //不合理项目
     private String disItem;
-    private Integer rational;
-    private Integer publish;
+  /*  private Integer rational;
+    private Integer publish;*/
 
     private Integer antiNum;
     private Integer concurAntiNum;
@@ -65,7 +65,7 @@ public class InPatient implements Serializable {
     //仅展示时用,ReviewAction.viewInPatient
     private String departCode;
     private int queryTimes = 0;
-    private Integer appealState;
+  /*  private Integer appealState;*/
     private Appeal appeal;
     private AntiResearch research;
     private String year;
@@ -229,7 +229,7 @@ public class InPatient implements Serializable {
     public void setDisItem(String disItem) {
         this.disItem = disItem;
     }
-
+/*
     public Integer getRational() {
         return rational;
     }
@@ -244,7 +244,7 @@ public class InPatient implements Serializable {
 
     public void setPublish(Integer publish) {
         this.publish = publish;
-    }
+    }*/
 
     public Integer getAntiNum() {
         return antiNum;
@@ -358,13 +358,13 @@ public class InPatient implements Serializable {
         return queryTimes;
     }
 
-    public Integer getAppealState() {
+   /* public Integer getAppealState() {
         return appealState;
     }
 
     public void setAppealState(Integer appealState) {
         this.appealState = appealState;
-    }
+    }*/
 
     public Appeal getAppeal() {
         return appeal;

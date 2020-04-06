@@ -32,7 +32,7 @@
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');
         var myTable = dynamicTable
-        //.wrap("<div class='dataTables_borderWrap' />")   //if you are applying horizontal scrolling (sScrollX)
+            //.wrap("<div class='dataTables_borderWrap' />")   //if you are applying horizontal scrolling (sScrollX)
             .DataTable({
                 bAutoWidth: false,
                 //paging: false,
@@ -41,7 +41,7 @@
                     {"data": "hospNo", "sClass": "center", defaultContent: ''},
                     {"data": "patientName", "sClass": "center"},
                     {"data": "age", "sClass": "center"},
-                  /*  {"data": "inDate", "sClass": "center"},//4*/
+                    /*  {"data": "inDate", "sClass": "center"},//4*/
                     {"data": "outDate", "sClass": "center"},
                     {"data": "inHospitalDay", "sClass": "center"},
                     {"data": "drugNum", "sClass": "center"},
@@ -49,7 +49,7 @@
                     {"data": "medicineMoney", "sClass": "center"},//9
                     {"data": "diagnosis2", "sClass": "center"},
                     {"data": "masterDoctorName", "sClass": "center"},
-                  /*  {"data": "rational", "sClass": "center"},*/
+                    /*  {"data": "rational", "sClass": "center"},*/
                     {"data": "disItem", "sClass": "center"},
                     {"data": "inPatientID", "sClass": "center"}//14
                 ],
@@ -67,16 +67,16 @@
                     {"orderable": false, "targets": 4, title: '出院日期', width: 130},
                     {"orderable": false, "targets": 5, title: '住院天数', width: 45},
                     {"orderable": false, "targets": 6, title: '药品组数', width: 45},
-                    {"orderable": false, "targets": 7, title: '总金额', defaultContent: '', align : 'right'},
+                    {"orderable": false, "targets": 7, title: '总金额', defaultContent: '', align: 'right'},
                     {"orderable": false, "targets": 8, title: '药品金额', defaultContent: ''},
                     {"orderable": false, "targets": 9, title: '出院诊断', defaultContent: ''},
                     {"orderable": false, "targets": 10, title: '主管<br/>医生', defaultContent: '', width: 60},
-                 /*   {
-                        "orderable": false, "targets": 11, title: '合理', defaultContent: '', render: function (data, type, row, meta) {
-                            if (data === 1) return '是';
-                            return '否';
-                        }
-                    },*/
+                    /*   {
+                           "orderable": false, "targets": 11, title: '合理', defaultContent: '', render: function (data, type, row, meta) {
+                               if (data === 1) return '是';
+                               return '否';
+                           }
+                       },*/
                     {"orderable": false, searchable: false, "targets": 11, title: '问题代码', width: 45},
                     {
                         "orderable": false, "targets": 12, title: '点评', render: function (data, type, row, meta) {
@@ -84,6 +84,9 @@
                                 /*'<a class="hasDetail" href="#" data-Url="/index.jspa?content=/remark/viewInPatient.jspa&inPatientID={0}">'.format(data) +*/
                                 '<a class="hasDetail" href="#" data-Url="/remark/viewInPatient{0}.jspa?inPatientID={1}&batchID={2}">'.format(remarkType, data, sampleBatchID) +
                                 (row['reviewTime'] === undefined ? '<i class="ace-icon glyphicon glyphicon-pencil  bigger-130"></i>' : row['reviewTime'].substring(0, 10)) +
+                                '</a>&nbsp;&nbsp;&nbsp;' +
+                                '<a class="hasDetail" href="#" data-Url="javascript:deleteSample({0},\'{1}\',\'{2}\');">'.format(sampleBatchID, data, row['patientName']) +
+                                '<i class="ace-icon fa fa-trash-o red bigger-110"></i>' +
                                 '</a>' +
                                 '</div>';
                         }
@@ -114,12 +117,6 @@
                 } else
                     window.open($(this).attr("data-Url"), "_blank");
             });
-            /* $('a.blue').on('click', function (e) {
-                 e.preventDefault();
-                 $.cookie('goodsID', $(this).attr("data-goodsID"));
-                 $.cookie('goodsName', $(this).attr("data-goodsName"));
-                 window.location.href = "index.jspa?content=/admin/buyRecord.jsp&menuID=3";
-             });*/
         });
         $("#dt").resize(function () {
             myTable.columns.adjust();
@@ -157,6 +154,49 @@
             });
         }
 
+        function deleteSample(batchID, objectID, patientName) {
+            console.log("deleteSample");
+            if (batchID === undefined) return;
+            $('#patientName').text(patientName);
+            $("#dialog-delete").removeClass('hide').dialog({
+                resizable: false,
+                modal: true,
+                title: "确认删除抽样",
+                //title_html: true,
+                buttons: [
+                    {
+                        html: "<i class='ace-icon fa fa-trash bigger-110'></i>&nbsp;确定",
+                        "class": "btn btn-danger btn-minier",
+                        click: function () {
+                            $.ajax({
+                                type: "POST",
+                                url: "/remark/deleteSample.jspa?batchID=" + batchID + '&objectID=' + objectID,
+                                //contentType: "application/x-www-form-urlencoded; charset=UTF-8",//http://www.cnblogs.com/yoyotl/p/5853206.html
+                                cache: false,
+                                success: function (response, textStatus) {
+                                    var result = JSON.parse(response);
+                                    if (result.succeed)
+                                        myTable.ajax.reload();
+                                    else
+                                        showDialog("请求结果：" + result.succeed, '删除失败，请稍后重试或与管理员联系！');
+                                },
+                                error: function (response, textStatus) {/*能够接收404,500等错误*/
+                                    showDialog("请求状态码：" + response.status, response.responseText);
+                                }
+                            });
+                            $(this).dialog("close");
+                        }
+                    },
+                    {
+                        html: "<i class='ace-icon fa fa-times bigger-110'></i>&nbsp; 取消",
+                        "class": "btn btn-minier",
+                        click: function () {
+                            $(this).dialog("close");
+                        }
+                    }
+                ]
+            });
+        }
 
     })
 </script>
@@ -215,3 +255,15 @@
     </div><!-- /.row -->
 </div>
 <!-- /.page-content -->
+<div id="dialog-delete" class="hide">
+    <div class="alert alert-info bigger-110">
+        删除 <span id="patientName" class="red"></span> 的抽样。
+    </div>
+
+    <div class="space-6"></div>
+
+    <p class="bigger-110 bolder center grey">
+        <i class="icon-hand-right blue bigger-120"></i>
+        确认吗？
+    </p>
+</div>

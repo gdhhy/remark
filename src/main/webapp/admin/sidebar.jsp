@@ -325,6 +325,15 @@
 
                     <b class="arrow"></b>
                 </li>
+                <li class="">
+                    <a href="index.jspa?content=/base/instruction.jsp&menuID=41" id="41">
+                        <!--<i class="menu-icon fa fa-user"></i>-->
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        <span class="menu-text">说明书库</span>
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
             </ul>
         </li>
         <li>

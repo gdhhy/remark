@@ -119,7 +119,7 @@ public class MedicineController {
         param.put("instrIDs", StringUtils.splitToInts(instrIDs, ","));
         param.put("hasInstruction", 1);
         param.put("limit", limit);
-        List<HashMap> instructionList = instructionDao.query(param);
+        List<HashMap<String,Object>> instructionList = instructionDao.query(param);
 
         Map<String, Object> result = new HashMap<>();
         result.put("data", instructionList);

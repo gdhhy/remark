@@ -113,7 +113,11 @@ public class SampleDAOImpl extends SqlSessionDaoSupport implements SampleDAO, Se
         return getSqlSession().selectList("SampleList.selectLastReviewByDoctor", param);
     }
 
-    @SuppressWarnings("unchecked")
+    @Override
+    public int deleteSample(Map<String, Object> param) {
+        return getSqlSession().delete("SampleList.deleteSample", param);
+    }
+    /*  @SuppressWarnings("unchecked")
     public List<HashMap<String, Object>> getReviewClinic(Map param) {
         return getSqlSession().selectList("SampleList.selectReviewClinic", param);
     }
@@ -126,7 +130,7 @@ public class SampleDAOImpl extends SqlSessionDaoSupport implements SampleDAO, Se
     @SuppressWarnings("unchecked")
     public int getReviewClinicCount(Map param) {
         return getSqlSession().selectOne("SampleList.selectReviewClinicCount", param);
-    }
+    }*/
 
 
    /* public int getReviewHospitalCount(Map param) {

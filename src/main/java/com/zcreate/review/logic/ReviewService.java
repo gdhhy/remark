@@ -15,13 +15,9 @@ import java.util.Map;
 public interface ReviewService {
     Clinic getClinic(int clinicID);
 
-    InPatient getInPatient(int recipeID,int reviewType);
-
-   // int getObjectCount(int type, String fromDate, String toDate, int clinicType, String department, String doctorNo, int western, String medicineNo, int special, int incision);
+    InPatient getInPatient(int recipeID, int reviewType);
 
     boolean saveClinic(Clinic clinic);
-
-    boolean saveInPatient(InPatient recipe);
 
     List<Integer> createSampling(SampleBatch sampleBatch);
 
@@ -29,37 +25,15 @@ public interface ReviewService {
 
     int doDeleteSampleBatch(int sampleBatchID);
 
+    int deleteSample(int sampleBatchID, int objectID);
+
     List getObjectByIDs(List<Integer> ids, int type);
-
-    List getClinicList(Map<String, Object> param);
-
-    List getInPatientList(Map<String, Object> param);
-
-    List<HashMap<String, Object>> getInPatientListForExcel(Map<String, Object> param);
-
-    List<HashMap<String, Object>> getAdviceItemForExcel(Integer hospID, int medicineType);
 
   /*  int getClinicCount(Map<String, Object> param);
 
     int getInPatientCount(Map<String, Object> param);*/
 
-    int addSampleToBatch(SampleBatch sampleBatch, String clinicIDs);
-
-    boolean publishClinic(int clinicID, int publishType);
-
-    boolean publishInPatient(int recipeID, int publishType);
-
     boolean saveInPatientReview(InPatientReview review);
 
-    List<AdviceItem> getAdviceItemList(Integer hospID, int longAdvice,String year);
-
-    List<HashMap<String, Object>> getLastReview(int topRecount);
-
-    List<HashMap<String, Object>> getLastReviewByDoctor(int topRecount);
-
-    int getSurgeryCount(Integer hospID);
-
-    List<HashMap<String, Object>> getAdviceItemCount(Integer hospID);
-
-    int saveDiagnosis(Integer hospID, String diagnosisNos, String diseases);
+    List<AdviceItem> getAdviceItemList(Integer hospID, int longAdvice, String year);
 }

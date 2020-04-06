@@ -26,7 +26,7 @@
         select TOP ${limit} S.detailID,R.inPatientID,R.hospID,R.hospNo,R.patientID,R.patientName,R.sex,R.age,R.inDate,R.outDate,R.inHospitalDay,R.department,
         R.diagnosis, R.diagnosis2,
         R.money,R.medicineMoney,R.antiMoney,R.drugNum,R.antiNum,R.concurAntiNum,R.masterDoctorID,
-        R.masterDoctorName,V.reviewTime,R.disItem,V.review result,R.rational,R.publish,
+        R.masterDoctorName,V.reviewTime,R.disItem,V.review result,
         V.inPatientReviewID,V.hospID,V.reviewType,V.review,V.reviewUser,V.reviewTime,V.interDepart
         from (select * from SampleList<include refid="queryWhere"/>) S
         LEFT JOIN InPatient R on R.inPatientID=S.objectID
@@ -56,6 +56,11 @@
             #{item}
         </foreach>
     </delete>
+    <delete id="deleteSample" parameterType="java.util.Map" flushCache="true">
+        DELETE
+        FROM SampleList
+        where sampleBatchID = #{sampleBatchID:INTEGER} and objectID = #{objectID:INTEGER}
+    </delete>
     <delete id="deleteSampleDetailByBatchID" parameterType="int" flushCache="true">
         DELETE
         FROM SampleList
@@ -69,7 +74,8 @@
                WHERE reviewDate IS NOT NULL
                ORDER BY reviewDate DESC)
               UNION ALL
-              (SELECT TOP ${recordCount} CONVERT(BIGINT, datediff(S, '1970-1-1 00:00:00',R.outDate)) * 1000 date, R.department,
+              (SELECT TOP ${recordCount} CONVERT(BIGINT, datediff(S, '1970-1-1 00:00:00', R.outDate)) * 1000 date,
+                                         R.department,
                                          R.masterdoctorName doctorName,
                                          CONVERT(BIGINT, datediff(S, '1970-1-1 00:00:00', V.reviewTime)) * 1000 reviewDate, V.reviewUser, R.rational
                FROM InPatient R JOIN InPatientReview V ON R.hospID = V.hospID
@@ -85,7 +91,8 @@
                ORDER BY reviewDate DESC)
               UNION ALL
               (SELECT TOP ${recordCount} R.hospID, R.patientID, R.outDate date, R.department, R.masterdoctorName doctorName, V.reviewTime reviewDate, V.reviewUser, R.rational
-               FROM inPatient R  JOIN InPatientReview V ON R.hospID = V.hospID
+               FROM inPatient R
+                        JOIN InPatientReview V ON R.hospID = V.hospID
                WHERE reviewDate IS NOT NULL
                ORDER BY reviewDate DESC)) B
         ORDER BY reviewDate DESC
@@ -109,10 +116,10 @@
     </select>
     <select id="selectReviewHospital" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT TOP ${limit}
-        inPatientID objectID, R.hospID,R.hospNo, R.patientID, R.outDate date, R.department, R.masterDoctorName doctorName, V.reviewTime, V.reviewUser, R.rational, V.review
+        inPatientID objectID, R.hospID,R.hospNo, R.patientID, R.outDate date, R.department, R.masterDoctorName doctorName, V.reviewTime, V.reviewUser,  V.review
         reviewResult,R.drugNum,R.money,R.antiNum,R.antiMoney,R.patientName,R.appealState
         FROM InPatient R
-          JOIN InPatientReview V ON R.hospID = V.hospID
+        JOIN InPatientReview V ON R.hospID = V.hospID
         WHERE R.reviewTime > '2010-01-01'
         <if test="doctorName!=null">and masterDoctorName=#{doctorName:VARCHAR}</if>
         <if test="start!=null and start > 0">
@@ -123,8 +130,8 @@
         ORDER BY reviewTime DESC
     </select>
 
-   <!-- <select id="selectReviewHospitalCount" parameterType="java.util.Map" resultType="int">
-        SELECT count(*) FROM InPatient WHERE reviewDate > '2010-01-01'
-        <if test="doctorName!=null">and masterDoctorName=#{doctorName:VARCHAR}</if>
-    </select>-->
+    <!-- <select id="selectReviewHospitalCount" parameterType="java.util.Map" resultType="int">
+         SELECT count(*) FROM InPatient WHERE reviewDate > '2010-01-01'
+         <if test="doctorName!=null">and masterDoctorName=#{doctorName:VARCHAR}</if>
+     </select>-->
 </mapper>

@@ -31,7 +31,7 @@
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');
         var myTable = dynamicTable
-        //.wrap("<div class='dataTables_borderWrap' />") //if you are applying horizontal scrolling (sScrollX)
+            //.wrap("<div class='dataTables_borderWrap' />") //if you are applying horizontal scrolling (sScrollX)
             .DataTable({
                 bAutoWidth: false,
                 bProcessing: true,
@@ -124,7 +124,7 @@
         var url2 = "/remark/getHospitalReviewList.jspa?" + urlParam;
         var dynamicTable2 = $('#dynamic-table2');
         var myTable2 = dynamicTable2
-        //.wrap("<div class='dataTables_borderWrap' />") //if you are applying horizontal scrolling (sScrollX)
+            //.wrap("<div class='dataTables_borderWrap' />") //if you are applying horizontal scrolling (sScrollX)
             .DataTable({
                 bAutoWidth: false,
                 bProcessing: true,
@@ -138,8 +138,8 @@
                     {"data": "diagnosis", "sClass": "center", defaultContent: ''},
                     {"data": "department", "sClass": "center"},
                     {"data": "masterDoctorName", "sClass": "center"},
-                    {"data": "review", "sClass": "center", defaultContent: ''},
-                    /*{"data": "rational", "sClass": "center"},*/
+                    {"data": "reviewJson", "sClass": "center", defaultContent: ''},//9
+                    {"data": "reviewJson", "sClass": "center", defaultContent: ''},
                     {"data": "reviewTime", "sClass": "center"},
                     {"data": "reviewUser", "sClass": "center"},
                     {"data": "inPatientID", "sClass": "center"}
@@ -164,20 +164,22 @@
                     {"orderable": false, "targets": 8, title: '主管医生', defaultContent: ''},
                     {
                         "orderable": false, "targets": 9, title: '点评内容', render: function (data) {
-                            console.log("data:" + data);
-                            if (data !== undefined && data.length > 12) return data.substring(0, 10) + "...";
-                            return data;
+                            var obj = jQuery.parseJSON(data).点评.review;
+                            if (obj !== undefined && obj.length > 12) return obj.substring(0, 10) + "...";
+                            return obj;
                         }
-                    },/*
-                      {
-                          "orderable": false, "targets": 10, title: '结果', render: function (data) {
-                              return data === 1 ? "√" : "×";
-                          }
-                      },*/
-                    {"orderable": false, "targets": 10, title: '点评日期'},
-                    {"orderable": false, "targets": 11, title: '点评人'},
+                    },
                     {
-                        "orderable": false, "targets": 12, title: '查看', render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 10, title: '结果', render: function (data) {
+                            var obj = jQuery.parseJSON(data).点评.rational;
+                            if (obj === '1') return "√";
+                            if (obj === '2') return "×";
+                        }
+                    },
+                    {"orderable": false, "targets": 11, title: '点评日期'},
+                    {"orderable": false, "targets": 12, title: '点评人'},
+                    {
+                        "orderable": false, "targets": 13, title: '查看', render: function (data, type, row, meta) {
                             if (row["reviewType"] === 0)
                                 return '<div class="hidden-sm hidden-xs action-buttons">' +
                                     /*'<a class="hasDetail" href="#" data-Url="/index.jspa?content=/remark/viewInPatient.jspa&inPatientID={0}">'.format(data) +*/
@@ -332,7 +334,7 @@
             <!-- #section:plugins/date-time.datepicker -->
             <div class="input-group">
                 <input class="form-control nav-search-input" name="dateRangeString" id="form-dateRange"
-                       style="color: black"
+                       style="color: black;width:200px"
                        data-date-format="YYYY-MM-DD"/>
                 <span class="input-group-addon"><i class="fa fa-calendar bigger-100"></i></span>
             </div>&nbsp;&nbsp;&nbsp;
@@ -343,7 +345,7 @@
                     <input type="radio" name="rational" value="1" class="ace">&nbsp;&nbsp;&nbsp;
                     <span class="lbl">合理</span></label>
                 <label style="white-space: nowrap">
-                    <input type="radio" name="rational" value="0" class="ace">&nbsp;&nbsp;&nbsp;
+                    <input type="radio" name="rational" value="2" class="ace">&nbsp;&nbsp;&nbsp;
                     <span class="lbl">不合理</span></label>
             </div>&nbsp;&nbsp;&nbsp;
 

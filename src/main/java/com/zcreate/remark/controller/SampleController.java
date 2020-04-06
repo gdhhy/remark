@@ -132,6 +132,7 @@ public class SampleController {
             dateParam.put("outDateFrom", DateUtils.parseSqlDate(date[0]));
             dateParam.put("AdviceItemTable", "AdviceItem_" + date[0].substring(0, 4));
             dateParam.put("outDateTo", toCal.getTime());
+            param.put("notStat", true);
             result.put("outPatientNum", inPatientDao.getInPatientCount(dateParam));
 
             param.putAll(dateParam);
@@ -228,6 +229,23 @@ public class SampleController {
         int deleteCount = 0;
         try {
             deleteCount = reviewService.doDeleteSampleBatch(batchID);
+        } catch (Exception e) {
+            e.printStackTrace();
+            map.put("message", "错误信息：<br/>" + e.getMessage());
+        }
+        map.put("succeed", deleteCount > 0);
+        map.put("affectedRowCount", deleteCount);
+
+        return gson.toJson(map);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/deleteSample", method = RequestMethod.POST)
+    public String deleteSample(@RequestParam("batchID") int batchID, @RequestParam("objectID") int objectID) {
+        Map<String, Object> map = new HashMap<>();
+        int deleteCount = 0;
+        try {
+            deleteCount = reviewService.deleteSample(batchID, objectID);
         } catch (Exception e) {
             e.printStackTrace();
             map.put("message", "错误信息：<br/>" + e.getMessage());

@@ -1,11 +1,9 @@
 package com.zcreate.review.logic;
 
-import com.zcreate.common.DictService;
 import com.zcreate.review.dao.*;
 import com.zcreate.review.model.*;
 import com.zcreate.util.DateUtils;
 import com.zcreate.util.StringUtils;
-import org.apache.log4j.Logger;
 import org.mybatis.spring.SqlSessionTemplate;
 
 import java.util.*;
@@ -17,12 +15,12 @@ import java.util.*;
  * Time: 上午11:18
  */
 public class ReviewServiceImpl implements ReviewService {
-    static Logger logger = Logger.getLogger(ReviewServiceImpl.class);
+    //static Logger logger = Logger.getLogger(ReviewServiceImpl.class);
     private static ClinicDAO clinicDao;
     private static InPatientDAO inPatientDao;
     private static SampleDAO sampleDao;
     private static IncompatibilityDAO incompatibilityDAO;
-    private DictService dictService;
+  //  private DictService dictService;
 
     public ReviewServiceImpl() {
     }
@@ -46,8 +44,8 @@ public class ReviewServiceImpl implements ReviewService {
 
     }
 
-    public InPatient getInPatient(int inPatientID,int reviewType) {
-        InPatient inPatient = inPatientDao.getInPatient(inPatientID,reviewType);
+    public InPatient getInPatient(int inPatientID, int reviewType) {
+        InPatient inPatient = inPatientDao.getInPatient(inPatientID, reviewType);
 
         InPatientReview review = inPatient.getReview();
         if (review == null) {
@@ -74,7 +72,7 @@ public class ReviewServiceImpl implements ReviewService {
             //寻找配伍禁忌药品
             List<HashMap<String, Object>> incompatiMap = incompatibilityDAO.queryByhospID(param);
             HashMap<Integer, String> resultMap = new HashMap<Integer, String>();
-            for (HashMap aMap : incompatiMap) {
+            for (HashMap<String, Object> aMap : incompatiMap) {
                 String result = aMap.get("medicineName1") + " + " + aMap.get("medicineName2") + " : " + aMap.get("result");
                 resultMap.put((Integer) aMap.get("incompatibilityID"), result);//过滤重复ID的
             }
@@ -99,9 +97,6 @@ public class ReviewServiceImpl implements ReviewService {
 
     /**
      * 取门诊处方去点评
-     *
-     * @param clinicID
-     * @return
      */
     public Clinic getClinic(int clinicID) {
 
@@ -117,7 +112,7 @@ public class ReviewServiceImpl implements ReviewService {
             details.get(0).setNum2("(1)");
             for (int i = 1; i < details.size(); i++) {
                 if (details.get(i).getGroupID().equals(details.get(i - 1).getGroupID())) {
-                    if (!"+".equals(details.get(i).getGoodsID()))
+                    if (!"+".equals(details.get(i).getGoodsID()+""))
                         details.get(i).setNum2("(" + ++num2 + ")");
                 } else {
                     details.get(i).setNum1(++num1 + "、");
@@ -130,7 +125,7 @@ public class ReviewServiceImpl implements ReviewService {
         //寻找配伍禁忌药品
         String result = "";
         //标记配伍禁忌药品，显示为红色
-        for (HashMap aMap : clinic.getIncompatibilitys()) {
+        for (HashMap<String, Object> aMap : clinic.getIncompatibilitys()) {
             if (!"".equals(result)) result += "\n";
             result += aMap.get("medicineName1") + " + " + aMap.get("medicineName2") + " : " + aMap.get("result");
 
@@ -147,48 +142,13 @@ public class ReviewServiceImpl implements ReviewService {
 
         return clinic;
     }
-
-    /*public int getObjectCount(int type, int year, int month, String department, String doctorNo, int western) {
-        logger.debug("getRxCount(),department=" + department);
-        Map<String, Object> param = new HashMap<String, Object>();
-        param.put("type", type);
-        param.put("doctor", doctorNo);
-        *//*if (western >= 0) *//*//取值：西药1， 中药，0，-1不限
-        param.put("western", western);
-        if (!"全部".equals(department))
-            param.put("department", department);
-
-        if (year > 0 && month <= 0)  //只选择年份，月份为空
-            param.put("year", year);
-
-        if (type == 1) {
-            if (year > 0 && month > 0) {
-                Calendar cal = DateUtils.parseCalendarDayFormat(year + "-" + month + "-01");
-                param.put("clinicDateFrom", ((Calendar) cal.clone()).getTime());
-
-                cal.add(Calendar.MONTH, 1);
-                param.put("clinicDateTo", cal.getTime());
-            }
-
-            return clinicDao.getClinicCount(param);
-        } else {
-            if (year > 0 && month > 0) {
-                Calendar cal = DateUtils.parseCalendarDayFormat(year + "-" + month + "-01");
-                param.put("inPatientDateFrom", ((Calendar) cal.clone()).getTime());
-
-                cal.add(Calendar.MONTH, 1);
-                param.put("inPatientDateTo", cal.getTime());
-            }
-            return inPatientDao.getInPatientCount(param);
-        }
-    }*/
-
+/*
     public int getObjectCount(int type, String fromDate, String toDate, int clinicType, String department, String doctorNo, int western, String medicineNo, int special, int incision) {
         logger.debug("getRxCount(),special=" + special + "medicineNo=" + medicineNo);
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("type", type);
         param.put("doctor", doctorNo);
-        /*if (western >= 0) *///取值：西药1， 中药，0，-1不限
+        *//*if (western >= 0) *//*//取值：西药1， 中药，0，-1不限
         param.put("western", western);
         param.put("clinicType", clinicType);
         param.put("medicine1", medicineNo);
@@ -211,26 +171,11 @@ public class ReviewServiceImpl implements ReviewService {
             //param.put("outHospital", true);
             return inPatientDao.getInPatientCount(param);
         }
-    }
+    }*/
 
     public boolean saveClinic(Clinic clinic) {
         return clinicDao.save(clinic) == 1;
     }
-
-    public boolean saveInPatient(InPatient inPatient) {
-        return inPatientDao.save(inPatient) == 1;
-    }
-
-    /*   public void setRxDao(RxDAO clinicDao) {
-        //  logger.debug("setRxDao");
-        ReviewServiceImpl.clinicDao = clinicDao;
-    }
-
-    public void setInPatientDao(InPatientDAO inPatientDao) {
-        //  logger.debug("setRxDao");
-        ReviewServiceImpl.inPatientDao = inPatientDao;
-    }*/
-
 
     public List<Integer> createSampling(SampleBatch sampleBatch) {
         Map<String, Object> param = new HashMap<>();
@@ -262,9 +207,9 @@ public class ReviewServiceImpl implements ReviewService {
                 //不调用存储过程，效率低
                 //先产生等差随机数列
                 param.put("RxDetailTable", "RxDetail_" + param.get("clinicDateFrom").toString().substring(0, 4));
-                int array[] = linearArray(clinicDao.getClinicCount(param), sampleBatch.getNum());
+                int[] array = linearArray(clinicDao.getClinicCount(param), sampleBatch.getNum());
                 List<Integer> clinicIDs = clinicDao.selectClinicIDForLinear(param);
-                List<Integer> result = new ArrayList<Integer>(array.length);
+                List<Integer> result = new ArrayList< >(array.length);
                 for (int index : array)
                     if (index < clinicIDs.size())
                         result.add(clinicIDs.get(index));
@@ -274,15 +219,16 @@ public class ReviewServiceImpl implements ReviewService {
             param.put("outDateFrom", param.get("clinicDateFrom"));
             param.put("AdviceItemTable", "AdviceItem_" + param.get("clinicDateFrom").toString().substring(0, 4));
             param.put("outDateTo", param.get("clinicDateTo"));
+            param.put("notStat", true);
             //param.put("outHospital", true);
             if (sampleBatch.getSampleType() == 1)//随机
                 return inPatientDao.getRandomInPatientID(param);
             else {//等差
                 //不调用存储过程，效率低
                 // 先产生等差随机数列
-                int array[] = linearArray(inPatientDao.getInPatientCount(param), sampleBatch.getNum());
+                int[] array = linearArray(inPatientDao.getInPatientCount(param), sampleBatch.getNum());
                 List<Integer> inPatientIDs = inPatientDao.selectInPatientIDForLinear(param);
-                List<Integer> result = new ArrayList<Integer>(array.length);
+                List<Integer> result = new ArrayList< >(array.length);
                 for (int index : array)
                     if (index < inPatientIDs.size())
                         result.add(inPatientIDs.get(index));
@@ -294,7 +240,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     private int[] linearArray(int total, int result) {
         if (result > total) result = total;
-        int array[] = new int[result];
+        int[] array = new int[result];
         double step = total * 1.0 / result;  //step 最小为1
         for (int i = 0; i < result; i++) {
             int target = (int) Math.floor(i * step + step * Math.random());
@@ -321,7 +267,7 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
 
-    public List getClinicList(Map<String, Object> param) {
+   /* public List getClinicList(Map<String, Object> param) {
         if (param.get("atLeastMoney") == null || (Integer) param.get("start") > 0)
             param.put("orderField", "clinicID");
         else
@@ -350,7 +296,7 @@ public class ReviewServiceImpl implements ReviewService {
         else
             param.put("antiClass", 1);
         return inPatientDao.getAdviceItemForExcel(param);
-    }
+    }*/
 
     /*public int getClinicCount(Map<String, Object> param) {
         return clinicDao.getClinicCount(param);
@@ -363,7 +309,6 @@ public class ReviewServiceImpl implements ReviewService {
     /*  public static void setSampleDao(SampleDAO sampleDao) {
         ReviewServiceImpl.sampleDao = sampleDao;
     }*/
-    @SuppressWarnings("unchecked")
     public int doSaveSampling(SampleBatch sampleBatch, List<Integer> ids) {
 //        sampleBatch.setSampleNo(sampleBatch.getYear() + "-" + (sampleBatch.getMonth() != null ? sampleBatch.getMonth() : "") + (sampleBatch.getType() == 1 ? "-MZ-" : "-ZY-") + sampleBatch.getName());
         sampleDao.insert(sampleBatch);
@@ -380,10 +325,9 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     //在已保存抽样临时增加处方
-    @SuppressWarnings("unchecked")
     public int addSampleToBatch(SampleBatch sampleBatch, String clinicIDs) {
         int[] ints = StringUtils.splitToInts(clinicIDs, ",");
-        List<Integer> lists = new ArrayList<Integer>(ints.length);
+        List<Integer> lists = new ArrayList< >(ints.length);
         for (int i : ints) lists.add(i);
         int succeedCount = 0;
         List objectIds = getObjectByIDs(lists, sampleBatch.getType());
@@ -440,14 +384,14 @@ public class ReviewServiceImpl implements ReviewService {
         sampleDao.insertSampleDetail(sample);
     }
 
-    public HashMap<String, Object> analyseClinic(int clinicID) {
+   /* public HashMap<String, Object> analyseClinic(int clinicID) {
         Clinic clinic = clinicDao.getClinic(clinicID);
         return analyseClinic(clinic);
     }
 
     public HashMap<String, Object> analyseClinic(Clinic clinic) {
-        HashMap<String, Object> analyseResult = new HashMap<String, Object>(3);
-        List<String> disItem = new ArrayList<String>(5);
+        HashMap<String, Object> analyseResult = new HashMap<> (3);
+        List<String> disItem = new ArrayList<>(5);
         if (!"".equals(clinic.getDoctorName()) && !"".equals(clinic.getConfirmName()) && !"".equals(clinic.getApothecaryName()))
             clinic.setRational(1);
         else {
@@ -462,7 +406,7 @@ public class ReviewServiceImpl implements ReviewService {
         analyseResult.put("disItem", disItem);
 
         return analyseResult;
-    }
+    }*/
 
     public int doDeleteSampleBatch(int sampleBatchID) {
         int deleteDetailCount = sampleDao.deleteDetailBySampleBatchID(sampleBatchID);
@@ -470,7 +414,15 @@ public class ReviewServiceImpl implements ReviewService {
         return deleteDetailCount;
     }
 
-    public boolean publishClinic(int clinicID, int publishType) {
+    @Override
+    public int deleteSample(int sampleBatchID, int objectID) {
+        Map<String, Object> param = new HashMap< >(2);
+        param.put("sampleBatchID", sampleBatchID);
+        param.put("objectID", objectID);
+        return sampleDao.deleteSample(param);
+    }
+
+  /*  public boolean publishClinic(int clinicID, int publishType) {
         Clinic clinic = new Clinic();
         clinic.setClinicID(clinicID);
         clinic.setPublish(publishType);
@@ -492,7 +444,7 @@ public class ReviewServiceImpl implements ReviewService {
         param.put("objectID", inPatientID);
 
         return inPatientDao.save(inPatient) == 1 && (publishType != 2 || clinicDao.publish(param));
-    }
+    }*/
 
     public boolean saveInPatientReview(InPatientReview review) {
         return inPatientDao.saveInPatientReview(review) > 0;
@@ -523,7 +475,7 @@ public class ReviewServiceImpl implements ReviewService {
         }
         List<HashMap<String, Object>> map = incompatibilityDAO.queryByhospID(param);
         //标记配伍禁忌药品，显示为红色
-        for (HashMap aMap : map)
+        for (HashMap<String, Object> aMap : map)
             for (AdviceItem item : inPatientItemList) {
                 if (aMap.get("itemID1").equals(item.getAdviceItemID()) || aMap.get("itemID2").equals(item.getAdviceItemID())) {
                     item.setIncompatibility(Boolean.TRUE);
@@ -533,7 +485,7 @@ public class ReviewServiceImpl implements ReviewService {
         return inPatientItemList;
     }
 
-    public int saveDiagnosis(Integer hospID, String diagnosisNos, String diseases) {
+/*  public int saveDiagnosis(Integer hospID, String diagnosisNos, String diseases) {
         String[] diagnosisNoArr = diagnosisNos.split(";");
         String[] diseaseArr = diseases.split(";");
         if (diagnosisNoArr.length == diseaseArr.length && diseaseArr.length > 0) {
@@ -552,9 +504,9 @@ public class ReviewServiceImpl implements ReviewService {
             return inPatientDao.saveDiagnosis(diagnosisList);
         }
         return 0;
-    }
+    }*/
 
-    public List<HashMap<String, Object>> getLastReview(int topRecount) {
+   /* public List<HashMap<String, Object>> getLastReview(int topRecount) {
         return sampleDao.getLastReview(topRecount);
     }
 
@@ -568,7 +520,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     public List<HashMap<String, Object>> getAdviceItemCount(Integer hospID) {
         return inPatientDao.getAdviceItemCount(hospID);
-    }
+    }*/
 
     /* public int saveChooseDiagnosis(Integer hospID, int[] ids) {
         List<Integer> list = new ArrayList<Integer>(ids.length);
@@ -576,13 +528,13 @@ public class ReviewServiceImpl implements ReviewService {
         return inPatientDao.saveChooseDiagnosis(hospID, list);
     }*/
 
-    public DictService getDictService() {
+   /* public DictService getDictService() {
         return dictService;
     }
 
     public void setDictService(DictService dictService) {
         this.dictService = dictService;
-    }
+    }*/
     /* public List<HashMap<String, Object>> getSurgeryList(Integer hospID) {
         return inPatientDao.getSurgeryList(hospID);
     }*/
