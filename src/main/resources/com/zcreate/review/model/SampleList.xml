@@ -24,10 +24,9 @@
     </select>
     <select id="selectSampleInPatient" parameterType="java.util.Map" resultType="java.util.HashMap">
         select TOP ${limit} S.detailID,R.inPatientID,R.hospID,R.hospNo,R.patientID,R.patientName,R.sex,R.age,R.inDate,R.outDate,R.inHospitalDay,R.department,
-        R.diagnosis, R.diagnosis2,
-        R.money,R.medicineMoney,R.antiMoney,R.drugNum,R.antiNum,R.concurAntiNum,R.masterDoctorID,
+        R.diagnosis, R.diagnosis2, R.money,R.medicineMoney,R.antiMoney,R.drugNum,R.antiNum,R.concurAntiNum,R.masterDoctorID,
         R.masterDoctorName,V.reviewTime,R.disItem,V.review result,
-        V.inPatientReviewID,V.hospID,V.reviewType,V.review,V.reviewUser,V.reviewTime,V.interDepart
+        V.inPatientReviewID,V.hospID,V.reviewType,V.review,V.reviewUser,V.reviewTime,V.interDepart,V.reviewJson
         from (select * from SampleList<include refid="queryWhere"/>) S
         LEFT JOIN InPatient R on R.inPatientID=S.objectID
         LEFT JOIN InPatientReview V on R.hospID=V.hospID

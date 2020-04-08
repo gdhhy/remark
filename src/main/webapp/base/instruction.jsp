@@ -14,15 +14,15 @@
 <script src="../components/typeahead.js/dist/typeahead.bundle.min.js"></script>
 <script src="../components/typeahead.js/handlebars.js"></script>
 <script src="../components/chosen/chosen.jquery.js"></script>
-<script type="text/javascript" src="../components/jquery-easyui-1.9.4/jquery.easyui.min.js"></script>
-<script type="text/javascript" src="../components/jquery-easyui-1.9.4/locale/easyui-lang-zh_CN.js"></script>
+<%--<script type="text/javascript" src="../components/jquery-easyui-1.9.4/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="../components/jquery-easyui-1.9.4/locale/easyui-lang-zh_CN.js"></script>--%>
 
 <!-- bootstrap & fontawesome -->
 
 <link rel="stylesheet" href="../components/font-awesome/css/font-awesome.css"/>
-<link rel="stylesheet" href="../components/chosen/chosen.min.css"/>
+<link rel="stylesheet" href="../components/chosen/chosen.min.css"/><%--
 <link rel="stylesheet" type="text/css" href="../components/jquery-easyui-1.9.4/themes/default/easyui.css">
-<link rel="stylesheet" type="text/css" href="../components/jquery-easyui-1.9.4/themes/icon.css">
+<link rel="stylesheet" type="text/css" href="../components/jquery-easyui-1.9.4/themes/icon.css">--%>
 <style>
     .form-group {
         margin-bottom: 3px;
@@ -40,17 +40,19 @@
             .DataTable({
                 bAutoWidth: false,
                 "searching": true,
-                "iDisplayLength": 25,
+                //"iDisplayLength": 15,
                 "columns": [
-                    {"data": "instructionID", "sClass": "center", "orderable": false, width: 40},
+                    {"data": "instructionID", "sClass": "center", "orderable": false, width: 45},
                     {"data": "chnName", "sClass": "center", "orderable": false, className: 'middle'},
-                    {"data": "dose", "sClass": "center", "orderable": false, className: 'middle'},
+                    {"data": "general", "sClass": "center", "orderable": false, className: 'middle', defaultContent: ''},
+                    {"data": "matchGeneralName", "sClass": "center", "orderable": false, className: 'middle', defaultContent: ''},
+                    {"data": "dose", "sClass": "center", "orderable": false, className: 'middle'},//4
+                    {"data": "hasInstruction", "sClass": "center", "orderable": false, className: 'middle', width: 60},
                     {"data": "source", "sClass": "center", "orderable": false, className: 'middle'},
-                    {"data": "updateTime", "sClass": "center", "orderable": false, className: 'middle', width: 150},//4
+                    {"data": "updateTime", "sClass": "center", "orderable": false, className: 'middle', width: 130},
                     {"data": "createUser", "sClass": "center", "orderable": false, className: 'middle'},
-                    {"data": "updateUser",  "orderable": false,   defaultContent: ''},
-
-                    {"data": "instructionID", "orderable": false, width: 40}
+                    {"data": "updateUser", "orderable": false, defaultContent: ''},//9
+                    {"data": "instructionID", "orderable": false, width: 80, className: 'middle'}
                 ],
                 'columnDefs': [
                     {
@@ -58,17 +60,32 @@
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     },
-                    {'targets': 4, 'searchable': false, 'orderable': false},
+                    {
+                        'targets': 2, 'searchable': false, 'orderable': false, render: function (data, type, row, meta) {
+                            return data === 1 ? "通用名" : "别名";
+                        }
+                    },
+                    {
+                        'targets': 5, 'searchable': false, 'orderable': false, render: function (data, type, row, meta) {
+                            if (data == 1)
+                                return "<a href='#'  onclick='displayInstruction(\"" + row['instructionID'] + "\",\"" + row['chnName'] + "\",420,30)'><div style='color: blue '>自有</div></a>";
+                            else if (row['matchInstruction'] === 1)
+                                return "<a href='#'  onclick='displayInstrByGeneralInstrID(\"" + row['generalInstrID'] + "\",\"" + row['matchGeneralName'] + "\", 420,30)'><div style='color: green'>匹配</div></a>";
+                            else if (row['generalInstNum'] > 0)
+                                return "<a href='#'  onclick='displayInstrByGeneralInstrID(\"" + row['generalInstrID'] + "\",\"" + row['matchGeneralName'] + "\", 420,30)'><div style='color: green'>关联(" + row['generalInstNum'] + ")</div></a>";
+                            else return "否";
+                        }
+                    },
                     /*{'targets': 9, 'searchable': false, 'orderable': false, width: 60},*/
                     {
-                        'targets': 7, 'searchable': false, 'orderable': false,
+                        'targets': 10, 'searchable': false, 'orderable': false,
                         render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 '<a class="hasDetail" href="#" data-Url="javascript:showMedicine(\'{0}\');">'.format(data) +
                                 '<i class="ace-icon fa  fa-pencil-square-o bigger-130"></i>' +
                                 '</a>&nbsp;&nbsp;&nbsp;' +
                                 '<a class="hasDetail" href="#" data-Url="javascript:showMatch(\'{0}\');">'.format(data) +
-                                '<i class="ace-icon fa  fa-exchange  bigger-130"></i>' +
+                                '<i class="ace-icon fa  fa-remove bigger-130"></i>' +
                                 '</a>' +
                                 '</div>';
                         }
@@ -91,7 +108,6 @@
                 select: {style: 'single'},
 
             });
-        var route = [];
         myTable.on('draw', function () {
             $('#dynamic-table tr').find('.hasDetail').click(function () {
                 if ($(this).attr("data-Url").indexOf('javascript:') >= 0) {
@@ -99,34 +115,8 @@
                 } else
                     window.open($(this).attr("data-Url"), "_blank");
             });
-            if (route.length === 0)
-                $.getJSON("/common/dict/listDict.jspa?parentID=261", function (result) {
-                    $.each(result.data, function (index, object) {
-                        route[index] = object;
-                    });
-                    renderRoute();
-                    setRouteOption();
-                });
-            else renderRoute();
+
         });
-
-        function renderRoute() {
-            $('#dynamic-table tr').each(function () {
-                var tdArr = $(this).children();
-                //console.log("route:" + tdArr.eq(4).text());
-                $.each(route, function (index, object) {
-                    if (object.value === tdArr.eq(4).text())
-                        tdArr.eq(4).text(object.name);
-                });
-            });
-        }
-
-        function renderTime(data, type, row, meta) {
-            var mm = moment(data);
-            if (mm.isValid())
-                return moment(data).format("YY-MM-DD");
-            return "";
-        }
 
 
         $('.btn-success').click(function () {
@@ -137,58 +127,6 @@
                 myTable.ajax.url("/medicine/getMedicineList.jspa?queryChnName={0}&matchType={1}&type={2}"
                     .format($('#form-medicine').val(), $('#matchType').val(), $('#type').val())).load();
             }
-        });
-
-        $('.btn-info').click(function () {
-            $('#fromDate').datebox('setValue', moment().startOf('year').format("YYYY-MM-DD"));
-            $('#toDate').datebox('setValue', moment().format("YYYY-MM-DD"));
-
-            $("#dialog-applyData").removeClass('hide').dialog({
-                resizable: false,
-                modal: true,
-                title: "套用药品资料更新数据",
-                buttons: [{
-                    text: '执行',
-                    iconCls: 'ace-icon fa fa-bolt bigger-110',
-                    handler: function () {
-                        //todo 同一年判断
-                        var param = {
-                            taskType: 2,
-                            timerMode: 2,
-                            exeDateField: '',
-                            exeTimeField: '',
-                            timeFrom: $('#fromDate').datebox('getValue'),
-                            timeTo: $('#toDate').datebox('getValue'),
-                        };
-                        //console.log("param:" + JSON.stringify(param));
-                        $.ajax({
-                            type: "POST",
-                            url: "/monitor/submitTask.jspa",
-                            data: param,
-                            contentType: "application/x-www-form-urlencoded; charset=UTF-8", //https://www.cnblogs.com/yoyotl/p/5853206.html
-                            cache: false,
-                            success: function (response, textStatus) {
-                                var msg = response.message;
-                                if (response.succeed)
-                                    msg += '<br/>可以在“导入任务”查看执行结果和耗时。';
-                                $.messager.alert("执行结果", msg);
-
-                                $('#dialog-applyData').dialog("close");
-                            },
-                            error: function (response, textStatus) {/*能够接收404,500等错误*/
-                                $.messager.alert("请求状态码：" + response.status, response.responseText);
-                            }
-                        });
-                    }
-                }, {
-                    text: '关闭',
-                    iconCls: 'ace-icon fa fa-times bigger-130 red',
-                    handler: function () {
-                        $('#dialog-applyData').dialog('close');
-                    }
-                }],
-                title_html: true
-            });
         });
         //https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
         $('#form-medicine').typeahead({hint: true},
@@ -312,14 +250,6 @@
             }
         }
 
-
-        function setRouteOption() {
-            $.each(route, function (index, object) {
-                $('#route').append("<option value='{0}'>{1}</option>".format(object.value, object.name));
-            });
-            //$("#route").trigger("chosen:updated");
-        }
-
         $.getJSON("/common/dict/listDict.jspa?parentDictNo=00015", function (result) {
             $.each(result.data, function (index, object) {
                 $('#injection').append("<option value='{0}'>{1}</option>".format(object.value, object.name));
@@ -343,20 +273,7 @@
                 $('#maxDay').removeAttr("disabled");
             }
         });
-        $('#route').on('change', function (e) {
-            /* console.log("e:" + JSON.stringify(e));
-             console.log("val:" + $(this).val());
-             console.log("params:" + JSON.stringify(params));*/
-            if ($(this).val() === "2") {
-                $('#injection').removeAttr("disabled");
-                $('#menstruum').removeAttr("disabled");
-            } else {
-                $('#injection').val(0);
-                $('#menstruum').val(0);
-                $('#injection').attr("disabled", true);
-                $('#menstruum').attr("disabled", true);
-            }
-        });
+
 
         var medicineForm = $('#medicineForm');
         medicineForm.validate({
@@ -457,7 +374,6 @@
                 }
                 $("input[name='isStat'][value='" + result.isStat + "']").attr("checked", true);
 
-                $("#route option[value='" + result.route + "']").attr("selected", "selected");
                 $("#injection option[value='" + result.injection + "']").attr("selected", "selected");
                 $("#menstruum option[value='" + result.menstruum + "']").attr("selected", "selected");
 
@@ -698,10 +614,6 @@
             <button type="button" class="btn btn-sm btn-success">
                 查询
                 <i class="ace-icon glyphicon glyphicon-search icon-on-right bigger-100"></i>
-            </button> &nbsp;&nbsp;&nbsp;
-            <button type="button" class="btn btn-sm btn-info">
-                套用
-                <i class="ace-icon glyphicon glyphicon-asterisk icon-on-right bigger-100"></i>
             </button>
         </form>
     </div><!-- /.page-header -->
@@ -727,12 +639,17 @@
                             <tr>
                                 <th style="text-align: center">序号</th>
                                 <th style="text-align: center">药品名称</th>
-                                <th style="text-align: center">药理分类</th>
-                                <th style="text-align: center;width:45px;">给药<br/>途径</th>
+                                <th style="text-align: center">类别</th>
+                                <th style="text-align: center">对应通用名</th>
                                 <th style="text-align: center">剂型</th>
-                                <th style="text-align: center;width:80px">最后<br/>采购日期</th>
+                                <%--4--%>
+                                <th style="text-align: center;width:45px;">说明书</th>
+                                <th style="text-align: center">厂家或来源</th>
+                                <th style="text-align: center;width:80px">更新时间</th>
+                                <th style="text-align: center;width:60px;">创建人</th>
                                 <th style="text-align: center;width:60px;">维护人</th>
-                                <th style="text-align: center;width:75px;">编辑/配对</th>
+                                <%--9--%>
+                                <th style="text-align: center;width:75px;">修改/删除</th>
                             </tr>
                             </thead>
 
@@ -877,16 +794,7 @@
                                    data-options="url:'/health/easyUITree.jspa?healthID=1', method: 'get'"/>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="route" class="col-sm-3 control-label no-padding-right">给药途径</label>
-                        <div class="col-sm-9">
-                            <div class="input-group">
-                                <select class="form-control" id="route" data-placeholder="给药途径" name="route">
-                                    <option value="0"></option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
+
                     <div class="form-group">
                         <label for="injection" class="col-sm-3 control-label no-padding-right">注射方法</label>
                         <div class="col-sm-9">

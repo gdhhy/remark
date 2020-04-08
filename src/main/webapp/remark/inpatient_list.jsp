@@ -41,17 +41,16 @@
                     {"data": "hospNo", "sClass": "center", defaultContent: ''},
                     {"data": "patientName", "sClass": "center"},
                     {"data": "age", "sClass": "center"},
-                    /*  {"data": "inDate", "sClass": "center"},//4*/
-                    {"data": "outDate", "sClass": "center"},
+                    {"data": "outDate", "sClass": "center"},//4
                     {"data": "inHospitalDay", "sClass": "center"},
                     {"data": "drugNum", "sClass": "center"},
                     {"data": "money", "sClass": "center"},
-                    {"data": "medicineMoney", "sClass": "center"},//9
-                    {"data": "diagnosis2", "sClass": "center"},
+                    {"data": "medicineMoney", "sClass": "center"},
+                    {"data": "diagnosis2", "sClass": "center"},//9
                     {"data": "masterDoctorName", "sClass": "center"},
-                    /*  {"data": "rational", "sClass": "center"},*/
-                    {"data": "disItem", "sClass": "center"},
-                    {"data": "inPatientID", "sClass": "center"}//14
+                    {"data": "reviewJson", "sClass": "center", defaultContent: ''},
+                    {"data": "reviewJson", "sClass": "center", defaultContent: ''},
+                    {"data": "inPatientID", "sClass": "center"}//13
                 ],
 
                 'columnDefs': [
@@ -60,26 +59,41 @@
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     },
-                    {"orderable": false, "targets": 1, title: '住院号', width: 60},
-                    {"orderable": false, "targets": 2, title: '病人', width: 60},
-                    {"orderable": false, "targets": 3, title: '年龄'},
-                    /*{"orderable": false, "targets": 4, title: '入院日期', width: 130},*/
-                    {"orderable": false, "targets": 4, title: '出院日期', width: 130},
-                    {"orderable": false, "targets": 5, title: '住院天数', width: 45},
-                    {"orderable": false, "targets": 6, title: '药品组数', width: 45},
-                    {"orderable": false, "targets": 7, title: '总金额', defaultContent: '', align: 'right'},
-                    {"orderable": false, "targets": 8, title: '药品金额', defaultContent: ''},
-                    {"orderable": false, "targets": 9, title: '出院诊断', defaultContent: ''},
-                    {"orderable": false, "targets": 10, title: '主管<br/>医生', defaultContent: '', width: 60},
-                    /*   {
-                           "orderable": false, "targets": 11, title: '合理', defaultContent: '', render: function (data, type, row, meta) {
-                               if (data === 1) return '是';
-                               return '否';
-                           }
-                       },*/
-                    {"orderable": false, searchable: false, "targets": 11, title: '问题代码', width: 45},
+                    {"orderable": true, "targets": 1, title: '住院号', width: 65},
+                    {"orderable": true, "targets": 2, title: '病人', width: 60},
+                    {"orderable": true, "targets": 3, title: '年龄'},
+                    {"orderable": true, "targets": 4, title: '出院日期', width: 130},
+                    {"orderable": true, "targets": 5, title: '住院天数', width: 55},
+                    {"orderable": true, "targets": 6, title: '药品组数', width: 55},
+                    {"orderable": true, "targets": 7, title: '总金额', defaultContent: '', align: 'right'},
+                    {"orderable": true, "targets": 8, title: '药品金额', defaultContent: ''},
                     {
-                        "orderable": false, "targets": 12, title: '点评', render: function (data, type, row, meta) {
+                        "orderable": true, "targets": 9, title: '出院诊断', defaultContent: '', render: function (data) {
+                            if (data !== undefined && data.length > 12) return data.substring(0, 10) + "...";
+                            return data;
+                        }
+                    },
+                    {"orderable": true, "targets": 10, title: '主管<br/>医生', defaultContent: '', width: 60},
+                    {
+                        "orderable": true, "targets": 11, title: '点评内容', render: function (data) {
+                            if (data !== undefined) {
+                                var obj = jQuery.parseJSON(data).点评.review;
+                                if (obj !== undefined && obj.length > 12) return obj.substring(0, 10) + "...";
+                                return obj;
+                            }
+                        }
+                    },
+                    {
+                        "orderable": true, "targets": 12, title: '结果', render: function (data) {
+                            if (data !== undefined) {
+                                var obj = jQuery.parseJSON(data).点评.rational;
+                                if (obj === '1') return "√";
+                                if (obj === '2') return "×";
+                            }
+                        }
+                    },
+                    {
+                        "orderable": false, "targets": 13, title: '点评', render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 /*'<a class="hasDetail" href="#" data-Url="/index.jspa?content=/remark/viewInPatient.jspa&inPatientID={0}">'.format(data) +*/
                                 '<a class="hasDetail" href="#" data-Url="/remark/viewInPatient{0}.jspa?inPatientID={1}&batchID={2}">'.format(remarkType, data, sampleBatchID) +

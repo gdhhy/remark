@@ -8,6 +8,7 @@ import com.zcreate.review.dao.ClinicDAO;
 import com.zcreate.review.dao.InPatientDAO;
 import com.zcreate.review.logic.AntibiosisService;
 import com.zcreate.review.logic.StatService;
+import com.zcreate.review.model.Clinic;
 import com.zcreate.util.DataFormat;
 import com.zcreate.util.DateUtils;
 import com.zcreate.util.StatMath;
@@ -126,7 +127,7 @@ public class ExcelController {
         List<HashMap<String, Object>> result = statService.getAntiGroupDoctor(fromDate, toDate);
 
         String[] prop = {"doctorName", "antiAmount", "amount", "amountRatio", "antiAmountRatio", "outAntiPatient", "antiPatientRatio",
-                "DDDs", "hospitalDay",  "AUDRatio", "clinicAntiPatient", "clinicAntiPatientRatio", "clinicAntiCompose"};
+                "DDDs", "hospitalDay", "AUDRatio", "clinicAntiPatient", "clinicAntiPatientRatio", "clinicAntiCompose"};
 
         HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "antiByDoctor.xls"));
 
@@ -138,18 +139,18 @@ public class ExcelController {
                          @RequestParam(value = "quarter", required = false, defaultValue = "") String quarter,
                          @RequestParam(value = "month", required = false, defaultValue = "") String month) throws Exception {
         HashMap<String, Object> param = new HashMap<>();
-        String chnPeriod = "";
+        String chnPeriod;
         String[] prop;
         HSSFWorkbook wb;
         if (!"".equals(quarter)) {
-            String date[] = quarter.split("-");
+            String[] date = quarter.split("-");
             param.put("year", Integer.parseInt(date[0]));
             param.put("quarter", Integer.parseInt(date[1]));
             chnPeriod = Integer.parseInt(date[0]) + "年" + Integer.parseInt(date[1]) + "季度";
             prop = new String[]{"chnName", "antiClass", "dose", "spec", "minUnit", "", "clinicQuantity", "hospitalQuantity", "bringQuantity", "total", "DDDs"};
             wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "antiDrug.xls"));
         } else {//if (!"".equals(month))
-            String date[] = month.split("-");
+            String[] date = month.split("-");
             param.put("year", Integer.parseInt(date[0]));
             param.put("month", Integer.parseInt(date[1]));
             chnPeriod = Integer.parseInt(date[0]) + "年" + Integer.parseInt(date[1]) + "月";
@@ -186,7 +187,7 @@ public class ExcelController {
         StatMath.ratio(result, "hospitalAmount", "hospitalPatient", "hospitalPatientRatio");
 
 
-        String prop[] = {"doctorName", "amount", "clinicAmount", "hospitalAmount", "clinicPatient", "clinicPatient2", "hospitalPatient",
+        String[] prop = {"doctorName", "amount", "clinicAmount", "hospitalAmount", "clinicPatient", "clinicPatient2", "hospitalPatient",
                 "clinicPatientRatio", "hospitalPatientRatio"};
 
         HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "doctor.xls"));
@@ -194,16 +195,16 @@ public class ExcelController {
         exportExcel(response, wb, 3, "医生用药统计", result, prop);
     }
 
-    public void exportExcel(HttpServletResponse response, HSSFWorkbook wb, int startRow, String downloadFilename, Collection dataset, String prop[]) throws Exception {
+    public void exportExcel(HttpServletResponse response, HSSFWorkbook wb, int startRow, String downloadFilename, List<HashMap<String, Object>> dataset, String[] prop) throws Exception {
         exportExcel(response, wb, startRow, false, downloadFilename, dataset, prop);
     }
 
-    public void exportExcel(HttpServletResponse response, HSSFWorkbook wb, int startRow, boolean needOrderColumn, String downloadFilename, Collection dataset, String prop[]) throws Exception {
+    public void exportExcel(HttpServletResponse response, HSSFWorkbook wb, int startRow, boolean needOrderColumn, String downloadFilename, List<HashMap<String, Object>> dataset, String[] prop) throws Exception {
         exportExcel(response, wb, startRow, needOrderColumn, downloadFilename, dataset, prop, 0);
     }
 
     //通用数据集格式
-    public void exportExcel(HttpServletResponse response, HSSFWorkbook wb, int startRow, boolean needOrderColumn, String downloadFilename, Collection dataset, String prop[], int mergeStartRow) throws Exception {
+    public void exportExcel(HttpServletResponse response, HSSFWorkbook wb, int startRow, boolean needOrderColumn, String downloadFilename, List<HashMap<String, Object>> dataset, String[] prop, int mergeStartRow) throws Exception {
         HSSFSheet sheet = wb.getSheet("Sheet1");
         HSSFCellStyle cellStyle2 = wb.createCellStyle();
         //创建一个DataFormat对象
@@ -343,7 +344,7 @@ public class ExcelController {
         StatMath.ratio(result, "clinicBaseAmount", "clinicAmount", "clinicBaseRatio");
         StatMath.ratio(result, "hospitalBaseAmount", "hospitalAmount", "hospitalBaseRatio");
 
-        String prop[] = {"doctorName", "amount", "clinicAmount", "hospitalAmount", "clinicBaseAmount", "hospitalBaseAmount", "clinicBaseRatio", "hospitalBaseRatio"};
+        String[] prop = {"doctorName", "amount", "clinicAmount", "hospitalAmount", "clinicBaseAmount", "hospitalBaseAmount", "clinicBaseRatio", "hospitalBaseRatio"};
         // logger.debug("result11=" + result);
         HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "baseByDoctor.xls"));
 
@@ -357,7 +358,7 @@ public class ExcelController {
                               @RequestParam(value = "queryField", required = false) String queryField,
                               @RequestParam(value = "department", required = false) String department,
                               @RequestParam(value = "rational", required = false) Integer rational) throws Exception {
-        Map<String, Object> param = new HashMap<String, Object>();
+        Map<String, Object> param = new HashMap<>();
         param.put("reviewDateFrom", fromDate);
         if (!"".equals(toDate)) {
             Calendar cal = DateUtils.parseCalendarDayFormat(toDate);
@@ -377,10 +378,10 @@ public class ExcelController {
         param.put("orderField", "clinicID");
         /*else
             param.put("orderField", "money");*/
-        List list = clinicDao.getClinicList(param);
+        List<Clinic> list = clinicDao.getClinicList(param);
 
-        String headers[] = {"处方日期", "门诊号", "病人", "年龄", "诊断", "科室", "医生", "点评内容", "点评时间"};
-        String prop[] = {"clinicDate", "hospID", "patientName", "age", "diagnosis", "department", "doctorName", "result", "reviewDate"};
+        String[] headers = {"处方日期", "门诊号", "病人", "年龄", "诊断", "科室", "医生", "点评内容", "点评时间"};
+        String[] prop = {"clinicDate", "hospID", "patientName", "age", "diagnosis", "department", "doctorName", "result", "reviewDate"};
 
         OutputStream out = null;
         try {
@@ -403,6 +404,7 @@ public class ExcelController {
         }
     }
 
+    //力锦：点评结果导出，住院部分
     @RequestMapping(value = "getInPatientList", method = RequestMethod.GET)
     public void getInPatientList(HttpServletResponse response, @RequestParam(value = "fromDate", required = false) String fromDate,
                                  @RequestParam(value = "toDate", required = false) String toDate,
@@ -410,12 +412,18 @@ public class ExcelController {
                                  @RequestParam(value = "queryField", required = false) String queryField,
                                  @RequestParam(value = "department", required = false) String department,
                                  @RequestParam(value = "rational", required = false) Integer rational) throws Exception {
-        Map<String, Object> param = new HashMap<String, Object>();
-        param.put("reviewDateFrom", fromDate);
+        Map<String, Object> param = new HashMap<>();
+        if (!"".equals(fromDate)) {
+            Calendar date = DateUtils.parseCalendarDayFormat(fromDate);
+            param.put("reviewTimeFrom", date.getTime());
+            param.put("AdviceItemTable1", "AdviceItem_" + date.get(Calendar.YEAR));
+            param.put("AdviceItemTable2", "AdviceItem_" + (date.get(Calendar.YEAR) - 1));
+        }
         if (!"".equals(toDate)) {
             Calendar cal = DateUtils.parseCalendarDayFormat(toDate);
+
             cal.add(Calendar.DATE, 1);
-            param.put("reviewDateTo", cal.getTime());
+            param.put("reviewTimeTo", cal.getTime());
         }
         // param.put("reviewDateNotNull", true);
         if (queryItem != null && !"".equals(queryItem) &&
@@ -429,10 +437,10 @@ public class ExcelController {
         param.put("orderField", "inPatientID");
         /*else
             param.put("orderField", "money");*/
-        List list = inPatientDao.getInPatientList(param);
+        List<HashMap<String, Object>> list = inPatientDao.getInPatientList(param);
 
-        String headers[] = {"入院日期", "住院号", "病人", "年龄", "诊断", "科室", "主管医生", "点评内容", "点评时间"};
-        String prop[] = {"inDate", "hospNo", "patientName", "age", "diagnosis", "department", "masterDoctorName", "result", "reviewDate"};
+        String[] headers = {"入院日期", "住院号", "病人", "年龄", "出院诊断", "科室", "主管医生", "点评内容", "结果", "点评时间"};
+        String[] prop = {"inDate", "hospNo", "patientName", "age", "diagnosis2", "department", "masterDoctorName", "review", "rational", "reviewTime"};
 
         OutputStream out = null;
         try {
@@ -456,7 +464,7 @@ public class ExcelController {
     }
 
     //通用格式
-    public HSSFWorkbook exportExcel(String title, String[] headers, Collection dataset, String prop[]) throws Exception {
+    public HSSFWorkbook exportExcel(String title, String[] headers, List dataset, String[] prop) throws Exception {
         // 声明一个工作薄
         HSSFWorkbook workbook = new HSSFWorkbook();
         // 生成一个表格
@@ -472,7 +480,7 @@ public class ExcelController {
         }
 
         //遍历集合数据，产生数据行
-        Iterator<Object> it = dataset.iterator();
+        Iterator it = dataset.iterator();
         int index = 0;
         while (it.hasNext()) {
             index++;

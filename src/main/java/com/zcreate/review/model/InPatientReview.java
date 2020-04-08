@@ -16,6 +16,7 @@ public class InPatientReview implements Serializable {
     private Integer hospID;
     private Integer reviewType;/*1:医嘱点评，2：抗菌药调查*/
     private String review;
+    private Integer rational;
     private String reviewUser;
     private Timestamp reviewTime;
     private Integer interDepart = 2;//1是内科，2是外科
@@ -110,5 +111,13 @@ public class InPatientReview implements Serializable {
 
     public void setReviewJson(String reviewJson) {
         this.reviewJson = reviewJson;
+    }
+
+    public Integer getRational() {
+        return rational;
+    }
+
+    public void setRational(Integer rational) {
+        this.rational = rational;
     }
 }

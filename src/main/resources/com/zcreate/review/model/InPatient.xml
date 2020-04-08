@@ -123,7 +123,7 @@
             <if test="goodsID>0">AND A.goodsID=#{goodsID:INTEGER}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(hospNo)">AND P.hospNo=#{hospNo:VARCHAR}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(notStat)">AND P.stay=0</if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(rational)">AND JSON_VALUE(V.reviewJson,'$."点评"."rational"') = #{rational:INTEGER}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(rational)">AND V.rational = #{rational:INTEGER}</if>
         </where>
     </sql>
     <!--产生随机抽样-->
@@ -187,10 +187,10 @@
         SELECT TOP ${limit}
         inPatientID,hospID,hospNo,patientID,patientName,sex,age,inDate,outDate,inHospitalDay,
         department,diagnosis,diagnosis2,drugNum,money,medicineMoney, masterDoctorID,masterDoctorName,
-        reviewTime, reviewUser,disItem, antiNum,concurAntiNum,archive,surgery,reviewType,reviewJson
+        reviewTime, reviewUser,disItem, antiNum,concurAntiNum,archive,surgery,reviewType,reviewJson,review,rational
         FROM (SELECT P.inPatientID,P.hospID,P.hospNo,P.patientID,P.patientName,P.sex,P.age,P.inDate,P.outDate,P.inHospitalDay,
         P.department,P.diagnosis,P.diagnosis2,P.drugNum,P.money,P.medicineMoney, P.masterDoctorID,P.masterDoctorName,
-        V.reviewTime,V.reviewUser, P.disItem, P.antiNum,P.concurAntiNum,P.archive,P.surgery,V.reviewType,V.reviewJson
+        V.reviewTime,V.reviewUser, P.disItem, P.antiNum,P.concurAntiNum,P.archive,P.surgery,V.reviewType,V.reviewJson,V.review,V.rational
         FROM InPatient P
         left join InPatientReview V on P.hospID=V.hospID
         <if test="goodsID>0">
@@ -214,8 +214,8 @@
 
     <!--InPatientReview-->
     <insert id="insertInPatientReview" parameterType="com.zcreate.review.model.InPatientReview">
-        INSERT INTO InPatientReview (hospID,reviewType,review,reviewUser,reviewTime,interDepart,reviewJson )
-        VALUES (#{hospID:INTEGER},#{reviewType:INTEGER},#{review:VARCHAR},#{reviewUser:VARCHAR},getdate(),#{interDepart:INTEGER},#{reviewJson:VARCHAR})
+        INSERT INTO InPatientReview (hospID,reviewType,review,reviewUser,reviewTime,interDepart,reviewJson,rational )
+        VALUES (#{hospID:INTEGER},#{reviewType:INTEGER},#{review:VARCHAR},#{reviewUser:VARCHAR},getdate(),#{interDepart:INTEGER},#{reviewJson:VARCHAR},#{rational:INTEGER})
         <selectKey resultType="int" order="AFTER" keyProperty="inPatientReviewID">
             select @@IDENTITY as inPatientReviewID
         </selectKey>
@@ -231,6 +231,7 @@
             <if test="hospID != null">hospID = #{hospID:INTEGER},</if>
             <if test="reviewType != null">reviewType = #{reviewType:INTEGER},</if>
             <if test="review != null">review = #{review:VARCHAR},</if>
+            <if test="rational != null">rational = #{rational:INTEGER},</if>
             <if test="reviewUser != null">reviewUser = #{reviewUser:VARCHAR},</if>
             <if test="reviewTime != null">reviewTime = getDate(),</if>
             <if test="interDepart != null">interDepart = #{interDepart:INTEGER},</if>
@@ -273,7 +274,7 @@
         <if test="@com.zcreate.util.Ognl@isNotEmpty(department)">AND P.department = #{department:VARCHAR}</if>
         <if test="@com.zcreate.util.Ognl@isNotEmpty(reviewDateFrom)">AND V.reviewTime >= #{reviewDateFrom:DATE}</if>
         <if test="@com.zcreate.util.Ognl@isNotEmpty(reviewDateTo)">AND V.reviewTime &lt; #{reviewDateTo:DATE}</if>
-        <if test="@com.zcreate.util.Ognl@isNotEmpty(rational)">AND JSON_VALUE(V.reviewJson,'$."点评"."rational"') = #{rational:INTEGER}</if>
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(rational)">AND V.rational = #{rational:INTEGER}</if>
     </select>
 
     <update id="clearCache" flushCache="true" parameterType="string">
@@ -309,7 +310,8 @@
                                LEFT JOIN Medicine M ON M.goodsID = D.goodsID
                       WHERE D.department = DailyDepart.department AND date > #{fromDate:VARCHAR} AND date &lt; #{toDate:VARCHAR} AND M.antiClass > 0 AND isStat > 0
                       GROUP BY M.goodsID, M.chnName
-                      order by sum(hospitalAmount + clinicAmount) desc FOR XML PATH ('')) first3
+                      order by sum(hospitalAmount + clinicAmount) desc
+                      FOR XML PATH ('')) first3
               FROM DailyDepart
               WHERE date > #{fromDate:VARCHAR} AND date &lt; #{toDate:VARCHAR}
               GROUP BY department) D

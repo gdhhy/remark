@@ -23,9 +23,10 @@
 
 <script type="text/javascript">
     jQuery(function ($) {
-        var startDate = moment().month(moment().month() - 1).startOf('month');
-        var endDate = moment().month(moment().month() - 1).endOf('month');
+        var startDate = moment().startOf('month');
+        var endDate = moment().endOf('month');
         var urlParam = "reviewDateFrom={0}&reviewDateTo={1}&queryItem={2}&queryField={3}&rational={4}";
+        var excelParam = "fromDate={0}&toDate={1}&queryItem={2}&queryField={3}&rational={4}";
         var url = "/remark/getClinicReviewList.jspa?" + urlParam;
 
         //initiate dataTables plugin
@@ -135,7 +136,7 @@
                     {"data": "patientName", "sClass": "center"},
                     {"data": "sex", "sClass": "center"},//4
                     {"data": "age", "sClass": "center"},
-                    {"data": "diagnosis", "sClass": "center", defaultContent: ''},
+                    {"data": "diagnosis2", "sClass": "center", defaultContent: ''},
                     {"data": "department", "sClass": "center"},
                     {"data": "masterDoctorName", "sClass": "center"},
                     {"data": "reviewJson", "sClass": "center", defaultContent: ''},//9
@@ -159,21 +160,30 @@
                         }
                     },
                     {"orderable": false, "targets": 5, title: '年龄'},
-                    {"orderable": false, "targets": 6, title: '诊断'},
+                    {
+                        "orderable": false, "targets": 6, title: '出院诊断', render: function (data) {
+                            if (data !== undefined && data.length > 12) return data.substring(0, 10) + "...";
+                            return data;
+                        }
+                    },
                     {"orderable": false, "targets": 7, title: '科室', defaultContent: ''},
                     {"orderable": false, "targets": 8, title: '主管医生', defaultContent: ''},
                     {
                         "orderable": false, "targets": 9, title: '点评内容', render: function (data) {
-                            var obj = jQuery.parseJSON(data).点评.review;
-                            if (obj !== undefined && obj.length > 12) return obj.substring(0, 10) + "...";
-                            return obj;
+                            if (data !== undefined) {
+                                var obj = jQuery.parseJSON(data).点评.review;
+                                if (obj !== undefined && obj.length > 12) return obj.substring(0, 10) + "...";
+                                return obj;
+                            }
                         }
                     },
                     {
                         "orderable": false, "targets": 10, title: '结果', render: function (data) {
-                            var obj = jQuery.parseJSON(data).点评.rational;
-                            if (obj === '1') return "√";
-                            if (obj === '2') return "×";
+                            if (data !== undefined) {
+                                var obj = jQuery.parseJSON(data).点评.rational;
+                                if (obj === '1') return "√";
+                                if (obj === '2') return "×";
+                            }
                         }
                     },
                     {"orderable": false, "targets": 11, title: '点评日期'},
@@ -258,10 +268,10 @@
         $('.btn-info').click(function () {
             var rational = $('input:radio[name="rational"]:checked').val() === undefined ? "" : $('input:radio[name="rational"]:checked').val();
             if ($('#form-type').val() === '1')
-                window.location.href = "/excel/getClinicList.jspa?" + urlParam
+                window.location.href = "/excel/getClinicList.jspa?" + excelParam
                     .format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), $('#queryItem').val(), $('#queryField').val(), rational);
             else
-                window.location.href = "/excel/getInPatientList.jspa?" + urlParam
+                window.location.href = "/excel/getInPatientList.jspa?" + excelParam
                     .format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), $('#queryItem').val(), $('#queryField').val(), rational);
         });
 

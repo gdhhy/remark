@@ -1007,7 +1007,7 @@
             <!-- /section:basics/content.breadcrumbs -->
             <div class="page-content">
                 <div class="row">
-                    <div class="col-sm-6">
+                    <div class="col-sm-5">
                         <%--<h3 class="header smaller lighter red">点评</h3>--%>
                         <h4 class="header smaller lighter blue">点评
                             <span class="light-grey smaller-50">点评人：${currentUser.name}</span>
@@ -1296,7 +1296,7 @@
                         </form>
                         <!-- /section:elements.tab.position -->
                     </div><!-- /.col -->
-                    <div class="col-sm-6 widget-container-col" id="widget-container-col-13">
+                    <div class="col-sm-7 widget-container-col" id="widget-container-col-13">
                         <div class="widget-box transparent" id="widget-box-13">
                             <div class="widget-header">
                                 <h4 class="widget-title lighter">

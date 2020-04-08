@@ -1,3 +1,5 @@
+import com.sun.corba.se.impl.orbutil.concurrent.Sync
+
 apply plugin: 'java'
 apply plugin: 'war'
 
@@ -23,6 +25,19 @@ repositories {
 task copyJars(type: Copy) {
     from configurations.runtime
     into 'lib' // 目标位置
+}
+//Idea 2019.3.2 不会拷贝clases，临时添加
+task copyClasses(type: Copy,dependsOn: classes) {
+    from "$buildDir\\classes\\java\\main"
+    into "$buildDir\\libs\\exploded\\remark-1.0-SNAPSHOT.war\\WEB-INF\\classes"
+
+    include('**/*.class')
+}
+task copyResources(type: Copy,dependsOn: assemble) {
+    from "$buildDir\\resources\\main"
+    into "$buildDir\\libs\\exploded\\remark-1.0-SNAPSHOT.war\\WEB-INF\\classes"
+
+    include('**/*.xml')
 }
 dependencies {
 
@@ -83,14 +98,15 @@ tasks.withType(JavaCompile) {
 }
 task jarWithoutResources(type: Jar) {
     baseName project.name
-    from("$buildDir/classes/main")
+    from("$buildDir/classes/java/main")
 }
 task showProjectProperties() {
     println "-------------------------"
     println "${processResources.destinationDir}"
+    println project.name
+    println configurations.runtime
+    println buildDir
     println projectDir
-    println rootProject
     println rootProject.rootDir
-    //println "$rootProject.rootDir/webadmin/src/main/webapp"
     println "-------------------------"
 }

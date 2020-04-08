@@ -88,6 +88,7 @@ public class RemarkController {
         review.setReviewTime(new Timestamp(System.currentTimeMillis()));
         review.setHospID(json.get("hospID").getAsInt());
         review.setReview(reviewJson.get("review").getAsString());
+        review.setRational(reviewJson.get("rational").getAsInt());
         review.setReviewJson(string);
         boolean succeed;
         try {
@@ -959,7 +960,7 @@ public class RemarkController {
         return gson.toJson(result);
     }
 
-    //仅仅用在点评结果
+    //力锦，仅仅用在点评结果
     @ResponseBody
     @RequestMapping(value = "getHospitalReviewList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String getHospitalReviewList(@RequestParam(value = "reviewDateFrom", required = false) String reviewDateFrom,
@@ -973,8 +974,10 @@ public class RemarkController {
                                         @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
         Map<String, Object> param = new HashMap<String, Object>();
         if (!"".equals(reviewDateFrom)) {
-            param.put("reviewTimeFrom", DateUtils.parseDateDayFormat(reviewDateFrom));
-            param.put("AdviceItemTable", "AdviceItem_" + reviewDateFrom.substring(0, 4));
+            Calendar date = DateUtils.parseCalendarDayFormat(reviewDateFrom);
+            param.put("reviewTimeFrom", date.getTime());
+            param.put("AdviceItemTable1", "AdviceItem_" + date.get(Calendar.YEAR));
+            param.put("AdviceItemTable2", "AdviceItem_" + (date.get(Calendar.YEAR) - 1));
         }
 
         if (!"".equals(reviewDateTo))
@@ -1022,7 +1025,7 @@ public class RemarkController {
         HashMap<String, Object> param = new HashMap<>();
         if (!"".equals(fromDate)) {
             Calendar date = DateUtils.parseCalendarDayFormat(fromDate);
-            param.put("clinicDateFrom", DateUtils.parseDateDayFormat(fromDate));
+            param.put("clinicDateFrom", date.getTime());
             param.put("RxDetailTable", "RxDetail_" + date.get(Calendar.YEAR));
         }
         if (!"".equals(toDate))
