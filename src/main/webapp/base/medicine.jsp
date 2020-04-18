@@ -95,8 +95,7 @@
                 },
                 "processing": true,
                 "serverSide": true,
-                select: {style: 'single'},
-
+                select: {style: 'single'}
             });
         var route = [];
         myTable.on('draw', function () {
@@ -240,7 +239,7 @@
             {
                 limit: 1000,
                 source: function (queryStr, processSync, processAsync) {
-                    var params = {queryString: queryStr, length: 1000};
+                    var params = {queryString: queryStr, length: 100};
                     $.getJSON('/medicine/liveDrug.jspa', params, function (json) {
                         return processAsync(json.data);
                     });

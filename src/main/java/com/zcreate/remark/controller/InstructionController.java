@@ -7,6 +7,7 @@ import com.zcreate.pinyin.PinyinUtil;
 import com.zcreate.remark.util.ParamUtils;
 import com.zcreate.review.dao.InstructionDAO;
 import com.zcreate.review.model.Instruction;
+import com.zcreate.util.Verify;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,12 @@ public class InstructionController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "viewInstrByGeneralInstrID", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String viewInstrByGeneralInstrID(@RequestParam(value = "generalInstrID") Integer generalInstrID) {
+        return gson.toJson(instructionDao.viewInstrByGeneralInstrID(generalInstrID));
+    }
+
+    @ResponseBody
     @RequestMapping(value = "deleteInstruction", method = RequestMethod.POST)
     public String deleteInstruction(@RequestParam(value = "instructionID") Integer instructionID) {
         Map<String, Object> map = new HashMap<>();
@@ -66,6 +73,9 @@ public class InstructionController {
                                   @RequestParam(value = "generalName", required = false) String generalName,
                                   @RequestParam(value = "hasInstruction", required = false) Integer hasInstruction,
                                   @RequestParam(value = "source", required = false) String source,
+                                  @RequestParam(value = "search[value]", required = false) String search,
+                                  @RequestParam(value = "search[regex]", required = false) String regex,
+                                  @RequestParam(value = "draw", required = false) Integer draw,
                                   @RequestParam(value = "start", required = false, defaultValue = "0") int start,
                                   @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
         Map<String, Object> param = new HashMap<>();
@@ -73,11 +83,18 @@ public class InstructionController {
         param.put("generalInstrID", generalInstrID);
       /*  param.put("chnName", chnName);
         param.put("generalName", generalName);*/
-        if (chnName != null)
-            if (PinyinUtil.isFullEnglish(chnName))
-                param.put("livePinyin", chnName.trim());
+        if (search != null) {
+            search = search.replaceAll("\\s+", "");
+            if (Verify.validLetter(search))
+                param.put("livePinyin", search);
             else
-                param.put("liveChnName", chnName.trim());
+                param.put("liveChnName", search);
+        }
+        if (chnName != null)
+          /*  if (PinyinUtil.isFullEnglish(chnName))
+                param.put("livePinyin", chnName.trim());
+            else*/
+                param.put("chnName", chnName.trim());
         if (generalName != null) {
             param.put("general", 1);
             if (PinyinUtil.isFullEnglish(generalName))
@@ -91,9 +108,14 @@ public class InstructionController {
         param.put("start", start);
         param.put("limit", limit);
         List<HashMap<String, Object>> instructionList = instructionDao.query(param);
-        int count = instructionDao.queryCount(param);
+        int totalCount = instructionDao.queryCount(param);
+        Map<String, Object> retMap = new HashMap<>();
+        retMap.put("sEcho", draw);
+        retMap.put("aaData", instructionList);
+        retMap.put("iTotalRecords", totalCount);//todo 表的行数，未加任何调剂
+        retMap.put("iTotalDisplayRecords", totalCount);
 
-        return ParamUtils.returnJson(instructionList, count);
+        return gson.toJson(retMap);
     }
 
     @ResponseBody

@@ -37,8 +37,7 @@
 </style>
 <script type="text/javascript">
     jQuery(function ($) {
-            var url = "/instruction/instructionList.jspa?queryChnName={0}";
-
+            var url = "/instruction/instructionList.jspa";
             //initiate dataTables plugin
             var dynamicTable = $('#dynamic-table');
             var myTable = dynamicTable
@@ -79,9 +78,11 @@
                                     return "<a href='#' class='hasInstruction' data-instructionID='{0}'>自有</a>".format(row['instructionID']);
                                 //"<a href='#'  onclick='displayInstruction(\"" + row['instructionID'] + "\",\"" + row['chnName'] + "\",420,30)'><div style='color: blue '>自有</div></a>";
                                 else if (row['matchInstruction'] === 1)
-                                    return "<a href='#'  onclick='displayInstrByGeneralInstrID(\"" + row['generalInstrID'] + "\",\"" + row['matchGeneralName'] + "\", 420,30)'><div style='color: green'>匹配</div></a>";
+                                    return "<a href='#' class='hasInstruction2' data-generalInstrID='{0}'>匹配</a>".format(row['generalInstrID']);
+                                //return "<a href='#'  onclick='displayInstrByGeneralInstrID(\"" + row['generalInstrID'] + "\",\"" + row['matchGeneralName'] + "\", 420,30)'><div style='color: green'>匹配</div></a>";
                                 else if (row['generalInstNum'] > 0)
-                                    return "<a href='#'  onclick='displayInstrByGeneralInstrID(\"" + row['generalInstrID'] + "\",\"" + row['matchGeneralName'] + "\", 420,30)'><div style='color: green'>关联(" + row['generalInstNum'] + ")</div></a>";
+                                    return "<a href='#' class='hasInstruction2' data-generalInstrID='{0}'>关联({1})</a>".format(row['generalInstrID'], row['generalInstNum']);
+                                //return "<a href='#'  onclick='displayInstrByGeneralInstrID(\"" + row['generalInstrID'] + "\",\"" + row['matchGeneralName'] + "\", 420,30)'><div style='color: green'>关联(" + row['generalInstNum'] + ")</div></a>";
                                 else return "否";
                             }
                         },
@@ -113,7 +114,7 @@
                         url: url.format(""),
                         "data": function (d) {//删除多余请求参数
                             for (var key in d)
-                                if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
+                                if (key.indexOf("columns") === 0 || key.indexOf("order") === 0) //以columns开头的参数删除 ,保留|| key.indexOf("search") === 0
                                     delete d[key];
                         }
                     },
@@ -129,51 +130,42 @@
                         window.open($(this).attr("data-Url"), "_blank");
                 });
                 $('#dynamic-table tr').find('.hasInstruction').click(function () {//点击显示说明书
-                    $.ajax({
-                        type: "GET",
-                        url: '/instruction/getInstruction.jspa',
-                        data: 'instructionID=' + $(this).attr("data-instructionID"),
-                        contentType: "application/json; charset=utf-8",
-                        cache: false,
-                        success: function (response, textStatus) {
-                            var respObject = JSON.parse(response);
-                            $('#instruction-title').text(respObject.chnName);
-                            $('#instruction-content').html(respObject.instruction);
-                            $('#showInstructionDialog').modal();
-                        },
-                        error: function (response, textStatus) {/*能够接收404,500等错误*/
-                            showDialog("请求状态码：" + response.status, response.responseText);
-                        }
-                    });
-                });
+                    showInstructionContent($(this).attr("data-instructionID"));
 
+                });
+                $('#dynamic-table tr').find('.hasInstruction2').click(function () {
+                    showGeneralContent($(this).attr("data-generalInstrID"));
+                });
             });
 
             $('.btn-success').click(function () {
-                if ($('#form-instructionID').val() !== '') {
+                myTable.ajax.url("/instruction/instructionList.jspa?hasInstruction={0}&source={1}"
+                    .format( $('#hasInstruction').val(), $('#sourceType').val())).load();
+              /*  if ($('#form-instructionID').val() !== '') {
                     myTable.ajax.url("/instruction/instructionList.jspa?instructionID={0}&hasInstruction={1}&source={2}"
                         .format($('#form-instructionID').val(), $('#hasInstruction').val(), $('#sourceType').val())).load();
-                } /*else if ($('#form-generalInstrID').val() !== '') {
-                myTable.ajax.url("/instruction/instructionList.jspa?generalInstrID={0}&hasInstruction={1}&source={2}"
-                    .format($('#form-generalInstrID').val(), $('#hasInstruction').val(), $('#sourceType').val())).load();
-            } */ else {
+                } else if ($('#form-generalInstrID').val() !== '') {
+                    myTable.ajax.url("/instruction/instructionList.jspa?generalInstrID={0}&hasInstruction={1}&source={2}"
+                        .format($('#form-generalInstrID').val(), $('#hasInstruction').val(), $('#sourceType').val())).load();
+                } else {
                     myTable.ajax.url("/instruction/instructionList.jspa?chnName={0}&hasInstruction={1}&source={2}&generalName={3}"
                         .format($('#form-instruction').val(), $('#hasInstruction').val(), $('#sourceType').val(), $('#form-general').val())).load();
-                }
+                }*/
             });
             //https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
-            $('#form-instruction').typeahead({hint: true},
+            /*$('#form-instruction').typeahead({hint: true, minLength: 1},
                 {
-                    limit: 1000,
-                    source: function (queryStr, processSync, processAsync) {
-                        var params = {chnName: queryStr, length: 1000};
+                    limit: 100,
+                    async: true,
+                    source: function (queryStr, syncResults, asyncResults) {
+                        var params = {chnName: queryStr, length: 100};
                         $.getJSON('/instruction/instructionList.jspa', params, function (json) {
-                            //console.log("count:" + medicineLiveCount);
-                            return processAsync(json.data);
+                            //console.log("json:" + JSON.stringify(json, null, 4));
+                            return asyncResults(json.aaData);
                         });
                     },
                     display: function (item) {
-                        return item.chnName ;//+ " - " + item.matchGeneralName;
+                        return item.chnName;//+ " - " + item.matchGeneralName;
                     },
                     templates: {
                         header: function (query) {//header or footer
@@ -192,20 +184,20 @@
                 }
             );
             $('#form-instruction').bind('typeahead:select', function (ev, suggestion) {
-                console.log("instructionID:" + suggestion["instructionID"]);
+                //console.log("instructionID:" + suggestion["instructionID"]);
                 $('#form-instructionID').val(suggestion["instructionID"]);
             });
             $('#form-instruction').on("input propertychange", function () {
                 $('#form-instructionID').val("");
-            });
+            });*/
             //form-general
-            $('#matchGeneralName').typeahead({hint: true},
+            $('#matchGeneralName').typeahead({hint: true, minLength: 1},
                 {
-                    limit: 1000,
+                    limit: 100,
                     source: function (queryStr, processSync, processAsync) {
-                        var params = {generalName: queryStr, length: 1000};
+                        var params = {generalName: queryStr, length: 100};
                         $.getJSON('/instruction/instructionList.jspa', params, function (json) {
-                            return processAsync(json.data);
+                            return processAsync(json.aaData);
                         });
                     },
                     display: function (item) {
@@ -355,11 +347,10 @@
                         'targets': 4, 'searchable': false, 'orderable': false, title: '说明书', render: function (data, type, row, meta) {
                             if (data === 1)
                                 return "<a href='#' class='hasInstruction' data-instructionID='{0}'>自有</a>".format(row['instructionID']);
-                            //"<a href='#'  onclick='displayInstruction(\"" + row['instructionID'] + "\",\"" + row['chnName'] + "\",420,30)'><div style='color: blue '>自有</div></a>";
                             else if (row['matchInstruction'] === 1)
-                                return "<a href='#'  onclick='displayInstrByGeneralInstrID(\"" + row['generalInstrID'] + "\",\"" + row['matchGeneralName'] + "\", 420,30)'><div style='color: green'>匹配</div></a>";
+                                return "<a href='#' class='hasInstruction2' data-generalInstrID='{0}'>匹配</a>".format(row['generalInstrID']);
                             else if (row['generalInstNum'] > 0)
-                                return "<a href='#'  onclick='displayInstrByGeneralInstrID(\"" + row['generalInstrID'] + "\",\"" + row['matchGeneralName'] + "\", 420,30)'><div style='color: green'>关联(" + row['generalInstNum'] + ")</div></a>";
+                                return "<a href='#' class='hasInstruction2' data-generalInstrID='{0}'>关联({1})</a>".format(row['generalInstrID'], row['generalInstNum']);
                             else return "否";
                         }
                     }, {"orderable": false, "targets": 5, title: '厂家或来源'}],
@@ -375,6 +366,22 @@
                                 delete d[key];
                     }
                 }
+            });
+
+            similarTable.on('draw', function () {
+                $('#similarTable tr').find('.hasDetail').click(function () {
+                    if ($(this).attr("data-Url").indexOf('javascript:') >= 0) {
+                        eval($(this).attr("data-Url"));
+                    } else
+                        window.open($(this).attr("data-Url"), "_blank");
+                });
+                $('#similarTable tr').find('.hasInstruction').click(function () {//点击显示说明书
+                    showInstructionContent($(this).attr("data-instructionID"));
+
+                });
+                $('#similarTable tr').find('.hasInstruction2').click(function () {
+                    showGeneralContent($(this).attr("data-generalInstrID"));
+                });
             });
             var divPinyin = $('#divPinyin');
             var editingInst;
@@ -556,12 +563,32 @@
                     cache: false,
                     success: function (response, textStatus) {
                         var respObject = JSON.parse(response);
-                        if (respObject)
-                            $('#instructionContent').html(respObject.instruction);
+                        $('#instruction-title').text(respObject.chnName);
+                        $('#instruction-content').html(respObject.instruction);
+                        $('#showInstructionDialog').modal();
                     },
                     error: function (response, textStatus) {/*能够接收404,500等错误*/
-                        $.messager.alert("请求状态码：" + response.status, response.responseText);
+                        showDialog("请求状态码：" + response.status, response.responseText);
+                    }
+                });
+            }
+
+            function showGeneralContent(generalInstrID) {
+                $.ajax({
+                    type: "GET",
+                    url: '/instruction/viewInstrByGeneralInstrID.jspa',
+                    data: 'generalInstrID=' + generalInstrID,
+                    contentType: "application/json; charset=utf-8",
+                    cache: false,
+                    success: function (response, textStatus) {
+                        var respObject = JSON.parse(response);
+                        $('#instruction-title').text(respObject.chnName);
+                        $('#instruction-content').html(respObject.instruction);
+                        $('#showInstructionDialog').modal();
                     },
+                    error: function (response, textStatus) {/*能够接收404,500等错误*/
+                        showDialog("请求状态码：" + response.status, response.responseText);
+                    }
                 });
             }
 
@@ -621,12 +648,12 @@
     <div class="page-header">
 
         <form class="form-search form-inline">
-            <label class=" control-label no-padding-right" for="form-instruction">药品名称： </label>
-            <div class="input-group">
-                <input class="typeahead scrollable nav-search-input" type="text" id="form-instruction" name="form-instruction"
-                       autocomplete="off" style="width: 250px;font-size: 9px;color: black"
-                       placeholder="编码或拼音匹配，鼠标选择"/><input type="hidden" id="form-instructionID"/>
-            </div>&nbsp;&nbsp;&nbsp;
+            <%-- <label class=" control-label no-padding-right" for="form-instruction">药品名称： </label>
+             <div class="input-group">
+                 <input class="typeahead scrollable nav-search-input" type="text" id="form-instruction" name="form-instruction"
+                        autocomplete="off" style="width: 250px;font-size: 9px;color: black"
+                        placeholder="编码或拼音匹配，鼠标选择"/><input type="hidden" id="form-instructionID"/>
+             </div>&nbsp;&nbsp;&nbsp;--%>
             <%--<label class=" control-label no-padding-right" for="form-generalInstrID">通用名： </label>
             <div class="input-group">
                 <input class="typeahead scrollable nav-search-input" type="text" id="form-general" name="form-general"

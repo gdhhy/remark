@@ -105,14 +105,14 @@
                            ON A.healthNo = H.healthNo
         WHERE A.instructionID = #{instructionID:INTEGER}
     </select>
-
+<!--
     <select id="liveByGeneralName" parameterType="java.util.Map" resultMap="RecordResult">
         select A.instructionID, B.*, A.chnName
         from Instruction A
                  join (SELECT generalInstrID, count(generalInstrID) generalCount
                        FROM instruction
                        group by generalInstrID) B on A.instructionID = B.generalInstrID
-    </select>
+    </select>-->
 
     <select id="viewInstrByGeneralInstrID" parameterType="int" resultMap="RecordResult">
         SELECT TOP 1 A.instructionID, A.healthNo, A.chnName, A.engName, A.pinyin, A.hasInstruction, A.instruction, A.dose, A.generalInstrID, A.general, A.finish, A.updateTime,

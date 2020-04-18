@@ -50,9 +50,9 @@ public class ParamUtils {
     }
 
 
-    public static String returnJson(List medicineList, int totalCount) {
+    public static String returnJson(List list, int totalCount) {
         Map<String, Object> result = new HashMap<>();
-        result.put("data", medicineList);
+        result.put("data", list);
         result.put("iTotalRecords", totalCount);//todo 表的行数，未加任何调剂
         result.put("iTotalDisplayRecords", totalCount);
 
