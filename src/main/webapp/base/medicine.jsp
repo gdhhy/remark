@@ -1010,7 +1010,7 @@
                         <div class="col-sm-8 no-padding " style=" border-bottom: 1px solid; border-bottom-color: lightgrey" id="authCode"></div>
                     </div>
                     <div class="row" style="margin-bottom: 3px;margin-top: 10px;">
-                        <label class="col-sm-3" style="white-space: nowrap;padding-top: 10px;" for="form-medicine">对应通用名</label>
+                        <label class="col-sm-3" style="white-space: nowrap;padding-top: 10px;" for="liveDrug">对应通用名</label>
                         <div class="col-sm-7 no-padding">
                             <input class="typeahead scrollable" type="text" id="liveDrug" name="liveDrug"
                                    autocomplete="off" style="font-size: 9px;color: black ;width:200px;"

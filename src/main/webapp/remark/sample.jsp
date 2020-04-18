@@ -35,7 +35,7 @@
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');
         var myTable = dynamicTable
-            //.wrap("<div class='dataTables_borderWrap' />")  //if you are applying horizontal scrolling (sScrollX)
+        //.wrap("<div class='dataTables_borderWrap' />")  //if you are applying horizontal scrolling (sScrollX)
             .DataTable({
                 bAutoWidth: false,
                 "columns": [
@@ -304,18 +304,19 @@
 
         var departmentE = $('#form-department');
 
-        function loadDepartment() {
-            if ($("#form-department option").length === 0)
-                $.getJSON("/common/dict/listDict.jspa?parentID=108", function (result) {
-                    if (result.recordsTotal > 0) {
-                        $("#form-department option:gt(0)").remove();
-                        $.each(result.data, function (n, value) {
-                            departmentE.append('<option value="{0}" selected="selected">{1}</option>'
-                                .format(value.name, value.name));
-                        });
-                        departmentE.val("");
-                    }
-                });
+        function loadDepartment(type) {
+            departmentE.empty();
+            //if ($("#form-department option").length === 0)
+            $.getJSON("/common/dict/listDict.jspa?parentID=108&value={0}".format(type === '1' ? '门诊科室' : '住院科室'), function (result) {
+                if (result.iTotalRecords > 0) {
+                    $("#form-department option:gt(0)").remove();
+                    $.each(result.data, function (n, value) {
+                        departmentE.append('<option value="{0}" selected="selected">{1}</option>'
+                            .format(value.name, value.name));
+                    });
+                    departmentE.val("");
+                }
+            });
         }
 
 
@@ -423,7 +424,7 @@
         });
 
         function showSampleDialog() {
-            loadDepartment();
+            loadDepartment('2');
             sampleForm.find("input[name='form-field-incision']").attr("disabled", true);
             $("#dialog-edit").removeClass('hide').dialog({
                 resizable: false,
@@ -633,11 +634,11 @@
         //计算符合条件的数量
         sampleForm.find("#form-type,#form-department,#form-doctor,#form-western,#form-medicine,input[type=checkbox],#form-dateRange").change(function () {//[name!='form-field-surgery']
             var p1 = sampleForm.find('#form-type').children('option:selected').val();//这就是selected的值 门诊为1,住院未2
-            console.log("p2:" + p1);
+            /*console.log("p2:" + p1);*/
+            loadDepartment(p1);
             if (p1 === '1') {
                 $(".clinicType").removeClass("light-grey");
                 $(".surgeryTypeLbl").addClass("light-grey");
-
             } else {
                 $(".clinicType").addClass("light-grey");
                 $(".surgeryTypeLbl").removeClass("light-grey");
@@ -820,7 +821,7 @@
                         <label class="col-sm-3 control-label no-padding-right" for="form-type">门诊住院 </label>
 
                         <div class="col-sm-9">
-                            <select id="form-type"<%-- class="chosen-select" --%> data-placeholder="门诊住院">
+                            <select id="form-type" data-placeholder="门诊住院">
                                 <option value="1">门诊</option>
                                 <option value="2" selected>住院</option>
                             </select>

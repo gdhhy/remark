@@ -3,6 +3,7 @@ package com.zcreate.remark.controller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.zcreate.pinyin.PinyinUtil;
+import com.zcreate.remark.util.ParamUtils;
 import com.zcreate.review.dao.DrugDAO;
 import com.zcreate.review.dao.InstructionDAO;
 import com.zcreate.review.dao.MedicineDAO;
@@ -59,13 +60,9 @@ public class MedicineController {
         }
         List<Map> medicineList = medicineDao.live(param);
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("data", medicineList);
-        result.put("iTotalRecords", medicineList.size());//todo 表的行数，未加任何调剂
-        result.put("iTotalDisplayRecords", medicineList.size());
-
-        return gson.toJson(result);
+        return ParamUtils.returnJson(medicineList,medicineList.size());
     }
+
 
     @ResponseBody
     @RequestMapping(value = "liveDrug", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
@@ -86,12 +83,7 @@ public class MedicineController {
         }
         List<Drug> medicineList = drugDao.liveDrug(param);
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("data", medicineList);
-        result.put("iTotalRecords", medicineList.size());//todo 表的行数，未加任何调剂
-        result.put("iTotalDisplayRecords", medicineList.size());
-
-        return gson.toJson(result);
+        return ParamUtils.returnJson(medicineList,medicineList.size());
     }
 
    /* @ResponseBody
@@ -121,12 +113,7 @@ public class MedicineController {
         param.put("limit", limit);
         List<HashMap<String,Object>> instructionList = instructionDao.query(param);
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("data", instructionList);
-        result.put("iTotalRecords", instructionList.size());//todo 表的行数，未加任何调剂
-        result.put("iTotalDisplayRecords", instructionList.size());
-
-        return gson.toJson(result);
+        return ParamUtils.returnJson(instructionList,instructionList.size());
 
     }
 

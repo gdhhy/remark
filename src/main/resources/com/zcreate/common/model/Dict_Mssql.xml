@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="Dict">
+<mapper namespace="com.zcreate.common.dao.DictMapper">
     <cache eviction="LRU" readOnly="false" flushInterval="86400000" size="1000"/>
     <resultMap id="RecordResult" type="com.zcreate.common.pojo.Dict">
         <result column="dictID" jdbcType="INTEGER" property="dictID"/>
@@ -17,18 +17,18 @@
     </resultMap>
     <sql id="queryWhere">
         <where>
-            <if test="dictID > 0">dictID=#{dictID}</if>
-            <if test="appID > 0">appID=#{appID}</if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(name)">AND name=#{name}</if>
-            <if test="dictNo != null and dictNo != ''">AND dictNo=#{dictNo}</if>
-            <!--<if test="dictNo != null and dictNo != ''">AND dictNo=#{dictNo}</if>-->
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(parentDictNo)">AND parentID in(select dictID from Dict where dictNo=#{parentDictNo:VARCHAR})</if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(note)">AND note=#{note}</if>
-            <if test="parentID > 0">AND parentID=#{parentID}</if>
+            <if test="param.dictID > 0">dictID=#{param.dictID:INTEGER}</if>
+            <if test="param.appID > 0">appID=#{param.appID:INTEGER}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(param.name)">AND name=#{param.name:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(param.dictNo)">AND dictNo=#{param.dictNo:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(param.value)">AND value=#{param.value:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(param.note)">AND note=#{param.note:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(param.parentDictNo)">AND parentID in(select dictID from  Dict where  dictNo=#{param.parentDictNo:VARCHAR})</if>
+            <if test="param.parentID > 0">AND parentID=#{param.parentID:INTEGER}</if>
         </where>
     </sql>
     <select id="selectDict" parameterType="java.util.Map" resultMap="RecordResult">
-        SELECT dictID,appID,parentID,dictNo,name,value,note,layer,hasChild,orderNum FROM Dict
+        SELECT dictID,appID,parentID,dictNo,name,value,note,layer,haschild,orderNum FROM Dict
         <include refid="queryWhere"/>
         order by layer asc ,orderNum asc
     </select>
@@ -42,15 +42,11 @@
         </selectKey>
     </insert>
     <update id="updateHasChild" parameterType="java.util.Map" flushCache="true">
-        update Dict
-        set hasChild= #{hasChild:BOOLEAN}
-        where dictID = #{dictID:INTEGER}
+        update Dict set hasChild= #{hasChild:BOOLEAN}    where dictID=#{dictID:INTEGER}
     </update>
     <update id="updateHasChildByHasParent" parameterType="int" flushCache="true">
-        update Dict
-        set hasChild= 1
-        where dictID = #{dictID:INTEGER}
-          and exists(select 1 from Dict where parentID = #{dictID:INTEGER})
+        update Dict set hasChild= 1 where dictID=#{dictID:INTEGER} and
+         exists (select 1 from Dict where parentID=#{dictID:INTEGER})
     </update>
     <update id="updateDictByPrimaryKeySelective" parameterType="com.zcreate.common.pojo.Dict" flushCache="true">
         update Dict
@@ -67,15 +63,10 @@
         where dictID = #{dictID:INTEGER}
     </update>
     <delete id="deleteDict" parameterType="int" flushCache="true">
-        DELETE
-        FROM Dict
-        WHERE dictID = #{dictID}
+        DELETE FROM Dict WHERE dictID = #{dictID}
     </delete>
     <select id="getDictByParentNo_Value" parameterType="java.util.Map" resultMap="RecordResult">
-        select *
-        from Dict D
-                 join (select * from dict where dictNo = #{parentNo:VARCHAR}) P on D.parentID = P.dictID
-        where D.value = #{value:VARCHAR}
+        select * from dict D join ( select * from dict where dictNo=#{parentNo:VARCHAR}) P on D.parentID=P.dictID where D.value=#{value:VARCHAR}
     </select>
     <sql id="liveWhere">
         <where>
@@ -84,7 +75,7 @@
             <if test="parentID!=null and parentID>0">AND parentId = #{parentID:INTEGER}</if>
         </where>
     </sql>
-    <select id="live" parameterType="java.util.Map" resultType="java.util.HashMap">
+    <select id="live" parameterType="java.util.Map" resultType="java.util.Map">
         SELECT TOP ${limit} rtrim(name) name,value,note,orderNum
         FROM (SELECT DISTINCT name,value,note,orderNum FROM Dict
         <include refid="liveWhere"/>) A
@@ -100,8 +91,6 @@
         <include refid="liveWhere"/>
     </select>
     <select id="getDictByParentChildNo" parameterType="java.util.Map" resultMap="RecordResult">
-        SELECT D1.*
-        FROM Dict D1, Dict D2
-        where D2.dictNo = #{parentNo:VARCHAR} and D1.parentID = D2.dictID and D1.dictNo = #{dictNo:VARCHAR}
+       SELECT D1.* FROM dict D1,Dict D2 where D2.dictNo = #{parentNo:VARCHAR} and D1.parentID=D2.dictID and D1.dictNo = #{dictNo:VARCHAR}
     </select>
 </mapper>

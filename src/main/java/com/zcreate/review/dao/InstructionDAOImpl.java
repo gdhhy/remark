@@ -37,9 +37,7 @@ public class InstructionDAOImpl extends SqlSessionDaoSupport implements Instruct
     }
 
     public int save(Instruction instruction) {
-        instruction.setDeployLocation(reviewConfig.getDeployLocation());
-        instruction.setInstruction(instruction.getInstruction().replaceAll("\n\n", "\n"));
-        instruction.setInstruction(instruction.getInstruction().replaceAll("((?i)<br>\\s*){2,}", "<br>"));//(?i)abc 表示abc都忽略大小写
+
         return getSqlSession().update("Instruction.updateInstructionByPrimaryKeySelective", instruction);
     }
 
@@ -47,15 +45,13 @@ public class InstructionDAOImpl extends SqlSessionDaoSupport implements Instruct
         return getSqlSession().delete("Instruction.deleteInstruction", instructionID);
     }
 
-    public void insert(Instruction instruction) {
-        instruction.setDeployLocation(reviewConfig.getDeployLocation());
-        instruction.setInstruction(instruction.getInstruction().replaceAll("\n\n", "\n"));
-        instruction.setInstruction(instruction.getInstruction().replaceAll("((?i)<br>\\s*){2,}", "<br>"));
-        getSqlSession().insert("Instruction.insertInstruction", instruction);
+    public int insert(Instruction instruction) {
+
+       return  getSqlSession().insert("Instruction.insertInstruction", instruction);
     }
 
     @SuppressWarnings("unchecked")
-    public List<HashMap<String,Object>> query(Map param) {
+    public List<HashMap<String, Object>> query(Map param) {
         if (param.size() <= 2 && ((param.get("start")) == null || ((Integer) param.get("start")) < 1000 || param.get("start") == null))//后面的日期比较集中，更新时间难以分页标识
             param.put("orderField", "updateTime");
         else
@@ -73,7 +69,7 @@ public class InstructionDAOImpl extends SqlSessionDaoSupport implements Instruct
      * @return 说明书原文
      */
     public Instruction getInstruction(Integer instructionID) {
-        Instruction inst = getSqlSession().selectOne("Instruction.viewInstructionByID", instructionID);
+        Instruction inst = getSqlSession().selectOne("Instruction.selectInstruction", instructionID);
         Dict dict = dictServer.getDictByNo("44446");
         if (dict != null && inst != null && inst.getInstruction() != null) {
             inst.setInstruction(inst.getInstruction().replaceAll("((【|\\[).{1,10}?(】|\\]))(?!((?i)</font>|(?i)</div>|(?i)</span>))", dict.getValue()));//<br>$1
@@ -90,7 +86,7 @@ public class InstructionDAOImpl extends SqlSessionDaoSupport implements Instruct
      * @return 美化一下说明书
      */
     public Instruction viewInstruction(Integer instructionID) {
-        Instruction inst = getSqlSession().selectOne("Instruction.viewInstructionByID", instructionID);
+        Instruction inst = getSqlSession().selectOne("Instruction.selectInstruction", instructionID);
         Dict dict = dictServer.getDictByNo("44445");
         if (dict != null && inst != null && inst.getInstruction() != null)
             // if (inst.getChnName())
@@ -126,7 +122,7 @@ public class InstructionDAOImpl extends SqlSessionDaoSupport implements Instruct
         param.put("hasInstruction", 1);
         param.put("nullSource", 1);
         param.put("limit", 20000);
-        List<HashMap<String,Object>> list = query(param);
+        List<HashMap<String, Object>> list = query(param);
         for (HashMap inst : list) {
             String producer = "";
             Matcher m = regex.matcher(StringUtils.replaceHtml(inst.get("instruction").toString().replaceAll("<br>|<br/>|<br />|<p>|</p>", "\n")));

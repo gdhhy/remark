@@ -16,7 +16,7 @@ public interface InstructionDAO {
 
     int deleteByPrimaryKey(Integer instructionID);
 
-    void insert(Instruction instruction);
+    int insert(Instruction instruction);
 
     List<HashMap<String,Object>> query(Map param);
 

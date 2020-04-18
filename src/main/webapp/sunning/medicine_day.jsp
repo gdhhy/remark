@@ -401,6 +401,7 @@
                 <option value="base3">省基</option>
                 <option value="assist">辅助</option>
                 <option value="mental">精神</option>
+                <option value="analgesics">解热镇痛</option>
             </select>&nbsp;&nbsp;&nbsp;
             <%--  辅助：
               <div class="input-group">

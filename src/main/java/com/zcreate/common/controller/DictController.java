@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.zcreate.ReviewConfig;
 import com.zcreate.common.dao.DictMapper;
 import com.zcreate.common.pojo.Dict;
+import com.zcreate.remark.util.ParamUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +30,8 @@ public class DictController {
     @RequestMapping(value = "listDict", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String listDict(@RequestParam(value = "dictID", required = false, defaultValue = "0") int dictID,
                            @RequestParam(value = "parentDictNo", required = false) String parentDictNo,
+                           @RequestParam(value = "value", required = false) String value,
+                           @RequestParam(value = "note", required = false) String note,
                            @RequestParam(value = "parentID", required = false, defaultValue = "0") int parentID) {
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("dictID", dictID);
@@ -39,14 +42,17 @@ public class DictController {
             param.remove("dictNo");
             param.put("parentID", parent.getDictID());
         } else*/
-            param.put("parentDictNo", parentDictNo);
-            param.put("parentID", parentID);
+        param.put("value", value);
+        param.put("note", note);
+        param.put("parentDictNo", parentDictNo);
+        param.put("parentID", parentID);
         List<Dict> dicts = dictMapper.selectDict(param);
+        return ParamUtils.returnJson(dicts, dicts.size());
 
-        Map<String, Object> result = new HashMap<>();
+        /*Map<String, Object> result = new HashMap<>();
         result.put("data", dicts);
-        result.put("recordsTotal", dicts.size());
+         result.put("recordsTotal", dicts.size());
 
-        return gson.toJson(result);
+        return gson.toJson(result);*/
     }
 }

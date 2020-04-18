@@ -106,6 +106,8 @@ public class StatServiceImpl implements StatService {
             param.put("base", 2);
         if ("base3".equals(special))
             param.put("base", 3);
+        if ("analgesics".equals(special))
+            param.put("likeHealthNo", "4004");
         param.put("top3", top3);
         param.put("prefix", reviewConfig.getPrefixRBAC());
         List<HashMap<String, Object>> result;

@@ -8,42 +8,42 @@
         <property name="deployLocation" value="wy_test"/>
         <property name="hospitalName" value="翁源县人民医院"/>
     </bean>
-    <!--  <bean id="reviewDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-          <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-          <property name="url" value="jdbc:sqlserver://localhost:1433;databaseName=xf_review_20171108"/>
-          <property name="username" value="sa"/>
-          <property name="password" value="cjdlx"/>
-          <property name="maxIdle" value="100"/>
-          <property name="initialSize" value="20"/>
-      </bean>-->
-    <bean id="reviewDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    <bean id="reviewDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-        <property name="url" value="jdbc:sqlserver://192.168.157.128:61433;databaseName=review"/>
-        <!--<property name="url" value="jdbc:sqlserver://192.168.157.128:1433;databaseName=wy_review_160222"/>-->
+        <!-- <property name="url" value="jdbc:sqlserver://192.168.157.128:61433;databaseName=review"/>
+         <property name="username" value="sa"/>
+         <property name="password" value="cjdlx"/>-->
+
+        <property name="url" value="jdbc:sqlserver://192.168.0.20:1433;databaseName=review"/>
         <property name="username" value="sa"/>
-        <property name="password" value="cjdlx"/>
+        <property name="password" value="Tao60700"/>
+        <property name="maxIdle" value="100"/>
+        <property name="initialSize" value="10"/>
     </bean>
+    <!--  <bean id="reviewDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+          <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+          <property name="url" value="jdbc:sqlserver://127.0.0.1:1433;databaseName=review"/>
+          <property name="username" value="sa"/>
+          <property name="password" value="Remark2020"/>
+      </bean>-->
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="configLocation" value="classpath:mybatis.xml"/>
         <property name="dataSource" ref="reviewDataSource"/>
     </bean>
     <bean id="hisDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-        <property name="url" value="jdbc:sqlserver://192.168.157.128:61433;databaseName=LjHis"/>
+        <property name="url" value="jdbc:sqlserver://192.168.0.20:1433;databaseName=LjHis_yber"/>
         <property name="username" value="sa"/>
         <property name="password" value="cjdlx"/>
+        <!--<property name="url" value="jdbc:sqlserver://192.168.157.128:61433;databaseName=LJHIS"/>
+        <property name="username" value="sa"/>
+        <property name="password" value="cjdlx"/>-->
+        <!-- <property name="url" value="jdbc:sqlserver://168.168.168.83:1433;databaseName=LJHIS"/>
+          <property name="username" value="cfdp"/>
+          <property name="password" value="cfdp"/>-->
         <property name="maxIdle" value="100"/>
         <property name="initialSize" value="20"/>
     </bean>
-    <!--<bean id="posterService" class=" com.zcreate.lottery.ad.PosterService"/>-->
-    <!--<bean id="securityDS" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-         <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
-         <property name="url" value="jdbc:sqlserver://192.168.157.128:1433;databaseName=wy_review_160222"/>
-         <property name="username" value="sa"/>
-         <property name="password" value="cjdlx"/>
-         <property name="maxIdle" value="50"/>
-         <property name="initialSize" value="2"/>
-     </bean>-->
 
 
     <bean id="session2" class="org.mybatis.spring.SqlSessionFactoryBean">
@@ -71,15 +71,6 @@
         <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
         <property name="mapperInterface" value="com.zcreate.remark.dao.SunningMapper"/>
     </bean>
-    <!-- <bean id="securityDS" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-         <property name="driverClassName" value="org.postgresql.Driver"/>
-         <property name="url" value="jdbc:postgresql://192.168.1.25:5432/security"/>
-         <property name="username" value="postgres"/>
-         <property name="password" value="cjdlx"/>
-         <property name="maxIdle" value="50"/>
-         <property name="initialSize" value="2"/>
-     </bean>-->
-
 
     <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate" scope="prototype">
         <constructor-arg ref="sqlSessionFactory"/>
@@ -97,9 +88,7 @@
     <bean id="healthDao" class="com.zcreate.review.dao.HealthDAOImpl">
         <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
     </bean>
-    <bean id="dictDao" class="com.zcreate.common.persistence.dao.DictDAOImpl">
-        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
-    </bean>
+
     <bean id="instructionDao" class="com.zcreate.review.dao.InstructionDAOImpl">
         <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
         <property name="dictServer" ref="dictService"/>
@@ -198,7 +187,7 @@
         <constructor-arg ref="sqlSessionTemplate"/>
     </bean>
     <bean id="dictService" class="com.zcreate.common.logic.DictServiceImpl">
-        <constructor-arg ref="sqlSessionTemplate"/>
+        <!--<constructor-arg ref="sqlSessionTemplate"/>-->
     </bean>
     <bean id="doctorService" class="com.zcreate.review.logic.DoctorServiceImpl">
         <constructor-arg index="0" ref="doctorDao"/>

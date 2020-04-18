@@ -10,7 +10,7 @@
         <result column="engName" jdbcType="VARCHAR" property="engName"/>
         <result column="pinyin" jdbcType="VARCHAR" property="pinyin"/>
         <result column="hasInstruction" jdbcType="BOOLEAN" property="hasInstruction"/>
-        <result column="instruction" jdbcType="VARCHAR" property="instruction" />
+        <result column="instruction" jdbcType="VARCHAR" property="instruction"/>
         <!-- <result column="pharmacology" jdbcType="CLOB" property="pharmacology"
                  typeHandler="org.apache.ibatis.type.ClobTypeHandler"/>
          <result column="indication" jdbcType="CLOB" property="indication"
@@ -30,6 +30,7 @@
         <result column="createDate" jdbcType="TIMESTAMP" property="createDate"/>
         <result column="source" jdbcType="VARCHAR" property="source"/>
         <result column="deployLocation" jdbcType="VARCHAR" property="deployLocation"/>
+        <result column="authCode" jdbcType="VARCHAR" property="authCode"/>
         <result column="refID" jdbcType="INTEGER" property="refID"/>
         <result column="producer" jdbcType="VARCHAR" property="producer"/>
         <result column="createUser" jdbcType="VARCHAR" property="createUser"/>
@@ -74,8 +75,8 @@
     <select id="queryInstruction" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT A.*,B.chnName matchGeneralName,H.chnName healthName,B.hasInstruction matchInstruction,B.producer matchProducer,B.source matchSource ,C.instNum generalInstNum
         FROM (
-        SELECT TOP ${limit} instructionID,healthNo,    chnName,engName,pinyin,hasInstruction,dose,generalInstrID,general,finish,updateTime,createDate,source,
-        deployLocation,producer,createUser,updateUser
+        SELECT TOP ${limit} instructionID,healthNo, chnName,engName,pinyin,hasInstruction,dose,generalInstrID,general,finish,updateTime,createDate,source,
+        deployLocation,authCode,producer,createUser,updateUser
         FROM ( SELECT * FROM Instruction
         <include refid="queryWhere"/>
         ) I
@@ -96,32 +97,35 @@
     </select>
     <select id="selectInstruction" parameterType="int" resultMap="RecordResult">
         SELECT A.instructionID, A.healthNo, A.chnName, A.engName, A.pinyin, A.hasInstruction, A.instruction, A.dose, A.generalInstrID, A.general, A.finish,
-        A.updateTime, A.createDate, A.source,A.deployLocation, A.producer, A.createUser, A.updateUser, B.chnName matchGeneralName, H.chnName healthName
+               A.updateTime, A.createDate, A.source, A.deployLocation, A.authCode, A.producer, A.createUser, A.updateUser, B.chnName matchGeneralName, H.chnName healthName
         FROM Instruction A
-            LEFT JOIN Instruction B
-                ON A.generalInstrID = B.instructionID
-            LEFT JOIN Health H
-                ON A.healthNo = H.healthNo
+                 LEFT JOIN Instruction B
+                           ON A.generalInstrID = B.instructionID
+                 LEFT JOIN Health H
+                           ON A.healthNo = H.healthNo
         WHERE A.instructionID = #{instructionID:INTEGER}
     </select>
-    <select id="viewInstructionByID" parameterType="int" resultMap="RecordResult">
-        SELECT A.instructionID, A.healthNo, A.chnName, A.engName, A.pinyin, A.hasInstruction, A.instruction, A.dose, A.generalInstrID, A.general, A.finish,
-        A.updateTime, A.createDate, A.source, A.deployLocation, A.producer, A.createUser, A.updateUser
-        FROM Instruction A
-        WHERE A.instructionID = #{instructionID:INTEGER}
+
+    <select id="liveByGeneralName" parameterType="java.util.Map" resultMap="RecordResult">
+        select A.instructionID, B.*, A.chnName
+        from Instruction A
+                 join (SELECT generalInstrID, count(generalInstrID) generalCount
+                       FROM instruction
+                       group by generalInstrID) B on A.instructionID = B.generalInstrID
     </select>
+
     <select id="viewInstrByGeneralInstrID" parameterType="int" resultMap="RecordResult">
         SELECT TOP 1 A.instructionID, A.healthNo, A.chnName, A.engName, A.pinyin, A.hasInstruction, A.instruction, A.dose, A.generalInstrID, A.general, A.finish, A.updateTime,
-        A.createDate, A.source,A.deployLocation, A.producer, A.createUser, A.updateUser
+                     A.createDate, A.source, A.deployLocation, A.producer, A.createUser, A.updateUser
         FROM Instruction A
         WHERE A.generalInstrID = #{instructionID:INTEGER} AND hasInstruction = 1
     </select>
     <insert id="insertInstruction" parameterType="com.zcreate.review.model.Instruction" flushCache="true">
         INSERT INTO Instruction (healthNo,chnName,engName,pinyin,hasInstruction,instruction,
-        dose,generalInstrID,general,finish,source,deployLocation,refID,producer,createUser,updateUser)
+        dose,generalInstrID,general,finish,source,deployLocation,authCode,refID,producer,createUser,updateUser)
         VALUES (#{healthNo:VARCHAR}, #{chnName:VARCHAR}, #{engName:VARCHAR}, #{pinyin:VARCHAR}, #{hasInstruction:BOOLEAN}, #{instruction:VARCHAR}, #{dose:VARCHAR},
-        #{generalInstrID:INTEGER}, #{general:INTEGER},#{finish:INTEGER},#{source:VARCHAR},#{deployLocation:VARCHAR},#{refID:INTEGER},#{producer:VARCHAR},#{createUser:VARCHAR},
-        #{updateUser:VARCHAR});
+        #{generalInstrID:INTEGER}, #{general:INTEGER},#{finish:INTEGER},#{source:VARCHAR},#{deployLocation:VARCHAR},#{authCode:VARCHAR},#{refID:INTEGER},#{producer:VARCHAR},
+        #{createUser:VARCHAR}, #{updateUser:VARCHAR});
         <selectKey resultType="int" order="AFTER" keyProperty="instructionID">
             SELECT @@IDENTITY AS instructionID
         </selectKey>
@@ -142,21 +146,33 @@
             <if test="general  != null">general = #{general:INTEGER},</if>
             <if test="source  != null">SOURCE = #{source:VARCHAR},</if>
             <if test="producer  != null">producer = #{producer:VARCHAR},</if>
+            <if test="authCode  != null">authCode = #{authCode:VARCHAR},</if>
         </set>
         WHERE instructionID = #{instructionID:INTEGER}
     </update>
     <delete id="deleteInstruction" parameterType="int" flushCache="true">
-        DELETE FROM Instruction WHERE instructionID = #{instructionID}
+        DELETE
+        FROM Instruction
+        WHERE instructionID = #{instructionID}
     </delete>
     <update id="setNewGeneral" parameterType="java.util.Map" flushCache="true">
-        UPDATE Instruction SET general = 0, generalInstrID = #{newGeneralID:INTEGER} WHERE generalInstrID = #{oldGeneralID:INTEGER};
-        UPDATE Instruction SET general = 1 WHERE instructionID = #{newGeneralID:INTEGER};
+        UPDATE Instruction
+        SET general        = 0,
+            generalInstrID = #{newGeneralID:INTEGER}
+        WHERE generalInstrID = #{oldGeneralID:INTEGER};
+        UPDATE Instruction
+        SET general = 1
+        WHERE instructionID = #{newGeneralID:INTEGER};
     </update>
 
     <select id="selectSource" resultType="string">
-        SELECT  DISTINCT source   FROM instruction  where LEN(source)>=2
+        SELECT DISTINCT source
+        FROM instruction
+        where LEN(source) >= 2
     </select>
     <select id="selectProducer" resultType="string">
-        SELECT  DISTINCT producer FROM instruction  where LEN(producer)>3
+        SELECT DISTINCT producer
+        FROM instruction
+        where LEN(producer) > 3
     </select>
 </mapper>

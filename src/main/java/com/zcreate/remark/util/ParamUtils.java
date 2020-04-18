@@ -1,12 +1,15 @@
 package com.zcreate.remark.util;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.zcreate.util.DateUtils;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
+import java.util.*;
 
 public class ParamUtils {
+
+    private static Gson gson = new GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd HH:mm").create();
+
     public static HashMap<String, Object> produceMap(String fromDate, String toDate, String department, int type) {
         HashMap<String, Object> param = produceMap(fromDate, toDate, department);
         param.put("type", type);
@@ -44,5 +47,15 @@ public class ParamUtils {
             param.put("toDate", cal.getTime());
         }
         return param;
+    }
+
+
+    public static String returnJson(List medicineList, int totalCount) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("data", medicineList);
+        result.put("iTotalRecords", totalCount);//todo 表的行数，未加任何调剂
+        result.put("iTotalDisplayRecords", totalCount);
+
+        return gson.toJson(result);
     }
 }

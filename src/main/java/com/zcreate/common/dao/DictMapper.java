@@ -13,9 +13,9 @@ public interface DictMapper {
 
     List<Dict> selectDict(@Param("param") Map<String, Object> param);
 
-    List<Dict> getDictByParentChildNo(@Param("param") Map<String, Object> param);
+    Dict getDictByParentChildNo(@Param("param") Map<String, Object> param);
 
-    List<Dict> getDictByParentNo_Value(@Param("param") Map<String, Object> param);
+    Dict getDictByParentNo_Value(@Param("param") Map<String, Object> param);
 
     int insertDict(Dict dict);
 
