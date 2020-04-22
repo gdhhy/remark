@@ -120,7 +120,8 @@
                 showDialog("加载失败", "请检查数据或联系系统开发！");
                 return;
             }
-            var saveJson = JSON.parse('${inPatient.review.reviewJson}');
+            var saveJson = JSON.parse('${inPatient.review.reviewJson}'.replace('\n', '\\n'));
+            //var saveJson = JSON.parse('{"inPatientID":"1251","hospID":"2623","inPatientReviewID":"8904","reviewUser":"陈会玲","masterDoctor":"陈国优","基本情况":{"sex":"女","age":"69","weight":"","inHospital":"2020年03月12日","outHospital":"2020年03月19日"},"诊断":[{"diagnosisNo":"19808","type":"住院诊断","disease":"急性上消化道出血"},{"diagnosisNo":"22259","type":"住院诊断","disease":"十二指肠溃疡"},{"diagnosisNo":"22260","type":"住院诊断","disease":"重度贫血"},{"diagnosisNo":"22261","type":"住院诊断","disease":"幽门螺旋杆菌感染"},{"diagnosisNo":"22262","type":"住院诊断","disease":"肾结石"},{"diagnosisNo":"22263","type":"住院诊断","disease":"肝囊肿"},{"diagnosisNo":"22264","type":"住院诊断","disease":"脂肪肝"}],"细菌培养和药敏":{"micro":false,"micro_time":"","sample":"","germName":"","sensitiveDrug":""},"围手术期用药":{"incision":0,"surgery":false,"surgeryName":"","startTime":"","lastTime":"","beforeDrug":"0","afterDrug":"0","surgeryAppend":false},"长嘱":[],"临嘱":[],"用药情况":{"symptom":"","symptom2":""},"点评":{"review":"刘昌海：肾功能不全选用药物不适宜。患者年龄68岁，肌酐247umol/L，体重45kg，肌酐清除率为13.64ml/min，使用二甲双胍、阿卡波糖、双氯芬酸钠不适宜。肌酐清除率＜45ml/min禁用，肌酐清除率＜25ml/min禁用，晚期肾脏病避免使用双氯芬酸钠。\\n2、肾功能减退未按照肌酐清除率调整剂量不适宜。患者肌酐清除率为13.64ml/min，使用阿莫西林克拉维酸钾1.2g q8h不适宜，根据《国家抗微生物指南》肌酐清除率10~30ml/min时阿莫西林克拉维酸钾首剂1.2g 维持0.6g q12h","rational":"2"},"reviewType":0}');
             //console.log("saveJson:" + JSON.stringify(saveJson));
             //左侧用药情况
             var longDrugTb = $('#longDrugTb').DataTable({

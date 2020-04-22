@@ -48,6 +48,8 @@ public class SampleController {
                               @RequestParam(value = "month", required = false, defaultValue = "-1") int month,
                               @RequestParam(value = "remarkType", required = false, defaultValue = "0") int remarkType,
                               @RequestParam(value = "type", required = false, defaultValue = "0") int type,
+                              @RequestParam(value = "search[value]", required = false) String search,
+                              @RequestParam(value = "search[regex]", required = false) String regex,
                               @RequestParam(value = "draw", required = false) Integer draw,
                               @RequestParam(value = "start", required = false, defaultValue = "0") int start,
                               @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
@@ -55,6 +57,7 @@ public class SampleController {
         param.put("year", year);
         param.put("month", month);
         param.put("type", type);
+        param.put("search", search);
         param.put("start", start);
         param.put("limit", limit);
         int count = sampleDao.getSampleBatchCount(param);

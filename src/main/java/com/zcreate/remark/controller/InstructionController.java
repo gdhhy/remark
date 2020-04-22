@@ -66,6 +66,24 @@ public class InstructionController {
     }
 
     @ResponseBody
+    @Transactional
+    @RequestMapping(value = "setOnlyGeneral", method = RequestMethod.POST)
+    public String setOnlyGeneral(@RequestParam(value = "instructionID") Integer instructionID, @RequestParam(value = "generalInstrID") Integer generalInstrID) {
+        Map<String, Object> map = new HashMap<>();
+        int affectedRow = 0;
+        try {
+            affectedRow = instructionDao.doSetNewGeneral(instructionID, generalInstrID);
+        } catch (Exception e) {
+            e.printStackTrace();
+            map.put("message", "错误信息：<br/>" + e.getMessage());
+        }
+        map.put("succeed", affectedRow > 0);
+        map.put("affectedRowCount", affectedRow);
+
+        return gson.toJson(map);
+    }
+
+    @ResponseBody
     @RequestMapping(value = "instructionList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String instructionList(@RequestParam(value = "instructionID", required = false) Integer instructionID,
                                   @RequestParam(value = "generalInstrID", required = false) Integer generalInstrID,
@@ -94,7 +112,7 @@ public class InstructionController {
           /*  if (PinyinUtil.isFullEnglish(chnName))
                 param.put("livePinyin", chnName.trim());
             else*/
-                param.put("chnName", chnName.trim());
+            param.put("chnName", chnName.trim());
         if (generalName != null) {
             param.put("general", 1);
             if (PinyinUtil.isFullEnglish(generalName))

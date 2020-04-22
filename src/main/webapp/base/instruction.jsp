@@ -4,12 +4,10 @@
 <script src="../components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
 <script src="../components/datatables/dataTables.select.min.js"></script>
 <script src="../assets/js/jquery.ui.touch-punch.min.js"></script>
-<%--<script src="../assets/js/jquery.gritter.min.js"></script>--%>
 <script src="../js/accounting.min.js"></script>
 <script src="../js/render_func.js"></script>
 <script src="../js/jquery.cookie.min.js"></script>
 <script src="../assets/js/jquery.validate.min.js"></script>
-<%--<script src="../components/moment/moment.min.js"></script>--%>
 <script src="../components/moment/min/moment-with-locales.min.js"></script>
 <script src="../components/typeahead.js/dist/typeahead.bundle.min.js"></script>
 <script src="../components/typeahead.js/handlebars.js"></script>
@@ -18,17 +16,12 @@
 
 <script src="../components/bootstrap-wysiwyg/jquery.hotkeys.index.min.js"></script>
 <script src="../components/bootstrap-wysiwyg/bootstrap-wysiwyg.min.js"></script>
-<%--<script src="../components/bootstrap-wysiwyg/bootbox.js"></script>--%>
-<%--<script type="text/javascript" src="../components/jquery-easyui-1.9.4/jquery.easyui.min.js"></script>
-<script type="text/javascript" src="../components/jquery-easyui-1.9.4/locale/easyui-lang-zh_CN.js"></script>--%>
 
 <!-- bootstrap & fontawesome -->
 
 <link rel="stylesheet" href="../components/font-awesome/css/font-awesome.css"/>
 <link rel="stylesheet" href="../components/jquery.editable-select/jquery.editable-select.min.css"/>
-<link rel="stylesheet" href="../components/chosen/chosen.min.css"/><%--
-<link rel="stylesheet" type="text/css" href="../components/jquery-easyui-1.9.4/themes/default/easyui.css">
-<link rel="stylesheet" type="text/css" href="../components/jquery-easyui-1.9.4/themes/icon.css">--%>
+<link rel="stylesheet" href="../components/chosen/chosen.min.css"/>
 <style>
     .form-group {
         margin-bottom: 3px;
@@ -45,7 +38,6 @@
                 .DataTable({
                     bAutoWidth: false,
                     "searching": true,
-                    //"iDisplayLength": 15,
                     "columns": [
                         {"data": "instructionID", "sClass": "center", "orderable": false, width: 45},
                         {"data": "chnName", "sClass": "center", "orderable": false, className: 'middle'},
@@ -140,17 +132,17 @@
 
             $('.btn-success').click(function () {
                 myTable.ajax.url("/instruction/instructionList.jspa?hasInstruction={0}&source={1}"
-                    .format( $('#hasInstruction').val(), $('#sourceType').val())).load();
-              /*  if ($('#form-instructionID').val() !== '') {
-                    myTable.ajax.url("/instruction/instructionList.jspa?instructionID={0}&hasInstruction={1}&source={2}"
-                        .format($('#form-instructionID').val(), $('#hasInstruction').val(), $('#sourceType').val())).load();
-                } else if ($('#form-generalInstrID').val() !== '') {
-                    myTable.ajax.url("/instruction/instructionList.jspa?generalInstrID={0}&hasInstruction={1}&source={2}"
-                        .format($('#form-generalInstrID').val(), $('#hasInstruction').val(), $('#sourceType').val())).load();
-                } else {
-                    myTable.ajax.url("/instruction/instructionList.jspa?chnName={0}&hasInstruction={1}&source={2}&generalName={3}"
-                        .format($('#form-instruction').val(), $('#hasInstruction').val(), $('#sourceType').val(), $('#form-general').val())).load();
-                }*/
+                    .format($('#hasInstruction').val(), $('#sourceType').val())).load();
+                /*  if ($('#form-instructionID').val() !== '') {
+                      myTable.ajax.url("/instruction/instructionList.jspa?instructionID={0}&hasInstruction={1}&source={2}"
+                          .format($('#form-instructionID').val(), $('#hasInstruction').val(), $('#sourceType').val())).load();
+                  } else if ($('#form-generalInstrID').val() !== '') {
+                      myTable.ajax.url("/instruction/instructionList.jspa?generalInstrID={0}&hasInstruction={1}&source={2}"
+                          .format($('#form-generalInstrID').val(), $('#hasInstruction').val(), $('#sourceType').val())).load();
+                  } else {
+                      myTable.ajax.url("/instruction/instructionList.jspa?chnName={0}&hasInstruction={1}&source={2}&generalName={3}"
+                          .format($('#form-instruction').val(), $('#hasInstruction').val(), $('#sourceType').val(), $('#form-general').val())).load();
+                  }*/
             });
             //https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
             /*$('#form-instruction').typeahead({hint: true, minLength: 1},
@@ -193,10 +185,11 @@
             //form-general
             $('#matchGeneralName').typeahead({hint: true, minLength: 1},
                 {
-                    limit: 100,
+                    limit: 1000,//要大于http请求返回的长度
                     source: function (queryStr, processSync, processAsync) {
                         var params = {generalName: queryStr, length: 100};
                         $.getJSON('/instruction/instructionList.jspa', params, function (json) {
+                            console.log("length:" + json.iTotalRecords);
                             return processAsync(json.aaData);
                         });
                     },
@@ -214,8 +207,9 @@
                                 return '<div style="text-align:center" class="green" >发现 {0} 项</div>'.format(query.suggestions.length);
                         },
                         suggestion: Handlebars.compile('<div style="font-size: 9px">' +
-                            '<div style="font-weight:bold">{{chnName}}</div>' +
-                            '<span class="light-grey">厂家：</span>{{producer}} ' +
+                            '<span style="font-weight:bold">{{chnName}}</span>' +
+                            '<span class="light-grey">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;说明书：</span>{{#if hasInstruction}}有{{else}}无{{/if}}' +
+                            '{{#if producer}}<br/><span class="light-grey">厂家：</span>{{producer}}{{/if}}' +
                             '</div>'),
                         pending: function (query) {
                             return '<div>查询中...</div>';
@@ -313,6 +307,7 @@
             });
 
             var similarTable = $('#similarTable').DataTable({
+                dom: 't',
                 bAutoWidth: true,
                 "scrollY": "200px",
                 "scrollCollapse": true,
@@ -441,8 +436,30 @@
                     },
                     buttons: [
                         {
-                            text: '保存',
-                            iconCls: 'ace-icon fa fa-pencil-square-o bigger-110',
+                            html: "<i class='ace-icon fa fa-flag  bigger-110'></i>&nbsp;设为本组唯一通用名",
+                            "class": "btn btn-info btn-minier",
+                            click: function () {
+                                $.ajax({
+                                    type: "POST",
+                                    url: "/instruction/setOnlyGeneral.jspa",
+                                    data: {instructionID: inst.instructionID, generalInstrID: inst.generalInstrID},
+                                    cache: false,
+                                    success: function (response, textStatus) {
+                                        var result = JSON.parse(response);
+                                        if (result.succeed)
+                                            myTable.ajax.reload();
+                                        else
+                                            showDialog("请求结果：" + result.succeed, result.message);
+                                    },
+                                    error: function (response, textStatus) {/*能够接收404,500等错误*/
+                                        showDialog("请求状态码：" + response.status, response.responseText);
+                                    }
+                                });
+                                $(this).dialog("close");
+                            }
+                        }, {
+                            html: "<i class='ace-icon fa fa-pencil-square-o  bigger-110'></i>&nbsp;保存",
+                            "class": "btn btn-danger btn-minier",
                             click: function () {
                                 if (instructionForm.valid()) {
                                     instructionForm.submit();
@@ -450,8 +467,8 @@
                                 }
                             }
                         }, {
-                            text: '关闭',
-                            iconCls: 'ace-icon fa fa-times bigger-130 red',
+                            html: "<i class='ace-icon fa fa-times bigger-110'></i>&nbsp; 关闭",
+                            "class": "btn btn-minier",
                             click: function () {
                                 $('#dialog-edit').dialog('close');
                                 //$('#pinyin').remove();
@@ -739,9 +756,9 @@
                             </div>
                             <div class="row" style="margin-bottom: 3px;margin-top: 5px;">
                                 <label class="col-sm-3 control-label no-padding-right " for="matchGeneralName">对应通用名</label>
-                                <div class="col-sm-9 ">
+                                <div class="col-sm-9">
                                     <input class="typeahead scrollable" type="text" id="matchGeneralName" name="matchGeneralName"
-                                           autocomplete="off" style="font-size: 9px;color: black ;"
+                                           autocomplete="off" style="font-size: 9px;color: black;width:250px;"
                                            placeholder="对应通用名"/>
                                     <input type="hidden" id="generalInstrID" name="generalInstrID"/>
                                 </div>

@@ -102,7 +102,7 @@
                     url: "/remark/listSamples.jspa",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
-                            if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
+                            if (key.indexOf("columns") === 0 || key.indexOf("order") === 0) //以columns开头的参数删除 || key.indexOf("search") === 0
                                 delete d[key];
                     }
                 },
@@ -311,8 +311,7 @@
                 if (result.iTotalRecords > 0) {
                     $("#form-department option:gt(0)").remove();
                     $.each(result.data, function (n, value) {
-                        departmentE.append('<option value="{0}" selected="selected">{1}</option>'
-                            .format(value.name, value.name));
+                        departmentE.append('<option value="{0}">{1}</option>'.format(value.name, value.name));
                     });
                     departmentE.val("");
                 }
@@ -616,8 +615,11 @@
             e.preventDefault();
             showSampleDialog(null);
         });
+        sampleForm.find("#form-type").change(function () {
+            loadDepartment(sampleForm.find('#form-type').children('option:selected').val());
+        });
         //设置批次名称
-        sampleForm.find(" #form-department,#form-doctor,#form-medicine,#form-dateRange").change(function () {
+        sampleForm.find("#form-department,#form-doctor,#form-medicine,#form-dateRange").change(function () {
             /*var batchName = $('#form-type').children('option:selected').val() === "1" ? "门诊" : "住院";*/
             var batchName = "";
             if (departmentE.get(0).selectedIndex > 0)
@@ -630,12 +632,10 @@
 
             $('#form-name').val(batchName + '：' + $('#form-dateRange').val());
         });
-
         //计算符合条件的数量
         sampleForm.find("#form-type,#form-department,#form-doctor,#form-western,#form-medicine,input[type=checkbox],#form-dateRange").change(function () {//[name!='form-field-surgery']
             var p1 = sampleForm.find('#form-type').children('option:selected').val();//这就是selected的值 门诊为1,住院未2
             /*console.log("p2:" + p1);*/
-            loadDepartment(p1);
             if (p1 === '1') {
                 $(".clinicType").removeClass("light-grey");
                 $(".surgeryTypeLbl").addClass("light-grey");

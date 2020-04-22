@@ -31,6 +31,7 @@
             <if test="type>0">AND type = #{type}</if>
             <if test="year>0">AND year = #{year}</if>
             <if test="month>0">AND month = #{month}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(search)">AND (department like '%${search}%' OR doctor like '%${search}%' OR  name like '%${search}%') </if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(department)">AND department = #{department}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(doctor)">AND doctor = #{doctor}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(name)">AND name = #{name}</if>

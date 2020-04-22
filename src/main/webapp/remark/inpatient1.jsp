@@ -115,7 +115,7 @@
                 showDialog("加载失败", "请检查数据或联系系统开发！");
                 return;
             }
-            var saveJson = JSON.parse('${inPatient.review.reviewJson}');
+            var saveJson = JSON.parse('${inPatient.review.reviewJson}'.replace('\n', '\\n'));
             //console.log("saveJson:" + JSON.stringify(saveJson));
 
             var drugTable = $('#drugTable').DataTable({
