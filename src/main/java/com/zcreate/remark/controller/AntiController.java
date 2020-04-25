@@ -39,7 +39,7 @@ public class AntiController {
     public String antiDrug(
             @RequestParam(value = "quarter") String quarter,
             @RequestParam(value = "month") String month,
-            @RequestParam(value = "table", defaultValue = "0") Integer table,
+            //@RequestParam(value = "table", defaultValue = "0") Integer table,
             @RequestParam(value = "draw", required = false) Integer draw) {
         HashMap<String, Object> param = new HashMap<>();
         if (!"".equals(quarter)) {
@@ -54,9 +54,9 @@ public class AntiController {
             param.put("month", Integer.parseInt(date[1]));
         }
         List<HashMap<String, Object>> result;
-        if (table == 1)
+       /* if (table == 1)
             result = statDao.antiDrug(param);
-        else
+        else*/
             result = drugRecordsMapper.antiDrug(param);
 
         retMap = new HashMap<>();

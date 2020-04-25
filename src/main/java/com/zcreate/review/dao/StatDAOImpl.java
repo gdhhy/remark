@@ -148,10 +148,10 @@ public class StatDAOImpl extends SqlSessionDaoSupport implements StatDAO, Serial
         return getSqlSession().selectList("DailyMedicine.medicineAmp", param);
     }
 
-    @SuppressWarnings("unchecked")
+    /*@SuppressWarnings("unchecked")
     public List<HashMap<String, Object>> antiDrug(Map param) {
         return getSqlSession().selectList("LYD.antiDrug", param);
-    }
+    }*/
 
     @Override
     public List<HashMap<String, Object>> queryMedicinePatient(Map<String, Object> param) {

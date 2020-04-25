@@ -40,7 +40,7 @@
             .DataTable({
                 bAutoWidth: false,
                 "searching": true,
-                "iDisplayLength": 25,
+                //"iDisplayLength": 25,
                 "columns": [
                     {"data": "medicineID", "sClass": "center", "orderable": false, width: 40},
                     {"data": "no", "sClass": "center", "orderable": false, searchable: true},
@@ -239,8 +239,8 @@
             {
                 limit: 1000,
                 source: function (queryStr, processSync, processAsync) {
-                    var params = {queryString: queryStr, length: 100};
-                    $.getJSON('/medicine/liveDrug.jspa', params, function (json) {
+                    var params = {'search[value]': queryStr, length: 100};
+                    $.getJSON('/drug/liveDrug.jspa', params, function (json) {
                         return processAsync(json.data);
                     });
                 },
@@ -450,6 +450,11 @@
                 console.log("invalidHandler");
             }
         });
+        $.getJSON("/common/dict/listDict.jspa?parentID=2", function (result) {
+            $.each(result.data, function (index, object) {
+                $('#dose').append("<option value='{0}'>{1}</option>".format(object.name.trim(), object.name.trim()));
+            });
+        });
 
         function showMedicine(medicineID) {
             $.getJSON("/medicine/getMedicineList.jspa?medicineID=" + medicineID, function (ret) {
@@ -462,23 +467,26 @@
                 $('#dealer').text(result.dealer);
                 $('#price').text(result.price);
                 $('#insurance').text(renderInsurance(result.insurance));
-                $('#dose').html(result.dose == null ? "&nbsp;" : result.dose);
+                //console.log("dose:" + result.dose);
+                //$("#dose option[text='口服液']").attr("selected", "selected");
+                $('#dose').val(result.dose);
                 $('#lastPurchaseTime').html(result.lastPurchaseTime == null ? "&nbsp;" : result.lastPurchaseTime);
                 $('#generalName').html(result.generalName == null ? "&nbsp;" : result.generalName);
                 $('#instructionName').html(result.instructionName == null ? "&nbsp;" : result.instructionName);
 
                 $('#medicineID').val(medicineID);
-                $('#contents').text(result.contents);
+                $('#contents').html((result.contents === null || result.contents === '') ? '&nbsp;' : result.contents);
                 $('#ddd').val(result.ddd);
                 $('#maxDay').val(result.maxDay);
                 $('#antiClass').val(result.antiClass);
-                $('#base').text(renderBase2(result.base));
-                //$("#base").attr("disabled", true);
+                $("input[name='base']").attr("checked", false);//清空选中
+                $("input[name='base'][value='" + (result.base === 2 ? 2 : 0) + "']").attr("checked", true);
                 $('#mental').val(result.mental);
                 if (result.healthNo !== null) {
                     // console.log("healthNo非空！:" + result.healthNo);
                     $('#healthNo').combotree('setValue', result.healthNo);
                 }
+                $("input[name='isStat']").attr("checked", false);//清空选中
                 $("input[name='isStat'][value='" + result.isStat + "']").attr("checked", true);
 
                 $("#route option[value='" + result.route + "']").attr("selected", "selected");
@@ -506,23 +514,7 @@
                             $('#dialog-edit').dialog('close');
                         }
                     }],
-                    title_html: true/*,
-
-                    buttons: [
-                        {
-                            html: "<i class='ace-icon fa fa-pencil-square-o bigger-110'></i>&nbsp;保存",
-                            "class": "btn btn-danger btn-minier",
-                            click: function () {
-
-                            }
-                        }, {
-                            html: "<i class='ace-icon fa fa-times bigger-110'></i>&nbsp; 取消",
-                            "class": "btn btn-minier",
-                            click: function () {
-                                $(this).dialog("close");
-                            }
-                        }
-                    ]*/
+                    title_html: true
                 });
             });
         }
@@ -541,12 +533,10 @@
                 $('#generalName').html(result.generalName == null ? "&nbsp;" : result.generalName);
                 //todo 如果已经匹配，显示出来 2019国庆
                 if (result.matchDrugID > 0) {
-                    $.getJSON("/medicine/liveDrug.jspa?drugID=" + result.matchDrugID, function (ret) {
+                    $.getJSON("/drug/liveDrug.jspa?drugID=" + result.matchDrugID, function (ret) {
                         //matchDrug = ret.data[0];
                         $('#liveDrug').val(ret.data[0].chnName);
                         chooseDrug(ret.data[0], result.instructionName);
-                        //matchDrug = ret.data[0];
-                        /* console.log("matchDrug:" + JSON.stringify(matchDrug, null, 4)); */
                     });
 
                     $('#drugID').val(result.matchDrugID);
@@ -671,7 +661,7 @@
     <ul class="breadcrumb">
         <li>
             <i class="ace-icon fa fa-home home-icon"></i>
-            <a href="/index.jspa">首页</a>
+            <a href="/index.jspa?content=/admin/hello.html">首页</a>
         </li>
         <li class="active">本院药品</li>
 
@@ -857,29 +847,45 @@
                 </div><!-- /.col -->
 
                 <div class="col-xs-7" style="margin: 2px;">
-                    <div class="row">
-                        <label class="col-sm-3" style="white-space: nowrap">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <div class="form-group" style="margin-bottom: 3px;margin-top: 3px">
+                        <label class="col-sm-3 control-label no-padding-right" style="white-space: nowrap">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;剂型 </label>
-                        <div class="col-sm-5 ">
-                            <div style=" border-bottom: 1px solid; border-bottom-color: lightgrey" id="dose"></div>
+                        <div class="col-sm-5">
+                            <select class="form-control" id="dose" name="dose">
+                            </select>
                         </div>
-                    </div>
-                    <div class="row">
-                        <label class="col-sm-3 no-padding-right" for="base">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;基本药物 </label>
-                        <div class="col-sm-5 ">
-                            <div style="border-bottom: 1px solid; border-bottom-color: lightgrey" id="base"></div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <label class="col-sm-3 no-padding-right" for="base">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;含量 </label>
-                        <div class="col-sm-2">
-                            <div style="border-bottom: 1px solid; border-bottom-color: lightgrey" id="contents"></div>
-                        </div>
-                        <span class="help-inline col-sm-3 no-padding-left"><span class="middle red">g</span></span>
                     </div>
                     <div class="form-group" style="margin-bottom: 3px;margin-top: 3px">
-                        <label class="col-sm-3 control-label no-padding-right " for="antiClass"> 抗菌药级别 </label>
+                        <label class="col-sm-3 control-label no-padding-right">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;基本药物 </label>
+                        <div class="col-sm-4">
+                            <div class="radio col-sm-6">
+                                <label style="white-space: nowrap">
+                                    <input name="base" type="radio" class="ace" value="2"/>
+                                    <span class="lbl">国基</span>
+                                </label>
+                            </div>
+
+                            <div class="radio col-sm-6">
+                                <label style="white-space: nowrap">
+                                    <input name="base" type="radio" class="ace" value="0"/>
+                                    <span class="lbl">否</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 3px;margin-top: 3px">
+                        <label class="col-sm-3 control-label no-padding-right" for="contents">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;含量 </label>
+                        <%-- <div class="col-sm-2">
+                             <div style="border-bottom: 1px solid; border-bottom-color: lightgrey" id="contents"></div>
+                         </div>--%>
+                        <div class="col-sm-6">
+                            <input type="text" id="contents" name="contents" placeholder="含量" class="col-xs-10 col-sm-5"/>
+                        </div>
+                        <span class="help-inline col-sm-3 no-padding-left"><span class="left red">g</span></span>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 3px;margin-top: 3px">
+                        <label class="col-sm-3 control-label no-padding-right" for="antiClass"> 抗菌药级别 </label>
                         <div class="col-sm-5">
                             <select class="form-control" id="antiClass" name="antiClass">
                                 <option value="0">否</option>

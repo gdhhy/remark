@@ -27,9 +27,9 @@
 </style>
 <script type="text/javascript">
     jQuery(function ($) {
-        var table = $.getUrlParam("table") ==null? 0:$.getUrlParam("table");
+        //var table = $.getUrlParam("table") ==null? 0:$.getUrlParam("table");
         var month = moment().month(moment().month() - 1).startOf('month');
-        var url = "/anti/antiDrug.jspa?month={0}&quarter={1}&table=" + table;
+        var url = "/anti/antiDrug.jspa?month={0}&quarter={1}";
 
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');

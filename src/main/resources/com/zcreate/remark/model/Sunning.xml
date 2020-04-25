@@ -32,9 +32,9 @@
                count(distinct case when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and adviceID = 0 and route = 2 then D.hospID else null end) clinicInjectPatient,--注射剂使用人数 route=2 > injection = 1
                count(distinct case when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and adviceID = 0 and route = 2 then D.hospID else null end) clinicVdPatient,--静脉注射人数
                count(distinct case when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and base = 3 then D.goodsID else null end) localBaseNum,
-               count(distinct case when base = 2 then D.goodsID else null end) nationBaseNum,
-               sum(distinct case when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and base = 3 then amount else 0 end) localBaseMoney,
-               sum(distinct case when base = 2 then amount else 0 end) nationBaseMoney,
+               count(distinct case when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and base = 2 then D.goodsID else null end) nationBaseNum,
+               sum(case when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and base = 3 then amount else 0 end) localBaseMoney,
+               sum(case when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and base = 2 then amount else 0 end) nationBaseMoney,
                --抗菌药
                sum(case when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and adviceID = 0 and antiClass > 0 then amount else 0 end) clinicAntiAmount,
                sum(case when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and adviceID = 0 and antiClass = 3 then amount else 0 end) clinicSpecAntiAmount,

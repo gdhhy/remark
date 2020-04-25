@@ -146,6 +146,7 @@ public class ExcelController {
             String[] date = quarter.split("-");
             param.put("year", Integer.parseInt(date[0]));
             param.put("quarter", Integer.parseInt(date[1]));
+            param.put("DrugRecordsTable", "DrugRecords_" + date[0]);
             chnPeriod = Integer.parseInt(date[0]) + "年" + Integer.parseInt(date[1]) + "季度";
             prop = new String[]{"chnName", "antiClass", "dose", "spec", "minUnit", "", "clinicQuantity", "hospitalQuantity", "bringQuantity", "total", "DDDs"};
             wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "antiDrug.xls"));
@@ -153,11 +154,12 @@ public class ExcelController {
             String[] date = month.split("-");
             param.put("year", Integer.parseInt(date[0]));
             param.put("month", Integer.parseInt(date[1]));
+            param.put("DrugRecordsTable", "DrugRecords_" + date[0]);
             chnPeriod = Integer.parseInt(date[0]) + "年" + Integer.parseInt(date[1]) + "月";
             prop = new String[]{"goodsNo", "chnName", "antiClass", "spec", "minUnit", "price", "amount", "clinicQuantity", "hospitalQuantity", "bringQuantity", "total", "DDDs"};
             wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "antiDrug_month.xls"));
         }
-        List<HashMap<String, Object>> result = antibiosisService.antiDrug(param);
+        List<HashMap<String, Object>> result = drugRecordsMapper.antiDrug(param);
         String[] antiClass = {"非限制", "限制", "特殊"};
         for (HashMap<String, Object> aMap : result)
             if ((Short) aMap.get("antiClass") > 0 && (Short) aMap.get("antiClass") <= 3)

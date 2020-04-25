@@ -64,7 +64,7 @@ public class MedicineController {
     }
 
 
-    @ResponseBody
+    /*@ResponseBody
     @RequestMapping(value = "liveDrug", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String liveDrug(@RequestParam(value = "queryString", required = false) String queryString,
                            @RequestParam(value = "drugID", required = false, defaultValue = "0") int drugID,
@@ -83,8 +83,8 @@ public class MedicineController {
         }
         List<Drug> medicineList = drugDao.liveDrug(param);
 
-        return ParamUtils.returnJson(medicineList,medicineList.size());
-    }
+        return ParamUtils.returnJson(medicineList,drugDao.queryCount(param));
+    }*/
 
    /* @ResponseBody
     @RequestMapping(value = "getDrug", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
