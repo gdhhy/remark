@@ -89,10 +89,10 @@
                             render: function (data, type, row, meta) {
                                 return '<div class="hidden-sm hidden-xs action-buttons">' +
                                     '<a class="hasDetail" href="#" data-Url="javascript:editInstruction({0});">'.format(data) +
-                                    '<i class="ace-icon fa  fa-pencil-square-o bigger-130"></i>' +
+                                    '<i class="ace-icon fa  fa-pencil-square-o green bigger-130"></i>' +
                                     '</a>&nbsp;&nbsp;&nbsp;' +
                                     '<a class="hasDetail" href="#" data-Url="javascript:deleteDialog({0},\'{1}\');">'.format(data, row['chnName']) +
-                                    '<i class="ace-icon fa  fa-remove bigger-130"></i>' +
+                                    '<i class="ace-icon fa  fa-remove red bigger-130"></i>' +
                                     '</a>' +
                                     '</div>';
                             }
@@ -458,7 +458,7 @@
                                 $(this).dialog("close");
                             }
                         }, {
-                            html: "<i class='ace-icon fa fa-pencil-square-o  bigger-110'></i>&nbsp;保存",
+                            html: "<i class='ace-icon fa fa-floppy-o bigger-110'></i>&nbsp;保存",
                             "class": "btn btn-danger btn-minier",
                             click: function () {
                                 if (instructionForm.valid()) {
@@ -590,6 +590,20 @@
                 });
             }
 
+            function showDialog(title, content) {
+                $("#errorText").html(content);
+                $("#dialog-error").removeClass('hide').dialog({
+                    modal: true,
+                    width: 600,
+                    title: title,
+                    buttons: [{
+                        text: "确定", "class": "btn btn-primary btn-xs", click: function () {
+                            $(this).dialog("close");
+                        }
+                    }]
+                });
+            }
+
             function showGeneralContent(generalInstrID) {
                 $.ajax({
                     type: "GET",
@@ -648,7 +662,7 @@
             <i class="ace-icon fa fa-home home-icon"></i>
             <a href="/index.jspa?content=/admin/hello.html">首页</a>
         </li>
-        <li class="active">本院药品</li>
+        <li class="active">说明书库</li>
 
     </ul><!-- /.breadcrumb -->
 

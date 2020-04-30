@@ -72,10 +72,10 @@
                         render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 '<a class="hasDetail" href="#" data-Url="javascript:showMedicine(\'{0}\');">'.format(data) +
-                                '<i class="ace-icon fa  fa-pencil-square-o bigger-130"></i>' +
+                                '<i class="ace-icon fa  fa-pencil-square-o green bigger-130"></i>' +
                                 '</a>&nbsp;&nbsp;&nbsp;' +
                                 '<a class="hasDetail" href="#" data-Url="javascript:showMatch(\'{0}\');">'.format(data) +
-                                '<i class="ace-icon fa  fa-exchange  bigger-130"></i>' +
+                                '<i class="ace-icon fa  fa-exchange orange bigger-130"></i>' +
                                 '</a>' +
                                 '</div>';
                         }
@@ -502,7 +502,7 @@
                     title: "药品资料",
                     buttons: [{
                         text: '保存',
-                        iconCls: 'ace-icon fa fa-pencil-square-o bigger-110',
+                        iconCls: 'ace-icon fa fa-floppy-o bigger-110',
                         handler: function () {
                             if (medicineForm.valid())
                                 medicineForm.submit();
@@ -560,7 +560,7 @@
                     title: "配对",
                     buttons: [{
                         text: '保存',
-                        iconCls: 'ace-icon fa fa-pencil-square-o bigger-110',
+                        iconCls: 'ace-icon fa fa-floppy-o bigger-110',
                         handler: function () {
                             if (matchDrug) {
                                 var submitForm = {medicineID: medicineID, matchDrugID: matchDrug.drugID};
@@ -757,7 +757,6 @@
                                 <th style="text-align: center;width:75px;">编辑/配对</th>
                             </tr>
                             </thead>
-
                         </table>
                     </div>
                 </div>
@@ -790,7 +789,7 @@
             </form>
         </div>
     </div>
-    <div id="dialog-edit" class="hide" data-options="iconCls:'icon-save',modal:true">
+    <div id="dialog-edit" class="hide" data-options="iconCls:'ace-icon fa fa-pencil-square-o green bigger-130',modal:true">
         <div class="col-xs-12" style="padding-top: 10px">
             <!-- PAGE CONTENT BEGINS -->
             <form class="form-horizontal" role="form" id="medicineForm">
