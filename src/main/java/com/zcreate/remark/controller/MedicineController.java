@@ -30,8 +30,6 @@ public class MedicineController {
     private static Logger log = LoggerFactory.getLogger(MedicineController.class);
     @Autowired
     private MedicineDAO medicineDao;
-    @Autowired
-    private DrugDAO drugDao;
 
     @Autowired
     private InstructionDAO instructionDao;

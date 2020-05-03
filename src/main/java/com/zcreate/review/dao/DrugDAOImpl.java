@@ -101,8 +101,8 @@ public class DrugDAOImpl extends SqlSessionDaoSupport implements DrugDAO, Serial
     }
     //DrugDose
 
-    public void insertDrugDose(DrugDose drugDose) {
-        getSqlSession().insert("Drug.insertDrugDose", drugDose);
+    public int insertDrugDose(DrugDose drugDose) {
+        return getSqlSession().insert("Drug.insertDrugDose", drugDose);
     }
 
     public List<DrugDose> selectDrugDose(int drugID) {

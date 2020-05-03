@@ -35,7 +35,7 @@ public class DictController {
                            @RequestParam(value = "parentID", required = false, defaultValue = "0") int parentID) {
         Map<String, Object> param = new HashMap<String, Object>();
         param.put("dictID", dictID);
-        System.out.println("parentDictNo = " + parentDictNo);
+        //System.out.println("parentDictNo = " + parentDictNo);
       /*  if (parentDictNo != null) {
             param.put("dictNo", parentDictNo);
             Dict parent = dictMapper.selectDict(param).get(0);
@@ -54,5 +54,22 @@ public class DictController {
          result.put("recordsTotal", dicts.size());
 
         return gson.toJson(result);*/
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "listDict2", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String listDict2(@RequestParam(value = "dictID", required = false, defaultValue = "0") int dictID,
+                            @RequestParam(value = "parentDictNo", required = false) String parentDictNo,
+                            @RequestParam(value = "value", required = false) String value,
+                            @RequestParam(value = "note", required = false) String note,
+                            @RequestParam(value = "parentID", required = false, defaultValue = "0") int parentID) {
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("dictID", dictID);
+        param.put("value", value);
+        param.put("note", note);
+        param.put("parentDictNo", parentDictNo);
+        param.put("parentID", parentID);
+        List<Dict> dicts = dictMapper.selectDict(param);
+        return gson.toJson(dicts);
     }
 }

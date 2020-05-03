@@ -7,6 +7,7 @@ import com.zcreate.remark.util.ParamUtils;
 import com.zcreate.review.dao.DrugDAO;
 import com.zcreate.review.dao.IncompatibilityDAO;
 import com.zcreate.review.model.Drug;
+import com.zcreate.review.model.DrugDose;
 import com.zcreate.review.model.Incompatibility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +77,7 @@ public class DrugController {
                 result = drugDao.save(drug);
             else
                 result = drugDao.insert(drug);
-            
+
             map.put("succeed", result > 0);
         } else {
             map.put("title", "保存通用名");
@@ -150,6 +151,63 @@ public class DrugController {
         int deleteCount = 0;
         try {
             deleteCount = incompatibilityDAO.deleteByPrimaryKey(incompatibilityID);
+        } catch (Exception e) {
+            e.printStackTrace();
+            map.put("message", "错误信息：<br/>" + e.getMessage());
+        }
+        map.put("succeed", deleteCount > 0);
+        map.put("affectedRowCount", deleteCount);
+
+        return gson.toJson(map);
+    }
+
+
+    //剂型-说明书
+    @ResponseBody
+    @RequestMapping(value = "getDrugDoseList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String getDrugDoseList(@RequestParam(value = "drugID", defaultValue = "0") int drugID) {
+        List<DrugDose> medicineList = drugDao.selectDrugDose(drugID);
+        //return easyui datagrid
+        Map<String, Object> result = new HashMap<>();
+        result.put("rows", medicineList);
+        result.put("total", medicineList.size());
+
+        return gson.toJson(result);
+    }
+
+    @ResponseBody
+    @Transactional
+    @RequestMapping(value = "/saveDrugDose", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
+    public String saveDrugDose(@ModelAttribute("drugDose") DrugDose drugDose) {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Map<String, Object> map = new HashMap<>();
+        map.put("title", "保存剂型对应说明书");
+        if (principal instanceof UserDetails) {
+            //UserDetails ud = (UserDetails) principal;
+            //log.debug("drugDose = " + drugDose);
+            int result;
+            if (drugDose.getDrugDoseID() != null)
+                result = drugDao.saveDrugDose(drugDose);
+            else
+                result = drugDao.insertDrugDose(drugDose);
+
+            map.put("succeed", result > 0);
+        } else {
+            map.put("title", "保存剂型对应说明书");
+            map.put("succeed", false);
+            map.put("message", "没登录用户信息，请重新登录！");
+        }
+
+        return gson.toJson(map);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "deleteDrugDose", method = RequestMethod.POST)
+    public String deleteDrugDose(@RequestParam(value = "drugDoseID") Integer drugDoseID) {
+        Map<String, Object> map = new HashMap<>();
+        int deleteCount = 0;
+        try {
+            deleteCount = drugDao.deleteDrugDose(drugDoseID);
         } catch (Exception e) {
             e.printStackTrace();
             map.put("message", "错误信息：<br/>" + e.getMessage());

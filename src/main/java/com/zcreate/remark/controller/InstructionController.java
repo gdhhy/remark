@@ -137,6 +137,32 @@ public class InstructionController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "instructionList2", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String instructionList2(@RequestParam(value = "generalName", required = false) String generalName,
+                                   @RequestParam(value = "generalInstrID", required = false) Integer generalInstrID,
+                                   @RequestParam(value = "page", required = false, defaultValue = "0") int page,
+                                   @RequestParam(value = "rows", required = false, defaultValue = "100") int limit) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("generalInstrID", generalInstrID);
+        if (generalName != null) {
+            param.put("general", 1);
+            if (PinyinUtil.isFullEnglish(generalName))
+                param.put("liveGeneralPinyin", generalName.trim());
+            else
+                param.put("liveGeneralName", generalName.trim());
+        }
+        param.put("start", (page - 1) * limit);
+        param.put("limit", limit);
+        List<HashMap<String, Object>> instructionList = instructionDao.query(param);
+        int totalCount = instructionDao.queryCount(param);
+        Map<String, Object> retMap = new HashMap<>();
+        retMap.put("rows", instructionList);
+        retMap.put("total", totalCount);
+
+        return gson.toJson(retMap);
+    }
+
+    @ResponseBody
     @RequestMapping(value = "liveSource", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String liveSource() {
         List<String> sourceList = instructionDao.getSourceList();

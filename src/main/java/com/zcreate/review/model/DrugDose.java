@@ -9,7 +9,7 @@ import java.io.Serializable;
  * Time: 下午4:09
  */
 public class DrugDose implements Serializable {
-    private int drugDoseID;
+    private Integer drugDoseID;
     private int drugID;
     private String route;
     private String dose;
@@ -17,11 +17,11 @@ public class DrugDose implements Serializable {
     private String instructionName;
     private int    instructCount;
 
-    public int getDrugDoseID() {
+    public Integer getDrugDoseID() {
         return drugDoseID;
     }
 
-    public void setDrugDoseID(int drugDoseID) {
+    public void setDrugDoseID(Integer drugDoseID) {
         this.drugDoseID = drugDoseID;
     }
 

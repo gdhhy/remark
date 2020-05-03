@@ -33,7 +33,7 @@ public interface DrugDAO {
     Drug getDrug(Integer drugID);
 
     //DrugDose
-    void insertDrugDose(DrugDose drugDose);
+    int insertDrugDose(DrugDose drugDose);
 
     List<DrugDose> selectDrugDose(int drugID);
 
