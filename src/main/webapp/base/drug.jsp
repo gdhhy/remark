@@ -57,18 +57,19 @@
                     {"data": "drugID", "sClass": "center", "orderable": false, width: 40},
                     {"data": "chnName", "sClass": "center", "orderable": false, className: 'middle'},
                     {"data": "healthName", "sClass": "center", "orderable": false},
-                    {"data": "dose", "sClass": "center", "orderable": false, defaultContent: ''},
-                    {"data": "base", "sClass": "center", defaultContent: '', "orderable": false, render: renderBase2},//4
-                    {"data": "gravida", "sClass": "center", "orderable": false, render: renderNoNo},
+                    /*{"data": "dose", "sClass": "center", "orderable": false, defaultContent: ''},*/
+                    {"data": "base", "sClass": "center", defaultContent: '', "orderable": false, render: renderBase2},
+                    {"data": "gravida", "sClass": "center", "orderable": false, render: renderNoNo},//4
                     {"data": "lactation", "sClass": "center", "orderable": false, render: renderNoNo},
                     {"data": "oldFolks", "sClass": "center", "orderable": false, render: renderNoNo},
                     {"data": "children", "sClass": "center", "orderable": false, render: renderNoNo},
-                    {"data": "maxEffectiveDose", "sClass": "center", "orderable": false, render: renderNoZero},//9
-                    {"data": "maxDose", "sClass": "center", "orderable": false, render: renderNoZero},
+                    {"data": "maxEffectiveDose", "sClass": "center", "orderable": false, render: renderNoZero},
+                    {"data": "maxDose", "sClass": "center", "orderable": false, render: renderNoZero},//9
                     {"data": "ddd", "sClass": "center", "orderable": false, render: renderNoZero},
                     {"data": "instructionName", "sClass": "center", "orderable": false, defaultContent: ''},
                     {"data": "incompNum", "sClass": "center", "orderable": false},
-                    {"data": "updateUser", "sClass": "center", "orderable": false},//14
+                    {"data": "medicineName", "sClass": "center", "orderable": false, defaultContent: ''},
+                    {"data": "updateUser", "sClass": "center", "orderable": false, defaultContent: ''},//14
                     {"data": "drugID", "sClass": "center", "orderable": false}
                 ],
                 'columnDefs': [
@@ -77,8 +78,6 @@
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     },
-                    /*{'targets': 4, 'searchable': false, 'orderable': false},
-                    {'targets': 9, 'searchable': false, 'orderable': false},*/
                     {
                         'targets': 15, 'searchable': false, 'orderable': false,
                         render: function (data, type, row, meta) {
@@ -143,52 +142,16 @@
         }
 
         $('.btn-success').click(function () {
-            if ($('#form-goodsNo').val() !== '') {
-                myTable.ajax.url("/drug/liveDrug.jspa?goodsNo={0}&matchType={1}&type={2}"
-                    .format($('#form-goodsNo').val(), $('#matchType').val(), $('#type').val())).load();
-            } else {
-                myTable.ajax.url("/drug/liveDrug.jspa?queryChnName={0}&matchType={1}&type={2}"
-                    .format($('#form-medicine').val(), $('#matchType').val(), $('#type').val())).load();
-            }
+            var url = '/drug/liveDrug.jspa?matchInstruction=' + $('#instructionType').val();
+            if ($("#antiClass").is(':checked'))
+                url += '&antiClass=1';
+            if ($('#hasInteract').is(':checked'))
+                url += '&hasInteract=1';
+            if ($('#linkMe').is(':checked'))
+                url += '&linkMe=1';
+            myTable.ajax.url(url).load();
         });
-        //https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
-        $('#form-medicine').typeahead({hint: true},
-            {
-                limit: 1000,
-                source: function (queryStr, processSync, processAsync) {
-                    var params = {queryChnName: queryStr, length: 100};
-                    $.getJSON('/medicine/liveMedicine.jspa', params, function (json) {
-                        //medicineLiveCount = json.iTotalRecords;
-                        //console.log("count:" + medicineLiveCount);
-                        return processAsync(json.data);
-                    });
-                },
-                display: function (item) {
-                    return item.chnName + " - " + item.spec;
-                },
-                templates: {
-                    header: function (query) {//header or footer
-                        //console.log("query:" + JSON.stringify(query, null, 4));
-                        if (query.suggestions.length > 1)
-                            return '<div style="text-align:center" class="green" >发现 {0} 项</div>'.format(query.suggestions.length);
-                    },
-                    suggestion: Handlebars.compile('<div style="font-size: 9px">' +
-                        '<div style="font-weight:bold">{{chnName}}</div>' +
-                        '<span class="light-grey">编码：</span>{{goodsNo}}<span class="space-4"/> <span class="light-grey">规格：</span>{{spec}}</div>'),
-                    pending: function (query) {
-                        return '<div>查询中...</div>';
-                    },
-                    notFound: '<div class="red">没匹配</div>'
-                }
-            }
-        );
-        $('#form-medicine').bind('typeahead:select', function (ev, suggestion) {
-            //console.log("no:" + suggestion["goodsNo"]);
-            $('#form-goodsNo').val(suggestion["goodsNo"]);
-        });
-        $('#form-medicine').on("input propertychange", function () {
-            $('#form-goodsNo').val("");
-        });
+
         //https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
         $('#chnName2').typeahead({hint: true},
             {
@@ -589,35 +552,24 @@
     <div class="page-header">
 
         <form class="form-search form-inline">
-            <label class=" control-label no-padding-right" for="form-medicine">药品名称： </label>
-            <div class="input-group">
-                <input class="typeahead scrollable nav-search-input" type="text" id="form-medicine" name="form-medicine"
-                       autocomplete="off" style="width: 250px;font-size: 9px;color: black"
-                       placeholder="编码或拼音匹配，鼠标选择"/><input type="hidden" id="form-goodsNo"/>
-            </div>&nbsp;&nbsp;&nbsp;
-            <label>配对：</label>
-            <select class="chosen-select form-control" id="matchType">
+            <label>说明书：</label>
+            <select class="chosen-select form-control" id="instructionType">
                 <option value="0">全部</option>
-                <option value="1">未配对</option>
-                <option value="2">已配对</option>
-                <option value="3">已配对通用名</option>
-                <option value="4">已配对说明书</option>
+                <option value="1">已配对</option>
+                <option value="2">未配对</option>
             </select>&nbsp;&nbsp;&nbsp;
-            <label>药品类别：</label>
-            <select class="chosen-select form-control" id="type">
-                <option value="0">全部</option>
-                <option value="1">西药</option>
-                <option value="9">西药-口服</option>
-                <option value="10">西药-注射</option>
-                <option value="11">西药-大输液</option>
-                <%--<option value="12">西药-外用</option>--%>
-                <option value="3">中成药</option>
-                <option value="4">中草药</option>
-                <option value="5">抗菌药</option>
-                <option value="6">基本药物</option>
-                <option value="7">甲类医保</option>
-                <option value="8">乙类医保</option>
-            </select>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <label>抗菌药：</label>
+            <div class="input-group">
+                <input type="checkbox" id="antiClass">&nbsp;&nbsp;&nbsp;
+            </div>&nbsp;&nbsp;&nbsp;
+            <label>配伍：</label>
+            <div class="input-group">
+                <input type="checkbox" id="hasInteract">&nbsp;&nbsp;&nbsp;
+            </div>&nbsp;&nbsp;&nbsp;
+            <label>本院相关：</label>
+            <div class="input-group">
+                <input type="checkbox" id="linkMe">&nbsp;&nbsp;&nbsp;
+            </div> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <button type="button" class="btn btn-sm btn-success">
                 查询
                 <i class="ace-icon glyphicon glyphicon-search icon-on-right bigger-100"></i>
@@ -647,17 +599,18 @@
                                 <th></th>
                                 <th style="text-align: center">药品名称</th>
                                 <th style="text-align: center">药理分类</th>
-                                <th style="text-align: center">剂型</th>
+                               <%-- <th style="text-align: center">剂型</th>--%>
                                 <th style="text-align: center;width:45px">基药</th>
                                 <th style="text-align: center;width:45px">孕妇</th>
                                 <th style="text-align: center;width:60px">哺乳期</th>
                                 <th style="text-align: center;width:60px">老年人</th>
                                 <th style="text-align: center;width:45px">儿童</th>
-                                <th style="text-align: center;width:80px">最大剂量</th>
+                                <th style="text-align: center;width:70px">最大剂量</th>
                                 <th style="text-align: center;width:45px">极量</th>
                                 <th style="text-align: center;width:60px;">DDD值</th>
                                 <th style="text-align: center">对应说明书</th>
                                 <th style="text-align: center;width:45px;">配伍</th>
+                                <th style="text-align: center">本院药品</th>
                                 <th style="text-align: center;width:60px;">维护人</th>
                                 <th style="text-align: center;width:150px;">编辑/配伍/说明书/删除</th>
                             </tr>
@@ -978,7 +931,7 @@
             </div>
         </div>
     </div>
-    <div id="dialog-dose" class="hide easyui-layout" title="剂型与对应说明书" style="font-family:'宋体';width:850px;height:350px;padding:10px"
+    <div id="dialog-dose" class="hide easyui-layout" title="剂型与对应说明书" style="font-family:'宋体';width:450px;height:350px;padding:10px"
          data-options="iconCls:'ace-icon fa fa-share-alt bigger-130',modal:true">
         <div class="row">
             <label class="col-xs-6" style="white-space: nowrap">药品名称：<span id="chnName_span2" style="white-space: nowrap"/> </label>
@@ -1016,8 +969,9 @@
                                    autocomplete="off" style="width:280px;font-size: 9px;color: black"
                                    placeholder="编码或拼音匹配，鼠标选择">
                         </div>
+                        <input type="hidden" id="instructionID" name="instructionID" required>
                         <label class="col-xs-12 no-padding-left" for="dgDoseInstruction"> 可选说明书 </label>
-                        <table class="col-xs-12 easyui-datagrid" id="dgDoseInstruction" style="height: 240px;width:100%;" idField="instructionID" ,
+                        <table class="col-xs-12 easyui-datagrid" id="dgDoseInstruction" style="height: 240px;width:100%;" idField="instructionID"
                                data-options="singleSelect:true,method:'get',singleSelect:true,   url:'/instruction/instructionList2.jspa', rownumbers: true">
                             <thead>
                             <tr>
@@ -1029,7 +983,6 @@
                             </tr>
                             </thead>
                         </table>
-                        <input type="hidden" id="instructionID" name="instructionID" required>
                     </div>
                     <div class="col-xs-6" style="margin-bottom: 3px;margin-top: 5px;">
                         <div id="instruction" class="easyui-panel no-margin " title="说明书内容" style="height:340px;padding: 5px 0 0 0;">

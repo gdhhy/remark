@@ -60,22 +60,22 @@ public class DrugDAOImpl extends SqlSessionDaoSupport implements DrugDAO, Serial
         return (Drug) getSqlSession().selectOne("Drug.selectDrug", drugID);
     }
 
-    @SuppressWarnings("unchecked")
-    public List<Drug> query(Map param) {
+
+    public List<HashMap> query(Map<String,Object> param) {
         decideRefreshTmpIncomp();
 
         param.put("orderField", "drugID");
         return getSqlSession().selectList("Drug.queryDrug", param);
     }
 
-    @SuppressWarnings("unchecked") //todo
-    public List<Drug> liveDrug(Map param) {
+
+   /* public List<Drug> liveDrug(Map param) {
         decideRefreshTmpIncomp();
 
         param.put("orderField", "drugID");
         param.put("live", Boolean.TRUE);
         return getSqlSession().selectList("Drug.queryDrug", param);
-    }
+    }*/
 
     public int queryCount(Map param) {
         return (Integer) getSqlSession().selectOne("Drug.queryDrugCount", param);

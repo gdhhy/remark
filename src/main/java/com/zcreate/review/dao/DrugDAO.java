@@ -3,6 +3,7 @@ package com.zcreate.review.dao;
 import com.zcreate.review.model.Drug;
 import com.zcreate.review.model.DrugDose;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,9 +25,9 @@ public interface DrugDAO {
 
     //List<Drug> selectByParentID(Integer parentID);
 
-    List<Drug> query(Map param);
+    List<HashMap> query(Map<String,Object> param);
 
-    List<Drug> liveDrug(Map param);
+    //List<Drug> liveDrug(Map param);
 
     int queryCount(Map param);
 

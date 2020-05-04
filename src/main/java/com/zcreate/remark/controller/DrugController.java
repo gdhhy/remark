@@ -37,10 +37,21 @@ public class DrugController {
     @RequestMapping(value = "liveDrug", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String liveDrug(@RequestParam(value = "search[value]", required = false) String search,
                            @RequestParam(value = "drugID", required = false, defaultValue = "0") int drugID,
+                           @RequestParam(value = "matchInstruction", required = false, defaultValue = "0") int matchInstruction,
+                           @RequestParam(value = "antiClass", required = false, defaultValue = "-1") int antiClass,
+                           @RequestParam(value = "hasInteract", required = false, defaultValue = "0") int hasInteract,
+                           @RequestParam(value = "linkMe", required = false, defaultValue = "0") int linkMe,
                            @RequestParam(value = "start", required = false, defaultValue = "0") int start,
                            @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
         Map<String, Object> param = new HashMap<>();
         param.put("drugID", drugID);
+        if (matchInstruction == 1)
+            param.put("matchInstruction", true);
+        else if (matchInstruction == 2)
+            param.put("notMatchInstruction", true);
+        param.put("antiClass", antiClass);
+        param.put("hasInteract", hasInteract);
+        param.put("linkMe", linkMe);
         param.put("start", start);
         param.put("limit", limit);
         if (search != null) {
@@ -50,7 +61,7 @@ public class DrugController {
             else
                 param.put("liveChnName", search.trim());
         }
-        List<Drug> medicineList = drugDao.liveDrug(param);
+        List<HashMap> medicineList = drugDao.query(param);
 
         return ParamUtils.returnJson(medicineList, drugDao.queryCount(param));
     }
