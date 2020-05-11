@@ -641,7 +641,7 @@
             new $.fn.dataTable.Buttons(myTable, {
                 buttons: [
                     {
-                        "text": "<i class='fa fa-plus-square bigger-130'></i>&nbsp;&nbsp;新增 ",
+                        "text": "<i class='fa fa-plus-square bigger-130'></i>&nbsp;&nbsp;新增",
                         "className": "btn btn-xs btn-white btn-primary "
                     }
                 ]
@@ -754,7 +754,7 @@
             <!-- PAGE CONTENT ENDS -->
         </div><!-- /.col -->
     </div><!-- /.row -->
-    <div id="dialog-edit" class="hide " data-options="iconCls:'icon-save',modal:true">
+    <div id="dialog-edit" class="hide" data-options="iconCls:'icon-save',modal:true">
         <form class="form-horizontal" role="form" id="instructionForm">
             <input type="hidden" name="instructionID">
             <!-- PAGE CONTENT BEGINS -->

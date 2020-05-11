@@ -4,6 +4,9 @@ package com.zcreate.common.logic;
 import com.zcreate.common.DictService;
 import com.zcreate.common.dao.DictMapper;
 import com.zcreate.common.pojo.Dict;
+import com.zcreate.remark.controller.RemarkController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
@@ -17,6 +20,7 @@ import java.util.Map;
  * Time: 上午11:18
  */
 public class DictServiceImpl implements DictService {
+    private static Logger log = LoggerFactory.getLogger(DictServiceImpl.class);
     @Autowired
     public DictMapper dictMapper; //todo 参照GroupTree，引进管理
 
@@ -45,17 +49,35 @@ public class DictServiceImpl implements DictService {
     }
 
     public boolean save(Dict dict) {
+        log.debug("dictID:" + dict.getDictID());
         if (dict.getDictID() > 0)
-            return dictMapper.insertDict(dict) == 1;
-        else
             return dictMapper.updateDictByPrimaryKeySelective(dict) == 1;
+        else {
+            doInsert(dict);
+            return dict.getDictID() > 0;
+        }
     }
 
     public boolean doDeleteByPrimaryKey(Integer dictID) {
-        return dictMapper.deleteDict(dictID) == 1;
+        Dict dict = getDict(dictID);
+        List<Dict> brother = selectByParentID(dict.getParentID());
+        if (brother.size() == 1) {
+            Dict parent = getDict(dict.getParentID());
+            parent.setHasChild(false);
+            dictMapper.updateDictByPrimaryKeySelective(parent);
+        }
+        List<Dict> son = selectByParentID(dictID);
+        if (son.size() == 0)
+            return dictMapper.deleteDict(dictID) == 1;
+        else return false;
     }
 
     public Dict doInsert(Dict dict) {
+        Dict parent = getDict(dict.getParentID());
+        if (!parent.getHasChild()) {
+            parent.setHasChild(true);
+            dictMapper.updateDictByPrimaryKeySelective(parent);
+        }
         dictMapper.insertDict(dict);
         System.out.println("dict.getDictID() = " + dict.getDictID());
         return dict;

@@ -151,7 +151,7 @@
                 <li class="">
                     <a href="index.jspa?content=/sunning/medicine_day.jsp&menuID=21" id="21">
 
-                        <!--<i class="menu-icon fa 	fa-certificate"></i>-->
+                        <!--<i class="menu-icon fa fa-certificate"></i>-->
                         <i class="menu-icon fa fa-caret-right"></i>
                         <span class="menu-text">药品分析（天）</span>
                     </a>
@@ -161,7 +161,7 @@
                 <li class="">
                     <a href="index.jspa?content=/sunning/department.jsp&menuID=22" id="22">
 
-                        <!--<i class="menu-icon fa 	fa-certificate"></i>-->
+                        <!--<i class="menu-icon fa fa-certificate"></i>-->
                         <i class="menu-icon fa fa-caret-right"></i>
                         <span class="menu-text">科室用药趋势</span>
                     </a>
@@ -171,7 +171,7 @@
                 <li class="">
                     <a href="index.jspa?content=/sunning/doctor.jsp&menuID=23" id="23">
 
-                        <!--<i class="menu-icon fa 	fa-certificate"></i>-->
+                        <!--<i class="menu-icon fa fa-certificate"></i>-->
                         <i class="menu-icon fa fa-caret-right"></i>
                         <span class="menu-text">医生用药分析</span>
                     </a>
@@ -181,7 +181,7 @@
                 <li class="">
                     <a href="index.jspa?content=/sunning/department_base.jsp&menuID=24" id="24">
 
-                        <!--<i class="menu-icon fa 	fa-certificate"></i>-->
+                        <!--<i class="menu-icon fa fa-certificate"></i>-->
                         <i class="menu-icon fa fa-caret-right"></i>
                         <span class="menu-text">科室基药统计</span>
                     </a>
@@ -191,7 +191,7 @@
                 <li class="">
                     <a href="index.jspa?content=/sunning/doctor_base.jsp&menuID=25" id="25">
 
-                        <!--<i class="menu-icon fa 	fa-certificate"></i>-->
+                        <!--<i class="menu-icon fa fa-certificate"></i>-->
                         <i class="menu-icon fa fa-caret-right"></i>
                         <span class="menu-text">医生基药统计</span>
                     </a>
@@ -256,7 +256,7 @@
                 </li>
                 <%--  <li class="">
                       <a href="index.jspa?content=/admin/roles.jsp&menuID=31" id="31">
-                          <!--<i class="menu-icon fa 	fa-certificate"></i>-->
+                          <!--<i class="menu-icon fa fa-certificate"></i>-->
                           <i class="menu-icon fa fa-caret-right"></i>
                           <span class="menu-text"> 住院科室抗菌药统计</span>
                       </a>
@@ -265,7 +265,7 @@
                   </li>
                   <li class="">
                       <a href="index.jspa?content=/admin/roles.jsp&menuID=32" id="32">
-                          <!--<i class="menu-icon fa 	fa-certificate"></i>-->
+                          <!--<i class="menu-icon fa fa-certificate"></i>-->
                           <i class="menu-icon fa fa-caret-right"></i>
                           <span class="menu-text"> 门诊抗菌药统计</span>
                       </a>
@@ -343,6 +343,15 @@
 
                     <b class="arrow"></b>
                 </li>
+                <li class="">
+                    <a href="index.jspa?content=/base/dicts.jsp&menuID=43" id="43">
+                        <!--<i class="menu-icon fa fa-user"></i>-->
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        <span class="menu-text">数据字典</span>
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
             </ul>
         </li>
         <li>
@@ -370,7 +379,7 @@
                 </sec:authorize>
                 <li class="">
                     <a href="index.jspa?content=/monitor/data.jsp&menuID=6" id="6">
-                        <!--<i class="menu-icon fa 	fa-certificate"></i>-->
+                        <!--<i class="menu-icon fa fa-certificate"></i>-->
                         <i class="menu-icon fa fa-caret-right"></i>
                         <i class="fa fa-database"></i>
                         <span class="menu-text">数据量监控</span>
@@ -380,7 +389,7 @@
                 </li>
                 <li class="">
                     <a href="index.jspa?content=/monitor/task.jsp&menuID=7" id="7">
-                        <!--<i class="menu-icon fa 	fa-certificate"></i>-->
+                        <!--<i class="menu-icon fa fa-certificate"></i>-->
                         <i class="menu-icon fa fa-caret-right"></i>
                         <i class="fa fa-tasks" aria-hidden="true"></i>
 
