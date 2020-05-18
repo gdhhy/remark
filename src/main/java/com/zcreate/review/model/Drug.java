@@ -48,7 +48,7 @@ public class Drug implements Serializable {
     //基本药物
     private Integer base;
     //是否通用名
-    private Integer general;
+    private Integer general;//todo: 这里不都是通用名吗？
     private Float ddd;
     //辅助用药
     private Integer adjuvantDrug;

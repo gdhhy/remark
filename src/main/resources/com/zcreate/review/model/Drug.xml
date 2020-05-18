@@ -76,7 +76,8 @@
         WHERE drugID = #{drugID:INTEGER}
     </select>
     <select id="queryDrug" parameterType="java.util.Map" resultType="java.util.HashMap" useCache="false">
-        SELECT distinct D.*, H.chnName healthName,T.num incompNum,M.medicineID,M.chnName medicineName FROM
+        SELECT distinct D.*, H.chnName healthName,T.num incompNum,
+        stuff((select distinct ','+chnName from Medicine where matchDrugID=D.drugID for XML PATH('')),1,1,'') medicineName FROM
         ( SELECT TOP ${limit} drugID,pinyin,healthNo,rtrim(chnName) chnName,engName,packUnit,gravida,lactation,oldFolks,children,maxEffectiveDose,maxDose,
         measureUnit,frequency,liver,kidney,base,general,ddd,adjuvantDrug,antiClass,drugtype,memo,updateTime,updateUser,valid,deployLocation FROM
         (SELECT * FROM Drug
@@ -90,7 +91,6 @@
         ORDER BY ${orderField} DESC ) D
         LEFT JOIN Health H ON H.healthNo=D.healthNo
         LEFT JOIN tmpIncompatibility T ON T.drugID=D.drugID
-        LEFT JOIN Medicine M ON M.matchDrugID=D.drugID
         ORDER BY D.${orderField} DESC
     </select>
     <select id="queryDrugCount" parameterType="java.util.Map" resultType="int">

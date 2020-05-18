@@ -187,6 +187,13 @@ public class DrugController {
     }
 
     @ResponseBody
+    @RequestMapping(value = "getDrugDoseList2", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String getDrugDoseList2(@RequestParam(value = "drugID", defaultValue = "0") int drugID) {
+        List<DrugDose> medicineList = drugDao.selectDrugDose(drugID);
+        return ParamUtils.returnJson(medicineList, medicineList.size());
+    }
+
+    @ResponseBody
     @Transactional
     @RequestMapping(value = "/saveDrugDose", method = RequestMethod.POST, produces = "text/html;charset=UTF-8")
     public String saveDrugDose(@ModelAttribute("drugDose") DrugDose drugDose) {

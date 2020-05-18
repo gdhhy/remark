@@ -10,8 +10,6 @@
 <script src="../assets/js/jquery.validate.messages_cn.js"></script>
 <script src="../components/chosen/chosen.jquery.js"></script>
 <script type="text/javascript" src="../components/zTree_v3/js/jquery.ztree.core.js"></script>
-<script type="text/javascript" src="../components/zTree_v3/js/jquery.ztree.excheck.js"></script>
-<script type="text/javascript" src="../components/zTree_v3/js/jquery.ztree.exedit.js"></script>
 
 <!-- bootstrap & fontawesome -->
 

@@ -39,6 +39,9 @@
         bottom: 0;
         width: 100%;
     }
+   /* .action{height:50px}
+    .menu-text{height:50px}
+    .submenu{height:50px}*/
 </style>
 <script type="text/javascript">
     jQuery(function ($) {

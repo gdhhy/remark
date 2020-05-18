@@ -4,30 +4,38 @@
 <script src="../components/datatables.net-buttons/js/dataTables.buttons.min.js"></script>
 <script src="../components/datatables/dataTables.select.min.js"></script>
 <script src="../assets/js/jquery.ui.touch-punch.min.js"></script>
-<%--<script src="../assets/js/jquery.gritter.min.js"></script>--%>
+<script src="../assets/js/jquery.gritter.min.js"></script>
 <script src="../js/accounting.min.js"></script>
 <script src="../js/render_func.js"></script>
 <script src="../js/jquery.cookie.min.js"></script>
 <script src="../assets/js/jquery.validate.min.js"></script>
-<%--<script src="../components/moment/moment.min.js"></script>--%>
 <script src="../components/moment/min/moment-with-locales.min.js"></script>
 <script src="../components/typeahead.js/dist/typeahead.bundle.min.js"></script>
 <script src="../components/typeahead.js/handlebars.js"></script>
 <script src="../components/chosen/chosen.jquery.js"></script>
-<script type="text/javascript" src="../components/jquery-easyui-1.9.4/jquery.easyui.min.js"></script>
-<script type="text/javascript" src="../components/jquery-easyui-1.9.4/locale/easyui-lang-zh_CN.js"></script>
+<script src="../components/bootstrap-daterangepicker/daterangepicker.js"></script>
+<script src="../components/bootstrap-daterangepicker/daterangepicker.zh-CN.js"></script>
+<script type="text/javascript" src="../components/zTree_v3/js/jquery.ztree.core.js"></script>
 
 <!-- bootstrap & fontawesome -->
-
 <link rel="stylesheet" href="../components/font-awesome/css/font-awesome.css"/>
+<link rel="stylesheet" href="../components/jquery.gritter/css/jquery.gritter.min.css"/>
 <link rel="stylesheet" href="../components/chosen/chosen.min.css"/>
-<link rel="stylesheet" type="text/css" href="../components/jquery-easyui-1.9.4/themes/default/easyui.css">
-<link rel="stylesheet" type="text/css" href="../components/jquery-easyui-1.9.4/themes/icon.css">
+<link rel="stylesheet" href="../components/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
 <style>
     .form-group {
         margin-bottom: 3px;
         margin-top: 3px;
     }
+
+    /* .ztree li ul.line {
+         height: 80%;
+     }
+
+     .ztree * {
+         box-sizing: initial;
+     } */
+
 </style>
 <script type="text/javascript">
     jQuery(function ($) {
@@ -117,13 +125,17 @@
         });
 
         function renderRoute() {
-            $('#dynamic-table tr').each(function () {
+            $('#dynamic-table tr:gt(0)').each(function () {
                 var tdArr = $(this).children();
                 //console.log("route:" + tdArr.eq(4).text());
+                var match = false;
                 $.each(route, function (index, object) {
-                    if (object.value === tdArr.eq(4).text())
+                    if (object.value === tdArr.eq(4).text()) {
                         tdArr.eq(4).text(object.name);
+                        match = true;
+                    }
                 });
+                if (!match) tdArr.eq(4).text('');
             });
         }
 
@@ -144,27 +156,45 @@
                     .format($('#form-medicine').val(), $('#matchType').val(), $('#type').val())).load();
             }
         });
+        var timeFrom = moment().startOf('year'), timeTo = moment();
+        $('#form-dateRange').daterangepicker({
+            'applyClass': 'btn-sm btn-success',
+            'cancelClass': 'btn-sm btn-default',
+            startDate: timeFrom,
+            endDate: timeTo,
+            ranges: {
+                '本季': [moment().startOf('quarter')],
+                '上季': [moment().quarter(moment().quarter() - 1).startOf('month'), moment().quarter(moment().quarter() - 1).endOf('quarter')],
+                '今年': [moment().startOf('year')],
+                '去年': [moment().year(moment().year() - 1).startOf('year'), moment().year(moment().year() - 1).endOf('year')]
+            },
+            locale: locale
+        }, function (start, end, label) {
+            timeFrom = start;
+            timeTo = end;
+        }).next().on(ace.click_event, function () {
+            $(this).prev().focus();
+        });
 
         $('.btn-info').click(function () {
-            $('#fromDate').datebox('setValue', moment().startOf('year').format("YYYY-MM-DD"));
-            $('#toDate').datebox('setValue', moment().format("YYYY-MM-DD"));
-
             $("#dialog-applyData").removeClass('hide').dialog({
                 resizable: false,
+                width: 350,
+                height: 320,
                 modal: true,
                 title: "套用药品资料更新数据",
                 buttons: [{
-                    text: '执行',
-                    iconCls: 'ace-icon fa fa-bolt bigger-110',
-                    handler: function () {
+                    html: "<i class='ace-icon fa fa-bolt bigger-110'></i>&nbsp;执行",
+                    "class": "btn btn-danger btn-minier",
+                    click: function () {
                         //todo 同一年判断
                         var param = {
                             taskType: 2,
                             timerMode: 2,
                             exeDateField: '',
                             exeTimeField: '',
-                            timeFrom: $('#fromDate').datebox('getValue'),
-                            timeTo: $('#toDate').datebox('getValue'),
+                            timeFrom: timeFrom.format("YYYY-MM-DD"),
+                            timeTo: timeTo.format("YYYY-MM-DD"),
                         };
                         //console.log("param:" + JSON.stringify(param));
                         $.ajax({
@@ -177,19 +207,26 @@
                                 var msg = response.message;
                                 if (response.succeed)
                                     msg += '<br/>可以在“导入任务”查看执行结果和耗时。';
-                                $.messager.alert("执行结果", msg);
+                                //$.messager.alert("执行结果", msg);
+                                $.gritter.add({
+                                    title: '执行通知', text: msg,
+                                    //  image: ctx+'admin/clear/notif_icon.png',
+                                    sticky: false, time: 5000, speed: 500,
+                                    position: 'bottom-right',
+                                    class_name: 'gritter-success'//gritter-center
+                                });
 
                                 $('#dialog-applyData').dialog("close");
                             },
                             error: function (response, textStatus) {/*能够接收404,500等错误*/
-                                $.messager.alert("请求状态码：" + response.status, response.responseText);
+                                showDialog("请求状态码：" + response.status, response.responseText);
                             }
                         });
                     }
                 }, {
-                    text: '关闭',
-                    iconCls: 'ace-icon fa fa-times bigger-130 red',
-                    handler: function () {
+                    html: "<i class='ace-icon fa fa-times bigger-110'></i>&nbsp; 关闭",
+                    "class": "btn btn-minier",
+                    click: function () {
                         $('#dialog-applyData').dialog('close');
                     }
                 }],
@@ -269,7 +306,7 @@
         );
         var matchDrug;
         $('#liveDrug').bind('typeahead:select', function (ev, suggestion) {
-            console.log("no:" + suggestion["drugID"]);
+            //console.log("params:" + JSON.stringify(suggestion, null, 4));
             chooseDrug(suggestion);
         });
         $('#liveDrug').on("input propertychange", function () {
@@ -287,35 +324,43 @@
 
             if (matchDrug["antiClass"] > 0 && matchDrug["antiClass"] <= 3) {
                 var antiChn = ["非限制抗菌药", "限制抗菌药", "特殊抗菌药"];
-                $('#antiClass_DDD').text(antiChn[matchDrug["antiClass"] - 1] + " - DDD：" + matchDrug["ddd"]);
+                $('#drugMemo').text(antiChn[matchDrug["antiClass"] - 1] + " - DDD：" + matchDrug["ddd"]);
             } else {
-                if (matchDrug["drugDose"].length > 0)
-                    $('#antiClass_DDD').text(matchDrug["healthName"] + "-" + matchDrug["drugDose"][0].dose);
-                else
-                    $('#antiClass_DDD').text(matchDrug["healthName"]);
+                /*  if (matchDrug["drugDose"].length > 0)
+                      $('#drugMemo').text(matchDrug["healthName"] + "-" + matchDrug["drugDose"][0].dose);
+                  else*/
+                $('#drugMemo').text(matchDrug["healthName"]);
             }
-            $('#antiClass_DDD').removeClass('hide');
+            $('#drugMemo').removeClass('hide');
 
             $('#chooseInstruction').empty();
             $('#instructionContent').html("");
 
-            if (matchDrug["drugDose"].length > 0) {
-                var instrIDs = '';
-                for (var i = 0; i < matchDrug["drugDose"].length; i++) {
-                    instrIDs += matchDrug["drugDose"][i].instructionID;
-                    if (i < matchDrug["drugDose"].length - 1) instrIDs += ',';
-                }
+            var instrIDs = '';
+            $.getJSON("/drug/getDrugDoseList2.jspa?drugID=" + matchDrug["drugID"], function (drugResult) {
+                $.each(drugResult.data, function (index, object) {
+                    instrIDs += object.instructionID;
+                    if (index < drugResult.iTotalRecords - 1) instrIDs += ',';
+                });
+                //console.log("instrIDs:" + instrIDs);
                 $.getJSON("/medicine/matchInstruct.jspa?instrIDs=" + instrIDs, function (result) {
                     $('#chooseInstruction').append("<option value='0'>请选择</option>");
 
                     $.each(result.data, function (index, object) {
                         $('#chooseInstruction').append("<option value='{0}'{2}>{1}</option>".format(object.instructionID, object.chnName,
                             object.chnName === instructionName ? " selected" : ""));
-
                     });
-
                 });
-            }
+            });
+
+            /*if (matchDrug["drugDose"].length > 0) {
+                var instrIDs = '';
+                for (var i = 0; i < matchDrug["drugDose"].length; i++) {
+                    instrIDs += matchDrug["drugDose"][i].instructionID;
+                    if (i < matchDrug["drugDose"].length - 1) instrIDs += ',';
+                }
+
+            }*/
         }
 
 
@@ -362,24 +407,6 @@
                 $('#injection').attr("disabled", true);
                 $('#menstruum').attr("disabled", true);
             }
-
-            /*  if (params.selected === "2") {
-                  console.log("add");
-
-                  $('#injection').attr("disabled", false);
-                  $('#menstruum').attr("disabled", false);
-              }
-              if (params.deselected === "2") {
-                  console.log("delete");
-                  $("#menstruum option:selected").each(function () {
-                      $(this).removeAttr("selected");
-                  });
-                  $("#injection option:selected").each(function () {
-                      $(this).removeAttr("selected");
-                  });
-                  $('#injection').attr("disabled", true);
-                  $('#menstruum').attr("disabled", true);
-              }*/
         });
 
         var medicineForm = $('#medicineForm');
@@ -463,8 +490,8 @@
                 $('#goodsNo').text(result.no);
                 $('#pinyin').text(result.pinyin);
                 $('#spec').text(result.spec);
-                $('#producer').text(result.producer === null ? "　" : result.producer);
-                $('#dealer').text(result.dealer);
+                $('#producer').text(result.producer == null || result.producer === '' ? "　" : result.producer);
+                $('#dealer').text(result.dealer == null || result.dealer === '' ? "　" : result.dealer);
                 $('#price').text(result.price);
                 $('#insurance').text(renderInsurance(result.insurance));
                 //console.log("dose:" + result.dose);
@@ -482,10 +509,8 @@
                 $("input[name='base']").attr("checked", false);//清空选中
                 $("input[name='base'][value='" + (result.base === 2 ? 2 : 0) + "']").attr("checked", true);
                 $('#mental').val(result.mental);
-                if (result.healthNo !== null) {
-                    // console.log("healthNo非空！:" + result.healthNo);
-                    $('#healthNo').combotree('setValue', result.healthNo);
-                }
+                $('#healthName').val(result.healthName);
+                $('#healthNo').val(result.healthNo);
                 $("input[name='isStat']").attr("checked", false);//清空选中
                 $("input[name='isStat'][value='" + result.isStat + "']").attr("checked", true);
 
@@ -497,20 +522,20 @@
                 $("#dialog-edit").removeClass('hide').dialog({
                     resizable: false,
                     width: 780,
-                    height: 570,
+                    height: 590,
                     modal: true,
                     title: "药品资料",
                     buttons: [{
-                        text: '保存',
-                        iconCls: 'ace-icon fa fa-floppy-o bigger-110',
-                        handler: function () {
+                        html: "<i class='ace-icon fa fa-floppy-o bigger-110'></i>&nbsp;保存",
+                        "class": "btn btn-danger btn-minier",
+                        click: function () {
                             if (medicineForm.valid())
                                 medicineForm.submit();
                         }
                     }, {
-                        text: '关闭',
-                        iconCls: 'ace-icon fa fa-times bigger-130 red',
-                        handler: function () {
+                        html: "<i class='ace-icon fa fa-times bigger-110'></i>&nbsp;关闭",
+                        "class": "btn btn-minier",
+                        click: function () {
                             $('#dialog-edit').dialog('close');
                         }
                     }],
@@ -524,12 +549,13 @@
                 var result = ret.aaData[0];
                 $('#chnName2').text(result.chnName);
                 $('#spec2').text(result.spec);
-                $('#producer2').text(result.producer === null ? "　" : result.producer);
-                $('#dealer2').text(result.dealer);
+                $('#producer2').text(result.producer == null || result.producer === '' ? "　" : result.producer);
+                $('#dealer2').text(result.dealer == null || result.dealer === '' ? "　" : result.dealer);
                 $('#insurance2').text(renderInsurance(result.insurance));
                 $('#dose2').html(result.dose == null ? "&nbsp;" : result.dose);
                 var json = $.parseJSON(result.json);
-                $('#authCode').html(json.批准文号 == null ? "&nbsp;" : json.批准文号);
+                //console.log("json.批准文号" + json.批准文号);
+                $('#authCode').html(json.批准文号 == null || json.批准文号 === '' ? "&nbsp;" : json.批准文号);
                 $('#generalName').html(result.generalName == null ? "&nbsp;" : result.generalName);
                 //todo 如果已经匹配，显示出来 2019国庆
                 if (result.matchDrugID > 0) {
@@ -545,7 +571,7 @@
                     $('#drugID').val();
                     $('#chooseInstruction').val('');
 
-                    $('#antiClass_DDD').addClass('hide');
+                    $('#drugMemo').addClass('hide');
                 }
                 if (result.matchInstrID > 0) {
                     //$('#chooseInstruction')
@@ -559,9 +585,9 @@
                     modal: true,
                     title: "配对",
                     buttons: [{
-                        text: '保存',
-                        iconCls: 'ace-icon fa fa-floppy-o bigger-110',
-                        handler: function () {
+                        html: "<i class='ace-icon fa fa-floppy-o bigger-110'></i>&nbsp;保存",
+                        "class": "btn btn-danger btn-minier",
+                        click: function () {
                             if (matchDrug) {
                                 var submitForm = {medicineID: medicineID, matchDrugID: matchDrug.drugID};
 
@@ -614,14 +640,15 @@
                                                 }
                                             }]
                                         });
+                                        //showDialog("请求状态码：" + response.status, response.responseText); //$(this)不知道执行那里？
                                     }
                                 });
                             }
                         }
                     }, {
-                        text: '关闭',
-                        iconCls: 'ace-icon fa fa-times bigger-130 red',
-                        handler: function () {
+                        html: "<i class='ace-icon fa fa-times bigger-110'></i>&nbsp;关闭",
+                        "class": "btn btn-minier",
+                        click: function () {
                             $('#dialog-match').dialog('close');
                         }
                     }],
@@ -649,10 +676,25 @@
                         $('#instructionContent').html(respObject.instruction);
                 },
                 error: function (response, textStatus) {/*能够接收404,500等错误*/
-                    $.messager.alert("请求状态码：" + response.status, response.responseText);
+                    showDialog("请求状态码：" + response.status, response.responseText);
                 },
             });
         }
+
+        function showDialog(title, content) {
+            $("#errorText").html(content);
+            $("#dialog-error").removeClass('hide').dialog({
+                modal: true,
+                width: 600,
+                title: title,
+                buttons: [{
+                    text: "确定", "class": "btn btn-primary btn-xs", click: function () {
+                        $(this).dialog("close");
+                    }
+                }]
+            });
+        }
+
     });
 </script>
 
@@ -766,17 +808,18 @@
             <!-- PAGE CONTENT ENDS -->
         </div><!-- /.col -->
     </div><!-- /.row -->
-    <div id="dialog-applyData" class="hide" data-options="iconCls:'icon-save',modal:true" style="width:400px;height:300px;">
+    <div id="dialog-applyData" class="hide">
         <div class="col-xs-12" style="padding-top: 10px">
             <!-- PAGE CONTENT BEGINS -->
             <form class="form-horizontal" role="form" id="applyForm">
-                <div>
-                    <label for="fromDate">开始日期:</label>
-                    <input id="fromDate" type="text" class="easyui-datebox" required="required">
-                </div>
-                <div>
-                    <label for="toDate">结束日期:</label>
-                    <input id="toDate" type="text" class="easyui-datebox" required="required">
+                <div class="row">
+                    <label class="col-xs-3 bolder blue  no-padding-right" style="white-space: nowrap;margin-top: 7px;">时间范围：&nbsp;&nbsp;&nbsp;</label>
+                    <div class="input-group col-xs-9">
+                        <input class="form-control nav-search-input" name="form-dateRange" id="form-dateRange"
+                               style="color: black"
+                               data-date-format="YYYY-MM-DD"/>
+                        <span class="input-group-addon"><i class="fa fa-calendar bigger-100"></i></span>
+                    </div>
                 </div>
                 <div>
                     说明：
@@ -789,7 +832,7 @@
             </form>
         </div>
     </div>
-    <div id="dialog-edit" class="hide" data-options="iconCls:'ace-icon fa fa-pencil-square-o green bigger-130',modal:true">
+    <div id="dialog-edit" class="hide" style="z-index: 10">
         <div class="col-xs-12" style="padding-top: 10px">
             <!-- PAGE CONTENT BEGINS -->
             <form class="form-horizontal" role="form" id="medicineForm">
@@ -847,24 +890,30 @@
 
                 <div class="col-xs-7" style="margin: 2px;">
                     <div class="form-group" style="margin-bottom: 3px;margin-top: 3px">
-                        <label class="col-sm-3 control-label no-padding-right" style="white-space: nowrap">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;剂型 </label>
+                        <label class="col-sm-3 control-label no-padding-right" style="white-space: nowrap"> 剂型 </label>
                         <div class="col-sm-5">
                             <select class="form-control" id="dose" name="dose">
                             </select>
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <label for="healthNo" class="col-sm-3 control-label no-padding-right">药理分类</label>
+                        <div class="col-sm-9">
+                            <input id="healthName" type="text" style="width:180px;" onclick="showMenu();"/>
+                            <input type="hidden" id="healthNo" name="healthNo"/>
+                        </div>
+                    </div>
                     <div class="form-group" style="margin-bottom: 3px;margin-top: 3px">
-                        <label class="col-sm-3 control-label no-padding-right">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;基本药物 </label>
+                        <label class="col-sm-3 control-label no-padding-right"> 基本药物 </label>
                         <div class="col-sm-4">
-                            <div class="radio col-sm-6">
+                            <div class="radio col-xs-6">
                                 <label style="white-space: nowrap">
                                     <input name="base" type="radio" class="ace" value="2"/>
                                     <span class="lbl">国基</span>
                                 </label>
                             </div>
-
-                            <div class="radio col-sm-6">
+                            <div class="radio col-xs-6">
                                 <label style="white-space: nowrap">
                                     <input name="base" type="radio" class="ace" value="0"/>
                                     <span class="lbl">否</span>
@@ -873,8 +922,7 @@
                         </div>
                     </div>
                     <div class="form-group" style="margin-bottom: 3px;margin-top: 3px">
-                        <label class="col-sm-3 control-label no-padding-right" for="contents">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;含量 </label>
+                        <label class="col-sm-3 control-label no-padding-right" for="contents"> 含量 </label>
                         <%-- <div class="col-sm-2">
                              <div style="border-bottom: 1px solid; border-bottom-color: lightgrey" id="contents"></div>
                          </div>--%>
@@ -904,14 +952,6 @@
                         <label class="col-sm-3 control-label no-padding-right " for="maxDay"> 最大用药天数 </label>
                         <div class="col-sm-9">
                             <input type="text" id="maxDay" name="maxDay" placeholder="最大用药天数" class="col-xs-10 col-sm-5"/>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="healthNo" class="col-sm-3 control-label no-padding-right">药理分类</label>
-                        <div class="col-sm-9">
-                            <input id="healthNo" name="healthNo" type="text" width="200" class="easyui-combotree" style="width:250px;"
-                                   data-options="url:'/health/easyUITree.jspa?healthID=1', method: 'get'"/>
                         </div>
                     </div>
                     <div class="form-group">
@@ -979,7 +1019,7 @@
             </form>
         </div>
     </div>
-    <div id="dialog-match" class="hide" style="font-family:'宋体'" data-options="iconCls:'ace-icon fa  fa-exchange bigger-130',modal:true">
+    <div id="dialog-match" class="hide" style="font-family:'宋体'">
         <form class="form-horizontal " role="form" id="matchForm">
             <div class="col-xs-12 col-sm-12" style="padding-top: 10px">
                 <!-- PAGE CONTENT BEGINS -->
@@ -992,6 +1032,16 @@
                     <div class="row">
                         <label class="col-sm-3">规格 </label>
                         <div class="col-sm-8 no-padding " style=" border-bottom: 1px solid; border-bottom-color: lightgrey" id="spec2"></div>
+                    </div>
+                    <div class="row" style="margin-bottom: 3px;margin-top: 10px;">
+                        <label class="col-sm-3" style="white-space: nowrap;padding-top: 10px;" for="liveDrug">对应通用名</label>
+                        <div class="col-sm-7 no-padding">
+                            <input class="typeahead scrollable" type="text" id="liveDrug" name="liveDrug"
+                                   autocomplete="off" style="font-size: 9px;color: black ;width:200px;"
+                                   placeholder="拼音匹配，鼠标选择"/>
+                            <input type="hidden" id="drugID" name="drugID"/>
+                        </div>
+                        <div class="col-sm-1 no-padding"><span class="middle red bigger-160">①</span></div>
                     </div>
                     <div class="row">
                         <label class="col-sm-3" style="white-space: nowrap">生产厂家 </label>
@@ -1013,19 +1063,9 @@
                         <label class="col-sm-3" style="white-space: nowrap">批准文号 </label>
                         <div class="col-sm-8 no-padding " style=" border-bottom: 1px solid; border-bottom-color: lightgrey" id="authCode"></div>
                     </div>
-                    <div class="row" style="margin-bottom: 3px;margin-top: 10px;">
-                        <label class="col-sm-3" style="white-space: nowrap;padding-top: 10px;" for="liveDrug">对应通用名</label>
-                        <div class="col-sm-7 no-padding">
-                            <input class="typeahead scrollable" type="text" id="liveDrug" name="liveDrug"
-                                   autocomplete="off" style="font-size: 9px;color: black ;width:200px;"
-                                   placeholder="拼音匹配，鼠标选择"/>
-                            <input type="hidden" id="drugID" name="drugID"/>
-                        </div>
-                        <div class="col-sm-1 no-padding"><span class="middle red bigger-160">①</span></div>
-                    </div>
                     <div class="row">
-                        <label class="col-sm-3" style="white-space: nowrap"></label>
-                        <div class="col-sm-8 no-padding hide " style="border-bottom: 1px solid; border-bottom-color: lightgrey;margin-bottom: 10px;" id="antiClass_DDD"></div>
+                        <label class="col-sm-3" style="white-space: nowrap">备注：</label>
+                        <div class="col-sm-8 no-padding hide " style="border-bottom: 1px solid; border-bottom-color: lightgrey;margin-bottom: 10px;" id="drugMemo"></div>
                     </div>
                     <div class="row" style="margin-top: 10px;">
                         <label class="col-sm-3" style="white-space: nowrap ;">&nbsp;</label>
@@ -1058,11 +1098,9 @@
 
                             </ul>
 
-                            <div class="tab-content" style="height: 360px">
-                                <div id="instructionContent" class="tab-pane in active" style="position:absolute; height:340px; overflow:auto">
-
+                            <div class="tab-content" style="height: 330px">
+                                <div id="instructionContent" class="tab-pane in active" style="position:absolute; height:320px; overflow:auto">
                                 </div>
-
                             </div>
                         </div>
                     </div>
@@ -1075,3 +1113,131 @@
 <div id="dialog-error" class="hide alert" title="提示">
     <p id="errorText">保存失败，请稍后再试，或与系统管理员联系。</p>
 </div>
+
+
+<!-- 模态框（Modal） -->
+<div class="modal hide ui-dialog-titlebar2 no-padding no-margin" id="myModal" tabindex="-1" role="dialog"> <%-- --%>
+    <div class="zTreeDemoBackground left no-padding no-margin">
+        <ul id="treeDemo" class="ztree"></ul>
+    </div>
+</div>
+<script type="text/javascript">
+    /*tree*/
+    var setting = {
+        async: {
+            enable: true,
+            url: "/health/zTree.jspa",
+            autoParam: ["id=parentID"],//, "name=n", "level=lv"
+            type: "get"
+        },
+        callback: {
+            onClick: zTreeOnClick,
+            beforeAsync: beforeAsync,
+            onAsyncSuccess: onAsyncSuccess
+        }
+    };
+
+    function beforeAsync() {
+        curAsyncCount++;
+    }
+
+    function onAsyncSuccess(event, treeId, treeNode, msg) {
+        curAsyncCount--;
+        if (curStatus === "expand") {
+            expandNodes(treeNode.children);
+        } else if (curStatus === "async") {
+            asyncNodes(treeNode.children);
+        }
+
+        if (curAsyncCount <= 0) {
+            curStatus = "";
+            console.log("finish load");
+            showPath();
+        }
+    }
+
+    var curStatus = "init", curAsyncCount = 0, goAsync = false;
+
+    function expandNodes(nodes) {
+        if (!nodes) return;
+        curStatus = "expand";
+        var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+        for (var i = 0, l = nodes.length; i < l; i++) {
+            zTree.expandNode(nodes[i], true, false, false);//展开节点就会调用后台查询子节点
+            if (nodes[i].isParent && nodes[i].zAsync) {
+                expandNodes(nodes[i].children);//递归
+            } else {
+                goAsync = true;
+            }
+        }
+    }
+
+    var selectedNode;
+
+    function zTreeOnClick(event, treeId, treeNode) {
+        selectedNode = treeNode;
+    }
+
+    function showPath() {
+        var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+
+        zTree.expandAll(false);
+        zTree.expandNode(zTree.getNodes()[0], true);
+        selectedNode = zTree.getNodesByParam("healthNo", $('#healthNo').val(), null);
+        //console.log("init healthNo:" + $('#healthNo').val());
+        if (selectedNode.length > 0) {
+            selectedNode = selectedNode[0];
+
+            zTree.selectNode(selectedNode);
+            var parent = [];
+            var node = selectedNode;
+            while (node != null) {
+                parent.push(node);
+                node = node.getParentNode();
+            }
+
+            while (parent.length > 0)
+                zTree.expandNode(parent.pop(), true);
+        }
+    }
+
+    function showMenu() {
+        var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+        zTree.expandNode(zTree.getNodes()[0], true, false, false);//展开节点就会调用后台查询子节点
+        //展开
+        expandNodes(zTree.getNodes());
+        if (!goAsync) {
+            curStatus = "";
+        }
+        //console.log("tree length:" + zTree.getNodes()[0].children.length);
+        if (zTree.getNodes()[0].children) //已加载，显示选择的路径，否则，onAsyncSuccess调用完毕执行
+            showPath();
+
+        $("#myModal").removeClass('hide').dialog({
+            modal: true,
+            height: 500,
+            class: 'ui-dialog-titlebar2',
+            title: '选择药理分类',
+            buttons: [{
+                html: "<i class='ace-icon glyphicon glyphicon-ok bigger-110'></i>&nbsp;选中",
+                "class": "btn btn-danger btn-minier",
+                click: function () {
+                    //console.log("healthNo:" + selectedNode.healthNo);
+                    $('#healthNo').val(selectedNode.healthNo);
+                    $('#healthName').val(selectedNode.name);
+                    $(this).dialog('close');
+                }
+            }, {
+                html: "<i class='ace-icon glyphicon glyphicon-remove bigger-110'></i>&nbsp;关闭",
+                "class": "btn btn-minier",
+                click: function () {
+                    $(this).dialog('close');
+                }
+            }]
+        });
+    }
+
+    $(document).ready(function () {
+        $.fn.zTree.init($("#treeDemo"), setting, {id: '1', name: '药理分类', isParent: true});
+    });
+</script>

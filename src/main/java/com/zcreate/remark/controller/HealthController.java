@@ -2,6 +2,7 @@ package com.zcreate.remark.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.zcreate.common.pojo.Dict;
 import com.zcreate.review.dao.HealthDAO;
 import com.zcreate.review.model.Health;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/health")
@@ -61,6 +63,27 @@ public class HealthController {
         return gson.toJson(list);
     }
 
+    //ztree
+    @ResponseBody
+    @RequestMapping(value = "zTree", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String zTree(@RequestParam(value = "parentID", required = false, defaultValue = "1") int parentID) {
+        HashMap<String, Object> param = new HashMap<>();
+        param.put("parentID", parentID);
+        List<Health> healthList = healthDao.query(param);
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (Health heal : healthList) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("name", heal.getChnName());
+            item.put("healthNo", heal.getHealthNo());
+            item.put("isParent", heal.getHasChild());
+            item.put("id", heal.getHealthID());
+
+            list.add(item);
+        }
+
+        return gson.toJson(list);
+    }
+
     private List<HashMap<String, Object>> recurTree(int parentID) {
         HashMap<String, Object> param = new HashMap<>();
         param.put("parentID", parentID);
@@ -78,4 +101,5 @@ public class HealthController {
         }
         return childs;
     }
+
 }
