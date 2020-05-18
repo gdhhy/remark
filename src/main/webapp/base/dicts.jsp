@@ -191,12 +191,10 @@
 
               if (nodes.length > 0)
                   $('#parentName').val(nodes[0].name);*/
-            if (dict.dictID === 0) {
-                $.getJSON("/common/dict/listDict.jspa?dictID=" + dict.parentID, function (ret) {
-                    $('#parentName').val(ret.data[0].name);
-                    $('#layer').val(ret.data[0].layer + 1);
-                });
-            }
+            $.getJSON("/common/dict/listDict.jspa?dictID=" + dict.parentID, function (ret) {
+                $('#parentName').val(ret.data[0].name);
+                $('#layer').val(ret.data[0].layer + 1);
+            });
             $('#dictID').val(dict.dictID);
             $('#name').val(dict.name);
             $('#layer').val(dict.layer);

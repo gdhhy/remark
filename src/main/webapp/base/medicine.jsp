@@ -1176,6 +1176,9 @@
 
     function zTreeOnClick(event, treeId, treeNode) {
         selectedNode = treeNode;
+        $('#healthNo').val(treeNode.healthNo);
+        $('#healthName').val(treeNode.name);
+        $('#myModal').dialog('close');
     }
 
     function showPath() {
@@ -1188,9 +1191,8 @@
         if (selectedNode.length > 0) {
             selectedNode = selectedNode[0];
 
-            zTree.selectNode(selectedNode);
             var parent = [];
-            var node = selectedNode;
+            var node = selectedNode.getParentNode();
             while (node != null) {
                 parent.push(node);
                 node = node.getParentNode();
@@ -1198,6 +1200,8 @@
 
             while (parent.length > 0)
                 zTree.expandNode(parent.pop(), true);
+
+            zTree.selectNode(selectedNode);
         }
     }
 
@@ -1217,12 +1221,11 @@
             modal: true,
             height: 500,
             class: 'ui-dialog-titlebar2',
-            title: '选择药理分类',
+            title: '选择药理分类'/*,
             buttons: [{
                 html: "<i class='ace-icon glyphicon glyphicon-ok bigger-110'></i>&nbsp;选中",
                 "class": "btn btn-danger btn-minier",
                 click: function () {
-                    //console.log("healthNo:" + selectedNode.healthNo);
                     $('#healthNo').val(selectedNode.healthNo);
                     $('#healthName').val(selectedNode.name);
                     $(this).dialog('close');
@@ -1233,7 +1236,7 @@
                 click: function () {
                     $(this).dialog('close');
                 }
-            }]
+            }]*/
         });
     }
 

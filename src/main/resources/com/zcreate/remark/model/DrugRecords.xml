@@ -201,8 +201,8 @@
 
     <select id="medicineMonth" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT convert(VARCHAR(7), T.dispensingDate, 120) MONTH,
-               sum(T.amount) amount,
-               sum(T.quantity) quantity
+               sum(T.amount)                              amount,
+               sum(T.quantity)                            quantity
         FROM ${DrugRecordsTable} T
                  LEFT JOIN Medicine M1
                            ON M1.no = T.goodsNo
@@ -254,6 +254,7 @@
     </select>
     <!--抗菌药按科室查询 力锦-->
     <select id="departMedicine" parameterType="java.util.Map" resultType="java.util.Map">
+        select * from (
         select department, sum(case when M.insurance != 3 then amount else 0 end) insuranceAmount, sum(amount) amount,
         case when sum(amount) &lt; 0.0001 then 0 else sum(case when M.insurance != 3 then amount else 0 end)/sum(amount) end insuranceRatio,
         sum(case when adviceID = 0 then amount else 0 end) clinicAmount, sum(case when adviceID > 0 then amount else 0 end) hospitalAmount,
@@ -263,7 +264,9 @@
         where T.dispensingDate >= #{fromDate:TIMESTAMP} AND T.dispensingDate &lt; #{toDate:TIMESTAMP}
         <if test="@com.zcreate.util.Ognl@isNotEmpty(medicineNo)">AND M.no=#{medicineNo:VARCHAR})</if>
         <if test="@com.zcreate.util.Ognl@isNotEmpty(likeMedicineName)">AND M.chnName LIKE '$%{likeMedicineName}%')</if>
-        group by department;
+        group by department) P
+        LEFT JOIN Dict D ON P.department = D.name and D.parentID=108
+        order by D.orderNum;
     </select>
     <!--抗菌药按科室查询-->
     <select id="antiDepart2" parameterType="java.util.Map" resultType="java.util.Map">
@@ -330,8 +333,9 @@
              (select department, sum(datediff(day, inDate, outDate) + 1) hospitalDay
               from InPatient P
               where stay = 0 and P.outDate between #{fromDate:DATE} and #{toDate:DATE}
-              group by department) B
-             on A.department = B.department;
+              group by department) B on A.department = B.department
+                 LEFT JOIN Dict D ON A.department = D.name and D.parentID=108
+        order by D.orderNum;
     </select>
     <!--力锦-->
     <select id="selectAntiGroupDoctor" parameterType="java.util.Map" resultType="java.util.HashMap">

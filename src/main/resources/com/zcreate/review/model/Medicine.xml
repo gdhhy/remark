@@ -110,7 +110,7 @@
         LEFT JOIN Instruction I ON M.matchInstrID=I.instructionID
         LEFT JOIN Drug D ON M.matchDrugID=D.drugID
         LEFT JOIN Health H ON M.healthNo=H.healthNo
-        ORDER BY M.${orderField} ASC
+        ORDER BY ${orderField} ASC
     </select>
     <select id="queryMedicineDesc" parameterType="java.util.Map" resultMap="RecordResult">
         SELECT M.*,D.chnName generalName,I.chnName instructionName,H.chnName healthName FROM
@@ -130,7 +130,7 @@
         LEFT JOIN Instruction I ON M.matchInstrID=I.instructionID
         LEFT JOIN Drug D ON M.matchDrugID=D.drugID
         LEFT JOIN Health H ON M.healthNo=H.healthNo
-        ORDER BY M.${orderField} DESC
+        ORDER BY  ${orderField} DESC
     </select>
     <select id="queryMedicineCount" parameterType="java.util.Map" resultType="int">
         SELECT count(medicineID) FROM Medicine

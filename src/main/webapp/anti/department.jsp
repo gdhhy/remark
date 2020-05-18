@@ -341,6 +341,7 @@
                         <table id="dynamic-table" class="table table-striped table-bordered table-hover">
                         </table>
                     </div>
+                    备注：科室排序在"基础数据-数据字典"的科室列表中设置科室的排序号。按数字从小到大排序。
                 </div>
             </div>
 

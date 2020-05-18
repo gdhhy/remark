@@ -74,7 +74,7 @@ public class MedicineDAOImpl extends SqlSessionDaoSupport implements MedicineDAO
         param.put("limit", 100000);
 
         //param.put("orderField", "lastPurchaseTime");
-        param.put("orderField", "lastPurchaseTime,updateTime,no");
+        param.put("orderField", "no");
         List result = getSqlSession().selectList("Medicine.queryMedicineDesc", param);
        /* System.out.println("start = " + start);
         System.out.println("toIndex = " + toIndex);
