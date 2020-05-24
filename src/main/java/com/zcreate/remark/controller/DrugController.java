@@ -122,11 +122,12 @@ public class DrugController {
     public String getIncompatibility(@RequestParam(value = "drugID", defaultValue = "0") int drugID) {
         List<HashMap<String, Object>> medicineList = incompatibilityDAO.getIncompatibilityDetail(drugID);
         //return easyui datagrid
-        Map<String, Object> result = new HashMap<>();
+        return ParamUtils.returnJson(medicineList, medicineList.size());
+        /*Map<String, Object> result = new HashMap<>();
         result.put("rows", medicineList);
         result.put("total", medicineList.size());
 
-        return gson.toJson(result);
+        return gson.toJson(result);*/
     }
 
     @ResponseBody
@@ -140,10 +141,12 @@ public class DrugController {
             //UserDetails ud = (UserDetails) principal;
             //log.debug("incompatibility = " + incompatibility);
             int result;
-            if (incompatibility.getIncompatibilityID() != null)
+            if (incompatibility.getIncompatibilityID() != null && incompatibility.getIncompatibilityID() > 0)
                 result = incompatibilityDAO.save(incompatibility);
             else
                 result = incompatibilityDAO.insert(incompatibility);
+
+            // drugDao.setTmpDataInvalid();
 
             map.put("succeed", result > 0);
         } else {
@@ -162,6 +165,7 @@ public class DrugController {
         int deleteCount = 0;
         try {
             deleteCount = incompatibilityDAO.deleteByPrimaryKey(incompatibilityID);
+            //drugDao.setTmpDataInvalid();
         } catch (Exception e) {
             e.printStackTrace();
             map.put("message", "错误信息：<br/>" + e.getMessage());
@@ -178,12 +182,13 @@ public class DrugController {
     @RequestMapping(value = "getDrugDoseList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String getDrugDoseList(@RequestParam(value = "drugID", defaultValue = "0") int drugID) {
         List<DrugDose> medicineList = drugDao.selectDrugDose(drugID);
+        return ParamUtils.returnJson(medicineList, medicineList.size());
         //return easyui datagrid
-        Map<String, Object> result = new HashMap<>();
+       /* Map<String, Object> result = new HashMap<>();
         result.put("rows", medicineList);
         result.put("total", medicineList.size());
 
-        return gson.toJson(result);
+        return gson.toJson(result);*/
     }
 
     @ResponseBody
@@ -204,7 +209,7 @@ public class DrugController {
             //UserDetails ud = (UserDetails) principal;
             //log.debug("drugDose = " + drugDose);
             int result;
-            if (drugDose.getDrugDoseID() != null)
+            if (drugDose.getDrugDoseID() != null && drugDose.getDrugDoseID() > 0)
                 result = drugDao.saveDrugDose(drugDose);
             else
                 result = drugDao.insertDrugDose(drugDose);

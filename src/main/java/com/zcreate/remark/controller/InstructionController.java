@@ -124,6 +124,7 @@ public class InstructionController {
         param.put("source", source);
 
         param.put("start", start);
+        if(limit>0)
         param.put("limit", limit);
         List<HashMap<String, Object>> instructionList = instructionDao.query(param);
         int totalCount = instructionDao.queryCount(param);

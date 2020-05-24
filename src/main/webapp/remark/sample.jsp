@@ -560,7 +560,7 @@
                 width: 1000,
                 height: 600,
                 modal: true,
-                title: "批次名称：" + result.sampleBatch.name + " - 抽样结果",
+                title: "批次名称 " + result.sampleBatch.name + " - 抽样结果",
                 title_html: true,
                 buttons: [
                     {

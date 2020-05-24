@@ -28,7 +28,7 @@ public interface DrugDAO {
     List<HashMap> query(Map<String,Object> param);
 
     //List<Drug> liveDrug(Map param);
-
+     //void setTmpDataInvalid();
     int queryCount(Map param);
 
     Drug getDrug(Integer drugID);

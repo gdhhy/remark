@@ -16,50 +16,60 @@
 <script src="../components/typeahead.js/handlebars.js"></script>
 <script src="../components/chosen/chosen.jquery.js"></script>
 <script src="../components/jquery.editable-select/jquery.editable-select.min.js"></script>
-<script type="text/javascript" src="../components/jquery-easyui-1.9.4/jquery.easyui.min.js"></script>
-<script type="text/javascript" src="../components/jquery-easyui-1.9.4/locale/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="../components/zTree_v3/js/jquery.ztree.core.js"></script>
+<script type="text/javascript" src="../components/jquery.autofill/jquery.formautofill.min.js"></script>
 
 <!-- bootstrap & fontawesome -->
 
 <link rel="stylesheet" href="../components/font-awesome/css/font-awesome.css"/>
 <link rel="stylesheet" href="../components/chosen/chosen.min.css"/>
-<link rel="stylesheet" type="text/css" href="../components/jquery-easyui-1.9.4/themes/default/easyui.css">
-<link rel="stylesheet" type="text/css" href="../components/jquery-easyui-1.9.4/themes/icon.css">
+<link rel="stylesheet" href="../components/datatables/select.dataTables.min.css"/>
 <link rel="stylesheet" href="../components/jquery.editable-select/jquery.editable-select.min.css"/>
+<link rel="stylesheet" href="../components/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
 <style>
     .form-group {
         margin-bottom: 3px;
         margin-top: 3px;
     }
 
-    .modal-body2 {
-        overflow-y: scroll;
-        position: absolute;
-        top: 38px;
-        bottom: 0;
-        width: 100%;
+    .ui-dialog .ui-dialog-titlebar {
+        padding: 0em 0em;
+        position: relative;
     }
-   /* .action{height:50px}
-    .menu-text{height:50px}
-    .submenu{height:50px}*/
+
+    .ui-dialog {
+        overflow: hidden;
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 0em;
+        outline: 0;
+    }
 </style>
 <script type="text/javascript">
+    //https://www.iteye.com/blog/happyqing-2414664  解决jquery ui dialog 标题为html显示样式问题
+    $.widget("ui.dialog", $.extend({}, $.ui.dialog.prototype, {
+        _title: function (title) {
+            if (!this.options.title) {
+                title.html("&#160;");
+            } else {
+                title.html(this.options.title);
+            }
+        }
+    }));
     jQuery(function ($) {
-
-        //var url = "/drug/getMedicineList.jspa?queryChnName={0}";
-
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');
         var myTable = dynamicTable
         //.wrap("<div class='dataTables_borderWrap' />") //if you are applying horizontal scrolling (sScrollX)
             .DataTable({
-                bAutoWidth: false,
+                autoWidth: true,
                 "searching": true,
                 // "iDisplayLength": 25,
                 "columns": [
                     {"data": "drugID", "sClass": "center", "orderable": false, width: 40},
                     {"data": "chnName", "sClass": "center", "orderable": false, className: 'middle'},
-                    {"data": "healthName", "sClass": "center", "orderable": false},
+                    {"data": "healthName", "sClass": "center", "orderable": false, defaultContent: ''},
                     /*{"data": "dose", "sClass": "center", "orderable": false, defaultContent: ''},*/
                     {"data": "base", "sClass": "center", defaultContent: '', "orderable": false, render: renderBase2},
                     {"data": "gravida", "sClass": "center", "orderable": false, render: renderNoNo},//4
@@ -126,18 +136,24 @@
             });
 
         });
-
+        new $.fn.dataTable.Buttons(myTable, {
+            buttons: [
+                {
+                    "text": "<i class='fa fa-plus-square bigger-130'></i>&nbsp;&nbsp;新增 ",
+                    "className": "btn btn-xs btn-white btn-primary "
+                }
+            ]
+        });
+        myTable.buttons().container().appendTo($('.tableTools-container'));
+        myTable.button(0).action(function (e, dt, button, config) {
+            e.preventDefault();
+            editDrug({});
+        });
 
         function renderNoNo(value, type, row, meta) {
             if (value === 1) return "<span style='color: #7f0000'>慎用</span>";
             else if (value === 2) return "<span style='color: deeppink'>禁用</span>";
             else return "";
-        }
-
-        function renderNoNo2(value, type, row, meta) {
-            if (value === 1) return "慎用";
-            else if (value === 2) return "禁用";
-            else return "无";
         }
 
         function renderNoZero(value) {
@@ -155,83 +171,51 @@
             myTable.ajax.url(url).load();
         });
 
-        //https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
-        $('#chnName2').typeahead({hint: true},
-            {
-                limit: 1000,
-                source: function (queryStr, processSync, processAsync) {
-                    var params = {'search[value]': queryStr, length: 100};
-                    $.getJSON('/drug/liveDrug.jspa', params, function (json) {
-                        return processAsync(json.data);
-                    });
-                },
-                display: function (item) {
-                    return item.chnName;//+ " - " + item.spec;
-                },
-                templates: {
-                    header: function (query) {//header or footer
-                        //console.log("query:" + JSON.stringify(query, null, 4));
-                        if (query.suggestions.length > 1)
-                            return '<div style="text-align:center" class="green" >发现 {0} 项</div>'.format(query.suggestions.length);
-                    },
-                    suggestion: Handlebars.compile('<div style="font-size: 9px">' +
-                        '<div style="font-weight:bold">{{chnName}}</div></div>'),
-                    pending: function (query) {
-                        return '<div>查询中...</div>';
-                    },
-                    notFound: '<div class="red">没匹配</div>'
-                }
-            }
-        );
-        $('#chnName2').bind('typeahead:select', function (ev, suggestion) {
-            //console.log("drugID2:" + suggestion["drugID"]);
-            $('#drugID2').val(suggestion["drugID"]);
-        });
-        $('#chnName2').on("input propertychange", function () {
-            $('#drugID2').val("");
-        });
+        /*------------------通用名管理------------------------------*/
+        function showDrug(drugID) {
+            $.getJSON("/drug/getDrug.jspa?drugID=" + drugID, function (result) {
+                editDrug(result);
+            });
+        }
 
-        //https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
-        $('#instructionName').typeahead({hint: true},
-            {
-                limit: 1000,
-                source: function (queryStr, processSync, processAsync) {
-                    var params = {'generalName': queryStr, length: 100};
+        //level 1
+        function editDrug(drug) {
+            editingDrug = drug;
+            loadPinyin(drug.chnName);
 
-                    $.getJSON('/instruction/instructionList.jspa', params, function (json) {
-                        return processAsync(json.aaData);
-                    });
-                },
-                display: function (item) {
-                    return item.chnName;//+ " - " + item.spec;
-                },
-                templates: {
-                    header: function (query) {//header or footer
-                        //console.log("query:" + JSON.stringify(query, null, 4));
-                        if (query.suggestions.length > 1)
-                            return '<div style="text-align:center" class="green" >发现 {0} 项</div>'.format(query.suggestions.length);
-                    },
-                    suggestion: Handlebars.compile('<div style="font-size: 9px">' +
-                        '<div style="font-weight:bold">{{chnName}}</div>' +
-                        '{{#if dose}}<span class="light-grey">剂型：</span>{{dose}}<span class="space-4"/>{{/if}}' +
-                        '{{#if producer}}<span class="light-grey">厂家：</span>{{producer}}{{/if}}' +
-                        '</div>'),
-                    pending: function (query) {
-                        return '<div>查询中...</div>';
-                    },
-                    notFound: '<div class="red">没匹配</div>'
-                }
-            }
-        );
-        $('#instructionName').bind('typeahead:select', function (ev, suggestion) {
-            //$('#instructionID').val(suggestion["generalInstrID"]);
-            $('#instructionID').val("");
-            $('#dgDoseInstruction').datagrid('load', {generalInstrID: suggestion["generalInstrID"]});
-        });
-        $('#instructionName').on("input propertychange", function () {
-            $('#instructionID').val("");
-            $('#dgDoseInstruction').datagrid('load', {generalInstrID: 0});
-        });
+            //$("#drugForm input:radio").attr("checked", false);
+            $("#drugForm").autofill(drug, {
+                findbyname: true,//if true, find elements by name attribute. if false, find elements by id.
+                restrict: true//if true, restrict the fields search in the node childs. if false, search in all the document.
+            });
+            $('#healthName3').val(drug.healthName);
+
+
+            $("#dialog-edit").removeClass('hide').dialog({
+                resizable: false,
+                width: 760,
+                height: 430,
+                modal: true,
+                //title: "通用名资料",
+                title: "<h4 class='smaller'>&nbsp;<i class='ace-icon fa fa-pencil-square-o green' ></i> 通用名资料</h4> ",//标题栏带了图标，偏高,
+                title_html: true,
+                buttons: [{
+                    html: "<i class='ace-icon fa fa-floppy-o bigger-110'></i>&nbsp;保存",
+                    "class": "btn btn-danger btn-minier",
+                    click: function () {
+                        if (drugForm.valid())
+                            drugForm.submit();
+                    }
+                }, {
+                    html: "<i class='ace-icon fa fa-times bigger-110'></i>&nbsp;关闭",
+                    "class": "btn btn-minier",
+                    click: function () {
+                        $('#dialog-edit').dialog('close');
+                    }
+                }]
+            });
+        }
+
 
         var drugForm = $('#drugForm');
         drugForm.validate({
@@ -324,158 +308,7 @@
             });
         }
 
-        function showDrug(drugID) {
-            $.getJSON("/drug/getDrug.jspa?drugID=" + drugID, function (result) {
-                editDrug(result);
-            });
-        }
-
-        function editDrug(drug) {
-            editingDrug = drug;
-            loadPinyin(drug.chnName);
-
-            $('input[name="drugID"]').val(drug.drugID);
-            $('#chnName').val(drug.chnName);
-            if (drug.healthNo !== null) {
-                $('#healthNo').combotree('setValue', drug.healthNo);
-            }
-            $('#pinyin').val(drug.pinyin);
-            $("input[name='drugtype']").attr("checked", false);//清空选中
-            $("input[name='base']").attr("checked", false);
-            $("input[name='adjuvantDrug']").attr("checked", false);
-            $("input[name='gravida']").attr("checked", false);
-            $("input[name='lactation']").attr("checked", false);
-            $("input[name='oldFolks']").attr("checked", false);
-            $("input[name='children']").attr("checked", false);
-            $("input[name='liver']").attr("checked", false);
-            $("input[name='kidney']").attr("checked", false);
-
-            $("input[name='drugtype'][value='" + drug.drugtype + "']").attr("checked", true);
-            $("input[name='base'][value='" + drug.base + "']").attr("checked", true);
-            $("input[name='adjuvantDrug'][value='" + drug.adjuvantDrug + "']").attr("checked", true);
-            $("input[name='gravida'][value='" + drug.gravida + "']").attr("checked", true);
-            $("input[name='lactation'][value='" + drug.lactation + "']").attr("checked", true);
-            $("input[name='oldFolks'][value='" + drug.oldFolks + "']").attr("checked", true);
-            $("input[name='children'][value='" + drug.children + "']").attr("checked", true);
-            $("input[name='liver'][value='" + drug.liver + "']").attr("checked", true);
-            $("input[name='kidney'][value='" + drug.kidney + "']").attr("checked", true);
-
-            $('#maxEffectiveDose').val(drug.maxEffectiveDose);
-            $('#maxDose').val(drug.maxDose);
-            $('#ddd').val(drug.ddd);
-
-
-            $("#dialog-edit").removeClass('hide').dialog({
-                resizable: false,
-                width: 760,
-                height: 430,
-                modal: true,
-                title: "通用名资料",
-                buttons: [{
-                    text: '保存',
-                    iconCls: 'ace-icon fa fa-floppy-o bigger-110',
-                    handler: function () {
-                        if (drugForm.valid())
-                            drugForm.submit();
-                    }
-                }, {
-                    text: '关闭',
-                    iconCls: 'ace-icon fa fa-times bigger-130',
-                    handler: function () {
-                        $('#dialog-edit').dialog('close');
-                    }
-                }],
-                title_html: true
-            });
-        }
-
-        $('#chooseInstruction').on('change', function (e) {
-            $('#instructionContent').html("");
-            if ($(this).val() > 0)
-                showInstructionContent($(this).val())
-        });
-
-        function showInstructionContent(instructionID) {
-            $.ajax({
-                type: "GET",
-                url: '/instruction/getInstruction.jspa',
-                data: 'instructionID=' + instructionID,
-                contentType: "application/json; charset=utf-8",
-                cache: false,
-                success: function (response, textStatus) {
-                    var respObject = JSON.parse(response);
-                    if (respObject)
-                        $('#instructionContent').html(respObject.instruction);
-                },
-                error: function (response, textStatus) {/*能够接收404,500等错误*/
-                    $.messager.alert("请求状态码：" + response.status, response.responseText);
-                },
-            });
-        }
-
-        function showDialog(title, content) {
-            $("#errorText").html(content);
-            $("#dialog-error").removeClass('hide').dialog({
-                modal: true,
-                width: 600,
-                title: title,
-                buttons: [{
-                    text: "确定", "class": "btn btn-primary btn-xs", click: function () {
-                        $(this).dialog("close");
-                    }
-                }]
-            });
-        }
-
-        var dgCompatibility = $('#dgCompatibility').datagrid({
-            columns: [[
-                {field: 'chnName1', title: '通用名1', width: 120},
-                {field: 'chnName2', title: '通用名2', width: 120},
-                {field: 'result', title: '相互作用', width: 300},
-                {field: 'level', title: '程度', width: 50, align: 'center'},
-                {
-                    field: 'inBody', title: '类型', width: 50, align: 'center', formatter: function (value, row, index) {
-                        if (value === 0) return "体内";
-                        else if (value === 1) return "体外";
-                        else return "不明";
-                    }
-                },
-                {
-                    field: 'warning', title: '措施', width: 50, align: 'center', formatter: function (value, row, index) {
-                        if (value === 2) return "<font color='orange'>警告</font>";
-                        if (value === 3) return "<font color='deeppink'>禁止</font>";
-                        else return "<font color='#006400'>通过</font>";
-                    }
-                },
-                {field: 'mechanism', title: '机理', width: 60, align: 'center'},
-                {field: 'source', title: '来源', width: 60, align: 'center'}
-            ]]
-        });
-        var dgDose = $('#dgDose').datagrid({
-            columns: [[
-                {field: 'dose', title: '剂型', width: 120},
-                {field: 'instructionName', title: '对应说明书', width: 200}/*,
-                {field: 'instructCount', title: '数量', width: 50, align: 'center'}*/
-            ]]
-        });
-
-        function showCompatibility(drugID, chnName, healthName) {
-            $('input[name="drugID_compatibility"]').val(drugID);
-            $('#chnName_span').text(chnName);
-            $('#healthName').text(healthName);
-            dgCompatibility.datagrid('load', {drugID: drugID});
-            $("#dialog-compatibility").removeClass('hide').dialog({});
-        }
-
-        function showDose(drugID, chnName, healthName) {
-            $('input[name="drugID_dose"]').val(drugID);
-            $('#chnName_span2').text(chnName);
-            $('#healthName2').text(healthName);
-            dgDose.datagrid('load', {drugID: drugID});
-            $("#dialog-dose").removeClass('hide').dialog({});
-        }
-
-
+        //level 1
         function deleteDialog(drugID, chnName) {
             if (drugID === undefined) return;
             $('#drugName').text(chnName);
@@ -483,11 +316,12 @@
                 resizable: false,
                 modal: true,
                 // title: "确认删除通用名",
-                //title_html: true,
+                title: "<h4 class='smaller'>&nbsp;<i class='ace-icon fa fa-trash-o red' ></i> 确认删除通用名</h4> ",
+                title_html: true,
                 buttons: [{
-                    text: '删除',
-                    iconCls: 'ace-icon fa fa-trash-o red bigger-110',
-                    handler: function () {
+                    html: "<i class='ace-icon fa fa-trash-o bigger-110'></i>&nbsp;删除",
+                    "class": "btn btn-danger btn-minier",
+                    click: function () {
                         $.ajax({
                             type: "POST",
                             url: "/drug/deleteDrug.jspa?drugID=" + drugID,
@@ -506,28 +340,672 @@
                         $('#dialog-delete').dialog("close");
                     }
                 }, {
-                    text: '关闭',
-                    iconCls: 'ace-icon fa fa-times bigger-130',
-                    handler: function () {
+                    html: "<i class='ace-icon fa fa-times bigger-110'></i>&nbsp; 取消",
+                    "class": "btn btn-minier",
+                    click: function () {
                         $('#dialog-delete').dialog("close");
                     }
                 }]
             });
         }
 
-        new $.fn.dataTable.Buttons(myTable, {
+        //--------------配伍禁忌管理函数------------------------------------
+        //level 1
+        function showCompatibility(drugID, chnName, healthName) {
+            $('input[name="drugID_compatibility"]').val(drugID);
+            $('#chnName_span').text(chnName);
+            $('#healthName').text(healthName);
+            dgCompatibility.ajax.url("/drug/getIncompatibility.jspa?drugID={0}".format(drugID)).load();
+            $("#dialog-compatibility").removeClass('hide').dialog({
+                title: "<h4 class='smaller'>&nbsp;<i class='ace-icon fa fa-share-alt purple' ></i> 配伍禁忌维护</h4> ",//标题栏带了图标，偏高
+                //title: "配伍禁忌维护",
+                title_html: true,
+                resizable: false,
+                modal: true,
+                width: 830, height: 350
+            });
+        }
+
+        var dgCompatibility = $('#dgCompatibility').DataTable({
+            dom: 't',
+            //autoWidth: true,
+            //width: 820,
+            paging: false, searching: false, "info": false,
+            ordering: false, "destroy": true,
+            "columns": [
+                {"data": "incompatibilityID"},
+                {"data": "chnName1", "sClass": "center"},
+                {"data": "chnName2", "sClass": "center"},
+                {"data": "result", "sClass": "center", defaultContent: ''},
+                {"data": "level", "sClass": "center"},//4
+                {"data": "inBody", "sClass": "center"},
+                {"data": "warning", "sClass": "center", defaultContent: ''},
+                {"data": "mechanism", "sClass": "center", defaultContent: ''},
+                {"data": "source", "sClass": "center", defaultContent: ''},
+                {"data": "incompatibilityID", "sClass": "center"}
+            ],
+
+            'columnDefs': [
+                {
+                    "orderable": false, "targets": 0, width: 40, render: function (data, type, row, meta) {
+                        return meta.row + 1 + meta.settings._iDisplayStart;
+                    }
+                },
+                {"orderable": false, "targets": 1, title: '通用名1', width: 120},
+                {"orderable": false, "targets": 2, title: '通用名2', width: 120},
+                {"orderable": false, "targets": 3, title: '相互作用', width: 200},
+                {"orderable": false, "targets": 4, title: '程度', width: "20%"},
+                {
+                    'targets': 5, 'searchable': false, 'orderable': false, title: '类型', width: 60, render: function (data, type, row, meta) {
+                        if (data === 2) return "体内";
+                        else if (data === 3) return "体外";
+                        else return "不明";
+                    }
+                },
+                {
+                    'targets': 6, 'searchable': false, 'orderable': false, title: '措施', width: 60, render: function (data, type, row, meta) {
+                        if (data === 2) return "<font color='orange'>警告</font>";
+                        if (data === 3) return "<font color='deeppink'>禁止</font>";
+                        else return "<font color='#006400'>通过</font>";
+                    }
+                },
+                {"orderable": false, "targets": 7, title: '机理', width: 120},
+                {"orderable": false, "targets": 8, title: '来源', width: 60},
+                {
+                    'targets': 9, 'searchable': false, 'orderable': false, title: '操作', width: 80, render: function (data, type, row, meta) {
+                        return '<div class="hidden-sm hidden-xs action-buttons">' +
+                            '<a class="hasDetail" href="#" data-Url="javascript:showDlgIncompatibility();">' +
+                            '<i class="ace-icon fa  fa-pencil-square-o green bigger-130"></i>' +
+                            '</a>' +
+                            '<a class="hasDetail" href="#" data-Url="javascript:deleteIncompatibility();">' +
+                            '<i class="ace-icon fa  fa-remove red bigger-130"></i>' +
+                            '</a>' +
+                            '</div>';
+                    }
+                }],
+            "aaSorting": [],
+            language: {
+                url: '../components/datatables/datatables.chinese.json'
+            },
+            "ajax": {
+                url: "/drug/getIncompatibility.jspa",
+                "data": function (d) {//删除多余请求参数
+                    for (var key in d)
+                        if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
+                            delete d[key];
+                }
+            },
+            "serverSide": true,
+            select: {style: 'single'}
+        });
+
+        dgCompatibility.on('draw', function () {
+            $('#dgCompatibility tr').find('.hasDetail').click(function () {
+                //var tdSeq = $(this).parent().parent().parent().find("td").index($(this).parent().parent()[0]);
+                var trSeq = $(this).parent().parent().parent().parent().find("tr").index($(this).parent().parent().parent()[0]);//todo 利用这个找到row数据对象，避免编辑时再去ajax
+                //alert("第" + (trSeq + 1) + "行，第" + (tdSeq + 1) + "列");
+
+                var data = dgCompatibility.rows(trSeq).data();
+                //console.log("data:" + JSON.stringify(data[0], null, 4));
+
+                if ($(this).attr("data-Url").indexOf('javascript:showDlgIncompatibility') >= 0)
+                    showDlgIncompatibility(data[0]);
+
+                if ($(this).attr("data-Url").indexOf('javascript:deleteIncompatibility') >= 0)
+                    deleteIncompatibility(data[0]);
+            });
+        });
+        new $.fn.dataTable.Buttons(dgCompatibility, {
             buttons: [
                 {
-                    "text": "<i class='fa fa-plus-square bigger-130'></i>&nbsp;&nbsp;新增 ",
+                    "text": "<i class='fa fa-plus-square bigger-130'></i>&nbsp;&nbsp;新增",
                     "className": "btn btn-xs btn-white btn-primary "
                 }
             ]
         });
-        myTable.buttons().container().appendTo($('.tableTools-container'));
-        myTable.button(0).action(function (e, dt, button, config) {
+        dgCompatibility.buttons().container().appendTo($('.tableTools-container2'));
+        dgCompatibility.button(0).action(function (e, dt, button, config) {
             e.preventDefault();
-            editDrug({});
+
+            showDlgIncompatibility({
+                incompatibilityID: 0, drugID1: $('input[name="drugID_compatibility"]').val(), drugID2: 0, chnName1: $('#chnName_span').text(), chnName2: '',
+                "level": "", "result": "", "warning": 0, "inBody": 0, "source": "", "mechanism": "",
+            });
         });
+
+
+        function showDlgIncompatibility(row) {
+            // console.log("row:" + JSON.stringify(row, null, 4));
+            var title = "新建配伍禁忌";
+            if (row.incompatibilityID > 0) {
+                title = "编辑配伍禁忌";
+                $('#chnName2').attr("readonly", true);
+            } else {
+                $('#chnName2').removeAttr("readonly");
+            }
+            $('#dlgIncompatibility').removeClass('hide').dialog({
+                title: title,
+                width: 500, height: 440,
+                buttons: [{
+                    html: "<i class='ace-icon fa fa-floppy-o bigger-110'></i>&nbsp;保存",
+                    "class": "btn btn-danger btn-minier",
+                    click: function () {
+                        if (incompatibilityForm.valid())
+                            incompatibilityForm.submit();
+                    }
+                }, {
+                    html: "<i class='ace-icon fa fa-times bigger-110'></i>&nbsp; 关闭",
+                    "class": "btn btn-minier",
+                    click: function () {
+                        $(this).dialog('close');
+                    }
+                }]
+            });
+            $("#incompatibilityFm").autofill(row, {
+                findbyname: true,//if true, find elements by name attribute. if false, find elements by id.
+                restrict: true//if true, restrict the fields search in the node childs. if false, search in all the document.
+            });
+        }
+
+        //https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
+        //两个药品配伍禁忌的第二个药品：可选择
+        $('#chnName2').typeahead({hint: true},
+            {
+                limit: 1000,
+                source: function (queryStr, processSync, processAsync) {
+                    var params = {'search[value]': queryStr, length: 100};
+                    $.getJSON('/drug/liveDrug.jspa', params, function (json) {
+                        return processAsync(json.data);
+                    });
+                },
+                display: function (item) {
+                    return item.chnName;//+ " - " + item.spec;
+                },
+                templates: {
+                    header: function (query) {//header or footer
+                        //console.log("query:" + JSON.stringify(query, null, 4));
+                        if (query.suggestions.length > 1)
+                            return '<div style="text-align:center" class="green" >发现 {0} 项</div>'.format(query.suggestions.length);
+                    },
+                    suggestion: Handlebars.compile('<div style="font-size: 9px">' +
+                        '<div style="font-weight:bold">{{chnName}}</div></div>'),
+                    pending: function (query) {
+                        return '<div>查询中...</div>';
+                    },
+                    notFound: '<div class="red">没匹配</div>'
+                }
+            }
+        );
+        $('#chnName2').bind('typeahead:select', function (ev, suggestion) {
+            //console.log("drugID2:" + suggestion["drugID"]);
+            $('#drugID2').val(suggestion["drugID"]);
+        });
+        $('#chnName2').on("input propertychange", function () {
+            $('#drugID2').val("");
+        });
+
+        var incompatibilityForm = $('#incompatibilityFm');
+        incompatibilityForm.validate({
+            errorElement: 'div',
+            errorClass: 'help-block',
+            focusInvalid: false,
+            ignore: "",
+
+            highlight: function (e) {
+                $(e).closest('.form-group').addClass('has-error');
+            },
+
+            success: function (e) {
+                $(e).closest('.form-group').removeClass('has-error');//.addClass('has-info');
+                $(e).remove();
+            },
+
+            errorPlacement: function (error, element) {
+                error.insertAfter(element.parent());
+            },
+
+            submitHandler: function (form) {
+                $.ajax({
+                    type: "POST",
+                    url: '/drug/saveIncompatibility.jspa',
+                    data: $('#incompatibilityFm').serialize(),
+                    cache: false,
+                    success: function (response, textStatus) {
+                        var result = JSON.parse(response);
+                        if (!result.succeed)
+                            showDialog(result.title, "保存失败！");
+                        else {
+                            dgCompatibility.ajax.reload();
+                            //showDialog(result.title, "保存成功！");
+                            $('#dlgIncompatibility').dialog('close');
+                        }
+                    },
+                    error: function (response, textStatus) {/*能够接收404,500等错误*/
+                        showDialog("请求状态码：" + response.status, response.responseText);
+                    }
+                });
+            }
+        });
+
+        function deleteIncompatibility(row) {
+            if (row) {
+                $('#drugName').text(row.chnName1 + " 与 " + row.chnName2 + " 的配伍禁忌");
+                $("#dialog-delete").removeClass('hide').dialog({
+                    resizable: false,
+                    modal: true,
+                    title: "删除配伍禁忌",
+                    //title_html: true,
+                    buttons: [{
+                        html: "<i class='ace-icon fa fa-trash-o bigger-110'></i>&nbsp;删除",
+                        "class": "btn btn-danger btn-minier",
+                        click: function () {
+                            $.ajax({
+                                type: "POST",
+                                url: '/drug/deleteIncompatibility.jspa',
+                                data: {incompatibilityID: row.incompatibilityID},
+                                cache: false,
+                                success: function (response, textStatus) {
+                                    // var msg = response.message;
+                                    var result = JSON.parse(response);
+                                    if (!result.succeed)
+                                        showDialog(result.title, "删除失败！");
+                                    else {
+                                        dgCompatibility.ajax.reload();
+                                    }
+                                },
+                                error: function (response, textStatus) {/*能够接收404,500等错误*/
+                                    showDialog("请求状态码：" + response.status, response.responseText);
+                                }
+                            });
+                            $(this).dialog("close");
+                        }
+                    }, {
+                        html: "<i class='ace-icon fa fa-times bigger-110'></i>&nbsp; 取消",
+                        "class": "btn btn-minier",
+                        click: function () {
+                            $(this).dialog("close");
+                        }
+                    }]
+                });
+            }
+        }
+
+        /*-----------------------剂型说明书管理函数-----------------------------*/
+
+        //level 1
+        function showDose(drugID, chnName, healthName) {
+            $('input[name="drugID_dose"]').val(drugID);
+            $('#chnName_span2').text(chnName);
+            $('#healthName2').text(healthName);
+            dgDose.ajax.url("/drug/getDrugDoseList.jspa?drugID={0}".format(drugID)).load();
+            $("#dialog-dose").removeClass('hide').dialog({
+                title: "<h4 class='smaller'>&nbsp;<i class='ace-icon fa fa-paperclip orange' ></i> 剂型与对应说明书</h4> ",//标题栏带了图标，偏高
+                //title: "配伍禁忌维护",
+                title_html: true,
+                resizable: false,
+                modal: true,
+                width: 650, height: 300
+            });
+        }
+
+        var dgDose = $('#dgDose').DataTable({
+            dom: 't',
+            //autoWidth: true,
+            //width: 420,
+            paging: false, searching: false, "info": false,
+            ordering: false, "destroy": true,
+            "columns": [
+                {"data": "drugDoseID"},
+                {"data": "dose", "sClass": "center"},
+                {"data": "instructionName", "sClass": "center"},
+                /*{"data": "instructCount", "sClass": "center", defaultContent: ''},*/
+                {"data": "drugDoseID"}
+            ],
+
+            'columnDefs': [
+                {
+                    "orderable": false, "targets": 0, width: 40, render: function (data, type, row, meta) {
+                        return meta.row + 1 + meta.settings._iDisplayStart;
+                    }
+                },
+                {"orderable": false, "targets": 1, title: '剂型'},
+                {"orderable": false, "targets": 2, title: '对应说明书'},
+                /*{"orderable": false, "targets": 3, title: '数量', width: 50},*/
+                {
+                    'targets': 3, 'searchable': false, 'orderable': false, title: '操作', width: 60, render: function (data, type, row, meta) {
+                        return '<div class="hidden-sm hidden-xs action-buttons">' +
+                            '<a class="hasDetail" href="#" data-Url="javascript:showDlgDose();" data-indexID="{0}">'.format(meta.row) +
+                            '<i class="ace-icon fa  fa-pencil-square-o green bigger-130"></i>' +
+                            '</a>' +
+                            '<a class="hasDetail" href="#" data-Url="javascript:destroyDose();" data-indexID="{0}">'.format(meta.row) +
+                            '<i class="ace-icon fa  fa-remove red bigger-130"></i>' +
+                            '</a>' +
+                            '</div>';
+                    }
+                }],
+            "aaSorting": [],
+            language: {
+                url: '../components/datatables/datatables.chinese.json'
+            },
+            "ajax": {
+                url: "/drug/getDrugDoseList.jspa",
+                "data": function (d) {//删除多余请求参数
+                    for (var key in d)
+                        if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
+                            delete d[key];
+                }
+            },
+            "serverSide": true,
+            select: {style: 'single'}
+        });
+
+        dgDose.on('draw', function () {
+            $('#dgDose tr').find('.hasDetail').click(function () {
+                var trSeq = $(this).parent().parent().parent().parent().find("tr").index($(this).parent().parent().parent()[0]);
+                var data = dgDose.rows(trSeq).data();
+
+                if ($(this).attr("data-Url").indexOf('javascript:showDlgDose') >= 0)
+                    showDlgDose(data[0]);
+
+                if ($(this).attr("data-Url").indexOf('javascript:destroyDose') >= 0)
+                    destroyDose(data[0]);
+            });
+        });
+        new $.fn.dataTable.Buttons(dgDose, {
+            buttons: [
+                {
+                    "text": "<i class='fa fa-plus-square bigger-130'></i>&nbsp;&nbsp;新增",
+                    "className": "btn btn-xs btn-white btn-primary "
+                }
+            ]
+        });
+        dgDose.buttons().container().appendTo($('.tableTools-container3'));
+        dgDose.button(0).action(function (e, dt, button, config) {
+            e.preventDefault();
+            showDlgDose({drugDoseID: 0, drugID: $('input[name="drugID_dose"]').val(), instructionName: '', dose: ''});
+        });
+
+        function showDlgDose(row) {
+            var title = "<h4 class='smaller'>&nbsp;<i class='ace-icon fa fa-book orange' ></i> 新建剂型对应说明书</h4> ";//标题栏带了图标，偏高
+            //console.log("dose:" + JSON.stringify(row, null, 4));
+            $("#doseInstrFm").autofill(row, {findbyname: true, restrict: true});
+            if (row.drugDoseID > 0) {
+                title = "<h4 class='smaller'>&nbsp;<i class='ace-icon fa fa-book orange' ></i> 编辑剂型对应说明书</h4> ";
+                showInstruction(row.instructionID, true);
+            } else {
+                tableDoseInstruction.ajax.url("/instruction/instructionList.jspa").load();
+                $('#instruction').text("");
+            }
+
+            $('#dlgDoseInstruction').removeClass('hide').dialog({
+                title: title,
+                title_html: true,
+                width: 860, height: 530,
+                buttons: [{
+                    html: "<i class='ace-icon fa fa-floppy-o bigger-110'></i>&nbsp;保存",
+                    "class": "btn btn-danger btn-minier",
+                    click: function () {
+                        if (doseInstrForm.valid())
+                            doseInstrForm.submit();
+                    }
+                }, {
+                    html: "<i class='ace-icon fa fa-times bigger-110'></i>&nbsp; 关闭",
+                    "class": "btn btn-minier",
+                    click: function () {
+                        $(this).dialog('close');
+                    }
+                }]
+            });
+        }
+
+        //https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
+        $('#instructionName').typeahead({hint: true},
+            {
+                limit: 1000,
+                source: function (queryStr, processSync, processAsync) {
+                    var params = {'generalName': queryStr, length: 100, hasInstruction: 1};
+
+                    $.getJSON('/instruction/instructionList.jspa', params, function (json) {
+                        return processAsync(json.aaData);
+                    });
+                },
+                display: function (item) {
+                    return item.chnName;//+ " - " + item.spec;
+                },
+                templates: {
+                    header: function (query) {//header or footer
+                        //console.log("query:" + JSON.stringify(query, null, 4));
+                        if (query.suggestions.length > 1)
+                            return '<div style="text-align:center" class="green" >发现 {0} 项</div>'.format(query.suggestions.length);
+                    },
+                    suggestion: Handlebars.compile('<div style="font-size: 9px">' +
+                        '<div style="font-weight:bold">{{chnName}} <span class="light-grey">&nbsp;&nbsp;说明书数量：</span>{{generalInstNum}} </div>' +
+                        '{{#if dose}}<span class="light-grey">剂型：</span>{{dose}}<span class="space-4"/>{{/if}}' +
+                        '{{#if producer}}<span class="light-grey">厂家：</span>{{producer}}{{/if}}' +
+                        '</div>'),
+                    pending: function (query) {
+                        return '<div>查询中...</div>';
+                    },
+                    notFound: '<div class="red">没匹配</div>'
+                }
+            }
+        );
+        $('#instructionName').bind('typeahead:select', function (ev, suggestion) {
+            $('#instructionID').val("");
+            tableDoseInstruction.ajax.url("/instruction/instructionList.jspa?generalInstrID={0}&hasInstruction=1".format(suggestion["generalInstrID"])).load();
+        });
+        $('#instructionName').on("input propertychange", function () {
+            $('#instructionID').val("");
+            $('#instruction').text("");
+            //tableDoseInstruction.ajax.url("/instruction/instructionList.jspa".format()).load();
+            //tableDoseInstruction.clear().draw(); 这行无效！
+        });
+
+        $('#dose').typeahead({minLength: 0, hint: true},
+            {
+                limit: 1000,
+                source: function (queryStr, processSync, processAsync) {
+                    var params = {parentDictNo: '00018', length: 1000};
+
+                    $.getJSON('/common/dict/listDict.jspa', params, function (json) {
+                        return processAsync(json.data);
+                    });
+                },
+                display: function (item) {
+                    return item.name;//+ " - " + item.spec;
+                },
+                templates: {
+                    /*header: function (query) {//header or footer
+                        if (query.suggestions.length > 1)
+                            return '<div style="text-align:center" class="green" >发现 {0} 项</div>'.format(query.suggestions.length);
+                    },*/
+                    suggestion: Handlebars.compile('<div style="font-size: 9px"><span style="font-weight:bold">{{name}}</span><br/>' +
+                        '<span style="color:#888">{{note}}</span></div>'),
+                    pending: function (query) {
+                        return '<div>查询中...</div>';
+                    },
+                    notFound: '<div class="red">没匹配</div>'
+                }
+            }
+        );
+         /*$('#dose').bind('typeahead:select', function (ev, suggestion) { 有可能先选说明书，再选剂型
+             $('#instructionID').val("");
+         });
+         $('#dose').on("input propertychange", function () {
+             $('#instructionID').val("");
+             $('#instruction').text("");
+         });*/
+
+        var tableDoseInstruction = $('#tableDoseInstruction').DataTable({
+            dom: 't',
+            autoWidth: true,
+            //width: 420,
+            //height: 240,
+            scrollY: 260, scrollCollapse: true,
+            // scroller: true,
+            pageLength: 200,
+            //paging: true,
+            searching: false, "info": false,
+            ordering: false, "destroy": true,
+            select: {
+                style: 'single'//, selector: 'td:first-child'
+            },
+
+            'columnDefs': [
+                {targets: 0, data: null, defaultContent: '', orderable: false, width: 20, className: 'select-checkbox'},//"instructionID",
+                {"data": "chnName", "orderable": false, "targets": 1, title: '说明书'},
+                {"data": "hasInstruction", "orderable": false, "targets": 2, title: '内容', width: 60, className: 'center', render: renderHasNo},
+                {"data": "dose", "orderable": false, "targets": 3, title: '剂型', width: 80, defaultContent: '', className: 'center'},
+                {"data": "source", "orderable": false, "targets": 4, title: '来源', width: 60, defaultContent: '', className: 'center'}],
+            "aaSorting": [],
+            language: {
+                url: '../components/datatables/datatables.chinese.json'
+            },
+            "ajax": {
+                url: "/instruction/instructionList.jspa",
+                "data": function (d) {//删除多余请求参数
+                    for (var key in d)
+                        if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
+                            delete d[key];
+                }
+            },
+            "serverSide": true
+        });
+
+        tableDoseInstruction.on('draw', function () {
+            var instructionID = parseInt($('#instructionID').val());
+            //console.log(" tableDoseInstruction  draw instructionID:" + instructionID);
+
+            tableDoseInstruction.data().each(function (element, index) {
+                if (element["instructionID"] === instructionID)
+                    tableDoseInstruction.row(index).select();
+            });
+            // only 1 ,auto show instruction text
+            if (tableDoseInstruction.data().length === 1 && tableDoseInstruction.row(0).data()["hasInstruction"] > 0) {
+                tableDoseInstruction.row(0).select();
+            }
+        }).on('select', function (e, dt, type, indexes) {
+            showInstruction(tableDoseInstruction.row(indexes).data()["instructionID"], false);
+        });
+
+        function renderHasNo(value, row, index) {
+            if (value === 1) return "有";
+            else return "无";
+        }
+
+
+        var doseInstrForm = $('#doseInstrFm');
+        doseInstrForm.validate({
+            errorElement: 'div',
+            errorClass: 'help-block',
+            focusInvalid: false,
+            ignore: "",
+
+            highlight: function (e) {
+                $(e).closest('.form-group').addClass('has-error');
+            },
+
+            success: function (e) {
+                $(e).closest('.form-group').removeClass('has-error');//.addClass('has-info');
+                $(e).remove();
+            },
+
+            errorPlacement: function (error, element) {
+                error.insertAfter(element.parent());
+            },
+
+            submitHandler: function (form) {
+                $.ajax({
+                    type: "POST",
+                    url: '/drug/saveDrugDose.jspa',
+                    data: $('#doseInstrFm').serialize(),
+                    cache: false,
+                    success: function (response, textStatus) {
+                        var result = JSON.parse(response);
+                        if (!result.succeed)
+                            showDialog(result.title, "保存失败！");
+                        else {
+                            dgDose.ajax.reload();
+                            $('#dlgDoseInstruction').dialog('close');
+                        }
+                    },
+                    error: function (response, textStatus) {/*能够接收404,500等错误*/
+                        showDialog("请求状态码：" + response.status, response.responseText);
+                    }
+                });
+            }
+        });
+
+        function destroyDose(row) {
+            if (row) {
+                $('#drugName').text($('#chnName_span2').text() + (row.dose !== null ? " -  " + row.dose : "") + "说明书");
+                $("#dialog-delete").removeClass('hide').dialog({
+                    resizable: false,
+                    modal: true,
+                    title: "删除剂型对应说明书",
+                    //title_html: true,
+                    buttons: [{
+                        html: "<i class='ace-icon fa fa-trash-o bigger-110'></i>&nbsp;删除",
+                        "class": "btn btn-danger btn-minier",
+                        click: function () {
+                            $.ajax({
+                                type: "POST",
+                                url: '/drug/deleteDrugDose.jspa',
+                                data: {drugDoseID: row.drugDoseID},
+                                cache: false,
+                                success: function (response, textStatus) {
+                                    var result = JSON.parse(response);
+                                    if (!result.succeed)
+                                        showDialog(result.title, "删除失败！");
+                                    else {
+                                        dgDose.ajax.reload();
+                                    }
+                                },
+                                error: function (response, textStatus) {/*能够接收404,500等错误*/
+                                    showDialog("请求状态码：" + response.status, response.responseText);
+                                }
+                            });
+                            $(this).dialog("close");
+                        }
+                    }, {
+                        html: "<i class='ace-icon fa fa-times bigger-110'></i>&nbsp; 取消",
+                        "class": "btn btn-minier",
+                        click: function () {
+                            $(this).dialog("close");
+                        }
+                    }]
+                });
+            }
+        }
+
+        //第一次editDose调用，loadGeneral为true，第二次dgDoseInstruction 的onSelect事件调用，loadGeneral为true为false
+        function showInstruction(instructionID, loadGeneral) {
+            //console.log("showInstuctionID:" + instructionID);
+            $('#instructionID').val(instructionID);
+            if (instructionID > 0)
+                $.getJSON("/instruction/getInstruction.jspa?instructionID=" + instructionID, function (ret) {
+                    if (loadGeneral)//&& ret.generalInstrID !== null
+                        tableDoseInstruction.ajax.url("/instruction/instructionList.jspa?generalInstrID={0}"
+                            .format(ret.generalInstrID === null ? 0 : ret.generalInstrID)).load();
+                    else
+                        $('#instruction').html(ret.instruction);
+                });
+        }
+
+
+        function showDialog(title, content) {
+            $("#errorText").html(content);
+            $("#dialog-error").removeClass('hide').dialog({
+                modal: true,
+                width: 600,
+                title: title,
+                buttons: [{
+                    text: "确定", "class": "btn btn-primary btn-xs", click: function () {
+                        $(this).dialog("close");
+                    }
+                }]
+            });
+        }
     });
 </script>
 
@@ -587,7 +1065,7 @@
 
                 <div class="col-xs-12">
                     <div class="table-header">
-                        药品列表
+                        通用名列表
                         <div class="pull-right tableTools-container"></div>
 
                     </div>
@@ -602,7 +1080,7 @@
                                 <th></th>
                                 <th style="text-align: center">药品名称</th>
                                 <th style="text-align: center">药理分类</th>
-                               <%-- <th style="text-align: center">剂型</th>--%>
+                                <%-- <th style="text-align: center">剂型</th>--%>
                                 <th style="text-align: center;width:45px">基药</th>
                                 <th style="text-align: center;width:45px">孕妇</th>
                                 <th style="text-align: center;width:60px">哺乳期</th>
@@ -629,26 +1107,26 @@
         </div><!-- /.col -->
     </div><!-- /.row -->
 
-    <div id="dialog-edit" class="hide" data-options="iconCls:'ace-icon fa fa-pencil-square-o green bigger-130',modal:true">
-        <div class="col-xs-12" style="padding-top: 10px">
+    <div id="dialog-edit" class="hide">
+        <div class="col-xs-12  no-padding  ">
             <!-- PAGE CONTENT BEGINS -->
             <form class="form-horizontal" role="form" id="drugForm">
                 <fieldset>
-                    <div class="col-sm-12 no-padding">
-                        <div class="form-group">
-                            <label class="col-sm-2  control-label " style="white-space: nowrap">通用名&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
-                            <input type="text" id="chnName" name="chnName" placeholder="通用名" style="font-size:  large;color: black ;" class="col-xs-9 col-sm-9"/>
+                    <div class="col-sm-12 ">
+                        <div class="form-group  no-padding no-margin">
+                            <label class="col-sm-2 control-label" style="white-space: nowrap">通用名&nbsp;&nbsp;&nbsp;</label>
+                            <input type="text" id="chnName" name="chnName" placeholder="通用名" style="font-size:  large;color: black ;" class="col-xs-9 col-sm-9  "/>
                         </div>
                     </div>
-                    <div class="col-sm-6 ">
+                    <div class="col-sm-6">
                         <div class="form-group">
-                            <label for="healthNo" class="col-sm-3 control-label ">药理分类</label>
-                            <input id="healthNo" name="healthNo" type="text" width="200" class="easyui-combotree " style="width:250px;color: black ;"
-                                   data-options="url:'/health/easyUITree.jspa?healthID=1', method: 'get'"/>
+                            <label for="healthNo" class="col-sm-4 control-label" style="white-space: nowrap">药理分类</label>
+                            <input id="healthName3" type="text" style="width:180px;" onclick="showMenu();"/>
+                            <input type="hidden" id="healthNo" name="healthNo"/>
                         </div>
 
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">基本药物 </label>
+                            <label class="col-sm-4 control-label" style="white-space: nowrap">基本药物 </label>
                             <div class="radio col-sm-3">
                                 <label>
                                     <input name="base" type="radio" class="ace" value="1"/>
@@ -663,7 +1141,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">辅助用药 </label>
+                            <label class="col-sm-4 control-label" style="white-space: nowrap">辅助用药 </label>
                             <div class="radio col-sm-3">
                                 <label>
                                     <input name="adjuvantDrug" type="radio" class="ace" value="1"/>
@@ -679,132 +1157,127 @@
                             <span class="col-sm-push-6"></span>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-3 control-label" for="divPinyin">拼音码</label>
+                            <label class="col-sm-4 control-label" for="divPinyin">拼音码</label>
                             <span id="divPinyin"></span>
-                            <%--<select class='chosen-select' id='divPinyin' style='font-size: 9px;color: black ;' name='pinyin'></select>--%>
                         </div>
-                        <%--   <div class="form-group" style="margin-top: 5px">
-                               <label class="col-sm-3 control-label">剂型 </label>
-                               <div class="col-sm-5" style="border-bottom: 1px solid; border-bottom-color: lightgrey" id="dose">&nbsp;</div>
-                           </div>--%>
                         <div class="form-group">
-                            <label class="col-sm-3 control-label" style="white-space: nowrap">最大剂量 </label>
+                            <label class="col-sm-4 control-label" style="white-space: nowrap">最大剂量 </label>
                             <input type="text" id="maxEffectiveDose" name="maxEffectiveDose" placeholder="最大剂量"/>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-3 control-label" style="white-space: nowrap">极量 </label>
+                            <label class="col-sm-4 control-label" style="white-space: nowrap">极量 </label>
                             <input type="text" id="maxDose" name="maxDose" placeholder="极量"/>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-3 control-label" style="white-space: nowrap">DDD值 </label>
+                            <label class="col-sm-4 control-label" style="white-space: nowrap">DDD值 </label>
                             <input type="text" id="ddd" name="ddd" placeholder="DDD值"/>
                         </div>
 
                     </div><!-- /.col -->
 
-                    <div class="col-sm-6">
+                    <div class="col-xs-6">
                         <div class="form-group  control-label">
-                            <label class="col-sm-4" style="white-space: nowrap">类别</label>
+                            <label class="col-xs-3" style="white-space: nowrap">类别</label>
                             <label>
                                 <input name="drugtype" type="radio" class="ace" value="西药"/>
                                 <span class="lbl">西药</span>
                             </label>
-                            <label class="col-sm-offset-1">
+                            <label class="col-xs-offset-1">
                                 <input name="drugtype" type="radio" class="ace" value="中成药"/>
                                 <span class="lbl">中成药</span>
                             </label>
-                            <label class="col-sm-offset-1">
+                            <label class="col-xs-offset-1">
                                 <input name="drugtype" type="radio" class="ace" value="中草药"/>
                                 <span class="lbl">中草药</span>
                             </label>
                         </div>
                         <div class="form-group  control-label">
-                            <label class="col-sm-4" style="white-space: nowrap">孕妇</label>
+                            <label class="col-xs-3" style="white-space: nowrap">孕妇</label>
                             <label>
                                 <input name="gravida" type="radio" class="ace" value="0"/>
                                 <span class="lbl">无&nbsp;&nbsp;&nbsp;</span>
                             </label>
-                            <label class="col-sm-offset-1">
+                            <label class="col-xs-offset-1">
                                 <input name="gravida" type="radio" class="ace" value="1"/>
                                 <span class="lbl" style='color: #7f0000'>慎用&nbsp;&nbsp;&nbsp;&nbsp;</span>
                             </label>
-                            <label class="col-sm-offset-1">
+                            <label class="col-xs-offset-1">
                                 <input name="gravida" type="radio" class="ace" value="2"/>
                                 <span class="lbl" style='color: deeppink'>禁用&nbsp;&nbsp;&nbsp;&nbsp;</span>
                             </label>
                         </div>
 
-                        <div class="form-group  control-label">
-                            <label class="col-sm-4" style="white-space: nowrap">哺乳期</label>
+                        <div class="form-group control-label">
+                            <label class="col-xs-3" style="white-space: nowrap">哺乳期</label>
                             <label>
                                 <input name="lactation" type="radio" class="ace" value="0"/>
                                 <span class="lbl">无&nbsp;&nbsp;&nbsp;</span>
                             </label>
-                            <label class="col-sm-offset-1">
+                            <label class="col-xs-offset-1">
                                 <input name="lactation" type="radio" class="ace" value="1"/>
                                 <span class="lbl" style='color: #7f0000'>慎用&nbsp;&nbsp;&nbsp;&nbsp;</span>
                             </label>
-                            <label class="col-sm-offset-1">
+                            <label class="col-xs-offset-1">
                                 <input name="lactation" type="radio" class="ace" value="2"/>
                                 <span class="lbl" style='color: deeppink'>禁用&nbsp;&nbsp;&nbsp;&nbsp;</span>
                             </label>
                         </div>
                         <div class="form-group  control-label">
-                            <label class="col-sm-4" style="white-space: nowrap">老年人</label>
+                            <label class="col-xs-3" style="white-space: nowrap">老年人</label>
                             <label>
                                 <input name="oldFolks" type="radio" class="ace" value="0"/>
                                 <span class="lbl">无&nbsp;&nbsp;&nbsp;</span>
                             </label>
-                            <label class="col-sm-offset-1">
+                            <label class="col-xs-offset-1">
                                 <input name="oldFolks" type="radio" class="ace" value="1"/>
                                 <span class="lbl" style='color: #7f0000'>慎用&nbsp;&nbsp;&nbsp;&nbsp;</span>
                             </label>
-                            <label class="col-sm-offset-1">
+                            <label class="col-xs-offset-1">
                                 <input name="oldFolks" type="radio" class="ace" value="2"/>
                                 <span class="lbl" style='color: deeppink'>禁用&nbsp;&nbsp;&nbsp;&nbsp;</span>
                             </label>
                         </div>
                         <div class="form-group  control-label">
-                            <label class="col-sm-4" style="white-space: nowrap">儿童</label>
+                            <label class="col-xs-3" style="white-space: nowrap">儿童</label>
                             <label>
                                 <input name="children" type="radio" class="ace" value="0"/>
                                 <span class="lbl">无&nbsp;&nbsp;&nbsp;</span>
                             </label>
-                            <label class="col-sm-offset-1">
+                            <label class="col-xs-offset-1">
                                 <input name="children" type="radio" class="ace" value="1"/>
                                 <span class="lbl" style='color: #7f0000'>慎用&nbsp;&nbsp;&nbsp;&nbsp;</span>
                             </label>
-                            <label class="col-sm-offset-1">
+                            <label class="col-xs-offset-1">
                                 <input name="children" type="radio" class="ace" value="2"/>
                                 <span class="lbl" style='color: deeppink'>禁用&nbsp;&nbsp;&nbsp;&nbsp;</span>
                             </label>
                         </div>
                         <div class="form-group  control-label">
-                            <label class="col-sm-4" style="white-space: nowrap">肝功能不全 </label>
+                            <label class="col-xs-3" style="white-space: nowrap">肝功能不全 </label>
                             <label>
                                 <input name="liver" type="radio" class="ace" value="0"/>
                                 <span class="lbl">无&nbsp;&nbsp;&nbsp;</span>
                             </label>
-                            <label class="col-sm-offset-1">
+                            <label class="col-xs-offset-1">
                                 <input name="liver" type="radio" class="ace" value="1"/>
                                 <span class="lbl" style='color: #7f0000'>慎用&nbsp;&nbsp;&nbsp;&nbsp;</span>
                             </label>
-                            <label class="col-sm-offset-1">
+                            <label class="col-xs-offset-1">
                                 <input name="liver" type="radio" class="ace" value="2"/>
                                 <span class="lbl" style='color: deeppink'>禁用&nbsp;&nbsp;&nbsp;&nbsp;</span>
                             </label>
                         </div>
                         <div class="form-group  control-label">
-                            <label class="col-sm-4" style="white-space: nowrap">肾功能不全 </label>
+                            <label class="col-xs-3" style="white-space: nowrap">肾功能不全 </label>
                             <label>
                                 <input name="kidney" type="radio" class="ace" value="0"/>
                                 <span class="lbl">无&nbsp;&nbsp;&nbsp;</span>
                             </label>
-                            <label class="col-sm-offset-1">
+                            <label class="col-xs-offset-1">
                                 <input name="kidney" type="radio" class="ace" value="1"/>
                                 <span class="lbl" style='color: #7f0000'>慎用&nbsp;&nbsp;&nbsp;&nbsp;</span>
                             </label>
-                            <label class="col-sm-offset-1">
+                            <label class="col-xs-offset-1">
                                 <input name="kidney" type="radio" class="ace" value="2"/>
                                 <span class="lbl" style='color: deeppink'>禁用&nbsp;&nbsp;&nbsp;&nbsp;</span>
                             </label>
@@ -816,29 +1289,22 @@
             </form>
         </div>
     </div>
-    <div id="dialog-compatibility" class="hide easyui-layout" title="配伍禁忌维护" style="font-family:'宋体';width:850px;height:350px;padding:10px"
-         data-options="iconCls:'ace-icon fa fa-share-alt bigger-130',modal:true">
-        <div class="row">
-            <label class="col-xs-6" style="white-space: nowrap">药品名称：<span id="chnName_span" style="white-space: nowrap"/> </label>
-            <label class="col-xs-6" style="white-space: nowrap">药理：<span id="healthName" style="white-space: nowrap"/> </label>
-            <input type="hidden" name="drugID_compatibility">
-        </div>
-        <div class="row">
-            <div class="col-xs-12 col-sm-12" style="margin: 0;padding: 0">
-                <table class="easyui-datagrid" toolbar="#toolbar" id="dgCompatibility" style="height: 275px"
-                       data-options="singleSelect:true,method:'get', url:'/drug/getIncompatibility.jspa', rownumbers: true">
-
+    <div id="dialog-compatibility" class="hide">
+        <div class="col-xs-12">
+            <div class="row">
+                <label class="col-xs-6" style="white-space: nowrap">药品名称：<span id="chnName_span" style="white-space: nowrap"/> </label>
+                <label class="col-xs-5" style="white-space: nowrap">药理：<span id="healthName" style="white-space: nowrap"/> </label>
+                <div class="col-xs-1  tableTools-container2"></div>
+                <input type="hidden" name="drugID_compatibility">
+            </div>
+            <div class="row">
+                <table id="dgCompatibility" class="table table-striped table-bordered table-hover" style="width: 100%;">
                 </table>
             </div>
         </div>
-        <div id="toolbar">
-            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newIncompatibility()">增加</a>
-            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editIncompatibility()">编辑</a>
-            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyIncompatibility()">删除</a>
-        </div>
     </div>
 
-    <div id="dlgIncompatibility" class="easyui-dialog" style="width:500px;height:440px" data-options="closed:true,modal:true,border:'thin',buttons:'#dlg-buttons'">
+    <div id="dlgIncompatibility" class="hide">
         <div class="col-xs-12">
             <form id="incompatibilityFm" method="post" class="form-horizontal">
                 <input type="hidden" name="incompatibilityID">
@@ -874,7 +1340,6 @@
                 </div>
                 <div class="form-group" style="margin-bottom: 3px;margin-top: 3px">
                     <label class="col-xs-3 control-label">通用名2 </label>
-                    <%-- <input class="col-xs-8" id="chnName2" name="chnName2" readonly style="font-size: 9px;color: black">--%>
                     <input class="typeahead scrollable nav-search-input col-xs-8" type="text" id="chnName2" name="chnName2"
                            autocomplete="off" style="width: 300px; font-size: 9px;color: black" readonly
                            placeholder="编码或拼音匹配，鼠标选择"/>
@@ -928,316 +1393,187 @@
                     <input class="col-xs-8" id="source" name="source">
                 </div>
             </form>
-            <div id="dlg-buttons">
-                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="saveIncompatibility()" style="width:90px">保存</a>
-                <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgIncompatibility').dialog('close'); " style="width:90px">取消</a>
-            </div>
         </div>
     </div>
-    <div id="dialog-dose" class="hide easyui-layout" title="剂型与对应说明书" style="font-family:'宋体';width:450px;height:350px;padding:10px"
-         data-options="iconCls:'ace-icon fa fa-share-alt bigger-130',modal:true">
-        <div class="row">
-            <label class="col-xs-6" style="white-space: nowrap">药品名称：<span id="chnName_span2" style="white-space: nowrap"/> </label>
-            <label class="col-xs-6" style="white-space: nowrap">药理：<span id="healthName2" style="white-space: nowrap"/> </label>
-            <input type="hidden" name="drugID_dose">
-        </div>
-        <div class="row">
-            <div class="col-xs-12 col-sm-12" style="margin: 0;padding: 0">
-                <table class="easyui-datagrid" toolbar="#toolbar3" id="dgDose" style="height: 275px"
-                       data-options="singleSelect:true,method:'get', url:'/drug/getDrugDoseList.jspa', rownumbers: true">
+    <div id="dialog-dose" class="hide dialogs">
+        <div class="col-xs-12 col-md-12 col-sm-12 col-lg-12">
+            <div class="row">
+                <label class="col-xs-5" style="white-space: nowrap">药品名称：<span id="chnName_span2" style="white-space: nowrap"/> </label>
+                <label class="col-xs-5" style="white-space: nowrap">药理：<span id="healthName2" style="white-space: nowrap"/> </label>
+                <div class="col-xs-2  tableTools-container3"></div>
+                <input type="hidden" name="drugID_dose">
+            </div>
+            <div class="row">
+                <table id="dgDose" class="table table-striped table-bordered table-hover" style="width: 100%;">
                 </table>
             </div>
         </div>
-        <div id="toolbar3">
-            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newDose()">增加</a>
-            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editDose()">编辑</a>
-            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyDose()">删除</a>
-        </div>
     </div>
-    <div id="dlgDoseInstruction" class="easyui-dialog" title="剂型对应说明书" style="width:800px;height:440px" data-options="closed:true,modal:true,border:'thin',buttons:'#dlg-buttons2'">
+    <div id="dlgDoseInstruction" class="hide">
         <form id="doseInstrFm" method="post" class="form-horizontal">
-            <input type="hidden" name="drugDoseID">
-            <input type="hidden" name="drugID">
             <div class="container-fluid">
+                <input type="hidden" name="drugDoseID">
+                <input type="hidden" name="drugID">
                 <div class="row">
-                    <div class="col-xs-6">
+                    <div class="col-xs-7">
                         <div class="form-group" style="margin-top: 5px">
-                            <label class="col-xs-3 control-label no-padding-left" for="dose"> 剂型 </label>
-                            <input class="easyui-combobox col-xs-8" name="dose" id="dose" data-options="url: '/common/dict/listDict2.jspa?parentDictNo=00018',
-                                method: 'get', valueField: 'name', textField: 'name', panelHeight: '300px', formatter: formatItem" required>
+                            <label class="col-xs-2 control-label no-padding-left" for="dose"> 剂型 </label>
+                            <input class="typeahead scrollable nav-search-input" type="text" id="dose" name="dose" tabindex="-1"
+                                   autocomplete="off" style="width:280px;font-size: 9px;color: black"
+                                   placeholder="编码或拼音匹配，鼠标选择">
                         </div>
                         <div class="form-group" style="margin-bottom: 3px;margin-top: 5px">
-                            <label class="col-xs-3 control-label no-padding-left" for="instructionName"> 通用名 </label>
-                            <input class="typeahead scrollable nav-search-input" type="text" id="instructionName" name="instructionName"
+                            <label class="col-xs-2 control-label no-padding-left" for="instructionName"> 通用名 </label>
+                            <input class="typeahead scrollable nav-search-input" type="text" id="instructionName" name="instructionName" tabindex="-1"
                                    autocomplete="off" style="width:280px;font-size: 9px;color: black"
                                    placeholder="编码或拼音匹配，鼠标选择">
                         </div>
                         <input type="hidden" id="instructionID" name="instructionID" required>
-                        <label class="col-xs-12 no-padding-left" for="dgDoseInstruction"> 可选说明书 </label>
-                        <table class="col-xs-12 easyui-datagrid" id="dgDoseInstruction" style="height: 240px;width:100%;" idField="instructionID"
-                               data-options="singleSelect:true,method:'get',singleSelect:true,   url:'/instruction/instructionList2.jspa', rownumbers: true">
-                            <thead>
-                            <tr>
-                                <th data-options="field:'ck',checkbox:true"></th>
-                                <th data-options="field:'chnName',width:140">说明书</th>
-                                <th data-options="field:'hasInstruction',width:50,align:'center',formatter:renderHasNo">内容</th>
-                                <th data-options="field:'dose',width:50,align:'center'">剂型</th>
-                                <th data-options="field:'source',width:60,align:'center'">来源</th>
-                            </tr>
-                            </thead>
-                        </table>
+                        <label class="col-xs-12 no-padding-left" for="tableDoseInstruction"> 可选说明书 </label>
+                        <table class="col-xs-12  table table-striped table-bordered table-hover" id="tableDoseInstruction" style="width:100%;"></table>
                     </div>
-                    <div class="col-xs-6" style="margin-bottom: 3px;margin-top: 5px;">
-                        <div id="instruction" class="easyui-panel no-margin " title="说明书内容" style="height:340px;padding: 5px 0 0 0;">
+                    <div class="col-xs-5">
+                        <div class="widget-box" id="widget-box-1">
+                            <div class="widget-header widget-header-small">
+                                <h5 class="widget-title">说明书内容</h5>
+                            </div>
+
+                            <div class="widget-body">
+                                <div class="widget-main no-margin no-padding">
+                                    <div id="instruction" title="说明书内容" style="height:360px;overflow:auto; padding: 0 0 0 5px">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </form>
-        <div id="dlg-buttons2">
-            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="saveDoseInstrct()" style="width:90px">保存</a>
-            <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlgDoseInstruction').dialog('close'); " style="width:90px">取消</a>
-        </div>
     </div>
 
 
-    <div id="dialog-delete" class="hide" title="删除通用名" style="width:400px;height:200px;padding:10px"
-         data-options="iconCls:'ace-icon fa fa-exclamation-triangle bigger-130',modal:true">
+    <div id="dialog-delete" class="hide" title="删除通用名">
         <div class="alert alert-info bigger-110">
             永久删除 <span id="drugName" class="red"></span> ，不可恢复！
         </div>
     </div>
-    <%-- <div id="dialog-error" class="hide alert" title="提示">
-         <p id="errorText">保存失败，请稍后再试，或与系统管理员联系。</p>
-     </div>--%>
-    <div id="dialog-error" class="hide" title="操作确认" data-options="iconCls:'ace-icon fa fa-info bigger-130'" style="width:400px;height:200px;padding:10px">
+    <div id="dialog-error" class="hide alert" title="操作确认" style="width:400px;height:200px;padding:10px">
         <p id="errorText">保存失败，请稍后再试，或与系统管理员联系。</p>
     </div>
 </div>
+
+<!-- 模态框（Modal） -->
+<div class="modal hide ui-dialog-titlebar2 no-padding no-margin" id="myModal" tabindex="-1" role="dialog"> <%-- --%>
+    <div class="zTreeDemoBackground left no-padding no-margin">
+        <ul id="treeDemo" class="ztree"></ul>
+    </div>
+</div>
+<!-- /.page-content -->
 <script type="text/javascript">
-    function newIncompatibility() {
-        $('#dlgIncompatibility').dialog('open').dialog('center').dialog('setTitle', '新建配伍禁忌');
-        $('#incompatibilityFm').form('clear');
-        //console.log("drugID1:" + $('input[name="drugID_compatibility"]').val());
-        $('#incompatibilityFm').form('load', {drugID1: $('input[name="drugID_compatibility"]').val(), chnName1: $('#chnName_span').text()});
-        $('#chnName2').removeAttr("readonly");
+    /*tree*/
+    var setting = {
+        async: {
+            enable: true,
+            url: "/health/zTree.jspa",
+            autoParam: ["id=parentID"],//, "name=n", "level=lv"
+            type: "get"
+        },
+        callback: {
+            onClick: zTreeOnClick,
+            beforeAsync: beforeAsync,
+            onAsyncSuccess: onAsyncSuccess
+        }
+    };
+
+    function beforeAsync() {
+        curAsyncCount++;
     }
 
-    function editIncompatibility() {
-        var row = $('#dgCompatibility').datagrid('getSelected');
-        if (row) {
-            $('#dlgIncompatibility').dialog('open').dialog('center').dialog('setTitle', '编辑配伍禁忌');
-            $('#incompatibilityFm').form('load', row);
-            $('#chnName2').attr("readonly", true);
+    function onAsyncSuccess(event, treeId, treeNode, msg) {
+        curAsyncCount--;
+        if (curStatus === "expand") {
+            expandNodes(treeNode.children);
+        } else if (curStatus === "async") {
+            asyncNodes(treeNode.children);
+        }
+
+        if (curAsyncCount <= 0) {
+            curStatus = "";
+            console.log("finish load");
+            showPath();
         }
     }
 
-    function destroyIncompatibility() {
-        var row = $('#dgCompatibility').datagrid('getSelected');
-        if (row) {
-            //$.messager.defaults = {ok: "是", cancel: "否"};  /*修改显示文字*/
-            $.messager.confirm("操作提示", "您确定要删除配伍禁忌吗？", function (confirm) {
-                if (confirm) {
-                    $.ajax({
-                        type: "POST",
-                        url: '/drug/deleteIncompatibility.jspa',
-                        data: {incompatibilityID: row.incompatibilityID},
-                        cache: false,
-                        success: function (response, textStatus) {
-                            // var msg = response.message;
-                            var result = JSON.parse(response);
-                            if (!result.succeed)
-                                $.messager.alert(result.title, "删除失败！", 'error');
-                            else {
-                                $('#dgCompatibility').datagrid('reload');
-                                $.messager.alert(result.title, "删除成功！", 'info');
-                                $('#dlgIncompatibility').dialog('close');
-                            }
-                        },
-                        error: function (response, textStatus) {/*能够接收404,500等错误*/
-                            $.messager.alert("请求状态码：" + response.status, response.responseText);
-                        }
-                    });
-                }
-            });
+    var curStatus = "init", curAsyncCount = 0, goAsync = false;
+
+    function expandNodes(nodes) {
+        if (!nodes) return;
+        curStatus = "expand";
+        var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+        for (var i = 0, l = nodes.length; i < l; i++) {
+            zTree.expandNode(nodes[i], true, false, false);//展开节点就会调用后台查询子节点
+            if (nodes[i].isParent && nodes[i].zAsync) {
+                expandNodes(nodes[i].children);//递归
+            } else {
+                goAsync = true;
+            }
         }
     }
 
-    var incompatibilityForm = $('#incompatibilityFm');
-    incompatibilityForm.validate({
-        errorElement: 'div',
-        errorClass: 'help-block',
-        focusInvalid: false,
-        ignore: "",
+    var selectedNode;
 
-        highlight: function (e) {
-            $(e).closest('.form-group').addClass('has-error');
-        },
-
-        success: function (e) {
-            $(e).closest('.form-group').removeClass('has-error');//.addClass('has-info');
-            $(e).remove();
-        },
-
-        errorPlacement: function (error, element) {
-            error.insertAfter(element.parent());
-        },
-
-        submitHandler: function (form) {
-            $.ajax({
-                type: "POST",
-                url: '/drug/saveIncompatibility.jspa',
-                data: $('#incompatibilityFm').serialize(),
-                cache: false,
-                success: function (response, textStatus) {
-                    var result = JSON.parse(response);
-                    if (!result.succeed)
-                        $.messager.alert(result.title, "保存失败！", 'error');//icon四种设置："error"、"info"、"question"、"warning"
-                    else {
-                        $('#dgCompatibility').datagrid('reload');
-                        $.messager.alert(result.title, "保存成功！", 'info');
-                        $('#dlgIncompatibility').dialog('close');
-                    }
-                },
-                error: function (response, textStatus) {/*能够接收404,500等错误*/
-                    $.messager.alert("请求状态码：" + response.status, response.responseText);
-                }
-            });
-        }
-    });
-
-    function saveIncompatibility() {
-        if (incompatibilityForm.valid())
-            incompatibilityForm.submit();
+    function zTreeOnClick(event, treeId, treeNode) {
+        selectedNode = treeNode;
+        $('#healthNo').val(treeNode.healthNo);
+        $('#healthName3').val(treeNode.name);
+        $('#myModal').dialog('close');
     }
 
-    /*剂型说明书管理函数*/
-    var doseInstrForm = $('#doseInstrFm');
-    doseInstrForm.validate({
-        errorElement: 'div',
-        errorClass: 'help-block',
-        focusInvalid: false,
-        ignore: "",
+    function showPath() {
+        var zTree = $.fn.zTree.getZTreeObj("treeDemo");
 
-        highlight: function (e) {
-            $(e).closest('.form-group').addClass('has-error');
-        },
+        zTree.expandAll(false);
+        zTree.expandNode(zTree.getNodes()[0], true);
+        selectedNode = zTree.getNodesByParam("healthNo", $('#healthNo').val(), null);
+        //console.log("init healthNo:" + $('#healthNo').val());
+        if (selectedNode.length > 0) {
+            selectedNode = selectedNode[0];
 
-        success: function (e) {
-            $(e).closest('.form-group').removeClass('has-error');//.addClass('has-info');
-            $(e).remove();
-        },
+            var parent = [];
+            var node = selectedNode.getParentNode();
+            while (node != null) {
+                parent.push(node);
+                node = node.getParentNode();
+            }
 
-        errorPlacement: function (error, element) {
-            error.insertAfter(element.parent());
-        },
+            while (parent.length > 0)
+                zTree.expandNode(parent.pop(), true);
 
-        submitHandler: function (form) {
-            $.ajax({
-                type: "POST",
-                url: '/drug/saveDrugDose.jspa',
-                data: $('#doseInstrFm').serialize(),
-                cache: false,
-                success: function (response, textStatus) {
-                    var result = JSON.parse(response);
-                    if (!result.succeed)
-                        $.messager.alert(result.title, "保存失败！", 'error');//icon四种设置："error"、"info"、"question"、"warning"
-                    else {
-                        $('#dgDose').datagrid('reload');
-                        $.messager.alert(result.title, "保存成功！", 'info');
-                        $('#dlgDoseInstruction').dialog('close');
-                    }
-                },
-                error: function (response, textStatus) {/*能够接收404,500等错误*/
-                    $.messager.alert("请求状态码：" + response.status, response.responseText);
-                }
-            });
-        }
-    });
-
-    function saveDoseInstrct() {
-        if (doseInstrForm.valid())
-            doseInstrForm.submit();
-    }
-
-    function newDose() {
-        $('#dlgDoseInstruction').dialog('open').dialog('center').dialog('setTitle', '增加剂型对应说明书');
-        $('#doseInstrFm').form('clear');
-        $('#dgDoseInstruction').datagrid('load', {generalInstrID: 0});
-        $('#doseInstrFm').form('load', {drugID: $('input[name="drugID_dose"]').val()});
-    }
-
-    function editDose() {
-        var row = $('#dgDose').datagrid('getSelected');
-        if (row) {
-            $('#dlgDoseInstruction').dialog('open').dialog('center').dialog('setTitle', '编辑剂型对应说明书');
-            $('#doseInstrFm').form('load', row);
-
-            showInstruction(row.instructionID, true);
+            zTree.selectNode(selectedNode);
         }
     }
 
-    function destroyDose() {
-        var row = $('#dgDose').datagrid('getSelected');
-        if (row) {
-            //$.messager.defaults = {ok: "是", cancel: "否"};  /*修改显示文字*/
-            $.messager.confirm("操作提示", "您确定要删除剂型对应说明书吗？", function (confirm) {//todo 删除显示具体剂型-说明书
-                if (confirm) {
-                    $.ajax({
-                        type: "POST",
-                        url: '/drug/deleteDrugDose.jspa',
-                        data: {drugDoseID: row.drugDoseID},
-                        cache: false,
-                        success: function (response, textStatus) {
-                            var result = JSON.parse(response);
-                            if (!result.succeed)
-                                $.messager.alert(result.title, "删除失败！", 'error');
-                            else {
-                                $('#dgDose').datagrid('reload');
-                                $.messager.alert(result.title, "删除成功！", 'info');
-                                $('#dlgDoseInstruction').dialog('close');
-                            }
-                        },
-                        error: function (response, textStatus) {/*能够接收404,500等错误*/
-                            $.messager.alert("请求状态码：" + response.status, response.responseText);
-                        }
-                    });
-                }
-            });
+    function showMenu() {
+        var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+        zTree.expandNode(zTree.getNodes()[0], true, false, false);//展开节点就会调用后台查询子节点
+        //展开
+        expandNodes(zTree.getNodes());
+        if (!goAsync) {
+            curStatus = "";
         }
-    }
+        //console.log("tree length:" + zTree.getNodes()[0].children.length);
+        if (zTree.getNodes()[0].children) //已加载，显示选择的路径，否则，onAsyncSuccess调用完毕执行
+            showPath();
 
-    $('#dgDoseInstruction').datagrid({
-        'onSelect': function (index, row) {
-            showInstruction(row.instructionID, false);
-        },
-        'onLoadSuccess': function (data) {
-            //console.log("insID:" + $('#instructionID').val());
-            if ($('#instructionID').val() > 0)
-                $('#dgDoseInstruction').datagrid('selectRecord', $('#instructionID').val());
-        }
-    });
-
-    //第一次editDose调用，loadGeneral为true，第二次dgDoseInstruction 的onSelect事件调用，loadGeneral为true为false
-    function showInstruction(instructionID, loadGeneral) {
-        $('#instructionID').val(instructionID);
-        $.getJSON("/instruction/getInstruction.jspa?instructionID=" + instructionID, function (ret) {
-            if (loadGeneral)
-                $('#dgDoseInstruction').datagrid('load', {generalInstrID: ret.generalInstrID});
-            else
-                $('#instruction').html(ret.instruction);
+        $("#myModal").removeClass('hide').dialog({
+            modal: true,
+            height: 500,
+            class: 'ui-dialog-titlebar2',
+            title: '选择药理分类'
         });
     }
 
-    function formatItem(row) {
-        return '<span style="font-weight:bold;font-size: 9px">' + row.name + '</span><br/>' +
-            '<span style="color:#888;font-size: 9px">' + row.note + '</span>';
-    }
-
-    function renderHasNo(value, row, index) {
-        if (value === 1) return "有";
-        else return "无";
-    }
-
+    $(document).ready(function () {
+        $.fn.zTree.init($("#treeDemo"), setting, {id: '1', name: '药理分类', isParent: true});
+    });
 </script>
-<!-- /.page-content -->

@@ -84,7 +84,7 @@ public class DrugDAOImpl extends SqlSessionDaoSupport implements DrugDAO, Serial
     /**
      * @see IncompatibilityDAOImpl
      */
-    private void decideRefreshTmpIncomp() {
+    public void decideRefreshTmpIncomp() {
         if (tmpHasData == 0) {
             logger.debug("IncompatibilityDAOImpl.createTmpIncompatibility");
 

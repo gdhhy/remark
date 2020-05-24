@@ -27,16 +27,8 @@
         margin-bottom: 3px;
         margin-top: 3px;
     }
-
-    /* .ztree li ul.line {
-         height: 80%;
-     }
-
-     .ztree * {
-         box-sizing: initial;
-     } */
-
 </style>
+<%--todo 弹出对话框选择药理分类可以无标题，参考：https://blog.csdn.net/lvyuan1234/article/details/79762173--%>
 <script type="text/javascript">
     jQuery(function ($) {
         var url = "/medicine/getMedicineList.jspa?queryChnName={0}";
@@ -1221,22 +1213,7 @@
             modal: true,
             height: 500,
             class: 'ui-dialog-titlebar2',
-            title: '选择药理分类'/*,
-            buttons: [{
-                html: "<i class='ace-icon glyphicon glyphicon-ok bigger-110'></i>&nbsp;选中",
-                "class": "btn btn-danger btn-minier",
-                click: function () {
-                    $('#healthNo').val(selectedNode.healthNo);
-                    $('#healthName').val(selectedNode.name);
-                    $(this).dialog('close');
-                }
-            }, {
-                html: "<i class='ace-icon glyphicon glyphicon-remove bigger-110'></i>&nbsp;关闭",
-                "class": "btn btn-minier",
-                click: function () {
-                    $(this).dialog('close');
-                }
-            }]*/
+            title: '选择药理分类'
         });
     }
 

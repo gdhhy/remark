@@ -70,9 +70,10 @@
         </where>
     </sql>
     <select id="selectDrug" parameterType="int" resultMap="RecordResult" useCache="false">
-        SELECT drugID, pinyin, healthNo, chnName, engName, packUnit, gravida, lactation, oldFolks, children, maxEffectiveDose, maxDose, measureUnit, frequency,
-               liver, kidney, base, general, ddd, adjuvantDrug, antiClass, drugtype, memo, updateTime, updateUser, valid, deployLocation
-        FROM Drug
+        SELECT drugID, D.pinyin, D.healthNo, D.chnName, D.engName, packUnit, gravida, lactation, oldFolks, children, maxEffectiveDose, maxDose, measureUnit, frequency,
+               liver, kidney, base, general, ddd, adjuvantDrug, antiClass, drugtype, memo, updateTime, updateUser, valid, deployLocation,H.chnName healthName
+        FROM Drug D
+                 LEFT JOIN Health H ON H.healthNo=D.healthNo
         WHERE drugID = #{drugID:INTEGER}
     </select>
     <select id="queryDrug" parameterType="java.util.Map" resultType="java.util.HashMap" useCache="false">

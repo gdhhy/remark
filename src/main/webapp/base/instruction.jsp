@@ -68,13 +68,10 @@
                             'targets': 5, 'searchable': false, 'orderable': false, render: function (data, type, row, meta) {
                                 if (data === 1)
                                     return "<a href='#' class='hasInstruction' data-instructionID='{0}'>自有</a>".format(row['instructionID']);
-                                //"<a href='#'  onclick='displayInstruction(\"" + row['instructionID'] + "\",\"" + row['chnName'] + "\",420,30)'><div style='color: blue '>自有</div></a>";
                                 else if (row['matchInstruction'] === 1)
                                     return "<a href='#' class='hasInstruction2' data-generalInstrID='{0}'>匹配</a>".format(row['generalInstrID']);
-                                //return "<a href='#'  onclick='displayInstrByGeneralInstrID(\"" + row['generalInstrID'] + "\",\"" + row['matchGeneralName'] + "\", 420,30)'><div style='color: green'>匹配</div></a>";
                                 else if (row['generalInstNum'] > 0)
                                     return "<a href='#' class='hasInstruction2' data-generalInstrID='{0}'>关联({1})</a>".format(row['generalInstrID'], row['generalInstNum']);
-                                //return "<a href='#'  onclick='displayInstrByGeneralInstrID(\"" + row['generalInstrID'] + "\",\"" + row['matchGeneralName'] + "\", 420,30)'><div style='color: green'>关联(" + row['generalInstNum'] + ")</div></a>";
                                 else return "否";
                             }
                         },
@@ -133,55 +130,7 @@
             $('.btn-success').click(function () {
                 myTable.ajax.url("/instruction/instructionList.jspa?hasInstruction={0}&source={1}"
                     .format($('#hasInstruction').val(), $('#sourceType').val())).load();
-                /*  if ($('#form-instructionID').val() !== '') {
-                      myTable.ajax.url("/instruction/instructionList.jspa?instructionID={0}&hasInstruction={1}&source={2}"
-                          .format($('#form-instructionID').val(), $('#hasInstruction').val(), $('#sourceType').val())).load();
-                  } else if ($('#form-generalInstrID').val() !== '') {
-                      myTable.ajax.url("/instruction/instructionList.jspa?generalInstrID={0}&hasInstruction={1}&source={2}"
-                          .format($('#form-generalInstrID').val(), $('#hasInstruction').val(), $('#sourceType').val())).load();
-                  } else {
-                      myTable.ajax.url("/instruction/instructionList.jspa?chnName={0}&hasInstruction={1}&source={2}&generalName={3}"
-                          .format($('#form-instruction').val(), $('#hasInstruction').val(), $('#sourceType').val(), $('#form-general').val())).load();
-                  }*/
             });
-            //https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
-            /*$('#form-instruction').typeahead({hint: true, minLength: 1},
-                {
-                    limit: 100,
-                    async: true,
-                    source: function (queryStr, syncResults, asyncResults) {
-                        var params = {chnName: queryStr, length: 100};
-                        $.getJSON('/instruction/instructionList.jspa', params, function (json) {
-                            //console.log("json:" + JSON.stringify(json, null, 4));
-                            return asyncResults(json.aaData);
-                        });
-                    },
-                    display: function (item) {
-                        return item.chnName;//+ " - " + item.matchGeneralName;
-                    },
-                    templates: {
-                        header: function (query) {//header or footer
-                            //console.log("query:" + JSON.stringify(query, null, 4));
-                            if (query.suggestions.length > 1)
-                                return '<div style="text-align:center" class="green" >发现 {0} 项</div>'.format(query.suggestions.length);
-                        },
-                        suggestion: Handlebars.compile('<div style="font-size: 9px">' +
-                            '<div style="font-weight:bold">{{chnName}}</div>' +
-                            '{{#if general}} 通用名 {{else}} 别名 {{/if}}<span class="space-4"/>{{producer}}</div>'),
-                        pending: function (query) {
-                            return '<div>查询中...</div>';
-                        },
-                        notFound: '<div class="red">没匹配</div>'
-                    }
-                }
-            );
-            $('#form-instruction').bind('typeahead:select', function (ev, suggestion) {
-                //console.log("instructionID:" + suggestion["instructionID"]);
-                $('#form-instructionID').val(suggestion["instructionID"]);
-            });
-            $('#form-instruction').on("input propertychange", function () {
-                $('#form-instructionID').val("");
-            });*/
             //form-general
             $('#matchGeneralName').typeahead({hint: true, minLength: 1},
                 {
@@ -364,12 +313,6 @@
             });
 
             similarTable.on('draw', function () {
-                $('#similarTable tr').find('.hasDetail').click(function () {
-                    if ($(this).attr("data-Url").indexOf('javascript:') >= 0) {
-                        eval($(this).attr("data-Url"));
-                    } else
-                        window.open($(this).attr("data-Url"), "_blank");
-                });
                 $('#similarTable tr').find('.hasInstruction').click(function () {//点击显示说明书
                     showInstructionContent($(this).attr("data-instructionID"));
 
@@ -754,7 +697,7 @@
             <!-- PAGE CONTENT ENDS -->
         </div><!-- /.col -->
     </div><!-- /.row -->
-    <div id="dialog-edit" class="hide" data-options="iconCls:'icon-save',modal:true">
+    <div id="dialog-edit" class="hide">
         <form class="form-horizontal" role="form" id="instructionForm">
             <input type="hidden" name="instructionID">
             <!-- PAGE CONTENT BEGINS -->
