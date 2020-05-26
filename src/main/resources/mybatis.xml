@@ -34,7 +34,7 @@
         <mapper resource="com/zcreate/review/model/Rational.xml"/>
         <mapper resource="com/zcreate/review/model/RationalDepartConfig.xml"/>
         <mapper resource="com/zcreate/review/model/Infectious.xml"/>
-        <mapper resource="com/zcreate/review/his/PatientInfo.xml"/>
+        <!--<mapper resource="com/zcreate/review/his/PatientInfo.xml"/>-->
 
         <mapper resource="com/zcreate/common/model/Dict_Mssql.xml"/>
 

@@ -1,19 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
     <bean id="reviewConfig" class="com.zcreate.ReviewConfig">
         <property name="deployLocation" value="wy_test"/>
         <property name="hospitalName" value="翁源县人民医院"/>
     </bean>
     <bean id="reviewDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-        <!-- <property name="url" value="jdbc:sqlserver://192.168.157.128:61433;databaseName=review"/>
-         <property name="username" value="sa"/>
-         <property name="password" value="cjdlx"/>-->
-
         <property name="url" value="jdbc:sqlserver://192.168.0.20:1433;databaseName=review"/>
         <property name="username" value="sa"/>
         <property name="password" value="Tao60700"/>
@@ -32,40 +29,41 @@
     </bean>
     <bean id="hisDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-        <property name="url" value="jdbc:sqlserver://192.168.0.20:1433;databaseName=LjHis_yber"/>
+        <property name="url" value="jdbc:sqlserver://192.168.0.20:1433;databaseName=LjHis"/>
         <property name="username" value="sa"/>
-        <property name="password" value="cjdlx"/>
-        <!--<property name="url" value="jdbc:sqlserver://192.168.157.128:61433;databaseName=LJHIS"/>
-        <property name="username" value="sa"/>
-        <property name="password" value="cjdlx"/>-->
-        <!-- <property name="url" value="jdbc:sqlserver://168.168.168.83:1433;databaseName=LJHIS"/>
-          <property name="username" value="cfdp"/>
-          <property name="password" value="cfdp"/>-->
+        <property name="password" value="Tao60700"/>
+        <!--<property name="url" value="jdbc:sqlserver://168.168.168.83:1433;databaseName=LJHIS"/>
+         <property name="username" value="cfdp"/>
+         <property name="password" value="cfdp"/>-->
         <property name="maxIdle" value="100"/>
         <property name="initialSize" value="20"/>
     </bean>
 
 
-    <bean id="session2" class="org.mybatis.spring.SqlSessionFactoryBean">
+    <bean id="securitySession" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="configLocation" value="classpath:mybatis-security.xml"/>
         <property name="dataSource" ref="reviewDataSource"/>
     </bean>
-    <bean id="session3" class="org.mybatis.spring.SqlSessionFactoryBean">
+    <bean id="hisSession" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="configLocation" value="classpath:mybatis-his.xml"/>
         <property name="dataSource" ref="hisDataSource"/>
     </bean>
     <bean id="userMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="sqlSessionFactory" ref="session2"/>
+        <property name="sqlSessionFactory" ref="securitySession"/>
         <property name="mapperInterface" value="com.zcreate.security.dao.UserMapper"/>
     </bean>
     <bean id="roleMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="sqlSessionFactory" ref="session2"/>
+        <property name="sqlSessionFactory" ref="securitySession"/>
         <property name="mapperInterface" value="com.zcreate.security.dao.RoleMapper"/>
     </bean>
 
     <bean id="drugRecordsMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
         <property name="mapperInterface" value="com.zcreate.remark.dao.DrugRecordsMapper"/>
+    </bean>
+    <bean id="lisMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="sqlSessionFactory" ref="hisSession"/>
+        <property name="mapperInterface" value="com.zcreate.remark.dao.CheckMapper"/>
     </bean>
     <bean id="sunningMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
@@ -109,10 +107,10 @@
         <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
     </bean>
 
-    <bean id="hisDao" class="com.zcreate.review.his.HisDAOImpl">
+   <!-- <bean id="hisDao" class="com.zcreate.review.his.HisDAOImpl">
         <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
         <property name="reviewConfig" ref="reviewConfig"/>
-    </bean>
+    </bean>-->
     <bean id="clinicDao" class="com.zcreate.review.dao.ClinicDAOImpl">
         <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
         <property name="reviewConfig" ref="reviewConfig"/>
@@ -168,7 +166,7 @@
         <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
     </bean>
     <bean id="patientInfoDao" class="com.zcreate.review.dao.PatientInfoDAOImpl">
-        <property name="sqlSessionFactory" ref="session3"/>
+        <property name="sqlSessionFactory" ref="hisSession"/>
         <property name="reviewConfig" ref="reviewConfig"/>
     </bean>
     <bean id="storageCheckDao" class="com.zcreate.storage.dao.StorageCheckDAOImpl">
@@ -233,7 +231,7 @@
         <aop:pointcut id="rbacTxPointcut3"
                       expression="execution(* com.zcreate.review.logic..*(..))"/>
         <aop:advisor inPatient-ref="transactionManagerAdivice" pointcut-ref="rbacTxPointcut3"/>
-    </aop:config>
+    </aop:config>-->
 
     <bean id="incompatibilityAspect" class="com.zcreate.review.logic.IncompatibilityAspect"/>
     <aop:config proxy-target-class="true">
@@ -242,7 +240,7 @@
                           expression="execution(* com.zcreate.review.dao..*(..))"/>
             <aop:after pointcut-ref="incompatibilityPointcut" method="afterAdvice"/>
         </aop:aspect>
-    </aop:config>-->
+    </aop:config>
     <context:annotation-config/>
     <bean class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
         <property name="messageConverters">

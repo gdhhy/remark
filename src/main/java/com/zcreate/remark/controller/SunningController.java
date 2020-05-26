@@ -1,13 +1,10 @@
 package com.zcreate.remark.controller;
 
 import com.zcreate.remark.dao.DrugRecordsMapper;
-import com.zcreate.remark.dao.SunningMapper;
 import com.zcreate.remark.util.ControllerHelp;
 import com.zcreate.remark.util.ParamUtils;
 import com.zcreate.review.logic.StatService;
 import com.zcreate.util.StatMath;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,11 +24,11 @@ import static com.zcreate.remark.util.ControllerHelp.wrap;
 @Controller
 @RequestMapping("/sunning")
 public class SunningController {
-    private static Logger log = LoggerFactory.getLogger(SunningController.class);
+    //private static Logger log = LoggerFactory.getLogger(SunningController.class);
     @Autowired
     private DrugRecordsMapper drugRecordsMapper;
-    @Autowired
-    private SunningMapper sunningMapper;
+   /* @Autowired
+    private SunningMapper sunningMapper;*/
     @Autowired
     private StatService statService;
 

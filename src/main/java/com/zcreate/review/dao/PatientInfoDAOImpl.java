@@ -1,13 +1,9 @@
 package com.zcreate.review.dao;
 
 import com.zcreate.ReviewConfig;
-import com.zcreate.pinyin.PinyinUtil;
-import com.zcreate.review.model.Clinic;
-import com.zcreate.review.model.PatientInfo;
 import org.mybatis.spring.support.SqlSessionDaoSupport;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

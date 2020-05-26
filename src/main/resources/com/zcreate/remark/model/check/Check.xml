@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zcreate.remark.dao.CheckMapper">
+    <cache eviction="LRU" readOnly="false" flushInterval="6000" size="10000"/>
+
+    <!--lis-->
+    <select id="selectLisCount" parameterType="int" resultType="java.util.HashMap">
+        select hospID, count(hospID) techCount
+        from ckLab
+        where HospId = #{hospID:INTEGER} group by hospID
+    </select>
+    <select id="selectLisDir" parameterType="int" resultType="java.util.HashMap">
+        select ID labID, F1 checkName, reportTime, diagnose
+        from ckLab
+        where HospId = #{hospID:INTEGER}
+    </select>
+    <select id="selectLisResult" parameterType="int" resultType="java.util.HashMap">
+        select checkTime, checkDoc, itemName, result, unit, refrence, status, datatype
+        from MidLisReport
+        where labID =  #{labID:INTEGER}
+    </select>
+    <select id="selectLisResultByHospID" parameterType="int" resultType="java.util.HashMap">
+        select checkTime, checkDoc, itemName, result, unit, refrence, status, datatype,B.diagnose,B.F1 checkName,B.reportTime
+        from MidLisReport A left join ckLab B on A.labID=B.ID
+        where B.HospId =  #{hospID:INTEGER}
+    </select>
+    <!--pacs-->
+    <select id="selectPacsCount" parameterType="int" resultType="java.util.HashMap">
+        select hospID, count(distinct CheckBody) pacsCount
+        from PsApplyReport
+        where HospId = #{hospID:INTEGER}  group by hospID
+    </select>
+    <select id="selectPacsResult" parameterType="int" resultType="com.zcreate.remark.model.Pacs">
+        select  A.xType,A.checkTime,A.checkBody, A.checkDesc,A.checkResult,B.Report_doc doctorName
+        from PsApplyReport A left join PsApplyMiddle B on A.ID=B.ID
+        where HospId = #{hospID:INTEGER} order by A.xType,B.checkTime
+    </select>
+
+</mapper>

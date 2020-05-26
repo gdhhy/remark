@@ -46,7 +46,6 @@
     <script src="../components/html5shiv/dist/html5shiv.js"></script>
     <script src="../components/respond/dest/respond.min.js"></script>
     <![endif]-->
-    <%--<script src="../assets/js/jquery.ui.touch-punch.min.js"></script>--%>
 
     <!-- page specific plugin scripts -->
     <!-- static.html end-->
@@ -60,13 +59,9 @@
     <script src="../components/datatables/jquery.dataTables.bootstrap.min.js"></script>
     <script src="../components/datatables/dataTables.select.min.js"></script>
     <script src="../components/jquery-ui/jquery-ui.min.js"></script>
-    <%--<script src="../js/jquery-ui/ui/i18n/datepicker-zh-CN.js"  charset="UTF-8"></script>--%>
-    <%--<script src="../components/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"  charset="UTF-8"></script>
-    <script src="../components/bootstrap-datetimepicker/locales/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>--%>
     <script src="../components/typeahead.js/handlebars.js"></script>
     <script src="../assets/js/x-editable/bootstrap-editable.min.js"></script>
 
-    <%--<script src="../assets/js/x-editable/ace-editable.min.js"></script>--%>
     <script src="../js/string_func.js"></script>
     <style type="text/css">
         .modal-dialog {
@@ -111,6 +106,16 @@
             bottom: 0;
         }
 
+        .dropdown-preview {
+            margin: 0 5px;
+            display: inline-block;
+        }
+
+        .dropdown-preview > .dropdown-menu {
+            display: block;
+            position: static;
+            margin-bottom: 5px;
+        }
     </style>
 
     <script type="text/javascript">
@@ -122,7 +127,6 @@
             }
             var saveJson = JSON.parse('${inPatient.review.reviewJson}'.replace('\n', '\\n'));
             //var saveJson = JSON.parse('{"inPatientID":"1251","hospID":"2623","inPatientReviewID":"8904","reviewUser":"陈会玲","masterDoctor":"陈国优","基本情况":{"sex":"女","age":"69","weight":"","inHospital":"2020年03月12日","outHospital":"2020年03月19日"},"诊断":[{"diagnosisNo":"19808","type":"住院诊断","disease":"急性上消化道出血"},{"diagnosisNo":"22259","type":"住院诊断","disease":"十二指肠溃疡"},{"diagnosisNo":"22260","type":"住院诊断","disease":"重度贫血"},{"diagnosisNo":"22261","type":"住院诊断","disease":"幽门螺旋杆菌感染"},{"diagnosisNo":"22262","type":"住院诊断","disease":"肾结石"},{"diagnosisNo":"22263","type":"住院诊断","disease":"肝囊肿"},{"diagnosisNo":"22264","type":"住院诊断","disease":"脂肪肝"}],"细菌培养和药敏":{"micro":false,"micro_time":"","sample":"","germName":"","sensitiveDrug":""},"围手术期用药":{"incision":0,"surgery":false,"surgeryName":"","startTime":"","lastTime":"","beforeDrug":"0","afterDrug":"0","surgeryAppend":false},"长嘱":[],"临嘱":[],"用药情况":{"symptom":"","symptom2":""},"点评":{"review":"刘昌海：肾功能不全选用药物不适宜。患者年龄68岁，肌酐247umol/L，体重45kg，肌酐清除率为13.64ml/min，使用二甲双胍、阿卡波糖、双氯芬酸钠不适宜。肌酐清除率＜45ml/min禁用，肌酐清除率＜25ml/min禁用，晚期肾脏病避免使用双氯芬酸钠。\\n2、肾功能减退未按照肌酐清除率调整剂量不适宜。患者肌酐清除率为13.64ml/min，使用阿莫西林克拉维酸钾1.2g q8h不适宜，根据《国家抗微生物指南》肌酐清除率10~30ml/min时阿莫西林克拉维酸钾首剂1.2g 维持0.6g q12h","rational":"2"},"reviewType":0}');
-            //console.log("saveJson:" + JSON.stringify(saveJson));
             //左侧用药情况
             var longDrugTb = $('#longDrugTb').DataTable({
                 bAutoWidth: false,
@@ -245,7 +249,7 @@
                         }
                     },
                     {
-                        "orderable": false, "data": "quantity", "targets": 3, title: '每次量', width: 45, className: 'center', render: function (data, type, row, meta) {
+                        "orderable": false, "data": "quantity", "targets": 3, title: '每次量', width: 65, className: 'center', render: function (data, type, row, meta) {
                             return data + row["unit"];
                         }
                     },
@@ -376,7 +380,6 @@
                 var exists = false;
                 //先判断是否存在，如存在不添加
                 shortDrugTb.rows().every(function (rowIdx, tableLoop, rowLoop) {
-                    //console.log("item:" + JSON.stringify(this.data()));
                     if (typeof (this.data()) !== 'undefined' && rowData["adviceItemID"] === this.data()["adviceItemID"])
                         exists = true;
                 });
@@ -406,7 +409,6 @@
                 var rowData = shortTable.row(indexes).data();
 
                 shortDrugTb.rows().every(function (rowIdx, tableLoop, rowLoop) {
-                    // console.log("item:" + JSON.stringify(this.data()));
                     if (typeof (this.data()) !== 'undefined' && rowData["adviceItemID"] === this.data()["adviceItemID"])
                         shortDrugTb.row(rowIdx).remove().draw();
                 });
@@ -444,7 +446,6 @@
                 var exists = false;
                 //先判断是否存在，如存在不添加
                 longDrugTb.rows().every(function (rowIdx, tableLoop, rowLoop) {
-                    //console.log("item:" + JSON.stringify(this.data()));
                     if (typeof (this.data()) !== 'undefined' && rowData["adviceItemID"] === this.data()["adviceItemID"])
                         exists = true;
                 });
@@ -483,7 +484,6 @@
                 var rowData = longTable.row(indexes).data();
 
                 longDrugTb.rows().every(function (rowIdx, tableLoop, rowLoop) {
-                    // console.log("item:" + JSON.stringify(this.data()));
                     if (typeof (this.data()) !== 'undefined' && rowData["adviceItemID"] === this.data()["adviceItemID"])
                         longDrugTb.row(rowIdx).remove().draw();
                 });
@@ -496,8 +496,7 @@
                     {"data": "surgeryID"},
                     {"data": "surgeryDate", "sClass": "center", defaultContent: ''},
                     {"data": "incision", "sClass": "center", defaultContent: ''},
-                    {"data": "surgeryName", "sClass": "left"}/*,
-                    {"data": "healOver", "sClass": "center"}*/
+                    {"data": "surgeryName", "sClass": "left"}
                 ],
 
                 'columnDefs': [
@@ -508,8 +507,7 @@
                     },
                     {"orderable": false, "targets": 1, title: '手术时间', width: 140},
                     {"orderable": false, "targets": 2, title: '切口类型', width: 100},
-                    {"orderable": false, "targets": 3, title: '操作名称'}/*,
-                    {"orderable": false, "targets": 4, title: '愈合方式'}*/
+                    {"orderable": false, "targets": 3, title: '操作名称'}
                 ],
                 "aaSorting": [],
                 language: {
@@ -517,7 +515,7 @@
                 },
                 scrollY: '60vh',
                 "ajax": {
-                    url: "/remark/getSurgerys.jspa?hospID=${inPatient.hospID}",//${inPatient.hospID}
+                    url: "/remark/getSurgerys.jspa?hospID=<c:choose><c:when test="${deployLocation eq 'wy_test'}">1038</c:when><c:otherwise>${inPatient.hospID}</c:otherwise></c:choose>",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -527,7 +525,7 @@
             });
             surgeryTable.on('select', function (e, dt, type, indexes) {
                 var rowData = jQuery.extend({}, surgeryTable.row(parseInt(indexes)).data());//浅层复制（克隆）
-                console.log("indexes" + rowData['incision']);
+                //console.log("indexes" + rowData['incision']);
                 $('#form-field-surgeryName').val(rowData['surgeryName']);
                 $('#form-field-surgeryTime').val(rowData['surgeryDate']);
 
@@ -611,35 +609,139 @@
                 //当切换tab时，强制重新计算列宽
                 $.fn.dataTable.tables({visible: true, api: true}).columns.adjust().draw();
             });
-            var loadData = 0;
-            $('#courseTabIndex').click(function () {
-                if ((loadData & 1) === 0)
-                //$.getJSON("/remark/getCourse.jspa?hospID=0014196001&departCode=${inPatient.departCode}&archive=${inPatient.archive}", function (result) {
-                    $.getJSON("/remark/getCourse.jspa?hospID=${inPatient.hospID}&departCode=${inPatient.departCode}&archive=${inPatient.archive}", function (result) {
-                        var template = Handlebars.compile($('#courseContent').html());
-                        var htmlArray = [];
-                        $.each(result.data, function (index, value) {
-                            htmlArray.push(template(value));
+            $("#myTab2 a").on("shown.bs.tab", function (e) {
+                /* var activeTab = $(e.target).text();
+                 var previousTab = $(e.relatedTarget).text(); */
+                if ($(e.target).text().startsWith("检验")) {
+                    showLis();
+                }
+                if ($(e.target).text().startsWith("影像")) {
+                    showPacsResult();
+                }
+                if ($(e.target).text() === "病历") {
+                    window.open('http://168.168.168.233:8090/Main.aspx?HospId=${inPatient.hospID}', "_blank");
+                    $(e.relatedTarget).trigger("click");
+                }
+            });
+            getCount();
+
+            function getCount() {
+                $.ajax({
+                    type: "GET",
+                    url: '/remark/getSurgeryCount.jspa',
+                    data: 'hospID=<c:choose><c:when test="${deployLocation eq 'wy_test'}">1038</c:when><c:otherwise>${inPatient.hospID}</c:otherwise></c:choose>',
+                    contentType: "application/json; charset=utf-8",
+                    cache: false,
+                    success: function (response, textStatus) {
+                        $("#myTab2 a:eq(4)").text("手术(" + response + ")");
+                    },
+                    error: function (response, textStatus) {/*能够接收404,500等错误*/
+                        showDialog("请求状态码：" + response.status, response.responseText);
+                    },
+                });
+                $.ajax({
+                    type: "GET",
+                    url: '/check/lisCount.jspa',
+                    data: 'hospID=<c:choose><c:when test="${deployLocation eq 'wy_test'}">4101</c:when><c:otherwise>${inPatient.hospID}</c:otherwise></c:choose>',//4101、4090、4100
+                    contentType: "application/json; charset=utf-8",
+                    cache: false,
+                    success: function (response, textStatus) {
+                        var respObject = JSON.parse(response);
+                        $("#myTab2 a:eq(5)").text("检验(" + respObject.techCount + ")");
+                    },
+                    error: function (response, textStatus) {/*能够接收404,500等错误*/
+                        showDialog("请求状态码：" + response.status, response.responseText);
+                    },
+                });
+                $.ajax({
+                    type: "GET",
+                    url: '/check/pacsCount.jspa',
+                    data: 'hospID=<c:choose><c:when test="${deployLocation eq 'wy_test'}">4112</c:when><c:otherwise>${inPatient.hospID}</c:otherwise></c:choose>',//4112,4106,4123,4125,4136,4116
+                    contentType: "application/json; charset=utf-8",
+                    cache: false,
+                    success: function (response, textStatus) {
+                        var respObject = JSON.parse(response);
+                        $("#myTab2 a:eq(6)").text("影像(" + respObject.pacsCount + ")");
+                    },
+                    error: function (response, textStatus) {/*能够接收404,500等错误*/
+                        showDialog("请求状态码：" + response.status, response.responseText);
+                    },
+                });
+            }
+
+            function showLis() {
+                $.ajax({
+                    type: "GET",
+                    url: '/check/lisDir.jspa',
+                    data: 'hospID=<c:choose><c:when test="${deployLocation eq 'wy_test'}">4101</c:when><c:otherwise>${inPatient.hospID}</c:otherwise></c:choose>',//4101、4090、4100
+                    contentType: "application/json; charset=utf-8",
+                    cache: false,
+                    success: function (response, textStatus) {
+                        var respObject = JSON.parse(response);
+                        var line = "";
+                        $.each(respObject, function (index, item) {
+                            line += "<li><a href='#' tabindex='-1' data-labID='{0}'>{1}</a></li>".format(item.labID,
+                                item.checkName.length > 12 ? item.checkName.substring(0, 11) + "…" : item.checkName);
                         });
-                        var html = htmlArray.join('');
-                        $('#courseContent').html(html.replace(/&nbsp;/ig, ''));
 
-                        loadData &= 1;
-                    });
+                        $('.dropdown-menu').html(line);
 
-            });
-            $('#historyTabIndex').click(function () {
-                if ((loadData & 2) === 0)
-                //$.getJSON("/remark/showHistory.jspa?hospID=0014196001&departCode=${inPatient.departCode}&archive=${inPatient.archive}", function (result) {
-                    $.getJSON("/remark/getCourse.jspa?hospID=${inPatient.hospID}&departCode=${inPatient.departCode}&archive=${inPatient.archive}", function (result) {
-                        var template = Handlebars.compile($('#historyContent').html());
+                        $('.dropdown-menu a').click(function () {
+                            showLisItem($(this).attr("data-labID"));
+                        });
+                        $('.dropdown-menu a:eq(0)').trigger("click");
+                        //if(respObject.length>0) showLisItem($(this).attr("data-labID"));
+                    },
+                    error: function (response, textStatus) {/*能够接收404,500等错误*/
+                        showDialog("请求状态码：" + response.status, response.responseText);
+                    },
+                });
+            }
 
-                        $('#historyContent').html(template(result));
+            function showLisItem(labID) {
+                $('#lis-table tbody tr').remove();
+                $.ajax({
+                    type: "GET",
+                    url: '/check/lisResult.jspa',
+                    data: 'labID=' + labID,
+                    contentType: "application/json; charset=utf-8",
+                    cache: false,
+                    success: function (response, textStatus) {
+                        var items = JSON.parse(response);
+                        if (items.length > 0) {
+                            var tpl = "<div class=\"col-xs-6\">检查日期：{{checkTime}}</div><div class=\"col-xs-6\">检查医生：{{checkDoc}}</div><div class=\"col-xs-12\">小结：{{diagnose}}</div>";
+                            $('#itemHead').html(Handlebars.compile(tpl)(items[0]));
+                            var $tr = "";
+                            $.each(items, function (index, item) {
+                                $tr = "<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td></tr>".format(item.itemName, item.result, item.unit, item.refrence, item.status);
+                                $("#lis-table tbody").append($tr);
+                            });
+                        }
+                    },
+                    error: function (response, textStatus) {/*能够接收404,500等错误*/
+                        showDialog("请求状态码：" + response.status, response.responseText);
+                    },
+                });
+            }
 
-                        loadData &= 2;
-                    });
-
-            });
+            function showPacsResult() {
+                $('#lis-table tbody tr').remove();
+                $.ajax({
+                    type: "GET",
+                    url: '/check/pacsResult.jspa',
+                    data: 'hospID=<c:choose><c:when test="${deployLocation eq \'wy_test\'}">4125</c:when><c:otherwise>${inPatient.hospID}</c:otherwise></c:choose>',
+                    //4112,4106,4123,4125,4136,4116
+                    contentType: "application/json; charset=utf-8",
+                    cache: false,
+                    success: function (response, textStatus) {
+                        var items = JSON.parse(response);
+                        $('#pacsContent').html(Handlebars.compile($('#pacsContent').html())(items));
+                    },
+                    error: function (response, textStatus) {/*能够接收404,500等错误*/
+                        showDialog("请求状态码：" + response.status, response.responseText);
+                    },
+                });
+            }
 
             // scrollables
             $('.scrollable').each(function () {
@@ -796,7 +898,6 @@
                 review.rational = $("input[name='form-field-rational']:checked").val();
                 json.点评 = review;
                 json.reviewType = 0;
-                console.log("json:" + JSON.stringify(json));
                 $.ajax({
                     type: "POST",
                     url: 'saveInPatient.jspa',
@@ -1279,7 +1380,7 @@
                                             <div class="control-group col-xs-12 no-padding" style="margin-top: 5px;">
                                                 <label class="col-xs-3 control-label" style="text-overflow:ellipsis; white-space:nowrap;">判断结果</label>
                                                 <label>
-                                                    <input name="form-field-rational" type="radio" class="ace" value="1"/>
+                                                    <input name="form-field-rational" type="radio" class="ace" value="1" checked/>
                                                     <span class="lbl">合理</span>
                                                 </label>
 
@@ -1309,9 +1410,10 @@
                                         <li><a data-toggle="tab" href="#home2">诊断</a></li>
                                         <li><a data-toggle="tab" href="#longTab">长嘱</a></li>
                                         <li><a data-toggle="tab" href="#shortTab">临嘱</a></li>
-                                        <li><a data-toggle="tab" href="#surgeryTab">手术</a></li>
-                                        <%--    <li><a data-toggle="tab" href="#courseTab" id="courseTabIndex">病程记录</a></li>还有检验
-                                            <li><a data-toggle="tab" href="#historyTab" id="historyTabIndex">住院病历</a></li>--%>
+                                        <li><a data-toggle="tab" href="#surgeryTab">手术(0)</a></li>
+                                        <li><a data-toggle="tab" href="#lisTab">检验(0)</a></li>
+                                        <li><a data-toggle="tab" href="#pacsTab">影像(0)</a></li>
+                                        <li><a data-toggle="tab">病历</a></li>
                                     </ul>
                                 </div>
                             </div>
@@ -1409,28 +1511,73 @@
                                             <table id="surgery-table" class="table table-striped table-bordered table-hover">
                                             </table>
                                         </div>
-                                        <div id="courseTab" class="tab-pane">
-                                            <div class="scrollable" data-size="600">
-                                                <div id="courseContent" class="content">
-                                                    <div class="col-xs-12 bigger-130">主题：{{title}}</div>
-                                                    <div class="col-xs-12">
-                                                        <div class="col-xs-3 purple">{{writeTime}}</div>
-                                                        <div class="col-xs-9 brown">{{doctorName}}</div>
-                                                    </div>
-                                                    <p class="col-xs-12 profile-info-value">{{{content}}}</p>
-
+                                        <div id="lisTab" class="tab-pane">
+                                            <div class="col-xs-3">
+                                                <div class="dropdown dropdown-preview">
+                                                    <ul class="dropdown-menu" style="width: 150px">
+                                                        <li>
+                                                            <a href="#" tabindex="-1">Action</a>
+                                                        </li>
+                                                    </ul>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div id="historyTab" class="tab-pane">
-                                            <div class="scrollable" data-size="600">
-                                                <div id="historyContent">
-                                                    <div class="col-xs-12">
-                                                        <div class="col-xs-3 purple">{{writeTime}}</div>
-                                                        <div class="col-xs-9 brown">{{doctorName1}}</div>
-                                                    </div>
-                                                    <div class="col-xs-12 profile-info-value">{{{content}}}</div>
+                                            <div class="col-xs-9">
+                                                <div class="col-xs-12" id="itemHead">
                                                 </div>
+                                                <div class="col-xs-12  no-padding no-margin" style="overflow-y: auto;height: 550px ">
+                                                    <table id="lis-table" class="table table-striped table-bordered table-hover">
+                                                        <thead>
+                                                        <tr>
+                                                            <th>项目名称</th>
+                                                            <th>检查结果</th>
+                                                            <th>单位</th>
+                                                            <th>参考范围</th>
+                                                            <th>提示</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody></tbody>
+                                                    </table>
+                                                </div>
+                                                <%--Bootstrap中，只需为任意的 <table> 元素应用 .table 类，即可使用基本的表格样式。另外，还为表格提供了4个额外的辅助类 .table-striped、.table-bordered、.table-hover
+                                                和 .table-condensed，分别用来实现带条纹背景的表格、带边框的表格、带悬停效果的表格、紧凑的表格。这 4个类之间互不排斥，可以根据需要，为一个表格同时应用多个类。--%>
+                                            </div>
+                                        </div>
+                                        <div id="pacsTab" class="tab-pane">
+                                            <div class="col-xs-12  no-padding no-margin" style="overflow-y: auto;height: 650px " id="pacsContent">
+                                                {{#each data}}
+                                                <div class="widget-box widget-color-purple" style="margin:0 0 10px 0"> <%-- widget-color-orange--%>
+                                                    <div class="widget-header widget-header-small">
+                                                        <h6 class="widget-title">
+                                                            <i class="ace-icon fa fa-sort"></i>
+                                                            {{xType}}
+                                                        </h6>
+                                                    </div>
+                                                    <div class="widget-body">
+                                                        <div class="widget-main">
+                                                            {{#each pacs}}
+                                                            <div class=" alert alert-info" style="margin: 5px 5px 5px 5px">
+                                                                <div class="row">
+                                                                    <div class="col-xs-5">{{checkBody}}</div>
+                                                                    <div class="col-xs-4">检查日期：{{checkTime}}</div>
+                                                                    <div class="col-xs-3">医生：{{doctorName}}</div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-xs-3"><strong>项目名称</strong></div>
+                                                                    <div class="col-xs-9"><strong>检查结果</strong></div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-xs-3">{{checkBody}}</div>
+                                                                    <div class="col-xs-9">{{checkDesc}}</div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-xs-10 col-xs-offset-1"><strong>小结：</strong>&nbsp;&nbsp;&nbsp;{{checkResult}}</div>
+                                                                </div>
+                                                            </div>
+                                                            {{/each}}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {{/each}}
                                             </div>
                                         </div>
                                     </div>

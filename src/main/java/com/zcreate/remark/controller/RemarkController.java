@@ -80,15 +80,17 @@ public class RemarkController {
         //out.println("string = " + string); 
         JsonObject json = (JsonObject) parser.parse(string);
         //JsonObject baseInfo = json.getAsJsonObject("基本情况");
-        JsonObject reviewJson = json.getAsJsonObject("点评");
         InPatientReview review = new InPatientReview();
         review.setInPatientReviewID(json.getAsJsonPrimitive("inPatientReviewID").getAsInt());
         review.setReviewType(json.get("reviewType").getAsInt());
         review.setReviewUser(json.get("reviewUser").getAsString());
         review.setReviewTime(new Timestamp(System.currentTimeMillis()));
         review.setHospID(json.get("hospID").getAsInt());
-        review.setReview(reviewJson.get("review").getAsString());
-        review.setRational(reviewJson.get("rational").getAsInt());
+        JsonObject reviewJson = json.getAsJsonObject("点评");
+        if (reviewJson != null) {
+            review.setReview(reviewJson.get("review").getAsString());
+            review.setRational(reviewJson.get("rational").getAsInt());
+        }
         review.setReviewJson(string);
         boolean succeed;
         try {
@@ -833,6 +835,7 @@ public class RemarkController {
            /* if (inPatient.getReview().getInPatientReviewID() == null)
                 inPatient.getReview().setGermCheck(inPatient.getMicrobeCheck() > 0 ? 1 : 0);*/
 
+            model.addAttribute("deployLocation", reviewConfig.getDeployLocation());
             model.addAttribute("inPatient", inPatient);
             //model.addAttribute("deployLocation", reviewConfig.getDeployLocation());
         /*model.addAttribute("inDate", DateUtils.formatSqlDateTime(inPatient.getInDate()));
@@ -859,6 +862,7 @@ public class RemarkController {
            /* if (inPatient.getReview().getInPatientReviewID() == null)
                 inPatient.getReview().setGermCheck(inPatient.getMicrobeCheck() > 0 ? 1 : 0);*/
 
+            model.addAttribute("deployLocation", reviewConfig.getDeployLocation());
             model.addAttribute("inPatient", inPatient);
             //model.addAttribute("deployLocation", reviewConfig.getDeployLocation());
             model.addAttribute("inDate", new Date(inPatient.getInDate().getTime()));

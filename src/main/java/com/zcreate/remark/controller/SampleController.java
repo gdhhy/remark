@@ -5,9 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.zcreate.review.dao.ClinicDAO;
 import com.zcreate.review.dao.InPatientDAO;
 import com.zcreate.review.dao.SampleDAO;
-import com.zcreate.review.his.Course;
-import com.zcreate.review.his.HisDAO;
-import com.zcreate.review.his.History;
 import com.zcreate.review.logic.ReviewService;
 import com.zcreate.review.model.AdviceItem;
 import com.zcreate.review.model.SampleBatch;
@@ -35,8 +32,6 @@ public class SampleController {
     private ClinicDAO clinicDao;
     @Autowired
     private InPatientDAO inPatientDao;
-    @Autowired
-    private HisDAO hisDao;
     @Autowired
     private ReviewService reviewService;
 
@@ -278,26 +273,10 @@ public class SampleController {
     }
 
     @ResponseBody //带这个返回json，不带返回jsp视图
-    @RequestMapping(value = "getDiagnosis", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
-    public String getDiagnosis(@RequestParam(value = "hospID") Integer hospID) {
-        List<HashMap> diagnosis = hisDao.getDiagnosis(hospID);
-        return wrap(diagnosis);
-    }
-
-    @ResponseBody //带这个返回json，不带返回jsp视图
-    @RequestMapping(value = "getCourse", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
-    public String getCourse(@RequestParam(value = "hospID") Integer hospID,
-                            @RequestParam(value = "departCode") String departCode, @RequestParam(value = "archive") int archive) {
-        List<Course> course = hisDao.getCourse(hospID, departCode, archive);
-        return wrap(course);
-    }
-
-    @ResponseBody //带这个返回json，不带返回jsp视图
-    @RequestMapping(value = "showHistory", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
-    public String showHistory(@RequestParam(value = "hospID") Integer hospID,
-                              @RequestParam(value = "departCode") String departCode, @RequestParam(value = "archive") int archive) {
-        History history = hisDao.getHistory(hospID, departCode, archive);
-        return gson.toJson(history);
+    @RequestMapping(value = "getSurgeryCount", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
+    public String getSurgeryCount(@RequestParam(value = "hospID") Integer hospID) {
+        int count = inPatientDao.getSurgeryCount(hospID);
+        return count + "";
     }
 
 }
