@@ -5,11 +5,13 @@ import com.zcreate.ReviewConfig;
 import com.zcreate.common.DictService;
 import com.zcreate.pinyin.PinyinUtil;
 import com.zcreate.rbac.web.DeployRunning;
+import com.zcreate.remark.dao.HisMapper;
 import com.zcreate.review.dao.AppealDAO;
 import com.zcreate.review.dao.ClinicDAO;
 import com.zcreate.review.dao.InPatientDAO;
 import com.zcreate.review.dao.SampleDAO;
 import com.zcreate.review.logic.ReviewService;
+import com.zcreate.review.model.AdviceItem;
 import com.zcreate.review.model.InPatientReview;
 import com.zcreate.review.model.Clinic;
 import com.zcreate.review.model.SampleBatch;
@@ -40,6 +42,8 @@ import java.text.MessageFormat;
 import java.text.NumberFormat;
 import java.util.*;
 
+import static com.zcreate.remark.util.ControllerHelp.wrap;
+
 @Controller
 @RequestMapping("/remark")
 public class RemarkController {
@@ -52,6 +56,8 @@ public class RemarkController {
     private ClinicDAO clinicDao;
     @Autowired
     private InPatientDAO inPatientDao;
+    @Autowired
+    private HisMapper hisMapper;
 
     private Gson gson = new GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd HH: mm").create();
 
@@ -1106,4 +1112,34 @@ public class RemarkController {
         return gson.toJson(retMap);
     }
 
+
+    @ResponseBody //带这个返回json，不带返回jsp视图
+    @RequestMapping(value = "getAdviceItemList", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
+    public String getAdviceItemList(@RequestParam(value = "hospID") Integer hospID, @RequestParam(value = "year") String year,
+                                    @RequestParam(value = "longAdvice", defaultValue = "1") int longAdvice) {
+        //      log.debug("getAdviceItemList");
+        List<AdviceItem> adviceList = reviewService.getAdviceItemList(hospID, longAdvice, year);
+//   log.debug("getAdviceItemList2");
+        return wrap(adviceList);
+    }
+
+    @ResponseBody //带这个返回json，不带返回jsp视图
+    @RequestMapping(value = "getSurgerys", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
+    public String getSurgerys(@RequestParam(value = "hospID") Integer hospID) {
+        List<HashMap<String, Object>> surgerys = inPatientDao.selectSurgery(hospID);
+        return wrap(surgerys);
+    }
+
+    @ResponseBody //带这个返回json，不带返回jsp视图
+    @RequestMapping(value = "getSurgeryCount", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
+    public String getSurgeryCount(@RequestParam(value = "hospID") Integer hospID) {
+        int count = inPatientDao.getSurgeryCount(hospID);
+        return count + "";
+    }
+    @ResponseBody //带这个返回json，不带返回jsp视图
+    @RequestMapping(value = "getDiagnosis", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
+    public String getDiagnosis(@RequestParam(value = "hospID") Integer hospID) {
+        List<HashMap> diagnosis = hisMapper.selectDiagnosis(hospID);
+        return wrap(diagnosis);
+    }
 }

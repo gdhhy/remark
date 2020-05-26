@@ -27,12 +27,12 @@
 
         $("#batchName").text(decodeURI($.getUrlParam("batchName")));
 
-        var url = "/remark/listDetails.jspa?sampleBatchID=" + sampleBatchID;
+        var url = "/sample/listDetails.jspa?sampleBatchID=" + sampleBatchID;
         //var editor = new $.fn.dataTable.Editor({});
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');
         var myTable = dynamicTable
-            //.wrap("<div class='dataTables_borderWrap' />")   //if you are applying horizontal scrolling (sScrollX)
+        //.wrap("<div class='dataTables_borderWrap' />")   //if you are applying horizontal scrolling (sScrollX)
             .DataTable({
                 bAutoWidth: false,
                 //paging: false,
@@ -76,7 +76,7 @@
                     {"orderable": true, "targets": 10, title: '主管<br/>医生', defaultContent: '', width: 60},
                     {
                         "orderable": true, "targets": 11, title: '点评内容', render: function (data) {
-                            if (data !== undefined) {
+                            if (data !== undefined && jQuery.parseJSON(data).点评) {
                                 var obj = jQuery.parseJSON(data).点评.review;
                                 if (obj !== undefined && obj.length > 12) return obj.substring(0, 10) + "...";
                                 return obj;
@@ -85,7 +85,7 @@
                     },
                     {
                         "orderable": true, "targets": 12, title: '结果', render: function (data) {
-                            if (data !== undefined) {
+                            if (data !== undefined && jQuery.parseJSON(data).点评) {
                                 var obj = jQuery.parseJSON(data).点评.rational;
                                 if (obj === '1') return "√";
                                 if (obj === '2') return "×";
@@ -132,6 +132,7 @@
                     window.open($(this).attr("data-Url"), "_blank");
             });
         });
+        //myTable.column(10 ).visible( false);
         $("#dt").resize(function () {
             myTable.columns.adjust();
         });
@@ -184,7 +185,7 @@
                         click: function () {
                             $.ajax({
                                 type: "POST",
-                                url: "/remark/deleteSample.jspa?batchID=" + batchID + '&objectID=' + objectID,
+                                url: "/sample/deleteSample.jspa?batchID=" + batchID + '&objectID=' + objectID,
                                 //contentType: "application/x-www-form-urlencoded; charset=UTF-8",//http://www.cnblogs.com/yoyotl/p/5853206.html
                                 cache: false,
                                 success: function (response, textStatus) {

@@ -2,7 +2,7 @@ package com.zcreate.remark.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.zcreate.remark.dao.CheckMapper;
+import com.zcreate.remark.dao.HisMapper;
 import com.zcreate.remark.model.Pacs;
 import com.zcreate.remark.util.ParamUtils;
 import org.slf4j.Logger;
@@ -25,42 +25,42 @@ import java.util.stream.Collectors;
 public class CheckController {
     private static Logger log = LoggerFactory.getLogger(CheckController.class);
     @Autowired
-    private CheckMapper checkMapper;
+    private HisMapper hisMapper;
 
     private Gson gson = new GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd HH:mm").create();
 
     @ResponseBody
     @RequestMapping(value = "lisCount", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String lisCount(@RequestParam(value = "hospID") Integer hospID) {
-        HashMap<String, Object> count = checkMapper.selectLisCount(hospID);
+        HashMap<String, Object> count = hisMapper.selectLisCount(hospID);
         return gson.toJson(count);
     }
 
     @ResponseBody
     @RequestMapping(value = "lisDir", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String lisDir(@RequestParam(value = "hospID") Integer hospID) {
-        List<HashMap<String, Object>> dirs = checkMapper.selectLisDir(hospID);
+        List<HashMap<String, Object>> dirs = hisMapper.selectLisDir(hospID);
         return gson.toJson(dirs);
     }
 
     @ResponseBody
     @RequestMapping(value = "lisResult", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String lisResult(@RequestParam(value = "labID") Integer labID) {
-        List<HashMap<String, Object>> results = checkMapper.selectLisResult(labID);
+        List<HashMap<String, Object>> results = hisMapper.selectLisResult(labID);
         return gson.toJson(results);
     }
 
     @ResponseBody
     @RequestMapping(value = "pacsCount", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String pacsCount(@RequestParam(value = "hospID") Integer hospID) {
-        HashMap<String, Object> count = checkMapper.selectPacsCount(hospID);
+        HashMap<String, Object> count = hisMapper.selectPacsCount(hospID);
         return gson.toJson(count);
     }
 
     @ResponseBody
     @RequestMapping(value = "pacsResult", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String pacsResult(@RequestParam(value = "hospID") Integer hospID) {
-        List<Pacs> results = checkMapper.selectPacsResult(hospID);
+        List<Pacs> results = hisMapper.selectPacsResult(hospID);
         //申请类别：1-CT；2-DR；3-MR；4-CR；5-RF；6-US；7-脑电图；8-心电图；9-镜检查；10-MG；11-DSA；12-普放；13-病理；14-其它'
         String[] type = {"CT", "DR", "MR", "CR", "RF", "US", "脑电图", "心电图", "镜检查", "MG", "DSA", "普放", "病理", "其它", "DM", "DX", "ECG", "EI", "ES"};
         Map<Integer, List<Pacs>> detailsMap01 = results.stream().collect(Collectors.groupingBy(Pacs::getxType));

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.List;
 
 @Controller
-@RequestMapping("/remark")
+@RequestMapping("/doctor")
 public class DoctorController {
     @Autowired
     private DoctorService doctorService;

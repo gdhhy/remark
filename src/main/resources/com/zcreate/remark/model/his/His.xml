@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.zcreate.remark.dao.CheckMapper">
+<mapper namespace="com.zcreate.remark.dao.HisMapper">
     <cache eviction="LRU" readOnly="false" flushInterval="6000" size="10000"/>
 
     <!--lis-->
@@ -37,4 +37,13 @@
         where HospId = #{hospID:INTEGER} order by A.xType,B.checkTime
     </select>
 
+    <!--诊断-->
+    <select id="selectDiagnosis" parameterType="int"  resultType="java.util.Map">
+        SELECT case A.LsInOut when 1 then '门诊诊断' when 2 then '住院诊断' else '' end type, A.IllDesc disease, /*B.Code icd,*/A.ID diagnosisNo
+        FROM  InHosMzIll A
+             -- left join  BsIllness B on A.icdid = B.ID
+        where A.hospid = #{hospID:INTEGER}
+        order by A.LsInOut, A.ListNum;
+    </select>
+    <!--todo 手术，直接读HIS-->
 </mapper>

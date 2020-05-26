@@ -63,7 +63,7 @@
     </bean>
     <bean id="lisMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="sqlSessionFactory" ref="hisSession"/>
-        <property name="mapperInterface" value="com.zcreate.remark.dao.CheckMapper"/>
+        <property name="mapperInterface" value="com.zcreate.remark.dao.HisMapper"/>
     </bean>
     <bean id="sunningMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="sqlSessionFactory" ref="sqlSessionFactory"/>

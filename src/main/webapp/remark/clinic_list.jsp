@@ -27,7 +27,7 @@
         var sampleBatchID = $.getUrlParam("sampleBatchID");
       //  var remarkType = $.getUrlParam("remarkType");
         $("#batchName").text(decodeURI($.getUrlParam("batchName")));
-        var url = "/remark/listDetails.jspa?sampleBatchID=" + sampleBatchID + '&type=1';
+        var url = "/sample/listDetails.jspa?sampleBatchID=" + sampleBatchID + '&type=1';
         //var editor = new $.fn.dataTable.Editor({});
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');

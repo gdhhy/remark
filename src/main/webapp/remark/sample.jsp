@@ -99,7 +99,7 @@
                     url: '../components/datatables/datatables.chinese.json'
                 },
                 "ajax": {
-                    url: "/remark/listSamples.jspa",
+                    url: "/sample/listSamples.jspa",
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0) //以columns开头的参数删除 || key.indexOf("search") === 0
@@ -144,7 +144,7 @@
 
                             $.ajax({
                                 type: "POST",
-                                url: "/remark/deleteSampleBatch.jspa?batchID=" + batchID,
+                                url: "/sample/deleteSampleBatch.jspa?batchID=" + batchID,
                                 //contentType: "application/x-www-form-urlencoded; charset=UTF-8",//http://www.cnblogs.com/yoyotl/p/5853206.html
                                 cache: false,
                                 success: function (response, textStatus) {
@@ -240,7 +240,7 @@
                 console.log("data:" + JSON.stringify(sampleBatch));
                 $.ajax({
                     type: "POST",
-                    url: "/remark/newSampling.jspa",
+                    url: "/sample/newSampling.jspa",
                     data: JSON.stringify(sampleBatch),
                     contentType: "application/json; charset=utf-8",
                     cache: false,
@@ -323,7 +323,7 @@
             datumTokenizer: Bloodhound.tokenizers.obj.whitespace('doctorID'),
             queryTokenizer: Bloodhound.tokenizers.whitespace,
             // 在文本框输入字符时才发起请求
-            remote: {url: "/remark/liveDoctor.jspa?pinyin=%QUERY", wildcard: '%QUERY'}
+            remote: {url: "/doctor/liveDoctor.jspa?pinyin=%QUERY", wildcard: '%QUERY'}
         });
 
         doctorBloodHound.initialize();
@@ -496,7 +496,7 @@
                         url: '../components/datatables/datatables.chinese.json'
                     },
                     "ajax": {
-                        url: "/remark/getSamplingList.jspa?type=" + result.sampleBatch.type + "&ids=" + result.sampleBatch.ids,
+                        url: "/sample/getSamplingList.jspa?type=" + result.sampleBatch.type + "&ids=" + result.sampleBatch.ids,
                         "data": function (d) {//删除多余请求参数
                             for (var key in d)
                                 if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -547,7 +547,7 @@
                         url: '../components/datatables/datatables.chinese.json'
                     },
                     "ajax": {
-                        url: "/remark/getSamplingList.jspa?type=" + result.sampleBatch.type + "&ids=" + result.sampleBatch.ids,
+                        url: "/sample/getSamplingList.jspa?type=" + result.sampleBatch.type + "&ids=" + result.sampleBatch.ids,
                         "data": function (d) {//删除多余请求参数
                             for (var key in d)
                                 if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -569,7 +569,7 @@
                         click: function () {
                             $.ajax({
                                 type: "POST",
-                                url: "/remark/saveSampling.jspa",
+                                url: "/sample/saveSampling.jspa",
                                 data: JSON.stringify(result.sampleBatch),
                                 contentType: "application/json; charset=utf-8",
                                 cache: false,
@@ -680,7 +680,7 @@
 
             $('.icon_total').addClass("ace-icon fa fa-spinner fa-spin fa-3x fa-fw");//动画
             $('#form-total').val("");
-            currentAjax = $.getJSON("/remark/getObjectCount.jspa", params, function (result) {
+            currentAjax = $.getJSON("/sample/getObjectCount.jspa", params, function (result) {
                 $('#form-total').val(result.count);
                 $('#form-outPatientNum').val(result.outPatientNum);
                 $('.icon_total').removeClass("ace-icon fa fa-spinner fa-spin fa-3x fa-fw");
@@ -706,10 +706,10 @@
         $('.btn-success').click(function () {
             var mm = moment($('#PastDateDemo').val(), "YYYY-MM");
             if (mm.isValid()) {
-                url = "/remark/listSamples.jspa?month=" + (mm.month() + 1) + '&year=' + mm.year();
+                url = "/sample/listSamples.jspa?month=" + (mm.month() + 1) + '&year=' + mm.year();
                 myTable.ajax.url(url).load();
             } else
-                myTable.ajax.url("/remark/listSamples.jspa").load();
+                myTable.ajax.url("/sample/listSamples.jspa").load();
         });
     })
 </script>

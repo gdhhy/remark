@@ -6,7 +6,6 @@ import com.zcreate.review.dao.ClinicDAO;
 import com.zcreate.review.dao.InPatientDAO;
 import com.zcreate.review.dao.SampleDAO;
 import com.zcreate.review.logic.ReviewService;
-import com.zcreate.review.model.AdviceItem;
 import com.zcreate.review.model.SampleBatch;
 import com.zcreate.util.DateUtils;
 import org.slf4j.Logger;
@@ -23,7 +22,7 @@ import java.util.Map;
 import static com.zcreate.remark.util.ControllerHelp.wrap;
 
 @Controller
-@RequestMapping("/remark")
+@RequestMapping("/sample") //todo change /sample
 public class SampleController {
     private static Logger log = LoggerFactory.getLogger(SampleController.class);
     @Autowired
@@ -252,31 +251,6 @@ public class SampleController {
         map.put("affectedRowCount", deleteCount);
 
         return gson.toJson(map);
-    }
-
-
-    @ResponseBody //带这个返回json，不带返回jsp视图
-    @RequestMapping(value = "getAdviceItemList", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
-    public String getAdviceItemList(@RequestParam(value = "hospID") Integer hospID, @RequestParam(value = "year") String year,
-                                    @RequestParam(value = "longAdvice", defaultValue = "1") int longAdvice) {
-        //      log.debug("getAdviceItemList");
-        List<AdviceItem> adviceList = reviewService.getAdviceItemList(hospID, longAdvice, year);
-//   log.debug("getAdviceItemList2");
-        return wrap(adviceList);
-    }
-
-    @ResponseBody //带这个返回json，不带返回jsp视图
-    @RequestMapping(value = "getSurgerys", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
-    public String getSurgerys(@RequestParam(value = "hospID") Integer hospID) {
-        List<HashMap<String, Object>> surgerys = inPatientDao.selectSurgery(hospID);
-        return wrap(surgerys);
-    }
-
-    @ResponseBody //带这个返回json，不带返回jsp视图
-    @RequestMapping(value = "getSurgeryCount", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
-    public String getSurgeryCount(@RequestParam(value = "hospID") Integer hospID) {
-        int count = inPatientDao.getSurgeryCount(hospID);
-        return count + "";
     }
 
 }

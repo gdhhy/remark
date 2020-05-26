@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @Mapper
-public interface CheckMapper {
+public interface HisMapper {
     HashMap<String, Object> selectLisCount(int hospID);
 
     List<HashMap<String, Object>> selectLisDir(int hospID);
@@ -17,4 +17,6 @@ public interface CheckMapper {
     HashMap<String, Object> selectPacsCount(int hospID);
 
     List<Pacs> selectPacsResult(int labID);
+
+    List<HashMap> selectDiagnosis(Integer hospID);
 }

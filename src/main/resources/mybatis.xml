@@ -25,7 +25,7 @@
 
 
         <mapper resource="com/zcreate/review/model/Search.xml"/>
-        <mapper resource="com/zcreate/review/his/His.xml"/>
+       <!-- <mapper resource="com/zcreate/review/his/His.xml"/>-->
         <mapper resource="com/zcreate/review/model/DocFile.xml"/>
         <mapper resource="com/zcreate/review/model/Appeal.xml"/>
         <mapper resource="com/zcreate/review/model/Untoward.xml"/>

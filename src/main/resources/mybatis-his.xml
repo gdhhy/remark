@@ -13,6 +13,6 @@
 
     <mappers>
         <mapper resource="com/zcreate/remark/model/his/PatientInfo.xml"/>
-        <mapper resource="com/zcreate/remark/model/check/Check.xml"/>
+        <mapper resource="com/zcreate/remark/model/his/His.xml"/>
     </mappers>
 </configuration>
