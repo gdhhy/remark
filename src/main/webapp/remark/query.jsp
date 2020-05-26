@@ -25,7 +25,7 @@
     jQuery(function ($) {
         var startDate = moment().month(moment().month() - 1).startOf('month');
         var endDate = moment().month(moment().month() - 1).endOf('month');
-        var urlParam = "fromDate={0}&toDate={1}&queryItem={2}&queryField={3}&goodsID={4}";
+        var urlParam = "fromDate={0}&toDate={1}&queryItem={2}&queryField={3}&goodsID={4}&goodsID2={5}&department={6}&amount={7}";
         var url = "/remark/getClinicList.jspa?" + urlParam;
 
         //initiate dataTables plugin
@@ -80,7 +80,7 @@
                     url: '../components/datatables/datatables.chinese.json'
                 },
                 "ajax": {
-                    url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), "", "", ""),
+                    url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), "", "", "", "", "", ""),
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -119,6 +119,8 @@
                     {"data": "sex", "sClass": "center"},//4
                     {"data": "age", "sClass": "center"},
                     {"data": "diagnosis2", "sClass": "center", defaultContent: ''},
+                    {"data": "money", "sClass": "center"},
+                    {"data": "medicineMoney", "sClass": "center"},
                     {"data": "department", "sClass": "center", defaultContent: ''},
                     {"data": "masterDoctorName", "sClass": "center", defaultContent: ''},
                     {"data": "reviewTime", "sClass": "center", defaultContent: ''}
@@ -138,16 +140,19 @@
                         }
                     },
                     {"orderable": false, "targets": 5, title: '年龄'},
-                    {"orderable": false, "targets": 6, title: '诊断', render: function (data) {
+                    {
+                        "orderable": false, "targets": 6, title: '诊断', render: function (data) {
                             //console.log("data:"+data);
-                            if (data !== undefined && data.length > 40) return data.substring(0, 38) + "...";
+                            if (data !== undefined && data.length > 36) return data.substring(0, 34) + "...";
                             return data;
                         }
                     },
-                    {"orderable": false, "targets": 7, title: '科室'},
-                    {"orderable": false, "targets": 8, title: '主管医生'},
+                    {"orderable": false, "targets": 7, title: '总金额', defaultContent: '', align: 'right'},
+                    {"orderable": false, "targets": 8, title: '药品金额', defaultContent: ''},
+                    {"orderable": false, "targets": 9, title: '科室'},
+                    {"orderable": false, "targets": 10, title: '主管医生'},
                     {
-                        "orderable": false, "targets": 9, title: '点评', render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 11, title: '点评', render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 /*'<a class="hasDetail" href="#" data-Url="/index.jspa?content=/remark/viewInPatient.jspa&inPatientID={0}">'.format(data) +*/
                                 '<a class="hasDetail" href="#" data-Url="/remark/viewInPatient{0}.jspa?inPatientID={1}">'.format(0, row['inPatientID']) +
@@ -162,7 +167,7 @@
                     url: '../components/datatables/datatables.chinese.json'
                 },
                 "ajax": {
-                    url: url2.format('2100-01-01', '2100-01-01', "", "", ""),/*目的查询返回空*/
+                    url: url2.format('2100-01-01', '2100-01-01', "", "", "", "", "", ""),/*目的查询返回空*/
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -209,13 +214,17 @@
 
 
         $('.btn-success').click(function () {//查询
+            //"fromDate={0}&toDate={1}&queryItem={2}&queryField={3}&goodsID={4}&goodsID2={5}&department={6}&amount={7}"
             if ($('#form-type').val() === '1') {
                 myTable.ajax.url(
-                    url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), $('#queryItem').val(), $('#queryField').val(), $('#form-goodsID').val())
+                    url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), $('#queryItem').val(), $('#queryField').val(),
+                        $('#form-goodsID').val(), $('#form-goodsID2').val(), $('#form-department').val() ? $('#form-department').val() : "", $('#form-amount').val()
+                    )
                 ).load();
             } else {
                 myTable2.ajax.url(
-                    url2.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), $('#queryItem').val(), $('#queryField').val(), $('#form-goodsID').val())
+                    url2.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), $('#queryItem').val(), $('#queryField').val(),
+                        $('#form-goodsID').val(), $('#form-goodsID2').val(), $('#form-department').val() ? $('#form-department').val() : "", $('#form-amount').val())
                 ).load();
             }
         });
@@ -238,6 +247,7 @@
                 $("#dateLabel").html("出院日期：");
             }
             $('#queryField').attr("placeholder", $("#queryItem option:first").text());
+            loadDepartment(this.selectedIndex + 1);
         });
         $('#queryItem').on('change', function (e) {//console.log("value:" + this.options[this.selectedIndex].innerHTML );
             $('#queryField').attr("placeholder", this.options[this.selectedIndex].innerHTML);
@@ -245,7 +255,7 @@
 
 
         //https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md
-        $('#form-medicine').typeahead({hint: true},
+        $('.typeahead').typeahead({hint: true},
             {
                 limit: 1000,
                 source: function (queryStr, processSync, processAsync) {
@@ -276,11 +286,37 @@
             }
         );
         $('.typeahead').bind('typeahead:select', function (ev, suggestion) {
-            $('#form-goodsID').val(suggestion["goodsID"]);
+            //console.log($(this).attr('id'));
+            if ($(this).attr('id') === "form-medicine")
+                $('#form-goodsID').val(suggestion["goodsID"]);
+            else
+                $('#form-goodsID2').val(suggestion["goodsID"]);
         });
-        $('#form-medicine').on("input propertychange", function () {
-            $('#form-goodsID').val("");
+        $('.typeahead').on("input propertychange", function () {
+            if ($(this).attr('id') === "form-medicine")
+                $('#form-goodsID').val("");
+            else
+                $('#form-goodsID2').val("");
         });
+
+        var departmentE = $('#form-department');
+
+        function loadDepartment(type) {
+            //console.log("type:" + type);
+            departmentE.empty();
+            //if ($("#form-department option").length === 0)
+            $.getJSON("/common/dict/listDict.jspa?parentID=108&value={0}".format(type === 1 ? '门诊科室' : '住院科室'), function (result) {
+                if (result.iTotalRecords > 0) {
+                    $("#form-department option:gt(0)").remove();
+                    $.each(result.data, function (n, value) {
+                        departmentE.append('<option value="{0}">{1}</option>'.format(value.name, value.name));
+                    });
+                    departmentE.val("");
+                }
+            });
+        }
+
+        loadDepartment(1);
     })
 </script>
 
@@ -291,7 +327,7 @@
             <i class="ace-icon fa fa-home home-icon"></i>
             <a href="/index.jspa">首页</a>
         </li>
-        <li class="active">医生用药分析</li>
+        <li class="active">查询点评</li>
 
     </ul><!-- /.breadcrumb -->
 
@@ -305,46 +341,65 @@
 
 <!-- /section:basics/content.breadcrumbs -->
 <div class="page-content">
-    <div class="page-header">
-
+    <div class="page-header" style="height: 90px">
         <form class="form-search form-inline">
-            <label class=" control-label no-padding-right" for="form-type">门诊住院： </label>
-            <div class="input-group">
-                <select id="form-type" class=" nav-search-input ace" style="font-size: 9px;color: black">
-                    <option value="1" selected>门诊</option>
-                    <option value="2">住院</option>
-                </select></div> &nbsp;&nbsp;&nbsp;
+            <div class="col-xs-12 col-sm-12">
+                <label class=" control-label no-padding-right" for="form-type">门诊住院： </label>
+                <div class="input-group">
+                    <select id="form-type" class=" nav-search-input ace" style="font-size: 9px;color: black">
+                        <option value="1" selected>门诊</option>
+                        <option value="2">住院</option>
+                    </select></div> &nbsp;&nbsp;&nbsp;
 
-            <div class="input-group">
-                <select class="nav-search-input   ace" id="queryItem" name="queryItem" style="font-size: 9px;color: black">
-                    <option value="hospID">门诊号</option>
-                    <option value="doctorName">医生</option>
-                    <option value="patientName">病人</option>
-                </select>&nbsp;
-                <input class="nav-search-input" type="text" id="queryField" name="queryField"
-                       style="width: 120px;font-size: 9px;color: black"
-                       placeholder="处方号"/>
-            </div> &nbsp;&nbsp;&nbsp;
-            <label id="dateLabel">处方日期：</label>
-            <!-- #section:plugins/date-time.datepicker -->
-            <div class="input-group">
-                <input class="form-control nav-search-input" name="dateRangeString" id="form-dateRange"
-                       style="color: black;width:200px"
-                       data-date-format="YYYY-MM-DD"/>
-                <span class="input-group-addon"><i class="fa fa-calendar bigger-100"></i></span>
-            </div>&nbsp;&nbsp;&nbsp;
+                <label class="control-label no-padding-right" for="form-department">科室： </label>
+                <div class="input-group">
+                    <select id="form-department" class=" nav-search-input ace" style="font-size: 9px;color: black">
+                        <option value="1" selected>门诊</option>
+                        <option value="2">住院</option>
+                    </select></div>&nbsp;&nbsp;&nbsp;
 
-            <label class=" control-label no-padding-right" for="form-medicine">药品名称： </label>
-            <div class="input-group">
-                <input class="typeahead scrollable nav-search-input" type="text" id="form-medicine" name="form-medicine"
-                       autocomplete="off" style="width: 250px;font-size: 9px;color: black"
-                       placeholder="编码或拼音匹配，鼠标选择"/><input type="hidden" id="form-goodsID"/>
-            </div>&nbsp;&nbsp;&nbsp;
+                <div class="input-group">
+                    <select class="nav-search-input   ace" id="queryItem" name="queryItem" style="font-size: 9px;color: black">
+                        <option value="hospID">门诊号</option>
+                        <option value="doctorName">医生</option>
+                        <option value="patientName">病人</option>
+                    </select>&nbsp;
+                    <input class="nav-search-input" type="text" id="queryField" name="queryField"
+                           style="width: 120px;font-size: 9px;color: black"
+                           placeholder="处方号"/>
+                </div> &nbsp;&nbsp;&nbsp;
+                <label id="dateLabel">处方日期：</label>
+                <!-- #section:plugins/date-time.datepicker -->
+                <div class="input-group">
+                    <input class="form-control nav-search-input" name="dateRangeString" id="form-dateRange"
+                           style="color: black;width:200px"
+                           data-date-format="YYYY-MM-DD"/>
+                    <span class="input-group-addon"><i class="fa fa-calendar bigger-100"></i></span>
+                </div>&nbsp;&nbsp;&nbsp;
 
-            <button type="button" class="btn btn-sm btn-success">
-                查询
-                <i class="ace-icon glyphicon glyphicon-search icon-on-right bigger-100"></i>
-            </button>
+
+                <button type="button" class="btn btn-sm btn-success">
+                    查询
+                    <i class="ace-icon glyphicon glyphicon-search icon-on-right bigger-100"></i>
+                </button>
+            </div>
+            <div class="col-xs-12 col-sm-12" style="margin: 5px 0 0 0   ">
+                <label class=" control-label no-padding-right" for="form-medicine">联合用药1： </label>
+                <div class="input-group">
+                    <input class="typeahead scrollable nav-search-input" type="text" id="form-medicine" name="form-medicine"
+                           autocomplete="off" style="width: 250px;font-size: 9px;color: black"
+                           placeholder="编码或拼音匹配，鼠标选择"/><input type="hidden" id="form-goodsID"/>
+                </div>&nbsp;&nbsp;&nbsp;
+                <label class=" control-label no-padding-right" for="form-medicine2">联合用药2： </label>
+                <div class="input-group">
+                    <input class="typeahead scrollable nav-search-input" type="text" id="form-medicine2" name="form-medicine2"
+                           autocomplete="off" style="width: 250px;font-size: 9px;color: black"
+                           placeholder="编码或拼音匹配，鼠标选择"/><input type="hidden" id="form-goodsID2"/>
+                </div>&nbsp;&nbsp;&nbsp;
+                <label class=" control-label no-padding-right" for="form-amount">药品金额： </label>
+                <input class="form-control nav-search-input" name="form-amount" id="form-amount"
+                       style="color: black;width:80px"/>
+            </div>
         </form>
     </div><!-- /.page-header -->
 

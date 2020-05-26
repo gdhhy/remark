@@ -1026,9 +1026,11 @@ public class RemarkController {
     public String getClinicList(@RequestParam(value = "fromDate", required = false) String fromDate,
                                 @RequestParam(value = "toDate", required = false) String toDate,
                                 @RequestParam(value = "goodsID", required = false, defaultValue = "") String goodsID,
+                                @RequestParam(value = "goodsID2", required = false, defaultValue = "") String goodsID2,
                                 @RequestParam(value = "queryItem", required = false) String queryItem,
                                 @RequestParam(value = "queryField", required = false) String queryField,
                                 @RequestParam(value = "department", required = false) String department,
+                                @RequestParam(value = "amount", required = false) Integer amount,
                                 @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
                                 @RequestParam(value = "start", required = false, defaultValue = "0") int start,
                                 @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
@@ -1046,6 +1048,8 @@ public class RemarkController {
             param.put(queryItem, queryField);
 
         param.put("goodsID", goodsID);
+        param.put("goodsID2", goodsID2);
+        param.put("atLeastMoney", amount);
         param.put("department", department);
         //param.put("rational", rational);
         param.put("start", start);
@@ -1066,9 +1070,11 @@ public class RemarkController {
     public String getHospitalList(@RequestParam(value = "fromDate", required = false) String fromDate,
                                   @RequestParam(value = "toDate", required = false) String toDate,
                                   @RequestParam(value = "goodsID", required = false, defaultValue = "") String goodsID,
+                                  @RequestParam(value = "goodsID2", required = false, defaultValue = "") String goodsID2,
                                   @RequestParam(value = "queryItem", required = false) String queryItem,
                                   @RequestParam(value = "queryField", required = false) String queryField,
                                   @RequestParam(value = "department", required = false) String department,
+                                  @RequestParam(value = "amount", required = false) Integer amount,
                                   @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
                                   @RequestParam(value = "start", required = false, defaultValue = "0") int start,
                                   @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
@@ -1087,7 +1093,9 @@ public class RemarkController {
             param.put(queryItem, queryField);
 
         param.put("goodsID", goodsID);
+        param.put("goodsID2", goodsID2);
         param.put("department", department);
+        param.put("atLeastMoney", amount);
         param.put("start", start);
         param.put("limit", limit);
         // if ((Integer) param.get("start") > 0)
@@ -1136,6 +1144,7 @@ public class RemarkController {
         int count = inPatientDao.getSurgeryCount(hospID);
         return count + "";
     }
+
     @ResponseBody //带这个返回json，不带返回jsp视图
     @RequestMapping(value = "getDiagnosis", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
     public String getDiagnosis(@RequestParam(value = "hospID") Integer hospID) {

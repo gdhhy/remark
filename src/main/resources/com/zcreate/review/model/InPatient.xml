@@ -121,6 +121,7 @@
                 )
             </if>
             <if test="goodsID>0">AND A.goodsID=#{goodsID:INTEGER}</if>
+            <if test="goodsID2>0">AND A2.goodsID=#{goodsID2:INTEGER}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(hospNo)">AND P.hospNo=#{hospNo:VARCHAR}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(notStat)">AND P.stay=0</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(rational)">AND V.rational = #{rational:INTEGER}</if>
@@ -147,8 +148,8 @@
         </foreach>
     </select>
     <select id="selectInPatientByID" parameterType="int" resultMap="InPatientResult">
-        SELECT  inPatientID, hospID, hospNo, patientID, patientName, sex, age, inDate, outDate, inHospitalDay, department, diagnosis, diagnosis2, money, medicineMoney, drugNum,
-                     masterDoctorID, masterDoctorName, disItem, antiNum, concurAntiNum, archive, surgery
+        SELECT inPatientID, hospID, hospNo, patientID, patientName, sex, age, inDate, outDate, inHospitalDay, department, diagnosis, diagnosis2, money, medicineMoney, drugNum,
+               masterDoctorID, masterDoctorName, disItem, antiNum, concurAntiNum, archive, surgery
         FROM InPatient P
         where inPatientID = #{inPatientID:INTEGER}
     </select>
@@ -178,6 +179,10 @@
             LEFT JOIN (select hospID,goodsID from ${AdviceItemTable1}
             union select hospID,goodsID from ${AdviceItemTable2}) A ON P.hospID = A.hospID
         </if>
+        <if test="goodsID2>0">
+            LEFT JOIN (select hospID,goodsID from ${AdviceItemTable1}
+            union select hospID,goodsID from ${AdviceItemTable2}) A2 ON P.hospID = A2.hospID
+        </if>
         <include refid="queryWhere"/>
     </select>
     <!-- <select id="selectOutPatientCount" parameterType="java.util.Map" resultType="int">
@@ -197,6 +202,10 @@
             LEFT JOIN (select hospID,goodsID from ${AdviceItemTable1}
             union select hospID,goodsID from ${AdviceItemTable2}) A ON P.hospID = A.hospID
         </if>
+        <if test="goodsID2>0">
+            LEFT JOIN (select hospID,goodsID from ${AdviceItemTable1}
+            union select hospID,goodsID from ${AdviceItemTable2}) A2 ON P.hospID = A2.hospID
+        </if>
         <include refid="queryWhere"/>)A
         <if test="start!=null and start > 0">
             WHERE A.inPatientID &lt; ( SELECT min(inPatientID) FROM (SELECT TOP ${start} inPatientID FROM InPatient P
@@ -204,6 +213,10 @@
             <if test="goodsID>0">
                 LEFT JOIN (select hospID,goodsID from ${AdviceItemTable1}
                 union select hospID,goodsID from ${AdviceItemTable2}) A ON P.hospID = A.hospID
+            </if>
+            <if test="goodsID2>0">
+                LEFT JOIN (select hospID,goodsID from ${AdviceItemTable1}
+                union select hospID,goodsID from ${AdviceItemTable2}) A2 ON P.hospID = A2.hospID
             </if>
             <include refid="queryWhere"/>
             ORDER BY ${orderField} DESC ) A )
@@ -286,32 +299,31 @@
         SELECT A.*, D.skipRank, D.AUD, D.DDDs, D.first3, D.hospitalDay, D.amount, D.antiAmount, D.insuranceRatio, D.baseRatio, E.medicineRatio, E.amount2, E.medicineAmount,
                CASE WHEN D.amount > 0 THEN D.antiAmount / D.amount ELSE 0 END antiAmountRatio
         FROM (SELECT P.department,
-                     count(DISTINCT P.inPatientID) adviceNum,
-                     COUNT(DISTINCT CASE WHEN P.incision &amp; 1 = 1 THEN P.hospID ELSE NULL END) incisionNum,
+                     count(DISTINCT P.inPatientID)                                                                    adviceNum,
+                     COUNT(DISTINCT CASE WHEN P.incision &amp; 1 = 1 THEN P.hospID ELSE NULL END)                     incisionNum,
                      COUNT(DISTINCT CASE WHEN P.incision &amp; 9 = 9 AND P.antiMoney > 0 THEN P.hospID ELSE NULL END) incisionAntiNum,
-                     COUNT(DISTINCT CASE WHEN P.antiMoney > 0 THEN P.hospID ELSE NULL END) antiNum,
-                     COUNT(DISTINCT CASE WHEN P.checkItem &amp; 1 = 1 THEN P.hospID ELSE NULL END) germiCulture,
-                     COUNT(DISTINCT CASE WHEN P.checkItem &amp; 2 = 2 THEN P.hospID ELSE NULL END) drugSen
+                     COUNT(DISTINCT CASE WHEN P.antiMoney > 0 THEN P.hospID ELSE NULL END)                            antiNum,
+                     COUNT(DISTINCT CASE WHEN P.checkItem &amp; 1 = 1 THEN P.hospID ELSE NULL END)                    germiCulture,
+                     COUNT(DISTINCT CASE WHEN P.checkItem &amp; 2 = 2 THEN P.hospID ELSE NULL END)                    drugSen
               FROM InPatient P
               WHERE P.outDate > #{fromDate:VARCHAR} AND P.outDate &lt; #{toDate:VARCHAR}
               GROUP BY P.department) A
                  LEFT JOIN
              (SELECT department,
-                     sum(skipRank) skipRank,
-                     CASE WHEN sum(hospitalDay) > 0 THEN sum(DDDs) * 100.0 / sum(hospitalday) ELSE 0 END AUD,
-                     sum(DDDs) DDDs,
-                     sum(hospitalDay) hospitalDay,
-                     sum(clinicAmount + hospitalAmount) amount,
-                     sum(clinicAntiAmount + hospitalAntiAmount) antiAmount,
+                     sum(skipRank)                                                                                   skipRank,
+                     CASE WHEN sum(hospitalDay) > 0 THEN sum(DDDs) * 100.0 / sum(hospitalday) ELSE 0 END             AUD,
+                     sum(DDDs)                                                                                       DDDs,
+                     sum(hospitalDay)                                                                                hospitalDay,
+                     sum(clinicAmount + hospitalAmount)                                                              amount,
+                     sum(clinicAntiAmount + hospitalAntiAmount)                                                      antiAmount,
                      sum(clinicInsuranceAmount + hospitalInsuranceAmount) * 1.0 / sum(clinicAmount + hospitalAmount) insuranceRatio,
-                     sum(clinicBaseAmount + hospitalBaseAmount) * 1.0 / sum(clinicAmount + hospitalAmount) baseRatio,
+                     sum(clinicBaseAmount + hospitalBaseAmount) * 1.0 / sum(clinicAmount + hospitalAmount)           baseRatio,
                      (SELECT top 3 M.chnName + '；'
                       FROM dailydepartmedicine D
                                LEFT JOIN Medicine M ON M.goodsID = D.goodsID
                       WHERE D.department = DailyDepart.department AND date > #{fromDate:VARCHAR} AND date &lt; #{toDate:VARCHAR} AND M.antiClass > 0 AND isStat > 0
                       GROUP BY M.goodsID, M.chnName
-                      order by sum(hospitalAmount + clinicAmount) desc
-                      FOR XML PATH ('')) first3
+                      order by sum(hospitalAmount + clinicAmount) desc FOR XML PATH (''))                            first3
               FROM DailyDepart
               WHERE date > #{fromDate:VARCHAR} AND date &lt; #{toDate:VARCHAR}
               GROUP BY department) D
