@@ -270,7 +270,7 @@
                     }
                 },
 
-                scrollY: '60vh',
+                scrollY: '55vh',
                 "ajax": {
                     url: "/remark/getAdviceItemList.jspa?longAdvice=1&hospID=${inPatient.hospID}&year=${inPatient.year}",
                     "data": function (d) {//删除多余请求参数
@@ -338,7 +338,7 @@
                     }
                 },
 
-                scrollY: '60vh',
+                scrollY: '55vh',
                 "ajax": {
                     url: "/remark/getAdviceItemList.jspa?longAdvice=2&hospID=${inPatient.hospID}&year=${inPatient.year}",
                     "data": function (d) {//删除多余请求参数
@@ -490,6 +490,7 @@
             });
             var surgeryTable = $('#surgery-table').DataTable({
                 bAutoWidth: true,
+                dom:'t',
                 paging: false, searching: false, ordering: false, "destroy": true,
                 select: {style: 'single', selector: 'td:first-child :radio'},
                 "columns": [
@@ -543,7 +544,7 @@
             }
 
             var diagnosisTable = $('#diagnosis-table').DataTable({
-                bAutoWidth: false,
+                bAutoWidth: false,dom:'t',
                 paging: false, searching: false, ordering: false, "destroy": true, "info": false,
                 select: {style: 'multi', selector: 'td:first-child :checkbox'},
                 'columnDefs': [
@@ -709,7 +710,7 @@
                     success: function (response, textStatus) {
                         var items = JSON.parse(response);
                         if (items.length > 0) {
-                            var tpl = "<div class=\"col-xs-6\">检查日期：{{checkTime}}</div><div class=\"col-xs-6\">检查医生：{{checkDoc}}</div><div class=\"col-xs-12\">小结：{{diagnose}}</div>";
+                            var tpl = "<div class=\"col-xs-6\">检查日期：{{checkTime}}</div><div class=\"col-xs-6\">检查医生：{{checkDoc}}</div>";
                             $('#itemHead').html(Handlebars.compile(tpl)(items[0]));
                             var $tr = "";
                             $.each(items, function (index, item) {
@@ -1524,7 +1525,7 @@
                                             <div class="col-xs-9">
                                                 <div class="col-xs-12" id="itemHead">
                                                 </div>
-                                                <div class="col-xs-12  no-padding no-margin" style="overflow-y: auto;height: 550px ">
+                                                <div class="col-xs-12  no-padding no-margin" style="overflow-y: auto;height: 450px ">
                                                     <table id="lis-table" class="table table-striped table-bordered table-hover">
                                                         <thead>
                                                         <tr>
@@ -1543,7 +1544,7 @@
                                             </div>
                                         </div>
                                         <div id="pacsTab" class="tab-pane">
-                                            <div class="col-xs-12  no-padding no-margin" style="overflow-y: auto;height: 650px " id="pacsContent">
+                                            <div class="col-xs-12  no-padding no-margin" style="overflow-y: auto;height: 550px " id="pacsContent">
                                                 {{#each data}}
                                                 <div class="widget-box widget-color-purple" style="margin:0 0 10px 0"> <%-- widget-color-orange--%>
                                                     <div class="widget-header widget-header-small">

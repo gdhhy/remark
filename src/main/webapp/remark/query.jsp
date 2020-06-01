@@ -346,26 +346,24 @@
             <div class="col-xs-12 col-sm-12">
                 <label class=" control-label no-padding-right" for="form-type">门诊住院： </label>
                 <div class="input-group">
-                    <select id="form-type" class=" nav-search-input ace" style="font-size: 9px;color: black">
+                    <select id="form-type" class=" nav-search-input ace" style="color: black">
                         <option value="1" selected>门诊</option>
                         <option value="2">住院</option>
                     </select></div> &nbsp;&nbsp;&nbsp;
 
                 <label class="control-label no-padding-right" for="form-department">科室： </label>
                 <div class="input-group">
-                    <select id="form-department" class=" nav-search-input ace" style="font-size: 9px;color: black">
-                        <option value="1" selected>门诊</option>
-                        <option value="2">住院</option>
+                    <select id="form-department" class=" nav-search-input ace" style="color: black">
                     </select></div>&nbsp;&nbsp;&nbsp;
 
                 <div class="input-group">
-                    <select class="nav-search-input   ace" id="queryItem" name="queryItem" style="font-size: 9px;color: black">
+                    <select class="nav-search-input   ace" id="queryItem" name="queryItem" style="color: black">
                         <option value="hospID">门诊号</option>
                         <option value="doctorName">医生</option>
                         <option value="patientName">病人</option>
                     </select>&nbsp;
                     <input class="nav-search-input" type="text" id="queryField" name="queryField"
-                           style="width: 120px;font-size: 9px;color: black"
+                           style="width: 120px;color: black"
                            placeholder="处方号"/>
                 </div> &nbsp;&nbsp;&nbsp;
                 <label id="dateLabel">处方日期：</label>

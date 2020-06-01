@@ -1,4 +1,3 @@
-import com.sun.corba.se.impl.orbutil.concurrent.Sync
 
 apply plugin: 'java'
 apply plugin: 'war'
@@ -27,18 +26,18 @@ task copyJars(type: Copy) {
     into 'lib' // 目标位置
 }
 //Idea 2019.3.2 不会拷贝clases，临时添加
-task copyClasses(type: Copy,dependsOn: classes) {
+/*task copyClasses(type: Copy,dependsOn: classes) {
     from "$buildDir\\classes\\java\\main"
     into "$buildDir\\libs\\exploded\\remark-1.0-SNAPSHOT.war\\WEB-INF\\classes"
 
-    include('**/*.class')
+    include('** /*.class')
 }
 task copyResources(type: Copy,dependsOn: assemble) {
     from "$buildDir\\resources\\main"
     into "$buildDir\\libs\\exploded\\remark-1.0-SNAPSHOT.war\\WEB-INF\\classes"
 
-    include('**/*.xml')
-}
+    include('** /*.xml')
+}*/
 dependencies {
 
     compile group: 'org.mybatis', name: 'mybatis-spring', version: '2.0.4'

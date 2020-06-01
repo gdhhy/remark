@@ -128,6 +128,7 @@
                                     <div class="light-grey center">请使用<a href="soft/Chrome_Google_v49.0.2623.112.exe">Chrome</a>浏览器。
                                         <a href="http://168.168.168.6">旧版</a>，
                                         <a href="http://168.168.168.78:8080">亿通新版</a></div>
+                                    <div class="grey center">建议分辨率：1366x768 以上</div>
                                 </div><!-- /widget-main -->
                             </div><!-- /widget-body -->
                         </div><!-- /login-box -->
