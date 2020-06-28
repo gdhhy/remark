@@ -30,7 +30,7 @@ public class Infectious implements Serializable {
     private String diagnosisDate;
     private String diagnosisHour;
     private String deathDate;
-    private int infectiousClass;
+    private Integer infectiousClass;
     private String infectiousName;
     private String correctName;
     private String cancelCause;
@@ -46,7 +46,7 @@ public class Infectious implements Serializable {
     private String education;
     private String venerismHis;
     private String registerAddr;
-    private int touchHis ;
+    private Integer touchHis ;
     private String touchElse;
     private String infectRoute;
     private String sampleSource;
@@ -261,7 +261,7 @@ public class Infectious implements Serializable {
         this.deathDate = deathDate;
     }
 
-    public int getInfectiousClass() {
+    public Integer getInfectiousClass() {
         return infectiousClass;
     }
 
@@ -413,7 +413,7 @@ public class Infectious implements Serializable {
         this.registerAddr = registerAddr;
     }
 
-    public int getTouchHis() {
+    public Integer getTouchHis() {
         return touchHis;
     }
 

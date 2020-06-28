@@ -57,13 +57,10 @@ public class LoginController {
                 logger.debug("已登录");
                 model.addAttribute("loginSucceed", true);
                 model.addAttribute("loginName", ((UserDetails) principal).getUsername());
-                if (((UserDetails) principal).getAuthorities().contains(new SimpleGrantedAuthority("DOCTOR"))) {
-                 /*   User user = userMapper.getUserByLoginname(((UserDetails) principal).getUsername());
-                    model.addAttribute("user", user);
-                    model.addAttribute("hospitalName", configs.getProperty("hospitalName"));*/
+               /* if (((UserDetails) principal).getAuthorities().contains(new SimpleGrantedAuthority("DOCTOR"))) {
                     model.addAttribute("mainUrl", "ext5/doctor/index.jspa");
-                } else
-                    model.addAttribute("mainUrl", "index.jspa");
+                } else*/
+                model.addAttribute("mainUrl", "index.jspa");
             }
         }
         if (error != null) {

@@ -79,3 +79,7 @@ CREATE TABLE UntowardDrug (
 
 ALTER TABLE clinic ADD appealState INT DEFAULT 0;
 ALTER TABLE InPatient ADD appealState INT DEFAULT 0;
+
+
+alter table Untoward add workflow int;
+alter table Untoward add workflowNote varchar(255);

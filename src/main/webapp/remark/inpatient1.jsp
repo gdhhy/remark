@@ -119,7 +119,7 @@
             //console.log("saveJson:" + JSON.stringify(saveJson));
 
             var drugTable = $('#drugTable').DataTable({
-                bAutoWidth: false,
+                bAutoWidth: false,dom:'t',
                 language: {info: '', infoEmpty: '', sZeroRecords: '', emptyTable: ''},
                 paging: false, searching: false, ordering: false, "destroy": true,
                 'columnDefs': [
@@ -568,8 +568,8 @@
                     {"data": "surgeryID"},
                     {"data": "surgeryDate", "sClass": "center", defaultContent: ''},
                     {"data": "incision", "sClass": "center"},
-                    {"data": "surgeryName", "sClass": "center"},
-                    {"data": "healOver", "sClass": "center"}
+                    {"data": "surgeryName", "sClass": "center"}/*,
+                    {"data": "healOver", "sClass": "center"}*/
                 ],
 
                 'columnDefs': [
@@ -581,8 +581,8 @@
                     },
                     {"orderable": false, "targets": 1, title: '手术时间', width: 130},
                     {"orderable": false, "targets": 2, title: '切口类型'},
-                    {"orderable": false, "targets": 3, title: '操作名称'},
-                    {"orderable": false, "targets": 4, title: '愈合方式'}
+                    {"orderable": false, "targets": 3, title: '操作名称'}/*,
+                    {"orderable": false, "targets": 4, title: '愈合方式'}*/
                 ],
                 "aaSorting": [],
                 language: {

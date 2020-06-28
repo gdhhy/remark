@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Untoward">
+    <cache eviction="LRU" readOnly="false" flushInterval="86400000" size="10000"/>
+    <resultMap id="UntowardResult" type="com.zcreate.review.model.Untoward">
+        <result column="untowardID" jdbcType="INTEGER" property="untowardID"/>
+        <result column="objectID" jdbcType="INTEGER" property="objectID"/>
+        <result column="objectType" jdbcType="INTEGER" property="objectType"/>
+        <result column="untowardNo" jdbcType="VARCHAR" property="untowardNo"/>
+        <result column="untowardType" jdbcType="INTEGER" property="untowardType"/>
+        <result column="department" jdbcType="VARCHAR" property="department"/>
+        <result column="departPhone" jdbcType="VARCHAR" property="departPhone"/>
+        <result column="patientNo" jdbcType="VARCHAR" property="patientNo"/>
+        <result column="patientName" jdbcType="VARCHAR" property="patientName"/>
+        <result column="age" jdbcType="VARCHAR" property="age"/>
+        <result column="boy" jdbcType="INTEGER" property="boy"/>
+        <result column="birthDate" jdbcType="VARCHAR" property="birthDate"/>
+        <result column="nation" jdbcType="VARCHAR" property="nation"/>
+        <result column="weight" jdbcType="VARCHAR" property="weight"/>
+        <result column="patientLink" jdbcType="VARCHAR" property="patientLink"/>
+        <result column="disease" jdbcType="VARCHAR" property="disease"/>
+        <result column="historyUntoward" jdbcType="INTEGER" property="historyUntoward"/>
+        <result column="historyEvent" jdbcType="VARCHAR" property="historyEvent"/>
+        <result column="familyEvent" jdbcType="VARCHAR" property="familyEvent"/>
+        <result column="important" jdbcType="INTEGER" property="important"/>
+        <result column="allergicHistory" jdbcType="VARCHAR" property="allergicHistory"/>
+        <result column="otherInfo" jdbcType="VARCHAR" property="otherInfo"/>
+        <result column="eventName" jdbcType="VARCHAR" property="eventName"/>
+        <result column="eventTime" jdbcType="VARCHAR" property="eventTime"/>
+        <result column="eventHour" jdbcType="VARCHAR" property="eventHour"/>
+        <result column="eventDesc" jdbcType="VARCHAR" property="eventDesc"/>
+        <result column="eventResult" jdbcType="INTEGER" property="eventResult"/>
+        <result column="sequela" jdbcType="VARCHAR" property="sequela"/>
+        <result column="deadCause" jdbcType="VARCHAR" property="deadCause"/>
+        <result column="deadTime" jdbcType="VARCHAR" property="deadTime"/>
+        <result column="deadHour" jdbcType="VARCHAR" property="deadHour"/>
+        <result column="stopRetry" jdbcType="INTEGER" property="stopRetry"/>
+        <result column="diseaseEffect" jdbcType="INTEGER" property="diseaseEffect"/>
+        <result column="relevance" jdbcType="INTEGER" property="relevance"/>
+        <result column="relevanceSign1" jdbcType="VARCHAR" property="relevanceSign1"/>
+        <result column="relevanceSign2" jdbcType="VARCHAR" property="relevanceSign2"/>
+        <result column="declarerPhone" jdbcType="VARCHAR" property="declarerPhone"/>
+        <result column="declarerType" jdbcType="INTEGER" property="declarerType"/>
+        <result column="declarerDepart" jdbcType="VARCHAR" property="declarerDepart"/>
+        <result column="declarerTitle" jdbcType="VARCHAR" property="declarerTitle"/>
+        <result column="declarerEmail" jdbcType="VARCHAR" property="declarerEmail"/>
+        <result column="declarerSign" jdbcType="VARCHAR" property="declarerSign"/>
+        <result column="declarerUserID" jdbcType="INTEGER" property="declarerUserID"/>
+        <result column="declarerLink" jdbcType="VARCHAR" property="declarerLink"/>
+        <result column="declarerLinkPhone" jdbcType="VARCHAR" property="declarerLinkPhone"/>
+        <result column="declareDate" jdbcType="TIMESTAMP" property="declareDate"/>
+        <result column="doubtDrugJson" jdbcType="VARCHAR" property="doubtDrugJson"/>
+        <result column="parallelDrugJson" jdbcType="VARCHAR" property="parallelDrugJson"/>
+        <result column="course1" jdbcType="VARCHAR" property="course1"/>
+        <result column="course2" jdbcType="VARCHAR" property="course2"/>
+        <result column="course3" jdbcType="VARCHAR" property="course3"/>
+        <result column="course4" jdbcType="VARCHAR" property="course4"/>
+        <result column="course5" jdbcType="VARCHAR" property="course5"/>
+        <result column="course6" jdbcType="VARCHAR" property="course6"/>
+        <result column="course7" jdbcType="VARCHAR" property="course7"/>
+        <result column="course8" jdbcType="VARCHAR" property="course8"/>
+        <result column="course9" jdbcType="VARCHAR" property="course9"/>
+        <result column="course10" jdbcType="VARCHAR" property="course10"/>
+        <result column="courseInt" jdbcType="INTEGER" property="courseInt"/>
+        <result column="memo" jdbcType="VARCHAR" property="memo"/>
+        <result column="workflow" jdbcType="INTEGER" property="workflow"/>
+        <result column="workflowNote" jdbcType="VARCHAR" property="workflowNote"/>
+        <!--<association column="{userID=declarerUserID}" select="Sys_User.queryUser" property="declareUser"/>-->
+        <!--<collection column="objectID" select="Recipe.selectRecipe" property="recipe"/>-->
+        <!--<collection column="objectID" select="Clinic.selectClinic" property="clinic"/>-->
+    </resultMap>
+
+    <select id="selectUntoward" parameterType="int" resultMap="UntowardResult">
+        SELECT untowardID,objectID,objectType,untowardNo,untowardType,department,departPhone,patientNo,patientName,age,boy,birthDate,nation,weight,patientLink,disease,historyUntoward,historyEvent,familyEvent,
+        important,allergicHistory,otherInfo,eventName,eventTime,eventHour,eventDesc,eventResult,sequela,deadCause,deadTime,deadHour,stopRetry,diseaseEffect,relevance,
+        relevanceSign1,relevanceSign2,declarerPhone,declarerType,declarerDepart,declarerTitle,declarerEmail,declarerSign,declarerUserID,declarerLink,declarerLinkPhone,
+        declareDate,doubtDrugJson,parallelDrugJson,course1,course2,course3,course4,course5,course6,course7,course8,course9,course10,courseInt,memo,workflow,workflowNote
+        FROM Untoward where untowardID=#{untowardID:INTEGER}
+    </select>
+
+    <select id="selectUntowardList" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT untowardID,objectID,objectType,untowardNo,untowardType,department,departPhone,patientNo,patientName,age,boy,birthDate,nation,weight,patientLink,disease,historyUntoward,historyEvent,familyEvent,
+        important,allergicHistory,otherInfo,eventName,eventTime,eventHour,eventDesc,eventResult,sequela,deadCause,deadTime,deadHour,stopRetry,diseaseEffect,relevance,
+        relevanceSign1,relevanceSign2,declarerPhone,declarerType,declarerDepart,declarerTitle,declarerEmail,declarerSign,declarerUserID,declarerLink,declarerLinkPhone,
+        declareDate,doubtDrugJson,parallelDrugJson,course1,course2,course3,course4,course5,course6,course7,course8,course9,course10,courseInt,memo,workflow,workflowNote
+        FROM Untoward
+        <where>
+            <if test="declarerUserID> 0">AND declarerUserID=#{declarerUserID:INTEGER}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(notWorkflow)">AND workflow % 10 != #{notWorkflow:INTEGER}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(fromDate)">AND declareDate >= #{fromDate:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(toDate)">AND declareDate &lt; #{toDate:VARCHAR}</if>
+        </where>
+        order by declareDate desc
+    </select>
+
+    <insert id="insertUntoward" parameterType="com.zcreate.review.model.Untoward" flushCache="true">
+        INSERT INTO Untoward ( objectID,objectType,untowardNo,untowardType,department,departPhone,patientNo,patientName,age,boy,birthDate,
+        nation,weight,patientLink,disease,historyUntoward,historyEvent,familyEvent,
+        important,allergicHistory,otherInfo,eventName,eventTime,eventHour,eventDesc,
+        eventResult,sequela,deadCause,deadTime,deadHour,stopRetry,diseaseEffect,
+        relevance, relevanceSign1,relevanceSign2,declarerPhone,declarerType,declarerDepart,
+        declarerTitle,declarerEmail,declarerSign,declarerUserID,declarerLink,declarerLinkPhone,
+        doubtDrugJson,parallelDrugJson,course1,course2,course3,course4,course5,course6,course7,course8,course9,course10,courseInt,memo,workflow)
+        VALUES ( #{objectID:INTEGER}, #{objectType:INTEGER}, #{untowardNo:VARCHAR},
+        #{untowardType:INTEGER},#{department:VARCHAR},#{departPhone:VARCHAR},#{patientNo:VARCHAR},#{patientName:VARCHAR},#{age:VARCHAR},#{boy:INTEGER},#{birthDate:VARCHAR},
+        #{nation:VARCHAR}, #{weight:VARCHAR}, #{patientLink:VARCHAR}, #{disease:VARCHAR}, #{historyUntoward:INTEGER}, #{historyEvent:VARCHAR}, #{familyEvent:VARCHAR},
+        #{important:INTEGER},#{allergicHistory:VARCHAR}, #{otherInfo:VARCHAR}, #{eventName:VARCHAR}, #{eventTime:VARCHAR},#{eventHour:VARCHAR}, #{eventDesc:VARCHAR},
+        #{eventResult:INTEGER}, #{sequela:VARCHAR}, #{deadCause:VARCHAR}, #{deadTime:VARCHAR},#{deadHour:VARCHAR}, #{stopRetry:INTEGER}, #{diseaseEffect:INTEGER},
+        #{relevance:INTEGER}, #{relevanceSign1:VARCHAR}, #{relevanceSign2:VARCHAR}, #{declarerPhone:VARCHAR}, #{declarerType:VARCHAR}, #{declarerDepart:VARCHAR},
+        #{declarerTitle:VARCHAR}, #{declarerEmail:VARCHAR},#{declarerSign:VARCHAR}, #{declarerUserID:INTEGER}, #{declarerLink:VARCHAR}, #{declarerLinkPhone:VARCHAR},
+        #{doubtDrugJson:VARCHAR},#{parallelDrugJson:VARCHAR},#{course1:VARCHAR},#{course2:VARCHAR},#{course3:VARCHAR},#{course4:VARCHAR},#{course5:VARCHAR},#{course6:VARCHAR},
+        #{course7:VARCHAR},#{course8:VARCHAR},#{course9:VARCHAR},#{course10:VARCHAR},#{courseInt:INTEGER}, #{memo:VARCHAR} , #{workflow:INTEGER})
+        <selectKey resultType="int" order="AFTER" keyProperty="untowardID">
+            select @@IDENTITY as untowardID
+        </selectKey>
+    </insert>
+
+    <delete id="deleteUntoward" parameterType="int" flushCache="true">
+        DELETE Untoward WHERE untowardID = #{untowardID:INTEGER}
+    </delete>
+
+    <update id="updateUntoward" parameterType="com.zcreate.review.model.Untoward" flushCache="true">
+        update Untoward
+        <set>
+            <if test="untowardNo != null">untowardNo = #{untowardNo:VARCHAR},</if>
+            <if test="untowardType != null">untowardType = #{untowardType:INTEGER},</if>
+            <if test="department != null">department = #{department:VARCHAR},</if>
+            <if test="departPhone != null">departPhone = #{departPhone:VARCHAR},</if>
+            <if test="patientNo != null">patientNo = #{patientNo:VARCHAR},</if>
+            <if test="patientName != null">patientName = #{patientName:VARCHAR},</if>
+            <if test="age != null">age = #{age:VARCHAR},</if>
+            <if test="boy != null">boy = #{boy:INTEGER},</if>
+            <if test="birthDate != null">birthDate = #{birthDate:VARCHAR},</if>
+            <if test="nation != null">nation = #{nation:VARCHAR},</if>
+            <if test="weight != null">weight = #{weight:VARCHAR},</if>
+            <if test="patientLink != null">patientLink = #{patientLink:VARCHAR},</if>
+            <if test="disease != null">disease = #{disease:VARCHAR},</if>
+            <if test="historyUntoward != null">historyUntoward = #{historyUntoward:INTEGER},</if>
+            <if test="historyEvent != null">historyEvent = #{historyEvent:VARCHAR},</if>
+            <if test="familyEvent != null">familyEvent = #{familyEvent:VARCHAR},</if>
+            <if test="important != null">important = #{important:INTEGER},</if>
+            <if test="allergicHistory != null">allergicHistory = #{allergicHistory:VARCHAR},</if>
+            <if test="otherInfo != null">otherInfo = #{otherInfo:VARCHAR},</if>
+            <if test="eventName != null">eventName = #{eventName:VARCHAR},</if>
+            <if test="eventTime != null">eventTime = #{eventTime:VARCHAR},</if>
+            <if test="eventHour != null">eventHour = #{eventHour:VARCHAR},</if>
+            <if test="eventDesc != null">eventDesc = #{eventDesc:VARCHAR},</if>
+            <if test="eventResult != null">eventResult = #{eventResult:VARCHAR},</if>
+            <if test="sequela != null">sequela = #{sequela:VARCHAR},</if>
+            <if test="deadCause != null">deadCause = #{deadCause:VARCHAR},</if>
+            <if test="deadTime != null">deadTime = #{deadTime:VARCHAR},</if>
+            <if test="deadHour != null">deadHour = #{deadHour:VARCHAR},</if>
+            <if test="stopRetry != null">stopRetry = #{stopRetry:INTEGER},</if>
+            <if test="diseaseEffect != null">diseaseEffect = #{diseaseEffect:INTEGER},</if>
+            <if test="relevance != null">relevance = #{relevance:INTEGER},</if>
+            <if test="relevanceSign1 != null">relevanceSign1 = #{relevanceSign1:VARCHAR},</if>
+            <if test="relevanceSign2 != null">relevanceSign2 = #{relevanceSign2:VARCHAR},</if>
+            <if test="declarerPhone != null">declarerPhone = #{declarerPhone:VARCHAR},</if>
+            <if test="declarerType != null">declarerType = #{declarerType:INTEGER},</if>
+            <if test="declarerTitle != null">declarerTitle = #{declarerTitle:VARCHAR},</if>
+            <if test="declarerDepart != null">declarerDepart = #{declarerDepart:VARCHAR},</if>
+            <if test="declarerEmail != null">declarerEmail = #{declarerEmail:VARCHAR},</if>
+            <if test="declarerSign != null">declarerSign = #{declarerSign:VARCHAR},</if>
+            <if test="declarerUserID != null">declarerUserID = #{declarerUserID:INTEGER},</if>
+            <if test="declarerLink != null">declarerLink = #{declarerLink:VARCHAR},</if>
+            <if test="declarerLinkPhone != null">declarerLinkPhone = #{declarerLinkPhone:VARCHAR},</if>
+            <if test="declareDate != null">declareDate = #{declareDate:TIMESTAMP},</if>
+            <if test="doubtDrugJson != null">doubtDrugJson = #{doubtDrugJson:VARCHAR},</if>
+            <if test="parallelDrugJson != null">parallelDrugJson = #{parallelDrugJson:VARCHAR},</if>
+            <if test="course1 != null">course1 = #{course1:VARCHAR},</if>
+            <if test="course2 != null">course2 = #{course2:VARCHAR},</if>
+            <if test="course3 != null">course3 = #{course3:VARCHAR},</if>
+            <if test="course4 != null">course4 = #{course4:VARCHAR},</if>
+            <if test="course5 != null">course5 = #{course5:VARCHAR},</if>
+            <if test="course6 != null">course6 = #{course6:VARCHAR},</if>
+            <if test="course7 != null">course7 = #{course7:VARCHAR},</if>
+            <if test="course8 != null">course8 = #{course8:VARCHAR},</if>
+            <if test="course9 != null">course9 = #{course9:VARCHAR},</if>
+            <if test="course10 != null">course10 = #{course10:VARCHAR},</if>
+            <if test="courseInt != null">courseInt = #{courseInt:INTEGER},</if>
+            <if test="memo != null">memo = #{memo:VARCHAR},</if>
+            <if test="workflow != null">workflow = #{workflow:INTEGER},</if>
+            <if test="workflowNote != null">workflowNote = #{workflowNote:VARCHAR},</if>
+        </set>
+        WHERE untowardID = #{untowardID:INTEGER}
+    </update>
+</mapper>

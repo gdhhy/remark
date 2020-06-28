@@ -25,15 +25,15 @@
         var startDate = moment().month(moment().month() - 1).startOf('month');
         // var endDate = moment().month(moment().month() - 1).endOf('month');
 
-        var url = "/infectious/getInfectiousList.jspa";
+        var url = "/doctor/getInfectiousList.jspa";
         //var editor = new $.fn.dataTable.Editor({});
         //initiate dataTables plugin
         /*   console.log("INFECTIOUS_ROLE:
 
-        ${INFECTIOUS_ROLE}");
+        $ {INFECTIOUS_ROLE}");
         console.log("infectious.workflow:" +
 
-        ${infectious.workflow});*/
+        $ {infectious.workflow});*/
 
         $('.chooseDate').daterangepicker({
             'applyClass': 'btn-sm btn-success',
@@ -232,7 +232,7 @@
                 console.log("json:" + JSON.stringify(submitData));
                 $.ajax({
                     type: "POST",
-                    url: "/infectious/saveInfectious.jspa",
+                    url: "/doctor/saveInfectious.jspa",
                     data: JSON.stringify(submitData),//+ "&productImage=" + av atar_ele.get(0).src,
                     contentType: "application/json; charset=utf-8",
                     cache: false,
@@ -270,7 +270,7 @@
         });
 
         $('.btn-info').click(function () {
-            var submitUrl = "/infectious/setWorkflow.jspa?objectID=${infectious.infectiousID}&objectType=infectious&workflow=3&flowNote= ";
+            var submitUrl = "/doctor/setWorkflow.jspa?objectID=${infectious.infectiousID}&objectType=infectious&workflow=3&flowNote= ";
             console.log("url:" + submitUrl);
             $("#dialog-accept").removeClass('hide').dialog({
                 resizable: false,
@@ -312,7 +312,7 @@
         });
 
         $('.btn-danger').click(function () {
-            var submitUrl = "/infectious/setWorkflow.jspa?objectID=${infectious.infectiousID}&objectType=infectious&workflow=2&flowNote={0}";
+            var submitUrl = "/doctor/setWorkflow.jspa?objectID=${infectious.infectiousID}&objectType=infectious&workflow=2&flowNote={0}";
             //console.log("url:" + submitUrl);
             $("#dialog-reject").removeClass('hide').dialog({
                 resizable: false,
@@ -681,7 +681,7 @@
                         <div class="widget-body">
                             <div class="widget-main" style="padding-top: 0;padding-bottom:0">
                                 <div class="row">
-                                    <label class="col-lg-1 control-label no-padding-right light-red" for="infectiousClass"> 类别 </label>
+                                    <label class="col-lg-1 control-label no-padding-right light-red" for="infectiousClass"> 类别${infectious.infectiousClass} </label>
                                     <div class="col-lg-5">
                                         <select class="chosen-select2 form-control" id="infectiousClass" name="infectiousClass">
                                             <option value="0"<c:if test='${infectious.infectiousClass==0}'> selected</c:if>>甲类传染病</option>

@@ -4,10 +4,14 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.zcreate.ReviewConfig;
 import com.zcreate.rbac.web.DeployRunning;
+import com.zcreate.review.dao.InPatientDAO;
 import com.zcreate.review.dao.InfectiousDAO;
 import com.zcreate.review.dao.PatientInfoDAO;
+import com.zcreate.review.dao.UntowardDAO;
 import com.zcreate.review.model.Contagion;
+import com.zcreate.review.model.InPatient;
 import com.zcreate.review.model.Infectious;
+import com.zcreate.review.model.Untoward;
 import com.zcreate.security.pojo.User;
 import com.zcreate.util.DateJsonValueProcessor;
 import com.zcreate.util.DateUtils;
@@ -46,12 +50,16 @@ import static com.zcreate.remark.util.ControllerHelp.wrap;
 
 //update Sys_Role set homepage='ext5/doctor/index.jspx' where roleNo in('infectious','contagion');
 @Controller
-@RequestMapping("/infectious")
+@RequestMapping("/doctor")
 public class InfectiousController {
     private static String jasperDir = "WEB-INF" + File.separator + "classes" + File.separator + "jasperreport" + File.separator;
     static Logger logger = Logger.getLogger(InfectiousController.class);
     @Autowired
     private InfectiousDAO infectiousDao;
+    @Autowired
+    private UntowardDAO untowardDao;
+    @Autowired
+    private InPatientDAO inPatientDao;
     @Autowired
     private PatientInfoDAO patientInfoDao;
     @Autowired
@@ -87,7 +95,7 @@ public class InfectiousController {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserDetails) {
             UserDetails ud = (UserDetails) principal;
-
+            //logger.debug("ud.getAuthorities:" + ud.getAuthorities().toString());
             if (!ud.getAuthorities().contains(new SimpleGrantedAuthority("INFECTIOUS")) &&
                     !ud.getAuthorities().contains(new SimpleGrantedAuthority("protect")))
                 param.put("doctorUsername", ud.getUsername());
@@ -113,19 +121,59 @@ public class InfectiousController {
         //System.out.println("gson.toJson(modelMap) = " + gson.toJson(modelMap));
     }
 
+    @ResponseBody
+    @RequestMapping(value = "getUntowardList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String getUntowardList(@RequestParam(value = "fromDate", required = false) String fromDate,
+                                  @RequestParam(value = "toDate", required = false) String toDate,
+                                  @RequestParam(value = "queryItem", required = false) String queryItem,
+                                  @RequestParam(value = "queryField", required = false) String queryField,
+                                  @RequestParam(value = "start", required = false, defaultValue = "0") int start,
+                                  @RequestParam(value = "limit", required = false, defaultValue = "100") int limit,
+                                  @RequestParam(value = "workflowState", required = false, defaultValue = "-1") int workflowState) {
+        //ModelAndView modelView = new ModelAndView();
+        //Map<String, Object> modelMap = new HashMap<>();
+        Map<String, Object> param = new HashMap<>();
+
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            UserDetails ud = (UserDetails) principal;
+            //logger.debug("ud.getAuthorities:" + ud.getAuthorities().toString());
+            if (!ud.getAuthorities().contains(new SimpleGrantedAuthority("INFECTIOUS")) &&
+                    !ud.getAuthorities().contains(new SimpleGrantedAuthority("protect")))
+                param.put("doctorUsername", ud.getUsername());
+            else
+                param.put("notWorkflow", 0);//新建编辑的，管理员不看
+
+            param.put("queryItem", queryItem);
+            param.put("queryField", queryField);
+            param.put("workflowState", workflowState);
+            param.put("fromDate", fromDate);
+            param.put("toDate", DateUtils.nextDaySqlStr(toDate));
+            /*param.put("limit", limit);
+            param.put("start", start);*/
+
+            List<Map<String, Object>> infectiousList = untowardDao.getUntowardList(param);
+            return wrap(infectiousList);
+        }
+        return wrap(new ArrayList<Infectious>());
+    }
+
     @RequestMapping(value = "getInfectious", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String getInfectious(@RequestParam(value = "infectiousID") Integer infectiousID, ModelMap model) {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         UserDetails ud = (UserDetails) principal;
-        if (ud.getAuthorities().contains(new SimpleGrantedAuthority("INFECTIOUS")))
+        if (ud.getAuthorities().contains(new SimpleGrantedAuthority("INFECTIOUS"))) {
+            logger.debug("has INFECTIOUS_ROLE");
             model.addAttribute("INFECTIOUS_ROLE", true);
-        else
+        } else {
+            logger.debug("has't INFECTIOUS_ROLE");
             model.addAttribute("INFECTIOUS_ROLE", false);
+        }
 
         model.addAttribute("success", true);
         model.addAttribute("infectious", infectiousDao.getInfectious(infectiousID));
 
-        return "/infectious/infectious";
+        return "doctor/infectious";
     }
 
     @RequestMapping(value = "showInfectiousList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
@@ -138,7 +186,7 @@ public class InfectiousController {
                 model.addAttribute("INFECTIOUS_ROLE", true);
         }
 
-        return "/infectious/infectious_list";
+        return "doctor/infectious_list";
     }
 
     @RequestMapping(value = "showContagionList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
@@ -151,7 +199,20 @@ public class InfectiousController {
                 model.addAttribute("CONTAGION_ROLE", true);
         }
 
-        return "/infectious/contagion_list";
+        return "/doctor/contagion_list";
+    }
+
+    @RequestMapping(value = "showUntowardList", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String showUntowardList(ModelMap model) {
+        model.addAttribute("UNTOWARD_ROLE", false);
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            UserDetails ud = (UserDetails) principal;
+            if (ud.getAuthorities().contains(new SimpleGrantedAuthority("UNTOWARD")))
+                model.addAttribute("UNTOWARD_ROLE", true);
+        }
+
+        return "/doctor/untoward_list";
     }
 
     @RequestMapping(value = "/newInfectious", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
@@ -222,7 +283,72 @@ public class InfectiousController {
         model.addAttribute("success", true);
         model.addAttribute("infectious", infectious);
 
-        return "/infectious/infectious";
+        return "doctor/infectious";
+    }
+
+    @RequestMapping(value = "/newContagion", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String newContagion(@RequestParam(value = "patientID", required = false, defaultValue = "0") Integer patientID,
+                               @RequestParam(value = "hospID", required = false, defaultValue = "") String hospID,
+                               ModelMap model) {
+        Contagion contagion = new Contagion();
+
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            UserDetails ud = (UserDetails) principal;
+            if (ud.getAuthorities().contains(new SimpleGrantedAuthority("CONTAGION")))
+                model.addAttribute("CONTAGION_ROLE", true);
+            else
+                model.addAttribute("CONTAGION_ROLE", false);
+            User user;
+            if (ud instanceof User)
+                user = (User) ud;
+            else
+                user = userMapper.getUserByLoginname(((UserDetails) principal).getUsername());//自动登录的，只有UserDetail，不是User
+            contagion.setDoctorUserID(user.getUserID());
+        }
+        if (patientID > 0) {
+            contagion.sethospID(hospID);
+            Map<String, Object> patientInfo = patientInfoDao.getPatientInfo(patientID);
+            contagion.setPatientName((String) patientInfo.get("Name"));
+
+            contagion.setBoy("M".equals(patientInfo.get("SEX")) ? 1 : 0);
+        }
+        model.addAttribute("success", true);
+        model.addAttribute("contagion", contagion);
+
+        return "doctor/contagion";
+    }
+
+    @RequestMapping(value = "/newUntoward", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
+    public String newUntoward(@RequestParam(value = "patientID", required = false, defaultValue = "0") Integer patientID,
+                              @RequestParam(value = "hospID", required = false, defaultValue = "") Integer hospID,
+                              ModelMap model) {
+        Untoward untoward = new Untoward();
+
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            UserDetails ud = (UserDetails) principal;
+            model.addAttribute("UNTOWARD_ROLE", false);
+            if (ud.getAuthorities().contains(new SimpleGrantedAuthority("UNTOWARD")))
+                model.addAttribute("UNTOWARD_ROLE", true);
+        }
+        if (patientID > 0) {//住院
+            InPatient inPatient = inPatientDao.getInPatient(patientID, 0);
+            model.addAttribute("inPatient", inPatient);
+
+            untoward.setObjectID(hospID);
+            Map<String, Object> patientInfo = patientInfoDao.getPatientInfo(patientID);//住院的，门诊呢？
+            untoward.setPatientName((String) patientInfo.get("Name"));
+            untoward.setWeight((String) patientInfo.get("Weight"));
+            untoward.setBoy("M".equals(patientInfo.get("SEX")) ? 1 : 0);
+            //todo ...
+        } else {//门诊
+
+        }
+        model.addAttribute("success", true);
+        model.addAttribute("untoward", untoward);
+
+        return "doctor/untoward";
     }
 
     public JasperPrint getContagionJasperPrint(HashMap<String, Object> contagion) throws Exception {

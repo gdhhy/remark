@@ -286,6 +286,7 @@
                 modal: true,
                 title: userID == null ? "增加用户" : "设置用户",
                 title_html: true,
+                //destory:true,
                 buttons: [
                     {
                         html: "<i class='ace-icon fa  fa-pencil-square-o bigger-110'></i>&nbsp;保存",
