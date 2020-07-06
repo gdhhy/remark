@@ -31,6 +31,8 @@
 
 <!-- ace scripts -->
 <%--<script src="../assets/js/src/elements.scroller.js"></script>--%>
+<script src="../js/jquery.cookie.min.js"></script>
+<script src="../js/common.js"></script>
 <script src="../assets/js/ace.js"></script>
 <script src="../assets/js/ace-elements.js"></script>
 <script src="../assets/js/src/ace.widget-box.js"></script>
@@ -121,7 +123,9 @@
              showDialog("加载失败", "请检查数据或联系系统开发！");
              return;
          }*/
-        var saveJson = JSON.parse('${inPatient.review.reviewJson}'.replace('\n', '\\n'));
+        var saveJson = {};
+        if ('' !== '${inPatient.review.reviewJson}')
+            saveJson = JSON.parse('${inPatient.review.reviewJson}'.replace('\n', '\\n'));
         //var saveJson = JSON.parse('{"inPatientID":"1251","hospID":"2623","inPatientReviewID":"8904","reviewUser":"陈会玲","masterDoctor":"陈国优","基本情况":{"sex":"女","age":"69","weight":"","inHospital":"2020年03月12日","outHospital":"2020年03月19日"},"诊断":[{"diagnosisNo":"19808","type":"住院诊断","disease":"急性上消化道出血"},{"diagnosisNo":"22259","type":"住院诊断","disease":"十二指肠溃疡"},{"diagnosisNo":"22260","type":"住院诊断","disease":"重度贫血"},{"diagnosisNo":"22261","type":"住院诊断","disease":"幽门螺旋杆菌感染"},{"diagnosisNo":"22262","type":"住院诊断","disease":"肾结石"},{"diagnosisNo":"22263","type":"住院诊断","disease":"肝囊肿"},{"diagnosisNo":"22264","type":"住院诊断","disease":"脂肪肝"}],"细菌培养和药敏":{"micro":false,"micro_time":"","sample":"","germName":"","sensitiveDrug":""},"围手术期用药":{"incision":0,"surgery":false,"surgeryName":"","startTime":"","lastTime":"","beforeDrug":"0","afterDrug":"0","surgeryAppend":false},"长嘱":[],"临嘱":[],"用药情况":{"symptom":"","symptom2":""},"点评":{"review":"刘昌海：肾功能不全选用药物不适宜。患者年龄68岁，肌酐247umol/L，体重45kg，肌酐清除率为13.64ml/min，使用二甲双胍、阿卡波糖、双氯芬酸钠不适宜。肌酐清除率＜45ml/min禁用，肌酐清除率＜25ml/min禁用，晚期肾脏病避免使用双氯芬酸钠。\\n2、肾功能减退未按照肌酐清除率调整剂量不适宜。患者肌酐清除率为13.64ml/min，使用阿莫西林克拉维酸钾1.2g q8h不适宜，根据《国家抗微生物指南》肌酐清除率10~30ml/min时阿莫西林克拉维酸钾首剂1.2g 维持0.6g q12h","rational":"2"},"reviewType":0}');
         //左侧用药情况
         var longDrugTb = $('#longDrugTb').DataTable({
@@ -279,9 +283,11 @@
         });
 
         //导出
-        $('.btn-info').on('click', function (e) {
-            window.location.href = "getInPatientExcel0.jspa?inPatientID=${inPatient.inPatientID}";
-        });
+        /* $('.btn-info').on('click', function (e) {
+             window.location.href = "getInPatientExcel0.jspa?inPatientID=
+
+        ${inPatient.inPatientID}";
+        });*/
 
         var json = {
             inPatientID: '${inPatient.inPatientID}', hospID: '${inPatient.hospID}', inPatientReviewID: '${inPatient.review.inPatientReviewID}',
@@ -387,7 +393,7 @@
                 success: function (response, textStatus) {
                     showDialog(response.succeed ? "保存成功" : "保存失败", response.message);
                     if (response.succeed) {
-                        $('.btn-info').removeClass("hidden");
+                        //$('.btn-info').removeClass("hidden");
                         json.inPatientReviewID = response.inPatientReviewID;
                     }
                 },
@@ -396,12 +402,92 @@
                 },
             });
         });
+        $('.btn-info').on('click', function (e) {
+            showQuestionDialog("", "", "");
+        });
 
+        var kk = 0;
+        var drugTable = $("#drugTable");
+
+        function showQuestionDialog(selected, tableVar, rowNo) {
+            $('#tableVar').val(tableVar);
+            /*$("#shortDrugTb tr").find("td a[id='question']").editable();*/
+            $('#rowNo').val(rowNo);
+            //console.log('html2:' + $($('#tableVar').val()+' tr').find("td a[id='question']").html());
+            //console.log('rowNo:' + rowNo);
+
+            if (drugTable.find("tbody tr").length === 0 && kk === 0) {
+                kk = 1;
+                $.ajax({
+                    type: "GET",
+                    url: "/remark/getDrugList.jspa",
+                    data: {hospID:${inPatient.hospID}, year:${inPatient.year}},
+                    contentType: "application/json; charset=utf-8",
+                    cache: false,
+                    success: function (response, textStatus) {
+                        //var respObject = JSON.parse(response.data);
+                        if (response.data.length > 0)
+                            $.each(response.data, function () {
+                                console.log("itemID:" + this.adviceItemID);
+                                console.log("adviceDate:" + this.adviceDate);
+                                var $tr = ('<tr><td><input name="adviceItemID" type="checkbox" value="{0}" /></td>' +
+                                    '<td align="center">{1}</td>' +
+                                    '<td align="center">{2}</td>' +
+                                    '<td align="center">{3}</td>' +
+                                    '<td align="center">{4}</td>' +
+                                    '<td align="center">{5}</td>' +
+                                    '<td align="center">{6}</td>' +
+                                    '</tr>').format(this.adviceItemID, this.adviceDate === null ? '' : this.adviceDate, this.advice, this.quantity, this.frequency, this.usage);
+                                drugTable.append($tr);
+                            });
+
+                        setCheckQuestion($(selected).text());
+                    },
+                    error: function (response, textStatus) {/*能够接收404,500等错误*/
+                        $("#errorText").html(response.responseText);
+                        $("#dialog-error").removeClass('hide').dialog({
+                            modal: true,
+                            width: 600,
+                            title: "请求状态码：" + response.status,//404，500等
+                            buttons: [{
+                                text: "确定", "class": "btn btn-primary btn-xs", click: function () {
+                                    $(this).dialog("close");
+                                }
+                            }]
+                        });
+                    },
+                    complete: function (request, textStatus) {
+                        kk = 0;
+                    }
+                });
+            } else {
+                setCheckQuestion($(selected).text());
+            }
+            $('#drug-choose').modal({width: 1000});
+        }
+
+        function setCheckQuestion(selected) {
+            var selArr = [];
+            if (selected.indexOf(',') > 0)
+                selArr = selected.split(',');
+            else
+                selArr[0] = selected;
+            $("input:checkbox[name='dictNo']").each(function () {
+                var checked = false;
+                for (var t = 0; t < selArr.length; t++) {
+                    if (selArr[t].trim() === $(this).val()) {
+                        checked = true;
+                        break;
+                    }
+                }
+                $(this).attr("checked", checked);
+            });
+        }
 
         function fillout() {
             if (typeof (saveJson.基本情况) === 'undefined')
                 return;
-            $('.btn-info').removeClass("hidden");
+            // $('.btn-info').removeClass("hidden");
 
             //基本情况
             $('input:radio[name="form-field-radio-sex"][value="' + saveJson.基本情况.sex + '"]').prop("checked", "checked");
@@ -576,7 +662,7 @@
                                 <div class="col-xs-12" style="margin-top: 10px;">
                                     <div class="form-inline col-xs-6 no-padding no-margin">
                                         <label class="control-label" for="form-field-patientName" style="text-overflow:ellipsis; white-space:nowrap;">患者姓名：</label>
-                                        <input type="text" id="form-field-patientName" placeholder="患者姓名" class="no-padding" style="width: 100px"/>
+                                        <input type="text" id="form-field-patientName" placeholder="患者姓名" class="no-padding" style="width: 100px" value="${untoward.patientName}"/>
                                     </div>
 
                                     <div class="form-inline col-xs-6 no-padding no-margin">
@@ -588,9 +674,9 @@
                                 <div class="col-xs-12" style="margin-top: 10px;">
                                     <div class="form-inline col-xs-6 no-padding no-margin">
                                         <span class="lbl">性别：</span>
-                                        <input name="form-field-radio-unitType" type="radio" class="ace" checked value="男"/>
+                                        <input name="form-field-radio-unitType" type="radio" class="ace"<c:if test="${untoward.boy==1}"> checked</c:if>value="男"/>
                                         <span class="lbl">男</span><span class="space-4"></span>
-                                        <input name="form-field-radio-unitType" type="radio" class="ace" value="女"/>
+                                        <input name="form-field-radio-unitType" type="radio" class="ace"<c:if test="${untoward.boy!=1}"> checked</c:if> value="女"/>
                                         <span class="lbl">女</span>
                                     </div>
                                     <div class="form-inline col-xs-6 no-padding no-margin">
@@ -606,11 +692,11 @@
                                 <div class="col-xs-12" style="margin-top: 10px;">
                                     <div class="form-inline col-xs-4 no-padding no-margin">
                                         <label class="control-label" for="form-field-national" style="text-overflow:ellipsis; white-space:nowrap;">民族</label>
-                                        <input type="text" id="form-field-national" placeholder="民族" class="no-padding" style="width: 100px"/>
+                                        <input type="text" id="form-field-national" placeholder="民族" class="no-padding" value="${untoward.nation}" style="width: 100px"/>
                                     </div>
                                     <div class="form-inline col-xs-4 no-padding no-margin">
                                         <label class="control-label" for="form-field-weight" style="text-overflow:ellipsis; white-space:nowrap;">体重</label>
-                                        <input type="text" id="form-field-weight" placeholder="kg" class="no-padding" style="width: 60px;text-align: center"/>
+                                        <input type="text" id="form-field-weight" placeholder="kg" class="no-padding" value="${untoward.weight}" style="width: 60px;text-align: center"/>
                                         <label class="control-label" for="form-field-weight" style="text-overflow:ellipsis; white-space:nowrap;">kg</label>
                                     </div>
                                     <div class="form-inline col-xs-4 no-padding no-margin">
@@ -728,7 +814,13 @@
 
                         <div id="dropdown17" class="tab-pane in active">
                             <div class="well well-sm col-xs-12">
-                                <h6 class="green lighter">怀疑药品</h6>
+                                <span class="green lighter">怀疑药品</span>
+                                <div class="pull-right">
+                                    <button type="button" class="btn btn-sm btn-info">
+                                        选择
+                                        <i class="ace-icon fa fa-plus icon-on-right bigger-110"></i>
+                                    </button>
+                                </div>
                                 <div class="clearfix">
                                     <div class="pull-right tableTools-container"></div>
                                 </div>
@@ -748,7 +840,13 @@
                                 </table>
                             </div>
                             <div class="well well-sm col-xs-12">
-                                <h6 class="green lighter">并用药品</h6>
+                                <span class="green lighter">并用药品</span>
+                                <div class="pull-right">
+                                    <button type="button" class="btn btn-sm btn-info">
+                                        选择
+                                        <i class="ace-icon fa fa-plus icon-on-right bigger-110"></i>
+                                    </button>
+                                </div>
                                 <table id="shortDrugTb" class="table table-striped table-bordered table-hover">
                                     <thead class="thin-border-bottom">
                                     <tr>
@@ -1066,4 +1164,48 @@
 </div>
 <div id="dialog-error" class="hide alert" title="提示">
     <p id="errorText">保存失败，请稍后再试，或与系统管理员联系。</p>
+</div>
+<div id="drug-choose" class="modal fade" tabindex="-1">
+    <input id="tableVar" type="hidden"/>
+    <input id="rowNo" type="hidden"/>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header no-padding">
+                <div class="table-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        <span class="white">&times;</span>
+                    </button>
+                    <span>选择药品</span>
+                </div>
+            </div>
+
+            <div class="modal-body no-padding">
+
+                <table id="drugTable" class="table table-striped table-bordered table-hover no-margin-bottom no-border-top">
+                    <thead>
+                    <tr>
+                        <th class="col-xs-1">选择</th>
+                        <th class="col-xs-2" style="alignment: center">时间</th>
+                        <th class="col-xs-5">医嘱内容</th>
+                        <th class="col-xs-1">每次量</th>
+                        <th class="col-xs-1">频率</th>
+                        <th class="col-xs-1">当天量</th>
+                        <th class="col-xs-1">用法</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer no-margin-top">
+
+                <button class="btn btn-sm btn-warning pull-right" id="saveQuestionBtn">
+                    <i class="ace-icon fa fa-save"></i>
+                    确定
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
 </div>

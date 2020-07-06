@@ -261,7 +261,7 @@
                         {"orderable": false, "targets": 4, title: '姓名', width: 80},
                         {"orderable": false, "targets": 5, title: '性别', width: 45},
                         {"orderable": false, "targets": 6, title: '年龄', width: 60},
-                        {"orderable": false, "targets": 7, title: '诊断', width: 150},
+                        {"orderable": false, "targets": 7, title: '诊断', width: 150, defaultContent: ''},
                         {"orderable": false, "targets": 8, title: '当前科室', defaultContent: '', width: 120},
                         {"orderable": false, "targets": 9, title: '主管医生', defaultContent: '', width: 80}],
                     select: {

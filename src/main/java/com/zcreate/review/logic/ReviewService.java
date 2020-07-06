@@ -36,4 +36,6 @@ public interface ReviewService {
     boolean saveInPatientReview(InPatientReview review);
 
     List<AdviceItem> getAdviceItemList(Integer hospID, int longAdvice, String year);
+
+    List<AdviceItem> getDrugList(Integer hospID, String year);
 }

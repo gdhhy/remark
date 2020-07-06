@@ -1132,6 +1132,13 @@ public class RemarkController {
     }
 
     @ResponseBody //带这个返回json，不带返回jsp视图
+    @RequestMapping(value = "getDrugList", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
+    public String getDrugList(@RequestParam(value = "hospID") Integer hospID, @RequestParam(value = "year") String year) {
+        List<AdviceItem> adviceList = reviewService.getDrugList(hospID, year);
+        return wrap(adviceList);
+    }
+
+    @ResponseBody //带这个返回json，不带返回jsp视图
     @RequestMapping(value = "getSurgerys", method = RequestMethod.GET, produces = "application/json; charset=UTF-8")
     public String getSurgerys(@RequestParam(value = "hospID") Integer hospID) {
         List<HashMap<String, Object>> surgerys = inPatientDao.selectSurgery(hospID);

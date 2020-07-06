@@ -144,6 +144,9 @@ public class InPatientDAOImpl extends SqlSessionDaoSupport implements InPatientD
             return getSqlSession().selectList("AdviceItem.selectShortAdviceItem", param);
     }
 
+    public List<AdviceItem> selectDrug(Map param) {
+        return getSqlSession().selectList("AdviceItem.selectDrug", param);
+    }
 
     @SuppressWarnings("unchecked")
     public List<HashMap<String, Object>> selectSurgery(Integer hospID) {

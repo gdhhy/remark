@@ -484,6 +484,18 @@ public class ReviewServiceImpl implements ReviewService {
             }
         return inPatientItemList;
     }
+    public List<AdviceItem> getDrugList(Integer hospID,  String year) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("hospID", hospID);
+        param.put("AdviceItemTable", "AdviceItem_" + year);
+        List<AdviceItem> inPatientItemList = inPatientDao.selectDrug(param);
+        for (int i = 1; i < inPatientItemList.size(); i++) {
+            if (inPatientItemList.get(i).getGroupID().equals(inPatientItemList.get(i - 1).getGroupID())) {
+                inPatientItemList.get(i).setAdviceDate(null);
+            }
+        }
+        return inPatientItemList;
+    }
 
 /*  public int saveDiagnosis(Integer hospID, String diagnosisNos, String diseases) {
         String[] diagnosisNoArr = diagnosisNos.split(";");

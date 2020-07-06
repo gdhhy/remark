@@ -337,8 +337,12 @@ public class InfectiousController {
             model.addAttribute("inPatient", inPatient);
 
             untoward.setObjectID(hospID);
+            untoward.setPatientNo(inPatient.getHospNo());
+            untoward.setYear(inPatient.getYear());
+
             Map<String, Object> patientInfo = patientInfoDao.getPatientInfo(patientID);//住院的，门诊呢？
             untoward.setPatientName((String) patientInfo.get("Name"));
+            untoward.setNation((String) patientInfo.get("nation"));
             untoward.setWeight((String) patientInfo.get("Weight"));
             untoward.setBoy("M".equals(patientInfo.get("SEX")) ? 1 : 0);
             //todo ...

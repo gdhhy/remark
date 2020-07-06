@@ -21,7 +21,7 @@ public interface InPatientDAO {
 
     List<HashMap<String, Object>> getInPatientList(Map<String, Object> param);
 
-    com.zcreate.review.model.InPatient getInPatient(int inPatientID,int reviewType);
+    com.zcreate.review.model.InPatient getInPatient(int inPatientID, int reviewType);
 
     int getInPatientCount(Map param);
 
@@ -39,6 +39,8 @@ public interface InPatientDAO {
     List<HashMap<String, Object>> bypass(Map param);
 
     List<AdviceItem> getAdviceItemList(Map param);
+
+    List<AdviceItem> selectDrug(Map param);
 
     List<HashMap<String, Object>> getAdviceItemCount(Integer hospID);
 

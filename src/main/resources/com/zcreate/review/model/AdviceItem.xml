@@ -58,9 +58,9 @@
         <result column="adviceType" jdbcType="INTEGER" property="adviceType"/>
     </resultMap>-->
     <select id="selectLongAdviceItem" parameterType="java.util.Map" resultMap="AdviceItemResult">
-        SELECT M.antiClass, R.adviceItemID, R.hospID, R.longAdvice, R.adviceDate, replace(R.advice, '%', '﹪') advice,R.spec, R.adviceType, M.goodsID, R.doctorName, R.nurseName,
+        SELECT M.antiClass, R.adviceItemID, R.hospID, R.longAdvice, R.adviceDate, replace(R.advice, '%', '﹪') advice, R.spec, R.adviceType, M.goodsID, R.doctorName, R.nurseName,
                R.endDate, R.endDoctorName, R.endNurseName, R.quantity, R.unit, R.problemCode, R.problemDesc, R.frequency, R.usage, R.orderID, R.groupID, R.total,
-               M.matchInstrID                                                                                   instructionID, replace(M.chnName, '%', '﹪') medicineName,
+               M.matchInstrID                                                                                 instructionID, replace(M.chnName, '%', '﹪') medicineName,
                M.contents, M.medicineID, M.dose, M.producer
         FROM ${AdviceItemTable} R
                  LEFT JOIN Medicine M ON R.goodsID = M.goodsID
@@ -68,17 +68,27 @@
         ORDER BY R.groupID, R.orderID
     </select>
     <select id="selectShortAdviceItem" parameterType="java.util.Map" resultMap="AdviceItemResult">
-        SELECT M.antiClass, R.adviceItemID, R.hospID, R.longAdvice, R.adviceDate, replace(R.advice, '%', '﹪') advice,R.spec, R.adviceType, M.goodsID, R.doctorName, R.nurseName,
+        SELECT M.antiClass, R.adviceItemID, R.hospID, R.longAdvice, R.adviceDate, replace(R.advice, '%', '﹪') advice, R.spec, R.adviceType, M.goodsID, R.doctorName, R.nurseName,
                R.endDate, R.endDoctorName, R.endNurseName, R.quantity, R.unit, R.problemCode, R.problemDesc, R.frequency, R.usage, R.orderID, R.groupID, R.total,
-               M.matchInstrID                                                                                   instructionID, replace(M.chnName, '%', '﹪') medicineName,
+               M.matchInstrID                                                                                 instructionID, replace(M.chnName, '%', '﹪') medicineName,
                M.contents, M.medicineID, M.dose, M.producer
         FROM ${AdviceItemTable} R
                  LEFT JOIN Medicine M ON R.goodsID = M.goodsID
         WHERE R.hospID = #{hospID:INTEGER} AND R.longAdvice = 2
         ORDER BY R.groupID, R.orderID
     </select>
+    <select id="selectDrug" parameterType="java.util.Map" resultMap="AdviceItemResult">
+        SELECT M.antiClass, R.adviceItemID, R.hospID, R.longAdvice, R.adviceDate, replace(R.advice, '%', '﹪') advice, R.spec, R.adviceType, M.goodsID, R.doctorName, R.nurseName,
+               R.endDate, R.endDoctorName, R.endNurseName, R.quantity, R.unit, R.problemCode, R.problemDesc, R.frequency, R.usage, R.orderID, R.groupID, R.total,
+               M.matchInstrID                                                                                 instructionID, replace(M.chnName, '%', '﹪') medicineName,
+               M.contents, M.medicineID, M.dose, M.producer
+        FROM ${AdviceItemTable} R
+                 JOIN Medicine M ON R.goodsID = M.goodsID
+        WHERE R.hospID = #{hospID:INTEGER}
+        ORDER BY R.longAdvice, R.groupID, R.orderID
+    </select>
     <select id="selectSurgery" parameterType="int" resultType="java.util.HashMap">
-        SELECT surgeryID, hospID, inEmrID,no, surgeryName, incision, surgeryDate, operTime
+        SELECT surgeryID, hospID, inEmrID, no, surgeryName, incision, surgeryDate, operTime
         FROM Surgery
         WHERE hospID = #{hospID:INTEGER}
     </select>
@@ -102,73 +112,6 @@
     </select>
 
     <!--AdviceItemReview  ***********************-->
-   <!-- <insert id="insertAdviceItemReview" parameterType="com.zcreate.review.model.AdviceItemReview">
-        INSERT INTO AdviceItemReview (hospID, orderID, groupID, longAdvice,adviceType, problemCode, problemDesc,purpose,menstruum,frequency,usage)
-        VALUES (#{hospID:INTEGER}, #{orderID:INTEGER},#{groupID:INTEGER}, #{longAdvice:INTEGER}, #{adviceType:VARCHAR}, #{problemCode:VARCHAR}, #{problemDesc:VARCHAR},
-        #{purpose:INTEGER}, #{menstruum:VARCHAR},#{frequency:VARCHAR},#{usage:VARCHAR})
-        <selectKey resultType="int" order="AFTER" keyProperty="adviceItemReviewID">
-            select @@IDENTITY as adviceItemReviewID
-        </selectKey>
-    </insert>
-    <select id="selectLongAdviceItemReview" parameterType="java.util.Map" resultMap="AdviceItemReviewResult">
-        SELECT A.adviceItemReviewID, A.hospID, A.orderID, A.groupID, A.longAdvice, A.problemCode, A.problemDesc, A.purpose, A.menstruum, B.adviceDate, B.endDate,
-               replace(rtrim(B.advice), '%', '﹪')                                                                      advice,
-               A.frequency, CASE WHEN B.endDate IS NOT NULL THEN DATEDIFF(DD, B.adviceDate, B.endDate) + 1 ELSE -1 END dayNum, B.quantity
-        FROM AdviceItemReview A
-                 LEFT JOIN ${AdviceItemTable} B ON A.hospID = B.hospID AND A.orderID = B.orderID AND A.groupID = B.groupID
-        WHERE A.longAdvice = 1 AND A.hospID = #{hospID:INTEGER}
-    </select>
-    <select id="selectShortAdviceItemReview" parameterType="java.util.Map" resultMap="AdviceItemReviewResult">
-        SELECT A.adviceItemReviewID, A.hospID, A.orderID, A.groupID, A.longAdvice, A.problemCode, A.problemDesc, A.purpose, A.menstruum, B.adviceDate, B.endDate,
-               replace(rtrim(B.advice), '%', '﹪')                     advice,
-               A.frequency, DATEDIFF(DD, B.adviceDate, B.endDate) + 1 dayNum, B.quantity
-        FROM AdviceItemReview A
-                 LEFT JOIN ${AdviceItemTable} B ON A.hospID = B.hospID AND A.orderID = B.orderID AND A.groupID = B.groupID
-        WHERE A.longAdvice = 2 AND A.hospID = #{hospID:INTEGER}
-    </select>
-
-    <update id="updateAdviceItemReview" parameterType="com.zcreate.review.model.AdviceItemReview">
-        UPDATE AdviceItemReview
-        <set>
-            <if test="problemCode != null">problemCode = #{problemCode:VARCHAR},</if>
-            <if test="problemDesc != null">problemDesc = #{problemCode:VARCHAR},</if>
-            <if test="purpose != null">purpose = #{purpose:INTEGER},</if>
-            <if test="menstruum != null">menstruum = #{menstruum:VARCHAR},</if>
-        </set>
-        WHERE adviceItemReviewID = #{adviceItemReviewID:INTEGER}
-    </update>
-    <delete id="deleteAdviceItemReview" parameterType="java.util.Map">
-        delete AdviceItemReview where hospID =#{hospID:INTEGER}
-        <if test="@com.zcreate.util.Ognl@isNotEmpty(adviceItemReviewList)">
-            <foreach separator="," item="item" index="index" open=" and adviceItemReviewID not in (" close=")" collection="adviceItemReviewList">
-                #{item}
-            </foreach>
-        </if>
-    </delete>
-    <select id="selectAdviceItemCount" parameterType="java.util.Map" resultType="java.util.HashMap">
-        SELECT count(adviceItemID) itemCount, longAdvice
-        FROM ${AdviceItemTable}
-        WHERE hospID = #{hospID:INTEGER}
-        GROUP BY longAdvice
-    </select>-->
-    <!--诊断 Diagnosis -->
-   <!-- <insert id="insertDiagnosis" parameterType="java.util.Map">
-        insert into Diagnosis(hospID,type,diagnosisNo,disease,choose) values(#{hospID:INTEGER},#{type:INTEGER},#{diagnosisNo:VARCHAR},#{disease:VARCHAR},#{choose:INTEGER})
-        <selectKey resultType="int" order="AFTER" keyProperty="diagnosisID">
-            select @@IDENTITY as diagnosisID
-        </selectKey>
-    </insert>
-    <delete id="deleteDiagnosis" parameterType="java.util.Map">
-        delete
-        from Diagnosis
-        where hospID = #{hospID:INTEGER} and choose = #{choose:INTEGER}
-    </delete>
-    <select id="selectDiagnosis" parameterType="java.util.Map" resultType="java.util.Map">
-        select diagnosisID, hospID, type, diagnosisNo, disease, choose
-        from Diagnosis
-        where hospID = #{hospID:INTEGER}
-        order by diagnosisNo
-    </select>-->
     <select id="selectAdviceItemForExcel" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT max(M.chnName) chnName, sum(datediff(DD, I.adviceDate, I.endDate) + case when I.longAdvice=2 or datepart(hh,I.endDate)>10 then 1 else 0 end) dayNum,
         max(M.DDD) DDD, sum(I.quantity) quantity, total totalQuantity
@@ -177,15 +120,6 @@
         <if test="@com.zcreate.util.Ognl@isNotEmpty(antiClass)">and M.antiClass>0</if>
         group by I.goodsID
     </select>
-    <!--<select id="selectAdviceItemReviewForResearch" parameterType="string" resultMap="AdviceItemReviewResult">
-        SELECT A.adviceItemReviewID, A.hospID, A.orderID, A.longAdvice, A.problemCode, A.problemDesc, A.purpose, A.menstruum, B.adviceDate, B.endDate, replace(B.advice, '%', '﹪') inPatient,
-               B.adviceType,
-               CASE WHEN A.longAdvice = 2 OR B.endDate IS NOT NULL THEN DATEDIFF(DD, B.adviceDate, B.endDate) + 1 ELSE -1 END                                                        dayNum, B.quantity,
-               total                                                                                                                                                                 totalQuantity
-        FROM AdviceItemReview A
-                 LEFT JOIN ${AdviceItemTable} B ON A.hospID = B.hospID AND A.orderID = B.orderID
-        WHERE A.hospID = #{hospID:INTEGER} AND A.purpose > 0
-    </select>-->
 
     <delete id="deleteAdviceItemReviewForResearch" parameterType="com.zcreate.review.model.AntiResearch">
         delete AdviceItemReview where hospID =#{hospID:INTEGER} AND purpose>0
