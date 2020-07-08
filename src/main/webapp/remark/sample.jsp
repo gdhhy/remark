@@ -232,7 +232,7 @@
                     toDate: toDay.format("YYYY年MM月DD日"),
                     year: toDay.year(),
                     month: toDay.month(),
-                    department: departmentE.get(0).selectedIndex > 0 ? departmentE.children('option:selected').val() : "",
+                    department: departmentE.get(0).selectedIndex >= 0 ? departmentE.children('option:selected').val() : "",
                     western: $('#form-western').children('option:selected').val(),
                     name: $('#form-name').val(),
                     num: $('#form-number').val()
@@ -622,7 +622,7 @@
         sampleForm.find("#form-department,#form-doctor,#form-medicine,#form-dateRange").change(function () {
             /*var batchName = $('#form-type').children('option:selected').val() === "1" ? "门诊" : "住院";*/
             var batchName = "";
-            if (departmentE.get(0).selectedIndex > 0)
+            if (departmentE.get(0).selectedIndex >= 0)
                 batchName = departmentE.children('option:selected').val();
             if ($('#form-doctor').val() !== '')
                 batchName += (batchName === "" ? "" : "-") + $('#form-doctor').val();

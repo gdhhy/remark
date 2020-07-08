@@ -41,7 +41,7 @@
     </sql>
     <select id="selectRxDetail2Review" parameterType="java.util.Map" resultMap="RxDetailResult">
         SELECT R.rxDetailID,M.chnName medicineName,R.goodsID, R.eachQuantity,R.eachUnit,R.dayNum,R.usage, R.quantity,R.frequency,R.freqNum,
-               M.minunit unit, M.matchInstrID instructionID, R.dosage,R.spec,R.groupID,R.orderID ,R.audit,M.antiClass,M.producer,D.chnName generalName,M.dose,M.medicineID
+               R.unit, M.matchInstrID instructionID, R.dosage,R.spec,R.groupID,R.orderID ,R.audit,M.antiClass,M.producer,D.chnName generalName,M.dose,M.medicineID
         FROM ${RxDetailTable} R
         LEFT JOIN Medicine M ON R.goodsID=M.goodsID
         LEFT JOIN Drug D ON D.drugID=M.matchDrugID

@@ -18,6 +18,7 @@
         <result column="packUnit" jdbcType="VARCHAR" property="packUnit"/>
         <result column="minUnit" jdbcType="VARCHAR" property="minUnit"/>
         <result column="measureUnit" jdbcType="VARCHAR" property="measureUnit"/>
+        <result column="clinicUnit" jdbcType="VARCHAR" property="clinicUnit"/>
         <result column="minOfpack" jdbcType="INTEGER" property="minOfpack"/>
         <result column="matchDrugID" jdbcType="INTEGER" property="matchDrugID"/>
         <result column="matchInstrID" jdbcType="INTEGER" property="matchInstrID"/>
@@ -72,21 +73,21 @@
         </where>
     </sql>
     <select id="selectMedicine" parameterType="int" resultMap="RecordResult">
-        SELECT medicineID, no, goodsID, pinyin, healthNo, chnName, engName, dose, spec, price, contents, producer, insurance, packUnit, minUnit, measureUnit, minOfpack,
+        SELECT medicineID, no, goodsID, pinyin, healthNo, chnName, engName, dose, spec, price, contents, producer, insurance, packUnit, minUnit, measureUnit, clinicUnit,minOfpack,
                matchDrugID, matchInstrID, memo, western, route, injectRoute, antiClass, ddd, updateUser, updateTime, usageCounter, dealer, lastPurchaseTime, mental,
                maxDay, menstruum, isDelete, isStat, json
         FROM Medicine
         WHERE medicineID = #{medicineID:INTEGER}
     </select>
     <select id="selectMedicineByNo" parameterType="string" resultMap="RecordResult">
-        SELECT medicineID, no, goodsID, pinyin, healthNo, chnName, engName, dose, spec, price, contents, producer, insurance, packUnit, minUnit, measureUnit, minOfpack,
+        SELECT medicineID, no, goodsID, pinyin, healthNo, chnName, engName, dose, spec, price, contents, producer, insurance, packUnit, minUnit, measureUnit,clinicUnit, minOfpack,
                matchDrugID, matchInstrID, memo, western, route, injectRoute, antiClass, ddd, updateUser, updateTime, usageCounter, dealer, lastPurchaseTime, mental,
                maxDay, menstruum, isDelete, isStat, json
         FROM Medicine
         WHERE no = #{no:VARCHAR}
     </select>
     <select id="selectMedicineByGoodsID" parameterType="int" resultMap="RecordResult">
-        SELECT medicineID, no, goodsID, pinyin, healthNo, chnName, engName, dose, spec, price, contents, producer, insurance, packUnit, minUnit, measureUnit, minOfpack,
+        SELECT medicineID, no, goodsID, pinyin, healthNo, chnName, engName, dose, spec, price, contents, producer, insurance, packUnit, minUnit, measureUnit,clinicUnit, minOfpack,
                matchDrugID, matchInstrID, memo, western, route, injectRoute, antiClass, ddd, updateUser, updateTime, usageCounter, dealer, lastPurchaseTime, mental,
                maxDay, menstruum, isDelete, isStat, json
         FROM Medicine
@@ -95,7 +96,7 @@
     <select id="queryMedicine" parameterType="java.util.Map" resultMap="RecordResult">
         SELECT M.*,D.chnName generalName,I.chnName instructionName,H.chnName healthName FROM
         ( SELECT TOP ${limit} medicineID,no,goodsID,pinyin, healthNo,rtrim(chnName) chnName,engName,dose,spec,price,contents,producer,insurance,packUnit,minUnit,
-        measureUnit,minOfpack,matchDrugID,matchInstrID,memo,western,route,injectRoute,antiClass,ddd,updateUser,updateTime,usageCounter,base,dealer,lastPurchaseTime,
+        measureUnit,clinicUnit,minOfpack,matchDrugID,matchInstrID,memo,western,route,injectRoute,antiClass,ddd,updateUser,updateTime,usageCounter,base,dealer,lastPurchaseTime,
         mental,maxDay,menstruum,isDelete,isStat,json
         FROM
         (SELECT * FROM Medicine
@@ -115,7 +116,7 @@
     <select id="queryMedicineDesc" parameterType="java.util.Map" resultMap="RecordResult">
         SELECT M.*,D.chnName generalName,I.chnName instructionName,H.chnName healthName FROM
         ( SELECT TOP ${limit} medicineID,no,goodsID,pinyin, healthNo,rtrim(chnName) chnName,engName,dose,spec,price,contents,producer,insurance,packUnit,minUnit,
-        measureUnit,minOfpack,matchDrugID,matchInstrID,memo,western,route,injectRoute,antiClass,ddd,updateUser,updateTime,usageCounter,base,dealer,lastPurchaseTime,
+        measureUnit,clinicUnit,minOfpack,matchDrugID,matchInstrID,memo,western,route,injectRoute,antiClass,ddd,updateUser,updateTime,usageCounter,base,dealer,lastPurchaseTime,
         mental,maxDay,menstruum,isDelete,isStat,json
         FROM
         (SELECT * FROM Medicine
@@ -165,11 +166,11 @@
     </select>
     <insert id="insertMedicine" parameterType="com.zcreate.review.model.Medicine" flushCache="true">
         INSERT INTO Medicine
-        (no,pinyin,healthNo,chnName,engName,dose,spec,price,contents,producer,insurance,packUnit,minUnit,measureUnit,minOfpack,matchDrugID,matchInstrID,memo,western,
+        (no,pinyin,healthNo,chnName,engName,dose,spec,price,contents,producer,insurance,packUnit,minUnit,measureUnit,clinicUnit,minOfpack,matchDrugID,matchInstrID,memo,western,
         route,injectRoute,antiClass,base,ddd,dealer,mental,maxDay,menstruum,updateUser)
         VALUES ( #{no:VARCHAR}, #{pinyin:VARCHAR}, #{healthNo:VARCHAR}, #{chnName:VARCHAR}, #{engName:VARCHAR}, #{dose:VARCHAR}, #{spec:VARCHAR},
         #{price:DOUBLE},
-        #{contents:DOUBLE}, #{producer:VARCHAR}, #{insurance:INTEGER}, #{packUnit:VARCHAR}, #{minUnit:VARCHAR},#{measureUnit:VARCHAR}, #{minOfpack:INTEGER}, #{matchDrugID:INTEGER},
+        #{contents:DOUBLE}, #{producer:VARCHAR}, #{insurance:INTEGER}, #{packUnit:VARCHAR}, #{minUnit:VARCHAR},#{measureUnit:VARCHAR},#{clinicUnit:VARCHAR}, #{minOfpack:INTEGER}, #{matchDrugID:INTEGER},
         #{matchInstrID:INTEGER}, #{memo:VARCHAR},#{western:INTEGER}, #{route:INTEGER},#{injectRoute:INTEGER}, #{antiClass:INTEGER},#{base:INTEGER},#{ddd:FLOAT},
         #{dealer:VARCHAR},#{mental:INTEGER},{maxDay:INTEGER},{menstruum:INTEGER},#{updateUser:VARCHAR})
         <selectKey resultType="int" order="AFTER" keyProperty="medicineID">
