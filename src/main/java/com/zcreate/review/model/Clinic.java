@@ -44,6 +44,7 @@ public class Clinic implements Serializable {
     private String apothecaryName;
     private Integer western;
     private Integer copyNum;
+    private String memo;
 
     //----------------------基本统计
     private Integer drugNum;
@@ -394,5 +395,13 @@ public class Clinic implements Serializable {
 
     public void setIncompatibilitys(List<HashMap<String, Object>> incompatibilitys) {
         this.incompatibilitys = incompatibilitys;
+    }
+
+    public String getMemo() {
+        return memo;
+    }
+
+    public void setMemo(String memo) {
+        this.memo = memo;
     }
 }

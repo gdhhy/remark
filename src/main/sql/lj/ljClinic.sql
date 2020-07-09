@@ -16,12 +16,13 @@ BEGIN
   delete Rx where prescribeDate >= @fromDate and prescribeDate < @nextDate;
   SELECT @deleteRowCount = @@rowcount;
 
-  insert into Rx(hospID, rxNo, mzNo, prescribeDate, patientID, patientName, sex, age, nAge, department, diagnosis, doctorID, clinicType, copyNum, isWestern)
+  insert into Rx(hospID, rxNo, mzNo, prescribeDate, patientID, patientName, sex, age, nAge, department, diagnosis, doctorID, clinicType, copyNum, isWestern,Memo)
   SELECT A.mzRegID, A.RecipeId, A.MzRegNo, A.recipeTime, B.patID, A.name, case A.sex when '女' then 0 else 1 end,
-         A.BabyMonth, A.age, A.LocationName, D.IllDesc, A.DoctorId, case when C.Name is null then '普通门诊' else C.Name end, A.howMany, A.LsRepType
+         A.BabyMonth, A.age, A.LocationName, D.IllDesc, A.DoctorId, case when C.Name is null then '普通门诊' else C.Name end, A.howMany, A.LsRepType,E.memo
   from YBHis.LJHis.dbo.OuRecipeTemp A
          left join YBHis.LJHis.dbo.OuHosInfo B on A.RecipeNum = B.MzRegNo
          left join YBHis.LJHis.dbo.OuClincDiag D on A.MzRegID = D.MzRegID
+         left join YBHis.LJHis.dbo.OuRecipe E on A.MzRegID = E.MzRegID
          left join YBHis.LJHis.dbo.BsRegType C on C.ID = B.RegTypeId
   where (A.LsRepType = 1 or A.LsRepType = 2) and A.isBack = 0 and A.isIssue = 1 AND A.recipeTime >= @fromDate and A.recipeTime < @nextDate;
   /*2020-07-08

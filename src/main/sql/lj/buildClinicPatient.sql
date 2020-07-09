@@ -17,7 +17,9 @@ DECLARE
   @sqlString        varchar(8000),
   @sqlString2       varchar(8000),
   @sqlString3       varchar(8000),
-  @sqlString4       varchar(8000)
+  @sqlString4       varchar(8000),
+  @sqlString5       varchar(1000),
+  @sqlString6       varchar(1000)
 BEGIN
   IF (@logID = 0)
     EXEC monitorWriteTaskLog '重建门诊、住院数据', @beginTime, @endTime, @logID OUTPUT;
@@ -34,9 +36,9 @@ BEGIN
   SELECT @fromClinicID = CASE WHEN max(clinicID) IS NULL THEN 0 ELSE max(clinicID) END + 1 FROM Clinic;
 
   INSERT INTO Clinic (hospID, rxCount, mzNo, clinicDate, patientID, patientName, sex, age, department,
-                      diagnosis, money, doctorID, confirmNo, apothecaryNo, isWestern, clinicType, copyNum)
+                      diagnosis, money, doctorID, confirmNo, apothecaryNo, isWestern, clinicType, copyNum,memo)
   SELECT hospID, count(hospID) rxCount, max(mzNo), max(prescribeDate), max(patientID), max(patientName), max(sex), max(age), max(department),
-         max(diagnosis), 0, max(doctorID), max(confirmNo), max(apothecaryNo), isWestern, max(clinicType), max(copyNum)
+         max(diagnosis), 0, max(doctorID), max(confirmNo), max(apothecaryNo), isWestern, max(clinicType), max(copyNum), max(memo)
   FROM Rx
   WHERE isWestern > 0 AND hospID NOT IN (SELECT hospID FROM Clinic) AND valid = 1
   GROUP BY hospID, isWestern;
@@ -98,6 +100,14 @@ BEGIN
                     GROUP BY clinicID, LEFT(healthNo, 6)
                      --HAVING COUNT(LEFT(healthNo, 6)) > 1
                    ) B WHERE B.clinicID = P.clinicID ';
+
+  set @sqlString5 = ' UPDATE P SET clinicType = ''精神处方'' ' +
+                    'FROM ' + @rxDetailTable + ' R,   Clinic P, Medicine M ' +
+                    'WHERE R.clinicID=P.clinicID  and R.goodsID=M.goodsID and (M.mental=1 or M.mental=2) ';
+  set @sqlString6 = ' UPDATE P SET clinicType = ''麻醉处方'' ' +
+                    'FROM ' + @rxDetailTable + ' R,   Clinic P, Medicine M ' +
+                    'WHERE R.clinicID=P.clinicID  and R.goodsID=M.goodsID and M.mental=4 ';
+
   IF (@insertRowCount > 0) --按id范围更新，给importIntoReview调用，@endTime赋值getdate()
     BEGIN
       print 'exec by between clinicID';
@@ -105,6 +115,8 @@ BEGIN
       set @sqlString2 = @sqlString2 + ' AND P.clinicID BETWEEN ' + cast(@fromClinicID as varchar(10)) + ' AND ' + cast(@toClinicID as varchar(10));
       set @sqlString3 = @sqlString3 + ' AND P.clinicID BETWEEN ' + cast(@fromClinicID as varchar(10)) + ' AND ' + cast(@toClinicID as varchar(10));
       set @sqlString4 = @sqlString4 + ' AND P.clinicID BETWEEN ' + cast(@fromClinicID as varchar(10)) + ' AND ' + cast(@toClinicID as varchar(10));
+      set @sqlString5 = @sqlString5 + ' AND P.clinicID BETWEEN ' + cast(@fromClinicID as varchar(10)) + ' AND ' + cast(@toClinicID as varchar(10));
+      set @sqlString6 = @sqlString6 + ' AND P.clinicID BETWEEN ' + cast(@fromClinicID as varchar(10)) + ' AND ' + cast(@toClinicID as varchar(10));
     END
   ELSE --按时间范围更新
     IF (@beginTime < @endTime) --单独调用 @beginTime为开始时间，@endTime为结束时间
@@ -115,6 +127,8 @@ BEGIN
         set @sqlString3 = @sqlString3 + ' AND P.clinicDate BETWEEN ''' + @beginTime + ''' AND ''' + @nextDate + '''';
         --同种抗菌素      sameInjectAntiNum    sameOrallyAntiNum
         set @sqlString4 = @sqlString4 + ' AND P.clinicDate BETWEEN ''' + @beginTime + ''' AND ''' + @nextDate + '''';
+        set @sqlString5 = @sqlString5 + ' AND P.clinicDate BETWEEN ''' + @beginTime + ''' AND ''' + @nextDate + '''';
+        set @sqlString6 = @sqlString6 + ' AND P.clinicDate BETWEEN ''' + @beginTime + ''' AND ''' + @nextDate + '''';
       END
   /* select @sqlString as sql
    union all
@@ -131,6 +145,10 @@ BEGIN
   exec (@sqlString3);
   SELECT @updateRowCount = @updateRowCount + @@rowcount;
   exec (@sqlString4);
+  SELECT @updateRowCount = @updateRowCount + @@rowcount;
+  exec (@sqlString5);
+  SELECT @updateRowCount = @updateRowCount + @@rowcount;
+  exec (@sqlString6);
   SELECT @updateRowCount = @updateRowCount + @@rowcount;
 
   UPDATE P
@@ -181,10 +199,10 @@ BEGIN
                    'FROM InPatient R,' +
                    '  (SELECT S.hospID,' +
                    '      max(case when S.surgeryID>0 then 1 else 0 end) surgery,' +
-                   '      max(CASE WHEN S.incision = ''Ⅰ'' OR S.incision = ''Ⅰ'' THEN 1 ELSE 0 END) + max(CASE WHEN S.incision = ''Ⅱ''  OR S.incision = ''II'' THEN 2 ELSE 0 END) + ' +
-                   '        max(CASE WHEN S.incision = ''Ⅲ''  OR S.incision = ''III'' THEN 4 ELSE 0 END)+ max(CASE WHEN S.incision = ''Ⅰ'' OR S.incision = ''Ⅰ'' AND M.antiClass > 0 THEN 8 ELSE 0 END) + ' +-- 一类切口使用抗菌药
-                   '        max(CASE WHEN S.incision = ''Ⅰ'' OR S.incision = ''Ⅰ''  AND M.antiClass > 0 AND ' +
-                   '          ( advice LIKE ''%术前半小时%'' OR advice LIKE ''%术前30%'' OR advice LIKE ''%带入手术室%'') THEN 16 ELSE 0 END) incision, ' +-- 一类切口术前0.5-2小时预防用药  datediff(mi, I.adviceDate, S.surgeryDate) between 30 and 120 or
+                   '      max(CASE WHEN S.incision = ''Ⅰ'' THEN 1 ELSE 0 END) + max(CASE WHEN S.incision = ''Ⅱ''  THEN 2 ELSE 0 END) + max(CASE WHEN S.incision = ''Ⅲ''  THEN 4 ELSE 0 END)+
+                            max(CASE WHEN S.incision = ''Ⅰ'' AND M.antiClass > 0 THEN 8 ELSE 0 END) + ' +-- 一类切口使用抗菌药
+                   '        max(CASE WHEN S.incision = ''Ⅰ''  AND M.antiClass > 0 AND ' +
+                   '          (datediff(mi, I.adviceDate, S.surgeryDate) between 30 and 120 or advice LIKE ''%术前半小时%'' OR advice LIKE ''%术前30%'' OR advice LIKE ''%带入手术室%'') THEN 16 ELSE 0 END) incision, ' +-- 一类切口术前0.5-2小时预防用药
                    '      max(CASE WHEN (advice LIKE ''%涂片%'' OR advice LIKE ''%细菌培养%'') THEN 1 ELSE 0 END) checkItem0,' +----送检但不一定用抗菌药
                    '      max(CASE WHEN (advice LIKE ''%涂片%'' OR advice LIKE ''%细菌培养%'') and M.antiClass=1 THEN 2 ELSE 0 END) checkItem1,' +--非限制
                    '      max(CASE WHEN (advice LIKE ''%涂片%'' OR advice LIKE ''%细菌培养%'') and M.antiClass=2 THEN 4 ELSE 0 END) checkItem2,' +--microbeLimit 微生物送检限制级
@@ -197,9 +215,9 @@ BEGIN
                    '        LEFT JOIN Medicine M ON I.goodsID = M.goodsID' +
                    '   GROUP BY S.hospID) A ' +
                    'WHERE R.hospID = A.hospID AND (R.outDate BETWEEN ''' + @beginTime + ''' AND ''' + @nextDate + ''' ' +
-                   '                               OR R.hospID in (select hospID from Surgery where operTime between ''' + @beginTime + ''' AND ''' + @nextDate + ''') )';
+                   '                               OR R.hospID in (select hospID from Surgery where openTimer between ''' + @beginTime + ''' AND ''' + @nextDate + ''') )';
   -- OR outDate IS NULL
-  select @sqlString as 'sql5';
+  --select @sqlString as 'sql5';
   exec (@sqlString);
   SELECT @updateRowCount = @updateRowCount + @@rowcount;
   --药品金额、抗菌药金额
@@ -231,3 +249,4 @@ BEGIN
   EXEC monitorUpdateTaskLog @logID, 'buildClinicInPatient', 'InPatient', -1, -1, -1, @updateRowCount, @startTime;
 END;
 go
+

@@ -39,10 +39,13 @@
                     {"data": "clinicID", "sClass": "center"},
                     {"data": "clinicDate", "sClass": "center"},
                     {"data": "hospID", "sClass": "center"},
+                    {"data": "western", "sClass": "center"},
                     {"data": "patientName", "sClass": "center"},
                     {"data": "sex", "sClass": "center"},//4
                     {"data": "age", "sClass": "center"},
                     {"data": "diagnosis", "sClass": "center"},
+                    {"data": "money", "sClass": "center"},
+                    {"data": "memo", "sClass": "center"},
                     {"data": "department", "sClass": "center"},
                     {"data": "doctorName", "sClass": "center"},
                     {"data": "reviewDate", "sClass": "center"}
@@ -55,18 +58,25 @@
                     },
                     {"orderable": false, "targets": 1, title: '处方日期'},
                     {"orderable": false, "targets": 2, title: '门诊号'},
-                    {"orderable": false, "targets": 3, title: '病人姓名'},
                     {
-                        "orderable": false, "targets": 4, title: '性别', render: function (data) {
+                        "orderable": false, "targets": 3, title: '中西医', render: function (data) {
+                            return data === 1 ? "西药" : "中药";
+                        }
+                    },
+                    {"orderable": false, "targets": 4, title: '病人姓名'},
+                    {
+                        "orderable": false, "targets": 5, title: '性别', render: function (data) {
                             return data ? "男" : "女";
                         }
                     },
-                    {"orderable": false, "targets": 5, title: '年龄'},
-                    {"orderable": false, "targets": 6, title: '诊断'},
-                    {"orderable": false, "targets": 7, title: '科室'},
-                    {"orderable": false, "targets": 8, title: '医生'},
+                    {"orderable": false, "targets": 6, title: '年龄'},
+                    {"orderable": false, "targets": 7, title: '诊断'},
+                    {"orderable": false, "targets": 8, title: '金额'},
+                    {"orderable": false, "targets": 9, title: '备注'},
+                    {"orderable": false, "targets": 10, title: '科室'},
+                    {"orderable": false, "targets": 11, title: '医生'},
                     {
-                        "orderable": false, "targets": 9, title: '点评', width: 45, render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 12, title: '点评', width: 45, render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 '<a class="hasDetail" href="#" data-Url="/remark/viewClinic.jspa?clinicID={0}">'.format(row['clinicID']) +
                                 (data === null ? '<i class="ace-icon glyphicon glyphicon-pencil  bigger-130"></i>' : data.substring(0, 10)) +

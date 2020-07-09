@@ -49,6 +49,7 @@
                     {"data": "injectionNum", "sClass": "center"},//9
                     {"data": "baseDrugNum", "sClass": "center"},
                     {"data": "money", "sClass": "center"},
+                    {"data": "memo", "sClass": "center"},
                     {"data": "department", "sClass": "center"},
                     {"data": "doctorName", "sClass": "center"},/*
                     {"data": "confirmName", "sClass": "center"},//14
@@ -75,14 +76,15 @@
                     {"orderable": false, "targets": 9, title: '注射液', defaultContent: '', width: 60, render: renderBoolean},
                     {"orderable": false, "targets": 10, title: '基本', defaultContent: '', width: 45},
                     {"orderable": false, "targets": 11, title: '金额', defaultContent: '', width: 60},
-                    {"orderable": false, "targets": 12, title: '科室', defaultContent: ''},//, width: 70
-                    {"orderable": false, "targets": 13, title: '医生', defaultContent: '', width: 60},
+                    {"orderable": false, "targets": 12, title: '备注', defaultContent: '', width: 60},
+                    {"orderable": false, "targets": 13, title: '科室', defaultContent: ''},//, width: 70
+                    {"orderable": false, "targets": 14, title: '医生', defaultContent: '', width: 60},
                     /*{"orderable": false, "targets": 14, title: '审核', defaultContent: '', width: 60},
                     {"orderable": false, "targets": 15, title: '配药', defaultContent: '', width: 60},*/
-                    {"orderable": false, "targets": 14, title: '合理', defaultContent: '', width: 45, render: renderYES},
-                    {"orderable": false, searchable: false, "targets": 15, title: '问题代码', width: 50, defaultContent: ''},
+                    {"orderable": false, "targets": 15, title: '合理', defaultContent: '', width: 45, render: renderYES},
+                    {"orderable": false, searchable: false, "targets": 16, title: '问题代码', width: 50, defaultContent: ''},
                     {
-                        "orderable": false, "targets": 16, title: '点评', width: 45, render: function (data, type, row, meta) {
+                        "orderable": false, "targets": 17, title: '点评', width: 45, render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 '<a class="hasDetail" href="#" data-Url="/remark/viewClinic.jspa?clinicID={0}">'.format(row['clinicID']) +
                                 (data === undefined ? '<i class="ace-icon glyphicon glyphicon-pencil  bigger-130"></i>' : data.substring(0, 10)) +

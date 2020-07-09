@@ -52,17 +52,18 @@ BEGIN
   );
   --主体数据
   insert into #Medicine(goodsID, no, pinyin, ChnName, engName, dose, spec, price, Western, contents, mental,
-                        antiClass, producer, injection, base, packUnit, minUnit,clinicUnit, authCode, json, insurance)
+                        antiClass, producer, injection, base, packUnit, minUnit, clinicUnit, authCode, json, insurance)
   select A.id, A.code, A.pycode, A.Name, A.engdesc, E.name, A.spec, A.priceIn,
-         case A.lsRpType when 1 then 3 when 2 then 1 when 3 then 4 end                              as western,
+         case A.lsRpType when 1 then 3 when 2 then 1 when 3 then 4 end                               as western,
          --A.lsRpType,--处方项目：1-中成药；2-西药；3-中药；4-检验；5-检查；6-手术；7-治疗；8-床位；9-其他；10
          --OuRecipeTemp.LsRepType 1-西药，2：中药u
          A.LimitTotalMz,
-         case when B.IsMental = 1 then 1 when B.IsAnaes = 1 then 4 end                              as mental, B.IsAntiBacterial, C.name producer, B.IsInject,
-         case when IsSpecSum = 1 then 3 when OptionPrice = 1 then 2 else 0 end                      as base,--省基3，国基2
+         case when B.IsMental = 1 then 1 when B.IsSecMental = 2 then 1 when B.IsAnaes = 1 then 4 end as mental,
+         B.IsAntiBacterial, C.name                                                                      producer, B.IsInject,
+         case when IsSpecSum = 1 then 3 when OptionPrice = 1 then 2 else 0 end                       as base,--省基3，国基2
          B.UnitKc, A.UnitTakeId, A.UnitDiagId, B.passNo,
          '{"批准文号":"' + B.passNo + '","药品来源":"' +
-         case B.LsImport when 1 then '进口药' when 2 then '合资药' when 3 then '国产药' else '不明' end + '"}' as json,
+         case B.LsImport when 1 then '进口药' when 2 then '合资药' when 3 then '国产药' else '不明' end + '"}'  as json,
          D.LsYbType
   from YBHis.LJHis.dbo.BsItem A
          left join YBHis.LJHis.dbo.BsItemDrug B ON A.ID = B.itemID
@@ -104,9 +105,9 @@ BEGIN
 
   -- 新增部分
   INSERT INTO Medicine (updateTime, goodsID, no, pinyin, ChnName, engName, dose, spec, price, western, contents, mental, antiClass, producer, injection,
-                        base, packUnit, minUnit,clinicUnit, authCode, json, lastPurchaseTime)
+                        base, packUnit, minUnit, clinicUnit, authCode, json, lastPurchaseTime)
   SELECT getdate(), goodsID, no, pinyin, ChnName, engName, dose, spec, price, Western, contents, mental, antiClass, producer, injection,
-         base, packUnit, minUnit,clinicUnit, authCode, json, lastPurchaseTime
+         base, packUnit, minUnit, clinicUnit, authCode, json, lastPurchaseTime
   FROM #Medicine
   WHERE goodsID NOT IN (SELECT goodsID FROM Medicine);
   SELECT @insertRowCount = @@rowcount;

@@ -325,7 +325,7 @@
                                                         </c:choose>
                                                         &nbsp;&nbsp;&nbsp; <i>${detail.spec}</i>
                                                     </td>
-                                                    <c:if test="${detail.incompatibility==1}">
+                                                    <c:if test="${detail.incompatibility}">
                                                         <td onmouseout="hiddenPic();" onmousemove="showPic('${detail.taboo}');">
                                                             <span style="color:#ee0000;">${detail.quantity}${detail.unit} &nbsp;
                                                                 (<fmt:formatNumber pattern="0.#" value="${detail.eachQuantity}"/> ${detail.eachUnit}／次)
@@ -333,7 +333,7 @@
                                                             </span>
                                                         </td>
                                                     </c:if>
-                                                    <c:if test="${detail.incompatibility!=1}">
+                                                    <c:if test="${!detail.incompatibility}">
                                                         <td>${detail.quantity} ${detail.unit} &nbsp;
                                                             (<fmt:formatNumber pattern="0.#" value="${detail.eachQuantity}"/> ${detail.eachUnit}／次)
                                                             　${detail.frequency}

@@ -25,6 +25,7 @@
         <result column="confirmName" jdbcType="VARCHAR" property="confirmName"/>
         <result column="apothecaryName" jdbcType="VARCHAR" property="apothecaryName"/>
         <result column="isWestern" jdbcType="INTEGER" property="western"/>
+        <result column="memo" jdbcType="INTEGER" property="memo"/>
         <result column="copyNum" jdbcType="INTEGER" property="copyNum"/>
 
         <result column="drugNum" jdbcType="DOUBLE" property="drugNum"/>
@@ -110,12 +111,12 @@
     <select id="selectClinicList" parameterType="java.util.Map" resultMap="ClinicResult">
         SELECT TOP ${limit}
         clinicID, hospID,mzNo, rxCount, clinicType, clinicDate,patientName, sex, age, department, diagnosis, money, doctorID, confirmNo, apothecaryNo,
-        isWestern,copyNum, doctorName, confirmName, apothecaryName, drugNum, baseDrugNum, baseDrugMoney, antiNum, antiMoney, insuranceMoney, sameAntiNum,
+        isWestern,memo,copyNum, doctorName, confirmName, apothecaryName, drugNum, baseDrugNum, baseDrugMoney, antiNum, antiMoney, insuranceMoney, sameAntiNum,
         injectionAntiNum, injectionAntiMoney, orallyAntiNum, orallyAntiMoney, injectionNum, sameInjectAntiNum, sameOrallyAntiNum, specAntiMoney, reviewDate,
         reviewUser, publish, result, appealState, disItem, rational
         FROM (SELECT C.clinicID, C.hospID,C.mzNo, C.rxCount, C.clinicType, C.clinicDate,C.patientName, C.sex, C.age, C.department, C.diagnosis, C.money, C.doctorID, C.confirmNo,
         C.apothecaryNo,
-        C.isWestern,C.copyNum, C.doctorName, C.confirmName, C.apothecaryName, C. drugNum, C.baseDrugNum, C.baseDrugMoney, C.antiNum, C.antiMoney, C.insuranceMoney, C.sameAntiNum,
+        C.isWestern,C.memo,C.copyNum, C.doctorName, C.confirmName, C.apothecaryName, C. drugNum, C.baseDrugNum, C.baseDrugMoney, C.antiNum, C.antiMoney, C.insuranceMoney, C.sameAntiNum,
         C.injectionAntiNum, C.injectionAntiMoney, C.orallyAntiNum, C.orallyAntiMoney, C.injectionNum, C.sameInjectAntiNum, C.sameOrallyAntiNum, C.specAntiMoney, C.reviewDate,
         C.reviewUser, C.publish, C.result, C.appealState, C.disItem, C.rational FROM Clinic C
         <if test="goodsID>0">
@@ -141,7 +142,7 @@
         ORDER BY ${orderField} DESC
     </select>
     <select id="selectClinic" parameterType="int" resultMap="ClinicResult">
-        SELECT clinicID, hospID, mzNo, rxCount, clinicType, clinicDate, patientName, sex, age, department, diagnosis, money, doctorID, confirmNo, apothecaryNo, isWestern, copyNum,
+        SELECT clinicID, hospID, mzNo, rxCount, clinicType, clinicDate, patientName, sex, age, department, diagnosis, money, doctorID, confirmNo, apothecaryNo, isWestern,memo, copyNum,
                doctorName, confirmName, apothecaryName, drugNum, baseDrugNum, baseDrugMoney, antiNum, antiMoney, insuranceMoney, sameAntiNum, injectionAntiNum, injectionAntiMoney,
                orallyAntiNum, orallyAntiMoney, injectionNum, sameInjectAntiNum, sameOrallyAntiNum, specAntiMoney, reviewDate, reviewUser, publish, result, appealState, disItem, rational
         FROM Clinic
@@ -184,7 +185,7 @@
     </select>
     <select id="selectClinicInID" parameterType="java.util.Collection" resultMap="ClinicResult">
         SELECT DISTINCT
-        clinicID,hospID,mzNo,rxCount,clinicType,clinicDate,patientName,sex,age,department,diagnosis,money,doctorID,confirmNo,apothecaryNo,isWestern,copyNum,doctorName,confirmName,
+        clinicID,hospID,mzNo,rxCount,clinicType,clinicDate,patientName,sex,age,department,diagnosis,money,doctorID,confirmNo,apothecaryNo,isWestern,memo,copyNum,doctorName,confirmName,
         apothecaryName, drugNum,baseDrugNum,baseDrugMoney,antiNum,antiMoney,insuranceMoney,sameAntiNum,injectionAntiNum,injectionAntiMoney,orallyAntiNum,orallyAntiMoney,injectionNum,
         sameInjectAntiNum,sameOrallyAntiNum,specAntiMoney,reviewDate,reviewUser,publish,result,appealState,disItem,rational
         FROM Clinic
