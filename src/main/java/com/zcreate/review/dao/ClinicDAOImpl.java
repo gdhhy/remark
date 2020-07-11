@@ -116,6 +116,11 @@ public class ClinicDAOImpl extends SqlSessionDaoSupport implements ClinicDAO, Se
     }
 
     @SuppressWarnings("unchecked")
+    public List<HashMap<String, Object>> selectClinicForExcel(Map param) {
+        return getSqlSession().selectList("Clinic.selectClinicForExcel", param);
+    }
+
+    @SuppressWarnings("unchecked")
     public List<HashMap<String, Object>> getReviewStat(Map param) {
         if (reviewConfig.getDeployLocation().contains("xf"))
             param.put("largeAmount", 150);

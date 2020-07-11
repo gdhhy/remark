@@ -71,7 +71,7 @@
                     },
                     {"orderable": false, "targets": 6, title: '年龄'},
                     {"orderable": false, "targets": 7, title: '诊断'},
-                    {"orderable": false, "targets": 8, title: '金额'},
+                    {"orderable": true, "targets": 8, title: '金额'},
                     {"orderable": false, "targets": 9, title: '备注'},
                     {"orderable": false, "targets": 10, title: '科室'},
                     {"orderable": false, "targets": 11, title: '医生'},
@@ -93,7 +93,7 @@
                     url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), "", "", "", "", "", ""),
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
-                            if (key.indexOf("columns") === 0 || key.indexOf("order") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
+                            if (key.indexOf("columns") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
                                 delete d[key];
                     }
                 },
@@ -238,6 +238,15 @@
                 ).load();
             }
         });
+        $('.btn-info').click(function () {//excel导出
+            if ($('#form-type').val() === '1') {
+                var excelUrl = "/excel/getTopClinic.jspa?fromDate={0}&toDate={1}&queryItem={2}&queryField={3}&goodsID={4}&goodsID2={5}&department={6}&amount={7}&order[0][column]=8&order[0][dir]=desc"
+                    .format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), $('#queryItem').val(), $('#queryField').val(),
+                        $('#form-goodsID').val(), $('#form-goodsID2').val(), $('#form-department').val() ? $('#form-department').val() : "", $('#form-amount').val());
+
+                window.location.href = excelUrl;
+            }
+        });
 
         $('#form-type').on('change', function (e) {
             if (this.selectedIndex === 0) {
@@ -248,6 +257,8 @@
                 $("#queryItem option:first").attr("selected", true);
                 $("#dateLabel").html("处方日期：");
                 //$("#queryItem option:first").val("门诊号");
+
+                $('.btn-info').attr("disabled", false);
             } else {
                 $('#dt').addClass("hide");
                 $('#dt2').removeClass("hide");
@@ -255,6 +266,8 @@
                 $("#queryItem").prepend("<option value='hospNo'>住院号</option>");
                 $("#queryItem option:first").attr("selected", true);
                 $("#dateLabel").html("出院日期：");
+
+                $('.btn-info').attr("disabled", true);
             }
             $('#queryField').attr("placeholder", $("#queryItem option:first").text());
             loadDepartment(this.selectedIndex + 1);
@@ -406,7 +419,11 @@
                 </div>&nbsp;&nbsp;&nbsp;
                 <label class=" control-label no-padding-right" for="form-amount">药品金额： </label>
                 <input class="form-control nav-search-input" name="form-amount" id="form-amount"
-                       style="color: black;width:80px"/>
+                       style="color: black;width:80px"/>&nbsp;&nbsp;&nbsp;
+                <button type="button" class="btn btn-sm btn-info">
+                    导出
+                    <i class="ace-icon fa fa-file-excel-o icon-on-right bigger-100"></i>
+                </button>
             </div>
         </form>
     </div><!-- /.page-header -->

@@ -78,8 +78,8 @@
                 <when test="@com.zcreate.util.Ognl@isNotEmpty(antiDrugNum)">AND P.concurAntiNum=#{antiDrugNum:INTEGER}</when>
                 <when test="@com.zcreate.util.Ognl@isNotEmpty(atLeastAntiDrugNum)">AND P.concurAntiNum>#{atLeastAntiDrugNum:INTEGER}</when>
             </choose>
-            <if test="medicine1>0">AND P.hospID IN(SELECT DISTINCT hospID FROM ${AdviceItemTable} R WHERE R.goodsID=#{medicine1:INTEGER})</if>
-            <if test="medicine2>0">AND P.hospID IN(SELECT DISTINCT hospID FROM ${AdviceItemTable} R WHERE R.goodsID=#{medicine2:INTEGER})</if>
+            <!-- <if test="goodsID>0">AND P.hospID IN(SELECT DISTINCT hospID FROM ${AdviceItemTable} R WHERE R.goodsID=#{goodsID:INTEGER})</if>
+             <if test="goodsID2>0">AND P.hospID IN(SELECT DISTINCT hospID FROM ${AdviceItemTable} R WHERE R.goodsID=#{goodsID2:INTEGER})</if>-->
 
             <if test="@com.zcreate.util.Ognl@isNotEmpty(oldFolks)">AND P.dAge > 60</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(children)">AND P.dAge &lt;= 14</if>
@@ -130,6 +130,10 @@
     <!--产生随机抽样-->
     <select id="selectRandomInPatientID" parameterType="java.util.Map" resultType="int">
         SELECT TOP ${limit} inPatientID FROM InPatient P
+        <if test="goodsID>0">
+            LEFT JOIN (select hospID,goodsID from ${AdviceItemTable1}
+            union select hospID,goodsID from ${AdviceItemTable2}) A ON P.hospID = A.hospID
+        </if>
         <include refid="queryWhere"/>
         ORDER BY newid() DESC
     </select>
@@ -137,6 +141,10 @@
     <!--取全部adviceID，作为数列，然后等差抽样-->
     <select id="selectInPatientIDForLinear" parameterType="java.util.HashMap" resultType="int">
         SELECT inPatientID FROM InPatient P
+        <if test="goodsID>0">
+            LEFT JOIN (select hospID,goodsID from ${AdviceItemTable1}
+            union select hospID,goodsID from ${AdviceItemTable2}) A ON P.hospID = A.hospID
+        </if>
         <include refid="queryWhere"/>
         ORDER BY inDate
     </select>

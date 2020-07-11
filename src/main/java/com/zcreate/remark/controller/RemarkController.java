@@ -1029,6 +1029,8 @@ public class RemarkController {
                                 @RequestParam(value = "goodsID2", required = false, defaultValue = "") String goodsID2,
                                 @RequestParam(value = "queryItem", required = false) String queryItem,
                                 @RequestParam(value = "queryField", required = false) String queryField,
+                                @RequestParam(value = "order[0][column]", required = false) String orderField,
+                                @RequestParam(value = "order[0][dir]", required = false, defaultValue = "desc") String orderDir,
                                 @RequestParam(value = "department", required = false) String department,
                                 @RequestParam(value = "amount", required = false) Integer amount,
                                 @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
@@ -1055,7 +1057,11 @@ public class RemarkController {
         param.put("start", start);
         param.put("limit", limit);
         // if ((Integer) param.get("start") > 0)
-        param.put("orderField", "clinicID");
+        if("8".equals(orderField))
+            param.put("orderField", "money");
+        else
+            param.put("orderField", "clinicID");
+        param.put("orderDir", orderDir);
         /*else
             param.put("orderField", "money");*/
         List<Clinic> list = clinicDao.getClinicList(param);

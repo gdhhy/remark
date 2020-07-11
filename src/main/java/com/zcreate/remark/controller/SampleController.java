@@ -47,7 +47,7 @@ public class SampleController {
                               @RequestParam(value = "draw", required = false) Integer draw,
                               @RequestParam(value = "start", required = false, defaultValue = "0") int start,
                               @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
-        Map<String, Object> param = new HashMap<String, Object>();
+        Map<String, Object> param = new HashMap<>();
         param.put("year", year);
         param.put("month", month);
         param.put("type", type);
@@ -97,14 +97,14 @@ public class SampleController {
                                  @RequestParam(value = "doctorID", required = false) Integer doctorID,
                                  @RequestParam(value = "goodsID", required = false) Integer goodsID,
                                  @RequestParam(value = "draw", required = false) Float draw) {
-        Map<String, Object> param = new HashMap<String, Object>();
+        Map<String, Object> param = new HashMap<>();
         //param.put("antiClass", -1);//额外增加   remove 2020-03-15
         param.put("type", type);
         param.put("doctorID", doctorID);
         /*if (western >= 0) *///取值：西药1， 中药，0，-1不限
         param.put("western", western);
         param.put("clinicType", clinicType);
-        param.put("medicine1", goodsID);
+        param.put("goodsID", goodsID);
         param.put("surgery", surgery);
         if (surgery == 1)
             param.put("incision", incision);
@@ -127,7 +127,8 @@ public class SampleController {
         } else {
             Map<String, Object> dateParam = new HashMap<String, Object>();
             dateParam.put("outDateFrom", DateUtils.parseSqlDate(date[0]));
-            dateParam.put("AdviceItemTable", "AdviceItem_" + date[0].substring(0, 4));
+            dateParam.put("AdviceItemTable1", "AdviceItem_" + date[0].substring(0, 4));
+            dateParam.put("AdviceItemTable2", "AdviceItem_" + (Integer.parseInt(date[0].substring(0, 4)) - 1));
             dateParam.put("outDateTo", toCal.getTime());
             param.put("notStat", true);
             result.put("outPatientNum", inPatientDao.getInPatientCount(dateParam));

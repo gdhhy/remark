@@ -26,11 +26,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -132,6 +134,61 @@ public class ExcelController {
         HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "antiByDoctor.xls"));
 
         exportExcel(response, wb, 3, "医生抗菌药统计", result, prop);
+    }
+
+    //--力锦
+    @RequestMapping(value = "getTopClinic", method = RequestMethod.GET)
+    public void getTopClinic(HttpServletResponse response, @RequestParam(value = "fromDate", required = false) String fromDate,
+                             @RequestParam(value = "toDate", required = false) String toDate,
+                             @RequestParam(value = "goodsID", required = false, defaultValue = "") String goodsID,
+                             @RequestParam(value = "goodsID2", required = false, defaultValue = "") String goodsID2,
+                             @RequestParam(value = "queryItem", required = false) String queryItem,
+                             @RequestParam(value = "queryField", required = false) String queryField,
+                             @RequestParam(value = "order[0][column]", required = false) String orderField,
+                             @RequestParam(value = "order[0][dir]", required = false, defaultValue = "desc") String orderDir,
+                             @RequestParam(value = "department", required = false) String department,
+                             @RequestParam(value = "amount", required = false) Integer amount,
+                             @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
+                             @RequestParam(value = "length", required = false, defaultValue = "100") int limit) throws Exception {
+        HashMap<String, Object> param = new HashMap<>();
+        if (!"".equals(fromDate)) {
+            Calendar date = DateUtils.parseCalendarDayFormat(fromDate);
+            param.put("clinicDateFrom", date.getTime());
+            param.put("RxDetailTable", "RxDetail_" + date.get(Calendar.YEAR));
+        }
+        if (!"".equals(toDate))
+            param.put("clinicDateTo", DateUtils.getNextDay(DateUtils.parseDateDayFormat(toDate)));
+        // param.put("reviewDateNotNull", true);
+        if (queryItem != null && !"".equals(queryItem) &&
+                queryField != null && !"".equals(queryField))
+            param.put(queryItem, queryField);
+
+        param.put("goodsID", goodsID);
+        param.put("goodsID2", goodsID2);
+        param.put("atLeastMoney", amount);
+        param.put("department", department);
+        param.put("limit", limit);
+        //param.put("rational", rational);
+        // if ((Integer) param.get("start") > 0)
+        if ("8".equals(orderField))
+            param.put("orderField", "money");
+        else
+            param.put("orderField", "clinicID");
+        param.put("orderDir", orderDir);
+        /*else
+            param.put("orderField", "money");*/
+        DecimalFormat df = new DecimalFormat("0.#");
+        List<HashMap<String, Object>> list = clinicDao.selectClinicForExcel(param);
+        for (HashMap<String, Object> map : list) {
+            String aa = df.format(map.get("eachQuantity")) + map.get("eachUnit").toString() + " " + map.get("frequency").toString();
+            map.put("quantityUnitFrequency", aa);
+        }
+
+        String[] prop = {"mzNo", "department", "doctorName", "no", "goodsID", "dosage", "quantityUnitFrequency", "quantity", "price", "money"};
+
+        HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "clinic_top_n.xls"));
+
+        exportExcel(response, wb, 4, "排名前" + limit + "处方", list, prop);
     }
 
     @RequestMapping(value = "antiDrug", method = RequestMethod.GET)

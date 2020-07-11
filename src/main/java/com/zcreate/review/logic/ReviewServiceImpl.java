@@ -20,7 +20,7 @@ public class ReviewServiceImpl implements ReviewService {
     private static InPatientDAO inPatientDao;
     private static SampleDAO sampleDao;
     private static IncompatibilityDAO incompatibilityDAO;
-  //  private DictService dictService;
+    //  private DictService dictService;
 
     public ReviewServiceImpl() {
     }
@@ -112,7 +112,7 @@ public class ReviewServiceImpl implements ReviewService {
             details.get(0).setNum2("(1)");
             for (int i = 1; i < details.size(); i++) {
                 if (details.get(i).getGroupID().equals(details.get(i - 1).getGroupID())) {
-                    if (!"+".equals(details.get(i).getGoodsID()+""))
+                    if (!"+".equals(details.get(i).getGoodsID() + ""))
                         details.get(i).setNum2("(" + ++num2 + ")");
                 } else {
                     details.get(i).setNum1(++num1 + "、");
@@ -188,7 +188,8 @@ public class ReviewServiceImpl implements ReviewService {
         param.put("year", sampleBatch.getYear());
         param.put("month", sampleBatch.getMonth());
         param.put("clinicType", sampleBatch.getClinicType());
-        param.put("medicine1", sampleBatch.getGoodsID());
+        param.put("goodsID", sampleBatch.getGoodsID());
+        param.put("RxDetailTable", "RxDetail_" + sampleBatch.getFromDate().substring(0, 4));
         param.put("special", sampleBatch.getSpecial());
         param.put("surgery", sampleBatch.getSurgery());
         param.put("incision", sampleBatch.getIncision());
@@ -209,7 +210,7 @@ public class ReviewServiceImpl implements ReviewService {
                 param.put("RxDetailTable", "RxDetail_" + param.get("clinicDateFrom").toString().substring(0, 4));
                 int[] array = linearArray(clinicDao.getClinicCount(param), sampleBatch.getNum());
                 List<Integer> clinicIDs = clinicDao.selectClinicIDForLinear(param);
-                List<Integer> result = new ArrayList< >(array.length);
+                List<Integer> result = new ArrayList<>(array.length);
                 for (int index : array)
                     if (index < clinicIDs.size())
                         result.add(clinicIDs.get(index));
@@ -217,7 +218,8 @@ public class ReviewServiceImpl implements ReviewService {
             }
         else {   //住院
             param.put("outDateFrom", param.get("clinicDateFrom"));
-            param.put("AdviceItemTable", "AdviceItem_" + param.get("clinicDateFrom").toString().substring(0, 4));
+            param.put("AdviceItemTable1", "AdviceItem_" + param.get("clinicDateFrom").toString().substring(0, 4));
+            param.put("AdviceItemTable2", "AdviceItem_" + (Integer.parseInt(param.get("clinicDateFrom").toString().substring(0, 4)) - 1));
             param.put("outDateTo", param.get("clinicDateTo"));
             param.put("notStat", true);
             //param.put("outHospital", true);
@@ -228,7 +230,7 @@ public class ReviewServiceImpl implements ReviewService {
                 // 先产生等差随机数列
                 int[] array = linearArray(inPatientDao.getInPatientCount(param), sampleBatch.getNum());
                 List<Integer> inPatientIDs = inPatientDao.selectInPatientIDForLinear(param);
-                List<Integer> result = new ArrayList< >(array.length);
+                List<Integer> result = new ArrayList<>(array.length);
                 for (int index : array)
                     if (index < inPatientIDs.size())
                         result.add(inPatientIDs.get(index));
@@ -327,7 +329,7 @@ public class ReviewServiceImpl implements ReviewService {
     //在已保存抽样临时增加处方
     public int addSampleToBatch(SampleBatch sampleBatch, String clinicIDs) {
         int[] ints = StringUtils.splitToInts(clinicIDs, ",");
-        List<Integer> lists = new ArrayList< >(ints.length);
+        List<Integer> lists = new ArrayList<>(ints.length);
         for (int i : ints) lists.add(i);
         int succeedCount = 0;
         List objectIds = getObjectByIDs(lists, sampleBatch.getType());
@@ -416,7 +418,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public int deleteSample(int sampleBatchID, int objectID) {
-        Map<String, Object> param = new HashMap< >(2);
+        Map<String, Object> param = new HashMap<>(2);
         param.put("sampleBatchID", sampleBatchID);
         param.put("objectID", objectID);
         return sampleDao.deleteSample(param);
@@ -484,7 +486,8 @@ public class ReviewServiceImpl implements ReviewService {
             }
         return inPatientItemList;
     }
-    public List<AdviceItem> getDrugList(Integer hospID,  String year) {
+
+    public List<AdviceItem> getDrugList(Integer hospID, String year) {
         Map<String, Object> param = new HashMap<>();
         param.put("hospID", hospID);
         param.put("AdviceItemTable", "AdviceItem_" + year);
