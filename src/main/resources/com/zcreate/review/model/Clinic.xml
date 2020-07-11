@@ -144,15 +144,20 @@
         ORDER BY ${orderField} ${orderDir}
     </select>
     <select id="selectClinicForExcel" parameterType="java.util.Map" resultType="java.util.Map">
-        select  TOP ${limit} C.mzNo,C.department,T.name doctorName,M.no, D.goodsID,D.dosage + ' '+D.spec dosage, D.eachQuantity , D.eachUnit ,D.frequency ,D.quantity,D.price,D.money
-        from Clinic C
-        left join Doctor T on C.doctorID=T.doctorID
-        join  ${RxDetailTable} D on C.clinicID=D.clinicID
-        left join Medicine M on D.goodsID=M.goodsID
+        select C.clinicID,C.mzNo,C.department,T.name doctorName,M.no, D.goodsID,D.dosage + ' '+D.spec dosage, D.eachQuantity , D.eachUnit ,D.frequency ,D.quantity,D.price,D.money
+        from (
+        select TOP ${limit} C.clinicID,C.mzNo,C.department,C.doctorID,C.money clinicMoney from Clinic C
+        <if test="goodsID>0">
+            LEFT JOIN ${RxDetailTable} D ON C.clinicID = D.clinicID
+        </if>
         <if test="goodsID2>0">
             LEFT JOIN ${RxDetailTable} D2 ON C.clinicID = D2.clinicID
         </if>
         <include refid="queryWhere"/>
+        ) C
+        left join Doctor T on C.doctorID=T.doctorID
+        join ${RxDetailTable} D on C.clinicID=D.clinicID
+        left join Medicine M on D.goodsID=M.goodsID
         ORDER BY ${orderField} ${orderDir}
     </select>
     <select id="selectClinic" parameterType="int" resultMap="ClinicResult">

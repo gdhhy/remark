@@ -170,10 +170,10 @@ public class ExcelController {
         param.put("limit", limit);
         //param.put("rational", rational);
         // if ((Integer) param.get("start") > 0)
-        if ("8".equals(orderField))
-            param.put("orderField", "money");
-        else
-            param.put("orderField", "clinicID");
+        //if ("8".equals(orderField))
+            param.put("orderField", "clinicMoney");
+        /*else
+            param.put("orderField", "clinicID");*/
         param.put("orderDir", orderDir);
         /*else
             param.put("orderField", "money");*/
@@ -188,7 +188,7 @@ public class ExcelController {
 
         HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "clinic_top_n.xls"));
 
-        exportExcel(response, wb, 4, "排名前" + limit + "处方", list, prop);
+        exportExcel(response, wb, 3, "排名前" + limit + "处方", list, prop);
     }
 
     @RequestMapping(value = "antiDrug", method = RequestMethod.GET)
