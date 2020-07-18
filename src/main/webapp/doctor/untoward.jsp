@@ -286,6 +286,8 @@
         /* $('.btn-info').on('click', function (e) {
              window.location.href = "getInPatientExcel0.jspa?inPatientID=
 
+
+
         ${inPatient.inPatientID}";
         });*/
 
@@ -408,6 +410,7 @@
 
         var kk = 0;
         var drugTable = $("#drugTable");
+        var drug_response = '';
 
         function showQuestionDialog(selected, tableVar, rowNo) {
             $('#tableVar').val(tableVar);
@@ -425,19 +428,21 @@
                     contentType: "application/json; charset=utf-8",
                     cache: false,
                     success: function (response, textStatus) {
+                        drug_response = response;
+                        //console.log("response=" + JSON.stringify(drug_response));
                         //var respObject = JSON.parse(response.data);
                         if (response.data.length > 0)
                             $.each(response.data, function () {
-                                console.log("itemID:" + this.adviceItemID);
-                                console.log("adviceDate:" + this.adviceDate);
+                                /* console.log("itemID:" + this.adviceItemID);
+                                 console.log("adviceDate:" + this.adviceDate);*/
                                 var $tr = ('<tr><td><input name="adviceItemID" type="checkbox" value="{0}" /></td>' +
                                     '<td align="center">{1}</td>' +
-                                    '<td align="center">{2}</td>' +
+                                    '<td align="left">{2}</td>' +
                                     '<td align="center">{3}</td>' +
                                     '<td align="center">{4}</td>' +
                                     '<td align="center">{5}</td>' +
-                                    '<td align="center">{6}</td>' +
-                                    '</tr>').format(this.adviceItemID, this.adviceDate === null ? '' : this.adviceDate, this.advice, this.quantity, this.frequency, this.usage);
+                                    /*'<td align="center">{6}</td>' +*/
+                                    '</tr>').format(this.adviceItemID, this.adviceDate === null ? '' : this.adviceDate, this.advice, this.quantity + this.unit, this.frequency, this.usage);
                                 drugTable.append($tr);
                             });
 
@@ -463,8 +468,23 @@
             } else {
                 setCheckQuestion($(selected).text());
             }
-            $('#drug-choose').modal({width: 1000});
+            $('#drug-choose').modal();
         }
+
+        $("#saveQuestionBtn").click(function () {
+            //$("button[name='saveQuestionBtn']").click(function() {
+            console.log("click button");
+            var selectItem = '';
+            $("input:checkbox[name='adviceItemID']:checked").each(function () {
+                selectItem += $(this).val() + ', ';
+            });
+            if (selectItem.endWith(', '))
+                selectItem = selectItem.substring(0, selectItem.length - 2);
+            console.log("select:" + selectItem);
+
+            /*$('#disItem').val(selectItem);
+            $('#question-choose').modal('hide');*/
+        });
 
         function setCheckQuestion(selected) {
             var selArr = [];
@@ -1168,7 +1188,7 @@
 <div id="drug-choose" class="modal fade" tabindex="-1">
     <input id="tableVar" type="hidden"/>
     <input id="rowNo" type="hidden"/>
-    <div class="modal-dialog">
+    <div class="modal-dialog" style="width: 800px">
         <div class="modal-content">
             <div class="modal-header no-padding">
                 <div class="table-header">
@@ -1186,11 +1206,10 @@
                     <tr>
                         <th class="col-xs-1">选择</th>
                         <th class="col-xs-2" style="alignment: center">时间</th>
-                        <th class="col-xs-5">医嘱内容</th>
+                        <th class="col-xs-4">医嘱内容</th>
                         <th class="col-xs-1">每次量</th>
                         <th class="col-xs-1">频率</th>
-                        <th class="col-xs-1">当天量</th>
-                        <th class="col-xs-1">用法</th>
+                        <th class="col-xs-2">用法</th>
                     </tr>
                     </thead>
 

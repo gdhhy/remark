@@ -32,7 +32,7 @@
         //initiate dataTables plugin
         var dynamicTable = $('#dynamic-table');
         var myTable = dynamicTable
-            //.wrap("<div class='dataTables_borderWrap' />") //if you are applying horizontal scrolling (sScrollX)
+        //.wrap("<div class='dataTables_borderWrap' />") //if you are applying horizontal scrolling (sScrollX)
             .DataTable({
                 bAutoWidth: false,
                 bProcessing: true,
@@ -125,7 +125,7 @@
         var url2 = "/remark/getHospitalReviewList.jspa?" + urlParam;
         var dynamicTable2 = $('#dynamic-table2');
         var myTable2 = dynamicTable2
-            //.wrap("<div class='dataTables_borderWrap' />") //if you are applying horizontal scrolling (sScrollX)
+        //.wrap("<div class='dataTables_borderWrap' />") //if you are applying horizontal scrolling (sScrollX)
             .DataTable({
                 bAutoWidth: false,
                 bProcessing: true,
@@ -256,6 +256,7 @@
             var rational = $('input:radio[name="rational"]:checked').val() === undefined ? "" : $('input:radio[name="rational"]:checked').val();
 
             if ($('#form-type').val() === '1') {
+                rational = rational === '2' ? '0' : rational;
                 myTable.ajax.url(
                     url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), $('#queryItem').val(), $('#queryField').val(), rational)
                 ).load();
@@ -267,10 +268,11 @@
         });
         $('.btn-info').click(function () {
             var rational = $('input:radio[name="rational"]:checked').val() === undefined ? "" : $('input:radio[name="rational"]:checked').val();
-            if ($('#form-type').val() === '1')
+            if ($('#form-type').val() === '1') {
+                rational = rational === '2' ? '0' : rational;
                 window.location.href = "/excel/getClinicList.jspa?" + excelParam
                     .format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), $('#queryItem').val(), $('#queryField').val(), rational);
-            else
+            } else
                 window.location.href = "/excel/getInPatientList.jspa?" + excelParam
                     .format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), $('#queryItem').val(), $('#queryField').val(), rational);
         });

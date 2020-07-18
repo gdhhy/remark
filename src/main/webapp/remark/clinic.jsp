@@ -341,6 +341,7 @@
                                                     </c:if>
                                                     <td>${detail.usage}
                                                         <c:if test="${detail.dayNum >0}">×&nbsp;${detail.dayNum}天 </c:if></td>
+                                                    <td>${detail.memo}</td>
 
                                                 </tr>
                                             </c:forEach>

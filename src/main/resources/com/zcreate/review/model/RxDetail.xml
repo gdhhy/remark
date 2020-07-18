@@ -31,6 +31,7 @@
         <result column="generalName" jdbcType="VARCHAR" property="generalName"/>
         <result column="dose" jdbcType="VARCHAR" property="dose"/>
         <result column="medicineID" jdbcType="INTEGER" property="medicineID"/>
+        <result column="memo" jdbcType="VARCHAR" property="memo"/>
     </resultMap>
     <sql id="queryWhere">
         <where>
@@ -41,7 +42,7 @@
     </sql>
     <select id="selectRxDetail2Review" parameterType="java.util.Map" resultMap="RxDetailResult">
         SELECT R.rxDetailID,M.chnName medicineName,R.goodsID, R.eachQuantity,R.eachUnit,R.dayNum,R.usage, R.quantity,R.frequency,R.freqNum,
-               R.unit, M.matchInstrID instructionID, R.dosage,R.spec,R.groupID,R.orderID ,R.audit,M.antiClass,M.producer,D.chnName generalName,M.dose,M.medicineID
+               R.unit, M.matchInstrID instructionID, R.dosage,R.spec,R.groupID,R.orderID ,R.audit,M.antiClass,M.producer,D.chnName generalName,M.dose,M.medicineID,R.memo
         FROM ${RxDetailTable} R
         LEFT JOIN Medicine M ON R.goodsID=M.goodsID
         LEFT JOIN Drug D ON D.drugID=M.matchDrugID

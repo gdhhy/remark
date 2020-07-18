@@ -144,7 +144,7 @@ public class ExcelController {
                              @RequestParam(value = "goodsID2", required = false, defaultValue = "") String goodsID2,
                              @RequestParam(value = "queryItem", required = false) String queryItem,
                              @RequestParam(value = "queryField", required = false) String queryField,
-                             @RequestParam(value = "order[0][column]", required = false) String orderField,
+                             //@RequestParam(value = "order[0][column]", required = false) String orderField,
                              @RequestParam(value = "order[0][dir]", required = false, defaultValue = "desc") String orderDir,
                              @RequestParam(value = "department", required = false) String department,
                              @RequestParam(value = "amount", required = false) Integer amount,
@@ -171,7 +171,7 @@ public class ExcelController {
         //param.put("rational", rational);
         // if ((Integer) param.get("start") > 0)
         //if ("8".equals(orderField))
-            param.put("orderField", "clinicMoney");
+        param.put("orderField", "clinicMoney");
         /*else
             param.put("orderField", "clinicID");*/
         param.put("orderDir", orderDir);
@@ -439,8 +439,8 @@ public class ExcelController {
             param.put("orderField", "money");*/
         List<Clinic> list = clinicDao.getClinicList(param);
 
-        String[] headers = {"处方日期", "门诊号", "病人", "年龄", "诊断", "科室", "医生", "点评内容", "点评时间"};
-        String[] prop = {"clinicDate", "hospID", "patientName", "age", "diagnosis", "department", "doctorName", "result", "reviewDate"};
+        String[] headers = {"处方日期", "门诊号", "病人", "年龄", "诊断", "科室", "医生", "点评内容", "点评结果", "点评时间"};
+        String[] prop = {"clinicDate", "mzNo", "patientName", "age", "diagnosis", "department", "doctorName", "result", "rational", "reviewDate"};
 
         OutputStream out = null;
         try {

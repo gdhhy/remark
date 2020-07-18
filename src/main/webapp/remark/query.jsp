@@ -25,7 +25,7 @@
     jQuery(function ($) {
         var startDate = moment().month(moment().month() - 1).startOf('month');
         var endDate = moment().month(moment().month() - 1).endOf('month');
-        var urlParam = "fromDate={0}&toDate={1}&queryItem={2}&queryField={3}&goodsID={4}&goodsID2={5}&department={6}&amount={7}";
+        var urlParam = "fromDate={0}&toDate={1}&queryItem={2}&queryField={3}&goodsID={4}&goodsID2={5}&department={6}&amount={7}&western={8}";
         var url = "/remark/getClinicList.jspa?" + urlParam;
 
         //initiate dataTables plugin
@@ -79,7 +79,7 @@
                         "orderable": false, "targets": 12, title: '点评', width: 45, render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 '<a class="hasDetail" href="#" data-Url="/remark/viewClinic.jspa?clinicID={0}">'.format(row['clinicID']) +
-                                (data === null ? '<i class="ace-icon glyphicon glyphicon-pencil  bigger-130"></i>' : data.substring(0, 10)) +
+                                (data === null ? '<i class="ace-icon glyphicon glyphicon-pencil bigger-130"></i>' : data.substring(0, 10)) +
                                 '</a>' +
                                 '</div>';
                         }
@@ -90,7 +90,7 @@
                     url: '../components/datatables/datatables.chinese.json'
                 },
                 "ajax": {
-                    url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), "", "", "", "", "", ""),
+                    url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), "", "", "", "", "", "",0),
                     "data": function (d) {//删除多余请求参数
                         for (var key in d)
                             if (key.indexOf("columns") === 0 || key.indexOf("search") === 0) //以columns开头的参数删除
@@ -166,7 +166,7 @@
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 /*'<a class="hasDetail" href="#" data-Url="/index.jspa?content=/remark/viewInPatient.jspa&inPatientID={0}">'.format(data) +*/
                                 '<a class="hasDetail" href="#" data-Url="/remark/viewInPatient{0}.jspa?inPatientID={1}">'.format(0, row['inPatientID']) +
-                                (data === undefined ? '<i class="ace-icon glyphicon glyphicon-pencil  bigger-130"></i>' : data.substring(0, 10)) +
+                                (data === undefined ? '<i class="ace-icon glyphicon glyphicon-pencil bigger-130"></i>' : data.substring(0, 10)) +
                                 '</a>' +
                                 '</div>';
                         }
@@ -228,13 +228,13 @@
             if ($('#form-type').val() === '1') {
                 myTable.ajax.url(
                     url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), $('#queryItem').val(), $('#queryField').val(),
-                        $('#form-goodsID').val(), $('#form-goodsID2').val(), $('#form-department').val() ? $('#form-department').val() : "", $('#form-amount').val()
+                        $('#form-goodsID').val(), $('#form-goodsID2').val(), $('#form-department').val() ? $('#form-department').val() : "", $('#form-amount').val(), $('#western').val()
                     )
                 ).load();
             } else {
                 myTable2.ajax.url(
                     url2.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), $('#queryItem').val(), $('#queryField').val(),
-                        $('#form-goodsID').val(), $('#form-goodsID2').val(), $('#form-department').val() ? $('#form-department').val() : "", $('#form-amount').val())
+                        $('#form-goodsID').val(), $('#form-goodsID2').val(), $('#form-department').val() ? $('#form-department').val() : "", $('#form-amount').val(), "")
                 ).load();
             }
         });
@@ -259,6 +259,7 @@
                 //$("#queryItem option:first").val("门诊号");
 
                 $('.btn-info').attr("disabled", false);
+                $('#western').attr("hidden", false);
             } else {
                 $('#dt').addClass("hide");
                 $('#dt2').removeClass("hide");
@@ -268,6 +269,7 @@
                 $("#dateLabel").html("出院日期：");
 
                 $('.btn-info').attr("disabled", true);
+                $('#western').attr("hidden", true);
             }
             $('#queryField').attr("placeholder", $("#queryItem option:first").text());
             loadDepartment(this.selectedIndex + 1);
@@ -367,7 +369,7 @@
     <div class="page-header" style="height: 90px">
         <form class="form-search form-inline">
             <div class="col-xs-12 col-sm-12">
-                <label class=" control-label no-padding-right" for="form-type">门诊住院： </label>
+                <%--  <label class=" control-label no-padding-right" for="form-type">门诊住院： </label>--%>
                 <div class="input-group">
                     <select id="form-type" class=" nav-search-input ace" style="color: black">
                         <option value="1" selected>门诊</option>
@@ -380,7 +382,7 @@
                     </select></div>&nbsp;&nbsp;&nbsp;
 
                 <div class="input-group">
-                    <select class="nav-search-input   ace" id="queryItem" name="queryItem" style="color: black">
+                    <select class="nav-search-input ace" id="queryItem" name="queryItem" style="color: black">
                         <option value="hospID">门诊号</option>
                         <option value="doctorName">医生</option>
                         <option value="patientName">病人</option>
@@ -397,14 +399,18 @@
                            data-date-format="YYYY-MM-DD"/>
                     <span class="input-group-addon"><i class="fa fa-calendar bigger-100"></i></span>
                 </div>&nbsp;&nbsp;&nbsp;
-
+                <select class="nav-search-input ace" id="western" name="western" style="color: black">
+                    <option value="0">中西药</option>
+                    <option value="1">西药</option>
+                    <option value="2">中药</option>
+                </select>&nbsp;&nbsp;&nbsp;
 
                 <button type="button" class="btn btn-sm btn-success">
                     查询
                     <i class="ace-icon glyphicon glyphicon-search icon-on-right bigger-100"></i>
                 </button>
             </div>
-            <div class="col-xs-12 col-sm-12" style="margin: 5px 0 0 0   ">
+            <div class="col-xs-12 col-sm-12" style="margin: 5px 0 0 0 ">
                 <label class=" control-label no-padding-right" for="form-medicine">联合用药1： </label>
                 <div class="input-group">
                     <input class="typeahead scrollable nav-search-input" type="text" id="form-medicine" name="form-medicine"

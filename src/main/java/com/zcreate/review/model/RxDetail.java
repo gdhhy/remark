@@ -36,6 +36,7 @@ public class RxDetail implements Serializable {
     private Integer orderID;
     private Integer groupID;
     private Integer antiClass;
+    private String memo;
 
     //显示处方组号、组内号
     private String num1;
@@ -297,5 +298,13 @@ public class RxDetail implements Serializable {
 
     public void setMedicineID(Integer medicineID) {
         this.medicineID = medicineID;
+    }
+
+    public String getMemo() {
+        return memo;
+    }
+
+    public void setMemo(String memo) {
+        this.memo = memo;
     }
 }

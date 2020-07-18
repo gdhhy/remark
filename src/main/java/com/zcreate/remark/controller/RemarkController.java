@@ -930,6 +930,7 @@ public class RemarkController {
                                       @RequestParam(value = "queryItem", required = false) String queryItem,
                                       @RequestParam(value = "queryField", required = false) String queryField,
                                       @RequestParam(value = "department", required = false) String department,
+                                      @RequestParam(value = "western", required = false, defaultValue = "0") Integer western,
                                       @RequestParam(value = "rational", required = false) Integer rational,
                                       @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
                                       @RequestParam(value = "start", required = false, defaultValue = "0") int start,
@@ -948,6 +949,7 @@ public class RemarkController {
             param.put(queryItem, queryField);
 
         param.put("department", department);
+        param.put("western", western);
         param.put("rational", rational);
         param.put("start", start);
         param.put("limit", limit);
@@ -1032,6 +1034,7 @@ public class RemarkController {
                                 @RequestParam(value = "order[0][column]", required = false) String orderField,
                                 @RequestParam(value = "order[0][dir]", required = false, defaultValue = "desc") String orderDir,
                                 @RequestParam(value = "department", required = false) String department,
+                                @RequestParam(value = "western", required = false, defaultValue = "0") Integer western,
                                 @RequestParam(value = "amount", required = false) Integer amount,
                                 @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
                                 @RequestParam(value = "start", required = false, defaultValue = "0") int start,
@@ -1053,11 +1056,12 @@ public class RemarkController {
         param.put("goodsID2", goodsID2);
         param.put("atLeastMoney", amount);
         param.put("department", department);
+        param.put("western", western);
         //param.put("rational", rational);
         param.put("start", start);
         param.put("limit", limit);
         // if ((Integer) param.get("start") > 0)
-        if("8".equals(orderField))
+        if ("8".equals(orderField))
             param.put("orderField", "money");
         else
             param.put("orderField", "clinicID");
