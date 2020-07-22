@@ -58,9 +58,9 @@ where   mzRegID  = 226658   ;
     END;
 
   insert into RxDetail(rxNo, prescribeDate, goodsID, quantity, money, frequency, freqNum, unit, eachUnit,
-                       dosage, spec, usage, eachQuantity, dayNum, price, orderID, groupID, paperNo)
+                       dosage, spec, usage, eachQuantity, dayNum, price, orderID, groupID, paperNo,memo)
   select A.RecipeId, A.recipeTime, A.ItemId, A.Totality, A.price * A.Totality money, C.name Frequency, C.Times, B.Name, F.name,
-         E.name medicineName, E.spec, D.name usageName, A.Dosage, A.days, A.price, A.ID, A.groupNum, listNum
+         E.name medicineName, E.spec, D.name usageName, A.Dosage, A.days, A.price, A.ID, A.groupNum, listNum,A.memo
          --A.groupNum, A.listNum,recNum
   from YBHis.LJHis.dbo.OuRecipeDtl A
          join YBHis.LJHis.dbo.BSItem E on A.ItemId = E.ID
@@ -82,9 +82,9 @@ where   mzRegID  = 226658   ;
 
   set @sqlString = 'insert into ' + @dstTableName +
                    '(rxNo, prescribeDate,goodsID,quantity,money,frequency,freqNum,unit,eachUnit,
-                     dosage,spec,usage,eachQuantity,dayNum,price,orderID,groupID,paperNo)
+                     dosage,spec,usage,eachQuantity,dayNum,price,orderID,groupID,paperNo,memo)
                    select rxNo, prescribeDate,goodsID,quantity,money,frequency,freqNum,unit,eachUnit,
-                     dosage,spec,usage,eachQuantity,dayNum,price,orderID,groupID,paperNo from RxDetail;'
+                     dosage,spec,usage,eachQuantity,dayNum,price,orderID,groupID,paperNo,memo from RxDetail;'
   exec (@sqlString);
   SELECT @insertRowCount = @@rowcount;
 

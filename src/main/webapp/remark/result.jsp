@@ -39,7 +39,7 @@
                 "columns": [
                     {"data": "clinicID", "sClass": "center"},
                     {"data": "clinicDate", "sClass": "center"},
-                    {"data": "hospID", "sClass": "center"},
+                    {"data": "mzNo", "sClass": "center"},
                     {"data": "patientName", "sClass": "center"},
                     {"data": "sex", "sClass": "center"},//4
                     {"data": "age", "sClass": "center"},

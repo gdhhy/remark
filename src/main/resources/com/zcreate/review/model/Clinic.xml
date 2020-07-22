@@ -144,7 +144,7 @@
         ORDER BY ${orderField} ${orderDir}
     </select>
     <select id="selectClinicForExcel" parameterType="java.util.Map" resultType="java.util.Map">
-        select C.clinicID,C.mzNo,C.department,T.name doctorName,M.no, D.goodsID,D.dosage + ' '+D.spec dosage, D.eachQuantity , D.eachUnit ,D.frequency ,D.quantity,D.price,D.money
+        select C.clinicID,C.mzNo,C.department,T.name doctorName,M.no, M.ypID, D.goodsID,D.dosage + ' '+D.spec dosage, D.eachQuantity , D.eachUnit ,D.frequency ,D.quantity,D.price,D.money
         from (
         select TOP ${limit} C.clinicID,C.mzNo,C.department,C.doctorID,C.money clinicMoney from Clinic C
         <if test="goodsID>0">

@@ -26,7 +26,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -184,7 +183,7 @@ public class ExcelController {
             map.put("quantityUnitFrequency", aa);
         }
 
-        String[] prop = {"mzNo", "department", "doctorName", "no", "goodsID", "dosage", "quantityUnitFrequency", "quantity", "price", "money"};
+        String[] prop = {"mzNo", "department", "doctorName", "ypID", "goodsID", "dosage", "quantityUnitFrequency", "quantity", "price", "money"};
 
         HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "clinic_top_n.xls"));
 
@@ -285,8 +284,8 @@ public class ExcelController {
                 try {
                     cell.setCellStyle(sampleCell.getCellStyle());
                 } catch (Exception e) {
-                    logger.debug("m=" + m);
-                    logger.debug("m=" + m);
+                   /* logger.debug("m=" + m);
+                    logger.debug("m=" + m);*/
                     e.printStackTrace();
                 }
                 cell.setCellType(sampleCell.getCellType());
@@ -328,7 +327,7 @@ public class ExcelController {
                         Pattern pa = Pattern.compile("^[+-]?(?!0\\d)\\d+(\\.\\d+)?(E-?\\d+)?$");
                         Matcher matcher = p.matcher(textValue);
                         Matcher match = pa.matcher(textValue);
-                        if (matcher.matches() || match.matches()) {
+                        if (textValue.length() < 12 && (matcher.matches() || match.matches())) {
                             //是数字当作double处理
 
                             //logger.debug("type2=" + textValue);

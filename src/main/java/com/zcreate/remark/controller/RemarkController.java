@@ -611,12 +611,12 @@ public class RemarkController {
             aRow.getCell(1).setCellValue(DateUtils.formatDate((Timestamp) row.get("clinicDate"), "yyyyMMdd"));
             aRow.getCell(2).setCellValue((String) row.get("age"));
             aRow.getCell(3).setCellValue((String) row.get("diagnosis"));
-            aRow.getCell(4).setCellValue((Integer) row.get("drugNum"));
+            aRow.getCell(4).setCellValue((Integer) (row.get("drugNum") == null ? 0 : row.get("drugNum")));
             aRow.getCell(5).setCellValue((Integer) row.get("antiNum") == 0 || row.get("antiNum") == null ? 0 : 1);
             aRow.getCell(6).setCellValue((Integer) row.get("injectionNum") > 0 ? 1 : 0);
             aRow.getCell(7).setCellValue((Integer) row.get("baseDrugNum"));
             //columnRow.getCell(8).setCellValue((Integer) row.get("generalNameNum"));废，电脑处方，没有通用名说法
-            aRow.getCell(8).setCellValue((Integer) row.get("drugNum"));
+            aRow.getCell(8).setCellValue((Integer) (row.get("drugNum") == null ? 0 : row.get("drugNum")));
             aRow.getCell(9).setCellValue(currencyDisplay.format(((BigDecimal) row.get("money")).floatValue()));
             aRow.getCell(10).setCellValue((String) row.get("doctorName"));
             // if (sampleBatch.getType() == 1) {
@@ -951,6 +951,7 @@ public class RemarkController {
         param.put("department", department);
         param.put("western", western);
         param.put("rational", rational);
+        param.put("orderDir", "desc");
         param.put("start", start);
         param.put("limit", limit);
         // if ((Integer) param.get("start") > 0)

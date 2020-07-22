@@ -13,6 +13,7 @@ BEGIN
   (
     medicineID       INT PRIMARY KEY IDENTITY,
     no               VARCHAR(20),        --医院的编码
+    ypID             varchar(50),
     goodsID          int,
     pinyin           VARCHAR(50),
     healthNo         VARCHAR(20),        --匹配通用名时自动选择，不可改变
@@ -51,9 +52,9 @@ BEGIN
     json             varchar(2000)
   );
   --主体数据
-  insert into #Medicine(goodsID, no, pinyin, ChnName, engName, dose, spec, price, Western, contents, mental,
+  insert into #Medicine(goodsID, ypID, no, pinyin, ChnName, engName, dose, spec, price, Western, contents, mental,
                         antiClass, producer, injection, base, packUnit, minUnit, clinicUnit, authCode, json, insurance)
-  select A.id, A.code, A.pycode, A.Name, A.engdesc, E.name, A.spec, A.priceIn,
+  select A.id, B.YbIdCode, A.code, A.pycode, A.Name, A.engdesc, E.name, A.spec, A.priceIn,
          case A.lsRpType when 1 then 3 when 2 then 1 when 3 then 4 end                               as western,
          --A.lsRpType,--处方项目：1-中成药；2-西药；3-中药；4-检验；5-检查；6-手术；7-治疗；8-床位；9-其他；10
          --OuRecipeTemp.LsRepType 1-西药，2：中药u
@@ -104,9 +105,9 @@ BEGIN
          left join YBHis.LJHis.dbo.BsCompany D on C.CompId = D.ID;
 
   -- 新增部分
-  INSERT INTO Medicine (updateTime, goodsID, no, pinyin, ChnName, engName, dose, spec, price, western, contents, mental, antiClass, producer, injection,
+  INSERT INTO Medicine (updateTime, ypID, goodsID, no, pinyin, ChnName, engName, dose, spec, price, western, contents, mental, antiClass, producer, injection,
                         base, packUnit, minUnit, clinicUnit, authCode, json, lastPurchaseTime)
-  SELECT getdate(), goodsID, no, pinyin, ChnName, engName, dose, spec, price, Western, contents, mental, antiClass, producer, injection,
+  SELECT getdate(), ypID, goodsID, no, pinyin, ChnName, engName, dose, spec, price, Western, contents, mental, antiClass, producer, injection,
          base, packUnit, minUnit, clinicUnit, authCode, json, lastPurchaseTime
   FROM #Medicine
   WHERE goodsID NOT IN (SELECT goodsID FROM Medicine);
@@ -115,6 +116,7 @@ BEGIN
   -- remove update base & healthNo
   UPDATE A
   SET A.no=B.no,
+      A.ypID=B.ypID,
       A.goodsID=B.goodsID,
       A.pinyin=B.pinyin,
       A.chnName = B.chnName,

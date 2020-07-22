@@ -38,7 +38,7 @@
                 "columns": [
                     {"data": "clinicID", "sClass": "center"},
                     {"data": "clinicDate", "sClass": "center"},
-                    {"data": "hospID", "sClass": "center"},
+                    {"data": "mzNo", "sClass": "center"},
                     {"data": "western", "sClass": "center"},
                     {"data": "patientName", "sClass": "center"},
                     {"data": "sex", "sClass": "center"},//4
@@ -240,7 +240,7 @@
         });
         $('.btn-info').click(function () {//excel导出
             if ($('#form-type').val() === '1') {
-                var excelUrl = "/excel/getTopClinic.jspa?fromDate={0}&toDate={1}&queryItem={2}&queryField={3}&goodsID={4}&goodsID2={5}&department={6}&amount={7}&order[0][column]=8&order[0][dir]=desc"
+                var excelUrl = "/excel/getTopClinic.jspa?fromDate={0}&toDate={1}&queryItem={2}&queryField={3}&goodsID={4}&goodsID2={5}&department={6}&amount={7}"
                     .format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), $('#queryItem').val(), $('#queryField').val(),
                         $('#form-goodsID').val(), $('#form-goodsID2').val(), $('#form-department').val() ? $('#form-department').val() : "", $('#form-amount').val());
 

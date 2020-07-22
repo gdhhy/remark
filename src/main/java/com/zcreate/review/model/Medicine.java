@@ -13,6 +13,7 @@ public class Medicine implements Serializable {
     private Integer medicineID;
     //private String medicineNo;//对应药品ID，医保统一编码
     private String no;//医院内部编码
+    private String ypID;
     private int goodsID;
     private String pinyin;
     //todo 药理分类不要了,关联到通用名，看它的药理分类
@@ -97,6 +98,14 @@ public class Medicine implements Serializable {
     public void setMedicineNo(String medicineNo) {
         this.medicineNo = medicineNo;
     }*/
+
+    public String getYpID() {
+        return ypID;
+    }
+
+    public void setYpID(String ypID) {
+        this.ypID = ypID;
+    }
 
     public int getGoodsID() {
         return goodsID;

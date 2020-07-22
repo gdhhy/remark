@@ -43,6 +43,7 @@
                 //"iDisplayLength": 25,
                 "columns": [
                     {"data": "medicineID", "sClass": "center", "orderable": false, width: 40},
+                    {"data": "ypID", "sClass": "center", "orderable": false, searchable: true},
                     {"data": "no", "sClass": "center", "orderable": false, searchable: true},
                     {"data": "chnName", "sClass": "center", "orderable": false, className: 'middle'},
                     {"data": "healthName", "sClass": "center", "orderable": false},
@@ -65,10 +66,12 @@
                             return meta.row + 1 + meta.settings._iDisplayStart;
                         }
                     },
-                    {'targets': 4, 'searchable': false, 'orderable': false},
-                    {'targets': 9, 'searchable': false, 'orderable': false, width: 60},
                     {
-                        'targets': 15, 'searchable': false, 'orderable': false,
+                        'targets': 5, 'searchable': false, 'orderable': false
+                    },
+                    {'targets': 10, 'searchable': false, 'orderable': false, width: 60},
+                    {
+                        'targets': 16, 'searchable': false, 'orderable': false,
                         render: function (data, type, row, meta) {
                             return '<div class="hidden-sm hidden-xs action-buttons">' +
                                 '<a class="hasDetail" href="#" data-Url="javascript:showMedicine(\'{0}\');">'.format(data) +
@@ -117,17 +120,18 @@
         });
 
         function renderRoute() {
+            console.log("route:" + route);
             $('#dynamic-table tr:gt(0)').each(function () {
                 var tdArr = $(this).children();
-                //console.log("route:" + tdArr.eq(4).text());
+                console.log("route:" + tdArr.eq(5).text());
                 var match = false;
                 $.each(route, function (index, object) {
-                    if (object.value === tdArr.eq(4).text()) {
-                        tdArr.eq(4).text(object.name);
+                    if (object.value === tdArr.eq(5).text()) {
+                        tdArr.eq(5).text(object.name);
                         match = true;
                     }
                 });
-                if (!match) tdArr.eq(4).text('');
+                if (!match) tdArr.eq(5).text('');
             });
         }
 
@@ -479,6 +483,7 @@
             $.getJSON("/medicine/getMedicineList.jspa?medicineID=" + medicineID, function (ret) {
                 var result = ret.aaData[0];
                 $('#chnName').text(result.chnName);
+                $('#ypID').text(result.ypID);
                 $('#goodsNo').text(result.no);
                 $('#pinyin').text(result.pinyin);
                 $('#spec').text(result.spec);
@@ -774,6 +779,7 @@
                             <thead>
                             <tr>
                                 <th style="text-align: center">序号</th>
+                                <th style="text-align: center">药品ID</th>
                                 <th style="text-align: center">药品<br/>编码</th>
                                 <th style="text-align: center">药品名称</th>
                                 <th style="text-align: center">药理分类</th>
@@ -832,6 +838,10 @@
                     <div class="row">
                         <label class="col-sm-4" style="white-space: nowrap">药品名称 </label>
                         <div class="col-sm-8 no-padding" id="chnName" style="border-bottom: 1px solid; border-bottom-color: lightgrey;font-size:  large"></div>
+                    </div>
+                    <div class="row">
+                        <label class="col-sm-4">药品ID </label>
+                        <div class="col-sm-8 no-padding " style=" border-bottom: 1px solid; border-bottom-color: lightgrey" id="ypID"></div>
                     </div>
                     <div class="row">
                         <label class="col-sm-4">编码 </label>

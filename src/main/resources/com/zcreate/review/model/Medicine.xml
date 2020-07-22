@@ -7,6 +7,7 @@
     <resultMap id="RecordResult" type="com.zcreate.review.model.Medicine">
         <result column="medicineID" jdbcType="INTEGER" property="medicineID"/>
         <result column="no" jdbcType="VARCHAR" property="no"/>
+        <result column="ypID" jdbcType="VARCHAR" property="ypID"/>
         <result column="goodsID" jdbcType="INTEGER" property="goodsID"/>
         <result column="pinyin" jdbcType="VARCHAR" property="pinyin"/>
         <result column="healthNo" jdbcType="VARCHAR" property="healthNo"/>
@@ -51,6 +52,7 @@
             <if test="medicineID > 0">medicineID=#{medicineID}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(no)">AND no = #{no:VARCHAR}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(liveNo)">AND no LIKE '${liveNo}%'</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(ypID)">ypID=#{ypID:VARCHAR}</if>
             <if test="goodsID>0">goodsID=#{goodsID}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(chnName)">AND chnName LIKE '%${chnName}%'</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(liveChnName)">AND chnName LIKE '${liveChnName}%'</if>
@@ -73,21 +75,21 @@
         </where>
     </sql>
     <select id="selectMedicine" parameterType="int" resultMap="RecordResult">
-        SELECT medicineID, no, goodsID, pinyin, healthNo, chnName, engName, dose, spec, price, contents, producer, insurance, packUnit, minUnit, measureUnit, clinicUnit,minOfpack,
+        SELECT medicineID, no, ypID, goodsID, pinyin, healthNo, chnName, engName, dose, spec, price, contents, producer, insurance, packUnit, minUnit, measureUnit, clinicUnit, minOfpack,
                matchDrugID, matchInstrID, memo, western, route, injectRoute, antiClass, ddd, updateUser, updateTime, usageCounter, dealer, lastPurchaseTime, mental,
                maxDay, menstruum, isDelete, isStat, json
         FROM Medicine
         WHERE medicineID = #{medicineID:INTEGER}
     </select>
     <select id="selectMedicineByNo" parameterType="string" resultMap="RecordResult">
-        SELECT medicineID, no, goodsID, pinyin, healthNo, chnName, engName, dose, spec, price, contents, producer, insurance, packUnit, minUnit, measureUnit,clinicUnit, minOfpack,
+        SELECT medicineID, no, ypID, goodsID, pinyin, healthNo, chnName, engName, dose, spec, price, contents, producer, insurance, packUnit, minUnit, measureUnit, clinicUnit, minOfpack,
                matchDrugID, matchInstrID, memo, western, route, injectRoute, antiClass, ddd, updateUser, updateTime, usageCounter, dealer, lastPurchaseTime, mental,
                maxDay, menstruum, isDelete, isStat, json
         FROM Medicine
         WHERE no = #{no:VARCHAR}
     </select>
     <select id="selectMedicineByGoodsID" parameterType="int" resultMap="RecordResult">
-        SELECT medicineID, no, goodsID, pinyin, healthNo, chnName, engName, dose, spec, price, contents, producer, insurance, packUnit, minUnit, measureUnit,clinicUnit, minOfpack,
+        SELECT medicineID, no, ypID, goodsID, pinyin, healthNo, chnName, engName, dose, spec, price, contents, producer, insurance, packUnit, minUnit, measureUnit, clinicUnit, minOfpack,
                matchDrugID, matchInstrID, memo, western, route, injectRoute, antiClass, ddd, updateUser, updateTime, usageCounter, dealer, lastPurchaseTime, mental,
                maxDay, menstruum, isDelete, isStat, json
         FROM Medicine
@@ -95,7 +97,7 @@
     </select>
     <select id="queryMedicine" parameterType="java.util.Map" resultMap="RecordResult">
         SELECT M.*,D.chnName generalName,I.chnName instructionName,H.chnName healthName FROM
-        ( SELECT TOP ${limit} medicineID,no,goodsID,pinyin, healthNo,rtrim(chnName) chnName,engName,dose,spec,price,contents,producer,insurance,packUnit,minUnit,
+        ( SELECT TOP ${limit} medicineID,no, ypID, goodsID,pinyin, healthNo,rtrim(chnName) chnName,engName,dose,spec,price,contents,producer,insurance,packUnit,minUnit,
         measureUnit,clinicUnit,minOfpack,matchDrugID,matchInstrID,memo,western,route,injectRoute,antiClass,ddd,updateUser,updateTime,usageCounter,base,dealer,lastPurchaseTime,
         mental,maxDay,menstruum,isDelete,isStat,json
         FROM
@@ -115,7 +117,7 @@
     </select>
     <select id="queryMedicineDesc" parameterType="java.util.Map" resultMap="RecordResult">
         SELECT M.*,D.chnName generalName,I.chnName instructionName,H.chnName healthName FROM
-        ( SELECT TOP ${limit} medicineID,no,goodsID,pinyin, healthNo,rtrim(chnName) chnName,engName,dose,spec,price,contents,producer,insurance,packUnit,minUnit,
+        ( SELECT TOP ${limit} medicineID,no,ypID ,goodsID,pinyin, healthNo,rtrim(chnName) chnName,engName,dose,spec,price,contents,producer,insurance,packUnit,minUnit,
         measureUnit,clinicUnit,minOfpack,matchDrugID,matchInstrID,memo,western,route,injectRoute,antiClass,ddd,updateUser,updateTime,usageCounter,base,dealer,lastPurchaseTime,
         mental,maxDay,menstruum,isDelete,isStat,json
         FROM
@@ -131,7 +133,7 @@
         LEFT JOIN Instruction I ON M.matchInstrID=I.instructionID
         LEFT JOIN Drug D ON M.matchDrugID=D.drugID
         LEFT JOIN Health H ON M.healthNo=H.healthNo
-        ORDER BY  ${orderField} DESC
+        ORDER BY ${orderField} DESC
     </select>
     <select id="queryMedicineCount" parameterType="java.util.Map" resultType="int">
         SELECT count(medicineID) FROM Medicine
@@ -149,8 +151,8 @@
     </sql>
     <select id="liveMedicine" parameterType="java.util.Map" resultType="java.util.HashMap">
         select * from (
-        SELECT TOP ${limit} rtrim(chnName) chnName,rtrim(spec) spec,dose,insurance,base,no goodsNo,goodsID,producer,len(no) no_len,len(rtrim(chnName)) chnName_len
-        FROM (SELECT DISTINCT chnName,spec,dose,insurance,base,no,goodsID,producer FROM Medicine<include refid="liveWhere"/>) A
+        SELECT TOP ${limit} rtrim(chnName) chnName,rtrim(spec) spec,dose,insurance,base,no goodsNo,ypID,goodsID,producer,len(no) no_len,len(rtrim(chnName)) chnName_len
+        FROM (SELECT DISTINCT chnName,spec,dose,insurance,base,no,ypID,goodsID,producer FROM Medicine<include refid="liveWhere"/>) A
         <if test="start!=null and start > 0">
             WHERE chnName > ( SELECT max(chnName) FROM (SELECT TOP ${start} chnName FROM Medicine
             <include refid="liveWhere"/>
@@ -170,7 +172,8 @@
         route,injectRoute,antiClass,base,ddd,dealer,mental,maxDay,menstruum,updateUser)
         VALUES ( #{no:VARCHAR}, #{pinyin:VARCHAR}, #{healthNo:VARCHAR}, #{chnName:VARCHAR}, #{engName:VARCHAR}, #{dose:VARCHAR}, #{spec:VARCHAR},
         #{price:DOUBLE},
-        #{contents:DOUBLE}, #{producer:VARCHAR}, #{insurance:INTEGER}, #{packUnit:VARCHAR}, #{minUnit:VARCHAR},#{measureUnit:VARCHAR},#{clinicUnit:VARCHAR}, #{minOfpack:INTEGER}, #{matchDrugID:INTEGER},
+        #{contents:DOUBLE}, #{producer:VARCHAR}, #{insurance:INTEGER}, #{packUnit:VARCHAR}, #{minUnit:VARCHAR},#{measureUnit:VARCHAR},#{clinicUnit:VARCHAR}, #{minOfpack:INTEGER},
+        #{matchDrugID:INTEGER},
         #{matchInstrID:INTEGER}, #{memo:VARCHAR},#{western:INTEGER}, #{route:INTEGER},#{injectRoute:INTEGER}, #{antiClass:INTEGER},#{base:INTEGER},#{ddd:FLOAT},
         #{dealer:VARCHAR},#{mental:INTEGER},{maxDay:INTEGER},{menstruum:INTEGER},#{updateUser:VARCHAR})
         <selectKey resultType="int" order="AFTER" keyProperty="medicineID">
