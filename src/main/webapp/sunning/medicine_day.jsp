@@ -105,8 +105,8 @@
                             return (data * 100).toFixed(3) + "%";
                         }
                     },
-                    {"orderable": false, "targets": 9, title: '排名前三科室'},
-                    {"orderable": false, "targets": 10, title: '排名前三医生'},
+                    {"orderable": false, "targets": 9, title: '前三科室'},
+                    {"orderable": false, "targets": 10, title: '前三医生'},
                     {
                         'targets': 11, 'searchable': false, 'orderable': false, width: 110, title: '走势/科室/医生',
                         render: function (data, type, row, meta) {
@@ -161,7 +161,7 @@
                 '本月': [moment().startOf('month')],
                 '上月': [moment().month(moment().month() - 1).startOf('month'), moment().month(moment().month() - 1).endOf('month')],
                 '本季': [moment().startOf('quarter')],
-                '上季': [moment().quarter(moment().quarter() - 1).startOf('month'), moment().quarter(moment().quarter() - 1).endOf('quarter')],
+                '上季': [moment().quarter(moment().quarter() - 1).startOf('quarter'), moment().quarter(moment().quarter() - 1).endOf('quarter')],
                 '今年': [moment().startOf('year')],
                 '去年': [moment().year(moment().year() - 1).startOf('year'), moment().year(moment().year() - 1).endOf('year')]
             },

@@ -323,11 +323,13 @@ public class ExcelController {
                         //logger.debug("type4=" + value);
                         textValue = value.toString();
 
+                        Pattern intP = Pattern.compile("^\\d{10,}$");
                         Pattern p = Pattern.compile("^\\d+(\\.\\d+)?$");
                         Pattern pa = Pattern.compile("^[+-]?(?!0\\d)\\d+(\\.\\d+)?(E-?\\d+)?$");
+                        Matcher intM = intP.matcher(textValue);
                         Matcher matcher = p.matcher(textValue);
                         Matcher match = pa.matcher(textValue);
-                        if (textValue.length() < 12 && (matcher.matches() || match.matches())) {
+                        if (!intM.matches() && (matcher.matches() || match.matches())) {
                             //是数字当作double处理
 
                             //logger.debug("type2=" + textValue);
@@ -585,5 +587,11 @@ public class ExcelController {
             }
         }
         return workbook;
+    }
+
+    public static void main(String[] args) {
+        Pattern intP = Pattern.compile("^\\d{10,}$");
+        Matcher intM = intP.matcher("123456789012");
+        System.out.println("intM.matches() = " + intM.matches());
     }
 }

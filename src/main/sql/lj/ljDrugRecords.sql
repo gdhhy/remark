@@ -25,6 +25,7 @@ BEGIN
          left join YBHis.LJHis.dbo.BSUsage C on A.UsageId = C.ID
          left join YBHis.LJHis.dbo.BSUnit D on A.UnitDiagId = D.ID
          left join YBHis.LJHis.dbo.BsRoom E ON B.RoomId = E.ID
+       -- left join YBHis.LJHis.dbo.OuHosInfo F on B.mzRegID = F.ID
   where A.isissue = 1 and A.isCancel = 0 and A.isBack = 0 and A.RecipeTime >= @fromDate and A.RecipeTime < @nextDate;
   /* todo OuRecipeTemp 有重复！
   select A.ID, E.name, B.OperTime, B.mzRegID, B.MzRegNo, B.locationID, B.LocationName, A.itemID, D.name, A.Totality, A.price, A.Totality * A.price,
@@ -40,10 +41,11 @@ BEGIN
   --急诊、普通方、主任医师。。。
   UPDATE A
   SET A.clinicType= case when A.clinicType = '草药方' then '草药方' else T.regTypeName end,
-      A.hospID=T.ID,
-      A.patientName=T.patientName
+      --A.hospID=T.ID,
+      A.patientName=T.patientName,
+      A.patID=T.patID
   FROM DrugRecords A
-         left join (select B.ID, B.mzRegNo, B.name patientName, C.name regTypeName
+         left join (select B.ID, B.mzRegNo, B.name patientName, C.name regTypeName,B.patID
                     FROM YBHis.LJHis.dbo.OuHosInfo B
                            left join YBHis.LJHis.dbo.BsRegType C on C.ID = B.RegTypeId) T on T.mzRegNo = A.dispensingNo;
   --todo 挂号儿科，就是儿科方？
@@ -57,7 +59,7 @@ BEGIN
          left join YBHis.LJHis.dbo.InDrugReq B ON A.requestID = B.ID
          left join YBHis.LJHis.dbo.BsRoom C ON B.RoomId = C.ID
          left join YBHis.LJHis.dbo.BSUnit D on A.UnitReq = D.ID
-  where isIssued = 1 and B.ConfirmDate >= @fromDate and B.confirmDate < @nextDate;
+  where A.isIssued = 1 and B.ConfirmDate >= @fromDate and B.confirmDate < @nextDate and A.ID not in (select ReqDtlId from YBHis.LJHis.dbo.InDrugReqBack where isBack = 1)
   select @lastID = SCOPE_IDENTITY();
 
   --医生姓名
@@ -68,7 +70,8 @@ BEGIN
   where A.doctorID = B.ID;
   --病人姓名 todo 性别、年龄
   UPDATE A
-  SET A.patientName=B.name
+  SET A.patientName=B.name,
+      A.patID=B.patID
   FROM DrugRecords A,
        YBHis.LJHis.dbo.InHosinfo B
   where A.hospID = B.ID and A.adviceID > 0;
@@ -92,9 +95,9 @@ BEGIN
       exec sp_copy_index 'DrugRecords', @dstTableName;
     end
   set @sqlString = 'insert into ' + @dstTableName +
-                   '(recordID,drugstore,dispensingDate,hospID,patientName,dispensingNo,departID,department,clinicType,goodsID,unit,
+                   '(recordID,drugstore,dispensingDate,hospID,patID,patientName,dispensingNo,departID,department,clinicType,goodsID,unit,
                    quantity,price,doctorID,doctorName,usage,amount,adviceId,valid)
-                      select recordID,drugstore,dispensingDate,hospID,patientName,dispensingNo,departID,department,clinicType,goodsID,unit,
+                      select recordID,drugstore,dispensingDate,hospID,patID,patientName,dispensingNo,departID,department,clinicType,goodsID,unit,
                       quantity,price,doctorID,doctorName,usage,amount,adviceId,valid from DrugRecords;'
   exec (@sqlString);
   SELECT @insertRowCount = @@rowcount;

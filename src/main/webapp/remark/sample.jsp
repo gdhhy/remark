@@ -232,7 +232,7 @@
                     toDate: toDay.format("YYYY年MM月DD日"),
                     year: toDay.year(),
                     month: toDay.month(),
-                    department: departmentE.get(0).selectedIndex >= 0 ? departmentE.children('option:selected').val() : "",
+                    department: departmentE.get(0).selectedIndex >= 1 ? departmentE.children('option:selected').val() : "",
                     western: $('#form-western').children('option:selected').val(),
                     name: $('#form-name').val(),
                     num: $('#form-number').val()
@@ -310,10 +310,11 @@
             $.getJSON("/common/dict/listDict.jspa?parentID=108&value={0}".format(type === '1' ? '门诊科室' : '住院科室'), function (result) {
                 if (result.iTotalRecords > 0) {
                     $("#form-department option:gt(0)").remove();
+                    departmentE.append('<option value="{0}">{1}</option>'.format("全院", "全院"));
                     $.each(result.data, function (n, value) {
                         departmentE.append('<option value="{0}">{1}</option>'.format(value.name, value.name));
                     });
-                    departmentE.val("");
+                    departmentE.val("全院");
                 }
             });
         }
@@ -621,9 +622,9 @@
         //设置批次名称
         sampleForm.find("#form-department,#form-doctor,#form-medicine,#form-dateRange").change(function () {
             /*var batchName = $('#form-type').children('option:selected').val() === "1" ? "门诊" : "住院";*/
-            var batchName = "";
-            if (departmentE.get(0).selectedIndex >= 0)
-                batchName = departmentE.children('option:selected').val();
+            //var batchName = "";
+            //if (departmentE.get(0).selectedIndex >= 0)
+            var batchName = departmentE.children('option:selected').val();
             if ($('#form-doctor').val() !== '')
                 batchName += (batchName === "" ? "" : "-") + $('#form-doctor').val();
             if ($('#form-medicine').val() !== '')
@@ -671,7 +672,7 @@
                 incision: incision,
                 clinicType: clinicType,
                 dateRange: $('#form-dateRange').val(),
-                department: departmentE.children('option:selected').val(),
+                department: departmentE.get(0).selectedIndex >= 1 ? departmentE.children('option:selected').val() : "",
                 western: $('#form-western').children('option:selected').val(),
                 draw: Math.random()
             };
@@ -848,7 +849,7 @@
                         <label class="col-sm-3 control-label no-padding-right" for="form-department">科室 </label>
 
                         <div class="col-sm-9">
-                            <select id="form-department" data-placeholder="选择科室"></select>
+                            <select id="form-department"></select>
                         </div>
                     </div>
                 </div>

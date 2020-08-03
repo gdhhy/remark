@@ -160,7 +160,7 @@
             endDate: timeTo,
             ranges: {
                 '本季': [moment().startOf('quarter')],
-                '上季': [moment().quarter(moment().quarter() - 1).startOf('month'), moment().quarter(moment().quarter() - 1).endOf('quarter')],
+                '上季': [moment().quarter(moment().quarter() - 1).startOf('quarter'), moment().quarter(moment().quarter() - 1).endOf('quarter')],
                 '今年': [moment().startOf('year')],
                 '去年': [moment().year(moment().year() - 1).startOf('year'), moment().year(moment().year() - 1).endOf('year')]
             },

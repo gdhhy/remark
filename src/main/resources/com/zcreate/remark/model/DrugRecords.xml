@@ -131,7 +131,7 @@
             group by doctorName order by sum(amount) desc FOR XML PATH('')), 1, 1, '') topDoctor,
         </if>
         count(DISTINCT hospID) patient
-        FROM ${DrugRecordsTable} T LEFT JOIN Dict R ON R.name=T.department AND R.parentID=108
+        FROM ${DrugRecordsTable} T
         <include refid="queryWhere"/>
         GROUP BY goodsID) A
         WHERE M.goodsID =A.goodsID

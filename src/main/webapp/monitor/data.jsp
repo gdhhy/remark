@@ -152,7 +152,7 @@
                 '本月': [moment().startOf('month')],
                 '上月': [moment().month(moment().month() - 1).startOf('month'),  moment().month(moment().month() - 1).endOf('month')],
                 '本季': [moment().startOf('quarter')],
-                '上季': [moment().quarter(moment().quarter() - 1).startOf('month'),  moment().quarter(moment().quarter() - 1).endOf('quarter')]
+                '上季': [moment().quarter(moment().quarter() - 1).startOf('quarter'),  moment().quarter(moment().quarter() - 1).endOf('quarter')]
             },
             locale: locale
         }, function (start, end, label) {

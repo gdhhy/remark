@@ -50,7 +50,7 @@
                sum(case when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and adviceID = 0 and clinicType = '急诊' then amount else 0 end) emergDrugMoney,
                sum(case when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and adviceID = 0 and clinicType = '急诊' and antiClass > 0 then amount else 0 end) emergAntiDrugMoney,
                count(distinct case
-                                  when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and adviceID = 0 and antiClass > 0 and clinicType not in ('急诊', '草药方', '儿科方') then D.hospID
+                                  when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and adviceID = 0 and antiClass > 0 and clinicType not in ('急诊', '草药方', '儿科方') then D.patID
                                   else null end) clinicAntiPatient2,
                count(distinct case
                                   when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and adviceID = 0 and antiClass > 0 and clinicType not in ('急诊', '草药方', '儿科方') then patientDrug
@@ -76,7 +76,7 @@
                count(distinct case when outDate >= #{fromDate:DATE} and outDate &lt; #{toDate:DATE} and route = 2 then P.hospID else null end) hospitalVdPatient,
                sum(case when outDate > #{fromDate:DATE} and outDate &lt; #{toDate:DATE} and M.ddd > 0 and P.stay = 0 and usage != '出院带药' then contents * quantity / ddd else 0 end) DDDs
 
-        from (select adviceID, hospID, goodsID, amount, clinicType, dispensingDate pDate, quantity, usage, cast(hospID as VARCHAR(10)) + cast(goodsID as VARCHAR(10)) patientDrug
+        from (select adviceID, hospID, goodsID, patID,amount, clinicType, dispensingDate pDate, quantity, usage, cast(hospID as VARCHAR(10)) + cast(goodsID as VARCHAR(10)) patientDrug
               from ${DrugRecordsTable}) D
                  left join Medicine M on D.goodsID = M.goodsID
                  left join InPatient P on D.hospID = P.hospID

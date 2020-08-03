@@ -223,7 +223,7 @@ value="${(stat.clinicBaseDrugNum+stat.hospitalBaseDrugNum)*1.0/(stat.clinicDrugN
             <tr align="right">
                 <td bgColor="#75c8cc" align="center">注射使用率</td>
                 <td>-</td>
-                <td><c:if test="${stat.clinicPatient2>0}">fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.clinicInjectAntiPatient*1.0/stat.clinicPatient}"/></c:if></td>
+                <td><c:if test="${stat.clinicPatient2>0}"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.clinicInjectAntiPatient*1.0/stat.clinicPatient}"/></c:if></td>
                 <td><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.outInjectAntiPatient*1.0/stat.outHospitalPatient}"/></td>
                 <td align="left">门诊：注射抗菌药人数(${stat.clinicInjectAntiPatient})／门诊人数<br/>住院：注射抗菌药出院人数(${stat.outInjectAntiPatient})<br/>／出院人数
                 </td>

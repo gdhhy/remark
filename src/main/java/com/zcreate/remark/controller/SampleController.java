@@ -74,7 +74,7 @@ public class SampleController {
                               @RequestParam(value = "draw", required = false, defaultValue = "1") int draw,
                               @RequestParam(value = "type", required = false, defaultValue = "0") int type,
                               @RequestParam(value = "start", required = false, defaultValue = "0") int start,
-                              @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
+                              @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
 
         List<HashMap<String, Object>> list = sampleDao.getSampleList(querySampleBatchID, type, 0, 100000);
        /* log.debug("list:" + list);
