@@ -1039,7 +1039,7 @@ public class RemarkController {
                                 @RequestParam(value = "amount", required = false) Integer amount,
                                 @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
                                 @RequestParam(value = "start", required = false, defaultValue = "0") int start,
-                                @RequestParam(value = "length", required = false, defaultValue = "100") int limit) {
+                                @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
         HashMap<String, Object> param = new HashMap<>();
         if (!"".equals(fromDate)) {
             Calendar date = DateUtils.parseCalendarDayFormat(fromDate);

@@ -132,52 +132,6 @@
         });
 
 
-        /* function showDepartmentDetail(department) {
-             var url = "/sunning/byDepartDetail.jspa?fromDate={0}&toDate={1}&department={2}&limit=1000";
-
-             //console.log("text=" + $('#disItem').val());
-             $.ajax({
-                 type: "GET",
-                 url: url.format(startDate.format("YYYY-MM-DD"), endDate.format("YYYY-MM-DD"), department),
-                 contentType: "application/json; charset=utf-8",
-                 cache: false,
-                 success: function (response, textStatus) {
-                     var respObject = JSON.parse(response);
-                     if (respObject.data.length > 0) {
-                         //if($("#departmentTable tbody tr").length === 0)
-                         //$('#departmentTable').empty();
-
-                         $('#departmentTable tbody tr').remove();
-                         var i = 0;
-                         $.each(respObject.data, function () {
-                             var $tr = ('<tr><td style="text-align: center">{0}</td><td style="text-align: center">{1}</td>' +
-                                 '<td style="text-align: right">{2}</td><td style="text-align: right">{3}</td>' +
-                                 '<td style="text-align: right">{4}</td><td style="text-align: right">{5}</td></tr>'
-                             ).format(++i, this.chnName, this.spec, this.quantity, accounting.format(this.amount, 2), accounting.format(this.ratioInDepart * 100, 2) + '%');
-                             // console.log($tr);
-                             $("#departmentTable tbody").append($tr);
-                         });
-                         $('#dialog-title').text(department + " - 用药明细");
-                         $('#showDepartDoctorDialog').modal();
-                         console.log("i=" + i);
-                     }
-                 },
-                 error: function (response, textStatus) {/!*能够接收404,500等错误*!/
-                     $("#errorText").html(response.responseText);
-                     $("#dialog-error").removeClass('hide').dialog({
-                         modal: true,
-                         width: 600,
-                         title: "请求状态码：" + response.status,//404，500等
-                         buttons: [{
-                             text: "确定", "class": "btn btn-primary btn-xs", click: function () {
-                                 $(this).dialog("close");
-                             }
-                         }]
-                     });
-                 },
-
-             });
-         }*/
     })
 </script>
 

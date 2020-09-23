@@ -6,7 +6,6 @@ import com.zcreate.remark.dao.DrugRecordsMapper;
 import com.zcreate.remark.util.ParamUtils;
 import com.zcreate.review.dao.ClinicDAO;
 import com.zcreate.review.dao.InPatientDAO;
-import com.zcreate.review.logic.AntibiosisService;
 import com.zcreate.review.logic.StatService;
 import com.zcreate.review.model.Clinic;
 import com.zcreate.util.DataFormat;
@@ -48,8 +47,6 @@ public class ExcelController {
     @Autowired
     private StatService statService;
     @Autowired
-    private AntibiosisService antibiosisService;
-    @Autowired
     private DrugRecordsMapper drugRecordsMapper;
     @Autowired
     private DictService dictService;
@@ -58,7 +55,7 @@ public class ExcelController {
     @Autowired
     private InPatientDAO inPatientDao;
     String templateDir = "template";
-    String downloadDir = "tmp";
+    //String downloadDir = "tmp";
 
     //药品分析（天）--力锦
     //@ResponseBody
@@ -148,7 +145,7 @@ public class ExcelController {
                              @RequestParam(value = "department", required = false) String department,
                              @RequestParam(value = "amount", required = false) Integer amount,
                              @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
-                             @RequestParam(value = "length", required = false, defaultValue = "100") int limit) throws Exception {
+                             @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) throws Exception {
         HashMap<String, Object> param = new HashMap<>();
         if (!"".equals(fromDate)) {
             Calendar date = DateUtils.parseCalendarDayFormat(fromDate);
@@ -179,7 +176,7 @@ public class ExcelController {
         DecimalFormat df = new DecimalFormat("0.#");
         List<HashMap<String, Object>> list = clinicDao.selectClinicForExcel(param);
         for (HashMap<String, Object> map : list) {
-            String aa = df.format(map.get("eachQuantity")) + map.get("eachUnit").toString() + " " + map.get("frequency").toString();
+            String aa = df.format(map.get("eachQuantity")) + map.get("eachUnit").toString() + " " + (map.get("frequency") == null ? "" : map.get("frequency").toString());
             map.put("quantityUnitFrequency", aa);
         }
 

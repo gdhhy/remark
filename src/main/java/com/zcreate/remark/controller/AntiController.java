@@ -25,10 +25,6 @@ public class AntiController {
     private StatDAO statDao;
     @Autowired
     private DrugRecordsMapper drugRecordsMapper;
-   /*@Autowired
-    private DailyDAO dailyDao;
-    @Autowired
-    private AntibiosisService antibiosisService;*/
 
     Map<String, Object> retMap;
     private Gson gson = new GsonBuilder().serializeNulls().setDateFormat("yyyy-MM-dd HH:mm").create();

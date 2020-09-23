@@ -74,7 +74,16 @@
                                   when outDate >= #{fromDate:DATE} and outDate &lt; #{toDate:DATE} and antiClass > 0 then cast(P.hospID as VARCHAR(10)) + cast(M.goodsID as VARCHAR(10))
                                   else null end) outAntiNum,
                count(distinct case when outDate >= #{fromDate:DATE} and outDate &lt; #{toDate:DATE} and route = 2 then P.hospID else null end) hospitalVdPatient,
-               sum(case when outDate > #{fromDate:DATE} and outDate &lt; #{toDate:DATE} and M.ddd > 0 and P.stay = 0 and usage != '出院带药' then contents * quantity / ddd else 0 end) DDDs
+               sum(case when outDate > #{fromDate:DATE} and outDate &lt; #{toDate:DATE} and M.ddd > 0 and P.stay = 0 and usage != '出院带药' then contents * quantity / ddd else 0 end) DDDs,
+               sum(case when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and adviceID = 0 and M.chnName in ('胃肠乐片','骨脉康胶囊') then amount else 0 end) selfClinicAmount,
+               sum(case when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and adviceID > 0 and M.chnName in ('胃肠乐片','骨脉康胶囊')  then amount else 0 end) selfHospitalAmount,
+               sum(case when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and adviceID = 0 and M.western=4 then amount else 0 end) tradClinicAmount,
+               sum(case when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and adviceID > 0 and M.western=4 then amount else 0 end) tradHospitalAmount,
+               count(distinct case when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and adviceID = 0 and dose ='中药注射剂' then D.hospID else null end) tradInjectClinicPatient,
+               count(distinct case when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and adviceID > 0 and dose ='中药注射剂' then D.hospID else null end) tradInjectHospitalPatient,
+               count(distinct case when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and adviceID = 0 and mental=8 and clinicType = '急诊' then D.hospID else null end) gcClinicPatient,
+               count(distinct case when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and adviceID = 0 and  mental=16 then D.hospID else null end) ppiClinicPatient,
+               count(distinct case when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and adviceID > 0 and  mental=16 then D.hospID else null end) ppiHospitalPatient
 
         from (select adviceID, hospID, goodsID, patID,amount, clinicType, dispensingDate pDate, quantity, usage, cast(hospID as VARCHAR(10)) + cast(goodsID as VARCHAR(10)) patientDrug
               from ${DrugRecordsTable}) D

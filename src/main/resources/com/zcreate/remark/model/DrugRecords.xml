@@ -268,26 +268,6 @@
         LEFT JOIN Dict D ON P.department = D.name and D.parentID=108
         order by D.orderNum;
     </select>
-    <!--抗菌药按科室查询-->
-    <select id="antiDepart2" parameterType="java.util.Map" resultType="java.util.Map">
-        SELECT A.department,A.antiAmount,D.amount,CASE WHEN D.hospitalDay>0 THEN A.DDDs/D.hospitalDay ELSE 0 END AUD,A.clinicAntiPatient,A.DDDs,D.hospitalDay,D.hospitalPatient2,
-        D.clinicPatient,D.clinicPatient2,CASE WHEN D.orderNum IS NOT null THEN D.orderNum ELSE 9999999 END orderNum
-        FROM
-        (SELECT department,sum(antiAmount)antiAmount,sum(clinicAntiPatient) clinicAntiPatient, sum(DDDs) DDDs FROM (
-        SELECT CASE WHEN len(T.department)>3 and T.department not like '%产科%' THEN replace(T.department,'门诊','') ELSE T.department END department, sum(T.amount) antiAmount,
-        sum(CASE WHEN len(T.dispensingNo)>=10 AND M1.ddd>0 THEN T.quantity*M1.contents/M1.ddd ELSE 0 END)*100.0 DDDs,
-        count(DISTINCT CASE WHEN len(T.dispensingNo) &lt; 10 THEN T.invoiceNo ELSE null END) clinicAntiPatient
-        FROM ${DrugRecordsTable} T LEFT JOIN Medicine M1 ON T.goodsID=M1.goodsID
-        WHERE T.dispensingDate >= #{fromDate:TIMESTAMP} AND T.dispensingDate &lt; #{toDate:TIMESTAMP}
-        <if test="@com.zcreate.util.Ognl@isNotEmpty(medicineNo)">AND M1.medicineNo=#{medicineNo:VARCHAR}</if>
-        <if test="antiClass!=null and antiClass>0">AND M1.antiClass=#{antiClass:INTEGER}</if>
-        AND T.adviceType!='出院带药' AND T.adviceType!='其他'
-        GROUP BY T.department)A GROUP BY department) A,
-        (SELECT A.department,sum(A.clinicPatient)clinicPatient, sum(A.clinicPatient2)clinicPatient2, sum(A.hospitalDay)hospitalDay,
-        sum(A.hospitalPatient2)outPatient,max(D.orderNum) orderNum,sum(A.clinicAmount+A.hospitalAmount)amount,sum(hospitalPatient2) hospitalPatient2
-        FROM DailyDepart A LEFT JOIN rbac..Dict D ON D.name=A.department WHERE A.date >= #{fromDate:TIMESTAMP} AND A.date &lt; #{toDate:TIMESTAMP} GROUP BY A.department) D
-        WHERE A.department=D.department ORDER BY A.antiAMount DESC
-    </select>
     <!--抗菌药品种统计 2019-12-31确认-->
     <select id="antiDrug" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT M.no
@@ -316,7 +296,7 @@
     <!--力锦-->
     <select id="selectAntiGroupDepartment" parameterType="java.util.Map" resultType="java.util.HashMap">
         select A.*, B.hospitalDay, A.DDDs * 100.0 / hospitalDay AUD
-        from (select replace(D.department, '门诊', '') department,
+        from (select case when D.department not in ('一门诊','二门诊') then replace(D.department, '门诊', '') else D.department end department,
                      sum(case when D.dispensingDate between #{fromDate:DATE} and #{toDate:DATE} and M.antiClass > 0 then amount else 0 end) antiAmount,
                      sum(case when D.dispensingDate between #{fromDate:DATE} and #{toDate:DATE} then amount else 0 end) amount,
                      sum(case when D.dispensingDate between #{fromDate:DATE} and #{toDate:DATE} and M.antiClass > 0 then quantity else 0 end) antiQty,
@@ -327,8 +307,8 @@
                      count(distinct case when dispensingDate between #{fromDate:DATE} and #{toDate:DATE} and adviceID = 0 and antiClass > 0 then D.hospID else null end) clinicAntiPatient
               from ${DrugRecordsTable} D
                        left join Medicine M on M.goodsID = D.goodsID
-                       left join InPatient P on P.hospID = D.hospID
-              group by replace(D.department, '门诊', '')) A
+                       left join InPatient P on P.hospID = D.hospID and D.clinicType in('长嘱','临嘱')
+              group by case when D.department not in ('一门诊','二门诊') then replace(D.department, '门诊', '') else D.department end) A
                  left join
              (select department, sum(datediff(day, inDate, outDate) + 1) hospitalDay
               from InPatient P

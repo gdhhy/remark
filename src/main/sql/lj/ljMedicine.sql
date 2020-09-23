@@ -130,7 +130,7 @@ BEGIN
       --A.antiClass = B.antiClass,
       -- A.producer = B.producer,
       --A.injection = B.injection,
-      --A.base = B.base,
+      A.base = B.base,
       A.packUnit = B.packUnit,
       A.minUnit = B.minUnit,
       A.clinicUnit = B.clinicUnit,

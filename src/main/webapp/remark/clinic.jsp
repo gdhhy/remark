@@ -328,14 +328,14 @@
                                                     <c:if test="${detail.incompatibility}">
                                                         <td onmouseout="hiddenPic();" onmousemove="showPic('${detail.taboo}');">
                                                             <span style="color:#ee0000;">${detail.quantity}${detail.unit} &nbsp;
-                                                                (<fmt:formatNumber pattern="0.#" value="${detail.eachQuantity}"/> ${detail.eachUnit}／次)
+                                                                (<fmt:formatNumber pattern="0.0#" value="${detail.eachQuantity}"/> ${detail.eachUnit}／次)
                                                                   　${detail.frequency}
                                                             </span>
                                                         </td>
                                                     </c:if>
                                                     <c:if test="${!detail.incompatibility}">
                                                         <td>${detail.quantity} ${detail.unit} &nbsp;
-                                                            (<fmt:formatNumber pattern="0.#" value="${detail.eachQuantity}"/> ${detail.eachUnit}／次)
+                                                            (<fmt:formatNumber pattern="0.0#" value="${detail.eachQuantity}"/> ${detail.eachUnit}／次)
                                                             　${detail.frequency}
                                                         </td>
                                                     </c:if>

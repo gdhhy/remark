@@ -239,23 +239,6 @@ public class SunningController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "byDepartDetail", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
-    public String byDepartDetail(
-            @RequestParam(value = "department", required = false, defaultValue = "") String department,
-            @RequestParam(value = "healthNo", required = false, defaultValue = "") String healthNo,
-            @RequestParam(value = "fromDate") String fromDate,
-            @RequestParam(value = "toDate") String toDate,
-            @RequestParam(value = "type", required = false, defaultValue = "-1") Integer type,
-            @RequestParam(value = "antiClass", required = false, defaultValue = "-1") Integer antiClass,
-            @RequestParam(value = "draw", required = false, defaultValue = "0") int draw,
-            @RequestParam(value = "start", required = false, defaultValue = "0") int start,
-            @RequestParam(value = "length", required = false, defaultValue = "1000") int limit) {
-        List<HashMap<String, Object>> result = statService.getDepartDetail(fromDate, toDate, department, type, healthNo, antiClass);
-
-        return wrap(result, start, limit, draw);
-    }
-
-    @ResponseBody
     @RequestMapping(value = "byDoctor", method = RequestMethod.GET, produces = "text/html;charset=UTF-8")
     public String byDoctor(
             @RequestParam(value = "department", required = false, defaultValue = "") String department,

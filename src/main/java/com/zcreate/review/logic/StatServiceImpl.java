@@ -4,8 +4,6 @@ import com.zcreate.ReviewConfig;
 import com.zcreate.remark.dao.DrugRecordsMapper;
 import com.zcreate.remark.dao.SunningMapper;
 import com.zcreate.remark.util.ParamUtils;
-import com.zcreate.review.dao.DailyDAO;
-import com.zcreate.review.dao.DailyDAOImpl;
 import com.zcreate.review.dao.StatDAO;
 import com.zcreate.review.dao.StatDAOImpl;
 import com.zcreate.util.StatMath;
@@ -29,7 +27,6 @@ public class StatServiceImpl implements StatService {
     static Logger logger = Logger.getLogger(StatServiceImpl.class);
 
     private static StatDAO statDao;
-    private static DailyDAO dailyDao;
     @Autowired
     private DrugRecordsMapper drugRecordsMapper;
     @Autowired
@@ -44,10 +41,6 @@ public class StatServiceImpl implements StatService {
         StatDAOImpl statDao = new StatDAOImpl();
         statDao.setSqlSessionTemplate(sqlMapClient);
         StatServiceImpl.statDao = statDao;
-
-        DailyDAOImpl dailyDao = new DailyDAOImpl();
-        dailyDao.setSqlSessionTemplate(sqlMapClient);
-        StatServiceImpl.dailyDao = dailyDao;
     }
 
     public HashMap<String, Object> summary(String fromDate, String toDate) {
@@ -128,23 +121,6 @@ public class StatServiceImpl implements StatService {
             aMap.put("patientRatio", ((Integer) aMap.get("patient")) * 1.0 / ((Integer) summary.get("clinicPatient") + (Integer) summary.get("hospitalPatient")));
         }
         return result;
-    }
-
-
-    public List<HashMap<String, Object>> getDepartDetail(String fromDate, String toDate, String depart, int type, String healthNo, int antiClass) {
-        HashMap<String, Object> param = produceMap(fromDate, toDate, depart, -1);
-        param.put("antiClass", antiClass);
-        param.put("healthNo", healthNo);
-        List<HashMap<String, Object>> result = dailyDao.getMedicineListByDepart(param);
-
-        StatMath.sumAndCalcRatio(result, "amount", "ratioInDepart");
-        return result;
-    }
-
-    public List<HashMap<String, Object>> getDailyInOut(int recordCount) {
-        HashMap<String, Object> param = new HashMap<String, Object>(1);
-        param.put("recordCount", recordCount);
-        return dailyDao.getDailyInOut(param);
     }
 
     @Override

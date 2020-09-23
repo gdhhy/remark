@@ -369,7 +369,7 @@
                         },
                         error: function (response, textStatus) {/*能够接收404,500等错误*/
                             showDialog("请求状态码：" + response.status, response.responseText);
-                        },
+                        }
                     });
                 });
             }).on('select', function (e, dt, type, indexes) {

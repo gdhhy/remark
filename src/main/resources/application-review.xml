@@ -29,7 +29,7 @@
     </bean>
     <bean id="hisDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-        <property name="url" value="jdbc:sqlserver://192.168.0.20:1433;databaseName=LjHis_yber"/>
+        <property name="url" value="jdbc:sqlserver://192.168.0.20:1433;databaseName=LjHis"/>
         <property name="username" value="sa"/>
         <property name="password" value="Tao60700"/>
         <!--<property name="url" value="jdbc:sqlserver://168.168.168.83:1433;databaseName=LJHIS"/>
@@ -123,10 +123,6 @@
         <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
         <property name="reviewConfig" ref="reviewConfig"/>
     </bean>
-    <bean id="dailyDao" class="com.zcreate.review.dao.DailyDAOImpl">
-        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
-        <property name="reviewConfig" ref="reviewConfig"/>
-    </bean>
     <bean id="importDao" class="com.zcreate.review.dao.ImportDAOImpl">
         <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
     </bean>
@@ -192,9 +188,6 @@
         <!--这里单位秒-->
         <constructor-arg index="1" value="1"/>
         <constructor-arg index="2" value="3600"/>
-    </bean>
-    <bean id="antibiosisService" class="com.zcreate.review.logic.AntibiosisServiceImpl">
-        <constructor-arg ref="sqlSessionTemplate"/>
     </bean>
     <bean class="com.zcreate.pinyin.PinyinUtil">
         <property name="dictServer" ref="dictService"/>

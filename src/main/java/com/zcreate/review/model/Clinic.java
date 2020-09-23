@@ -24,6 +24,7 @@ public class Clinic implements Serializable {
     private Boolean sex;
     //显示用，保持原样
     private String age;
+    private String ageString;
 
     //计算用
     //private Double dAge;
@@ -399,6 +400,14 @@ public class Clinic implements Serializable {
 
     public String getMemo() {
         return memo;
+    }
+
+    public String getAgeString() {
+        return ageString;
+    }
+
+    public void setAgeString(String ageString) {
+        this.ageString = ageString;
     }
 
     public void setMemo(String memo) {

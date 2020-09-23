@@ -994,6 +994,7 @@
                                 <option value="1">精神药品</option>
                                 <option value="4">麻醉药品</option>
                                 <option value="8">糖皮质激素</option>
+                                <option value="16">质子泵抑制药注射</option>
                             </select>
                         </div>
                     </div>

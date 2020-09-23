@@ -282,7 +282,7 @@
                 $('#dt2').addClass("hide");
                 $('#dt').removeClass("hide");
                 $("#queryItem option:first").remove();
-                $("#queryItem").prepend("<option value='hospNo'>门诊号</option>");
+                $("#queryItem").prepend("<option value='mzNo'>门诊号</option>");
                 $("#queryItem option:first").attr("selected", true);
                 //$("#queryItem option:first").val("门诊号");
             } else {
@@ -334,7 +334,7 @@
 
             <div class="input-group">
                 <select class="nav-search-input   ace" id="queryItem" name="queryItem" style="font-size: 9px;color: black">
-                    <option value="hospNo">门诊号</option>
+                    <option value="mzNo">门诊号</option>
                     <option value="doctorName">医生</option>
                     <option value="patientName">病人</option>
                 </select>&nbsp;
