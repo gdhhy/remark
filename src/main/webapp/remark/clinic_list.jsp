@@ -42,7 +42,7 @@
                     {"data": "clinicTime", "sClass": "center"},
                     {"data": "patientName", "sClass": "center"},
                     {"data": "age", "sClass": "center"},//4
-                    {"data": "diagnosis", "sClass": "center"},
+                    {"data": "diagnosis", "sClass": "center",defaultContent:''},
                     {"data": "clinicType", "sClass": "center"},
                     {"data": "drugNum", "sClass": "center"},
                     {"data": "antiNum", "sClass": "center"},
@@ -68,7 +68,7 @@
                     {"orderable": false, "targets": 1, title: '门诊号', width: 120},
                     {"orderable": false, "targets": 2, title: '时间', width: 45},//, width: 85
                     {"orderable": false, "targets": 3, title: '姓名', width: 60},
-                    {"orderable": false, "targets": 4, title: '年龄', width: 50},
+                    {"orderable": false, "targets": 4, title: '年龄', width: 80},
                     {"orderable": false, "targets": 5, title: '诊断'},
                     {"orderable": false, "targets": 6, title: '类型', width: 45},
                     {"orderable": false, "targets": 7, title: '品种数', defaultContent: '', width: 60},

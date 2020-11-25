@@ -4,8 +4,6 @@ import ChartDirector.Chart;
 import ChartDirector.XYChart;
 import com.zcreate.remark.dao.DrugRecordsMapper;
 import com.zcreate.remark.util.ChartHelp;
-import com.zcreate.review.dao.DailyDAO;
-import com.zcreate.review.dao.StatDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

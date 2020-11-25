@@ -11,8 +11,8 @@
     </sql>
     <select id="selectSampleClinic" parameterType="java.util.Map" resultType="java.util.HashMap">
         select TOP ${limit} A.detailID,A.sampleBatchID,P.clinicID,P.mzNo,P.rxCount,convert(varchar(5),P.clinicDate,108) clinicTime,P.clinicDate,P.hospID,
-        P.diagnosis,P.drugNum,P.antiNum,P.injectionNum,P.baseDrugNum,P.publish, P.money, P.rational,P.age,P.patientName, P.disItem ,P.department, P.isWestern western,
-        P.doctorName, P.confirmName,P.apothecaryName, P.reviewDate,substring(P.clinicType,1,1) clinicType
+        P.diagnosis,P.drugNum,P.antiNum,P.injectionNum,P.baseDrugNum,P.publish, P.money, P.rational, case when P.ageString is null then P.age else P.ageString end age,P.patientName,
+        P.disItem ,P.department, P.isWestern western, P.doctorName, P.confirmName,P.apothecaryName, P.reviewDate,substring(P.clinicType,1,1) clinicType
         from (select * from SampleList<include refid="queryWhere"/>) A
         left join Clinic P on P.clinicID = A.objectID
         <if test="start!=null and start > 0">

@@ -120,10 +120,10 @@
         });
 
         function renderRoute() {
-            console.log("route:" + route);
+            //console.log("route:" + route);
             $('#dynamic-table tr:gt(0)').each(function () {
                 var tdArr = $(this).children();
-                console.log("route:" + tdArr.eq(5).text());
+                //console.log("route:" + tdArr.eq(5).text());
                 var match = false;
                 $.each(route, function (index, object) {
                     if (object.value === tdArr.eq(5).text()) {
@@ -145,7 +145,7 @@
 
         $('.btn-success').click(function () {
             if ($('#form-goodsNo').val() !== '') {
-                myTable.ajax.url("/medicine/getMedicineList.jspa?goodsNo={0}&matchType={1}&type={2}"
+                myTable.ajax.url("/medicine/getMedicineList.jspa?no={0}&matchType={1}&type={2}"
                     .format($('#form-goodsNo').val(), $('#matchType').val(), $('#type').val())).load();
             } else {
                 myTable.ajax.url("/medicine/getMedicineList.jspa?queryChnName={0}&matchType={1}&type={2}"
@@ -499,7 +499,8 @@
                 $('#instructionName').html(result.instructionName == null ? "&nbsp;" : result.instructionName);
 
                 $('#medicineID').val(medicineID);
-                $('#contents').html((result.contents === null || result.contents === '') ? '&nbsp;' : result.contents);
+                //console.log("result.contents:"+result.contents);
+                $('#contents').val(result.contents);
                 $('#ddd').val(result.ddd);
                 $('#maxDay').val(result.maxDay);
                 $('#antiClass').val(result.antiClass);
@@ -925,9 +926,6 @@
                     </div>
                     <div class="form-group" style="margin-bottom: 3px;margin-top: 3px">
                         <label class="col-sm-3 control-label no-padding-right" for="contents"> 含量 </label>
-                        <%-- <div class="col-sm-2">
-                             <div style="border-bottom: 1px solid; border-bottom-color: lightgrey" id="contents"></div>
-                         </div>--%>
                         <div class="col-sm-6">
                             <input type="text" id="contents" name="contents" placeholder="含量" class="col-xs-10 col-sm-5"/>
                         </div>

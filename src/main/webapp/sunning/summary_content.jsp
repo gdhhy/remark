@@ -92,13 +92,22 @@
                 <td align="right"></td>
             </tr>
             <tr>
-                <td bgColor="#75c8cc" align="center">基本药物比例</td>
+                <td bgColor="#75c8cc" align="center">基本药物品种比例</td>
                 <td align="right"><c:if test="${stat.hospitalDrugNum>0}"><fmt:formatNumber type="PERCENT" maxFractionDigits="2"
                                                                                            value="${(stat.clinicBaseDrugNum+stat.hospitalBaseDrugNum)*1.0/(stat.clinicDrugNum+stat.hospitalDrugNum)}"/></c:if></td>
                 <td align="right"><c:if test="${stat.clinicDrugNum>0}"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.clinicBaseDrugNum*1.0/stat.clinicDrugNum}"/></c:if></td>
                 <td align="right"><c:if test="${stat.hospitalDrugNum>0}"><fmt:formatNumber type="PERCENT" maxFractionDigits="2"
                                                                                            value="${stat.hospitalBaseDrugNum*1.0/stat.hospitalDrugNum}"/></c:if></td>
                 <td align="left">基药品种数／总用药品种数</td>
+            </tr>
+            <tr>
+                <td bgColor="#75c8cc" align="center">基本药物使用率</td>
+                <td align="right">-</td>
+                <td align="right"><c:if test="${stat.clinicCount>0}"><fmt:formatNumber type="PERCENT" maxFractionDigits="2"
+                                                                                       value="${stat.clinicBaseCount*1.0/stat.clinicCount}"/></c:if></td>
+                <td align="right"><c:if test="${stat.outHospitalPatient>0}"><fmt:formatNumber type="PERCENT" maxFractionDigits="2"
+                                                                                              value="${stat.outBasePatient*1.0/stat.outHospitalPatient}"/></c:if></td>
+                <td align="left">门诊基药处方占比(不含急诊大输液处方数${stat.clinicCount})<br/>住院患者基本药物使用率</td>
             </tr>
             <tr>
                 <td bgColor="#75c8cc" align="center">注射剂使用率</td>
@@ -133,7 +142,7 @@
                 <td bgColor="#75c8cc" align="center">急诊患者糖皮质<br/>激素输液使用率</td>
                 <td align="right">-</td>
                 <td align="right"><c:if test="${stat.emergPatient>0}"><fmt:formatNumber type="PERCENT" maxFractionDigits="2"
-                                                                                         value="${stat.gcClinicPatient*1.0/stat.emergPatient}"/></c:if></td>
+                                                                                        value="${stat.gcClinicPatient*1.0/stat.emergPatient}"/></c:if></td>
                 <td align="right">-</td>
                 <td align="left">本院药品-特殊分类：糖皮质激素</td>
             </tr>
