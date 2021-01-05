@@ -295,7 +295,7 @@
                     "text": "<i class='fa fa-calendar-plus-o red'></i>新抽样 ",
                     "className": "btn btn-xs btn-white btn-primary"
                 }
-            ]p
+            ]
         });
         myTable.buttons().container().appendTo($('.tableTools-container'));
 

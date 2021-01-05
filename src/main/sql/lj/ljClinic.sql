@@ -16,15 +16,18 @@ BEGIN
   delete Rx where prescribeDate >= @fromDate and prescribeDate < @nextDate;
   SELECT @deleteRowCount = @@rowcount;
 
-  insert into Rx(hospID, rxNo, mzNo, prescribeDate, patientID, patientName, sex, age, nAge, department, diagnosis, doctorID, clinicType, copyNum, isWestern,Memo)
-  SELECT A.mzRegID, A.RecipeId, A.MzRegNo, A.recipeTime, B.patID, A.name, case A.sex when '女' then 0 else 1 end,
-         A.BabyMonth, A.age, A.LocationName, stuff((select distinct ','+IllDesc from YBHis.LJHis.dbo.OuClincDiag where mzRegID=A.mzRegID for XML PATH('')),1,1,'') IllDesc,
-         A.DoctorId, case when C.Name is null then '普通门诊' else C.Name end, A.howMany, A.LsRepType,E.memo
-  from YBHis.LJHis.dbo.OuRecipeTemp A
-         left join YBHis.LJHis.dbo.OuHosInfo B on A.RecipeNum = B.MzRegNo
-         left join YBHis.LJHis.dbo.OuRecipe E on A.MzRegID = E.MzRegID
+  insert into Rx(ouRecipeID, hospID, rxNo, recipeNum, mzNo, prescribeDate, patientID, patientName, sex,
+                 ageString, nAge, department, diagnosis,
+                 doctorID, clinicType, copyNum, isWestern, Memo)
+  SELECT E.ID, A.mzRegID, A.RecipeId, E.recipeNum, A.MzRegNo, A.recipeTime, B.patID, A.name, case A.sex when '女' then 0 else 1 end,
+         B.ageString, B.age, A.LocationName, B.F3 IllDesc,
+         -- case when B.F3 is null then  stuff((select distinct ','+IllDesc from YBHis.LJHis.dbo.OuClincDiag where mzRegID=A.mzRegID for XML PATH('')),1,1,'') else B.F3 end  IllDesc,
+         A.DoctorId, case when C.Name is null then '普通门诊' else C.Name end, A.howMany, E.LsRepType, E.memo
+  from YBHis.LJHis.dbo.OuRecipe E
+         left join YBHis.LJHis.dbo.OuRecipeTemp A on E.mzRegID = A.mzRegID and A.isBack = 0 and A.isIssue = 1
+         left join YBHis.LJHis.dbo.OuHosInfo B on A.MzRegNo = B.MzRegNo
          left join YBHis.LJHis.dbo.BsRegType C on C.ID = B.RegTypeId
-  where (A.LsRepType = 1 or A.LsRepType = 2) and A.isBack = 0 and A.isIssue = 1 AND A.recipeTime >= @fromDate and A.recipeTime < @nextDate;
+  where A.recipeTime >= @fromDate and A.recipeTime < @nextDate;
   /*2020-07-08
   update A
 set diagnosis=B.IllDesc
@@ -58,9 +61,9 @@ where   mzRegID  = 226658   ;
     END;
 
   insert into RxDetail(rxNo, prescribeDate, goodsID, quantity, money, frequency, freqNum, unit, eachUnit,
-                       dosage, spec, usage, eachQuantity, dayNum, price, orderID, groupID, paperNo,memo)
+                       dosage, spec, usage, eachQuantity, dayNum, price, orderID, groupID, paperNo, memo)
   select A.RecipeId, A.recipeTime, A.ItemId, A.Totality, A.price * A.Totality money, C.name Frequency, C.Times, B.Name, F.name,
-         E.name medicineName, E.spec, D.name usageName, A.Dosage, A.days, A.price, A.ID, A.groupNum, listNum,A.memo
+         E.name                                                               medicineName, E.spec, D.name usageName, A.Dosage, A.days, A.price, A.ID, A.groupNum, listNum, A.memo
          --A.groupNum, A.listNum,recNum
   from YBHis.LJHis.dbo.OuRecipeDtl A
          join YBHis.LJHis.dbo.BSItem E on A.ItemId = E.ID
@@ -68,7 +71,7 @@ where   mzRegID  = 226658   ;
          left join YBHis.LJHis.dbo.BSUnit F on A.UnitTakeId = F.ID
          left join YBHis.LJHis.dbo.BsFrequency C on A.FrequencyId = C.ID
          left join YBHis.LJHis.dbo.BsUsage D on A.UsageId = D.ID
-  where isissue = 1 and isCancel = 0 and isBack = 0 and E.LsGroupType = 1 and recipeTime >= @fromDate and recipeTime < @nextDate;;
+  where isissue = 1 and isCancel = 0 and isBack = 0 and E.LsGroupType = 1 and recipeTime >= @fromDate and recipeTime < @nextDate;
   --按年放入表
   if object_id(@dstTableName, N'U') is null
     begin

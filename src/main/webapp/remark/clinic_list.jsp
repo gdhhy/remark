@@ -41,7 +41,7 @@
                     {"data": "mzNo", "sClass": "center"},
                     {"data": "clinicTime", "sClass": "center"},
                     {"data": "patientName", "sClass": "center"},
-                    {"data": "age", "sClass": "center"},//4
+                    {"data": "age", "sClass": "center",defaultContent:''},//4
                     {"data": "diagnosis", "sClass": "center",defaultContent:''},
                     {"data": "clinicType", "sClass": "center"},
                     {"data": "drugNum", "sClass": "center"},

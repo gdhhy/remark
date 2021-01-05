@@ -35,9 +35,10 @@ BEGIN
   --********************************门诊部分********************************
   SELECT @fromClinicID = CASE WHEN max(clinicID) IS NULL THEN 0 ELSE max(clinicID) END + 1 FROM Clinic;
 
-  INSERT INTO Clinic (hospID, rxCount, mzNo, clinicDate, patientID, patientName, sex, age, department,
+  --alter table Clinic add babyMonth int ;
+  INSERT INTO Clinic (hospID, rxCount, mzNo, clinicDate, patientID, patientName, sex, age, ageString,department,
                       diagnosis, money, doctorID, confirmNo, apothecaryNo, isWestern, clinicType, copyNum,memo)
-  SELECT hospID, count(hospID) rxCount, max(mzNo), max(prescribeDate), max(patientID), max(patientName), max(sex), max(age), max(department),
+  SELECT hospID, count(hospID) rxCount, max(mzNo), max(prescribeDate), max(patientID), max(patientName), max(sex), max(nAge),max(ageString) ,max(department),
          max(diagnosis), 0, max(doctorID), max(confirmNo), max(apothecaryNo), isWestern, max(clinicType), max(copyNum), max(memo)
   FROM Rx
   WHERE isWestern > 0 AND hospID NOT IN (SELECT hospID FROM Clinic) AND valid = 1
@@ -160,6 +161,8 @@ BEGIN
   --UPDATE P SET apothecaryName = D.name FROM Clinic P, Doctor D WHERE D.doctorNo = right(P.apothecaryNo, 3) AND apothecaryName IS NULL;
   EXEC monitorUpdateTaskLog @logID, 'buildClinicInPatient', 'Clinic', @toClinicID, -1, @insertRowCount, @updateRowCount, @startTime;
 
+  -- 2021年增加，药剂科反馈：很多处方金额为零，删除它。也为后续导入检查方，提高阳光用药数据准确性。
+  delete Clinic where money<0.001;
   --***********************住院部分********************************
   SELECT @startTime = getdate(), @updateRowCount = -1;
   --药品数量
@@ -249,4 +252,3 @@ BEGIN
   EXEC monitorUpdateTaskLog @logID, 'buildClinicInPatient', 'InPatient', -1, -1, -1, @updateRowCount, @startTime;
 END;
 go
-

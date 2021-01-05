@@ -72,8 +72,8 @@ public class RemarkController {
     private AppealDAO appealDao;
     private Map<String, Object> retMap;
 
-    static int CLINIC_COLUMN_COUNT = 15;
-    static int HOSPITAL_COLUMN_COUNT = 20;
+    private static int CLINIC_COLUMN_COUNT = 17;
+    private static int HOSPITAL_COLUMN_COUNT = 20;
 
     JsonParser parser = new JsonParser();
     String templateDir = "excel";
@@ -582,9 +582,9 @@ public class RemarkController {
         HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "dp.xls"));
         //String  downFileName = "门诊处方评价表.xls";
         HSSFSheet sheet = wb.getSheet("Sheet1");
-        HSSFCell hospitalName = sheet.getRow(1).getCell(2);
-        HSSFCell usernameCell = sheet.getRow(2).getCell(2);
-        HSSFCell dateCell = sheet.getRow(2).getCell(13 - sampleBatch.getType());
+        HSSFCell hospitalName = sheet.getRow(1).getCell(3);
+        HSSFCell usernameCell = sheet.getRow(2).getCell(3);
+        HSSFCell dateCell = sheet.getRow(2).getCell(15 - sampleBatch.getType());
         hospitalName.setCellValue(dictService.getDictByNo("00011001").getValue());
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof UserDetails) {
@@ -609,21 +609,23 @@ public class RemarkController {
             }
             aRow.getCell(0).setCellValue(i + 1);
             aRow.getCell(1).setCellValue(DateUtils.formatDate((Timestamp) row.get("clinicDate"), "yyyyMMdd"));
-            aRow.getCell(2).setCellValue((String) row.get("age"));
-            aRow.getCell(3).setCellValue((String) row.get("diagnosis"));
-            aRow.getCell(4).setCellValue((Integer) (row.get("drugNum") == null ? 0 : row.get("drugNum")));
-            aRow.getCell(5).setCellValue((Integer) row.get("antiNum") == 0 || row.get("antiNum") == null ? 0 : 1);
-            aRow.getCell(6).setCellValue((Integer) row.get("injectionNum") > 0 ? 1 : 0);
-            aRow.getCell(7).setCellValue((Integer) row.get("baseDrugNum"));
+            aRow.getCell(2).setCellValue((String) row.get("sex"));
+            aRow.getCell(3).setCellValue((String) row.get("department"));
+            aRow.getCell(4).setCellValue((String) row.get("age"));
+            aRow.getCell(5).setCellValue((String) row.get("diagnosis"));
+            aRow.getCell(6).setCellValue((Integer) (row.get("drugNum") == null ? 0 : row.get("drugNum")));
+            aRow.getCell(7).setCellValue((Integer) row.get("antiNum") == 0 || row.get("antiNum") == null ? 0 : 1);
+            aRow.getCell(8).setCellValue((Integer) row.get("injectionNum") > 0 ? 1 : 0);
+            aRow.getCell(9).setCellValue((Integer) row.get("baseDrugNum"));
             //columnRow.getCell(8).setCellValue((Integer) row.get("generalNameNum"));废，电脑处方，没有通用名说法
-            aRow.getCell(8).setCellValue((Integer) (row.get("drugNum") == null ? 0 : row.get("drugNum")));
-            aRow.getCell(9).setCellValue(currencyDisplay.format(((BigDecimal) row.get("money")).floatValue()));
-            aRow.getCell(10).setCellValue((String) row.get("doctorName"));
+            aRow.getCell(10).setCellValue((Integer) (row.get("drugNum") == null ? 0 : row.get("drugNum")));
+            aRow.getCell(11).setCellValue(currencyDisplay.format(((BigDecimal) row.get("money")).floatValue()));
+            aRow.getCell(12).setCellValue((String) row.get("doctorName"));
             // if (sampleBatch.getType() == 1) {
-            aRow.getCell(11).setCellValue((String) row.get("apothecaryName"));
-            aRow.getCell(12).setCellValue((String) row.get("confirmName"));
-            aRow.getCell(13).setCellValue(row.get("rational") == null || (Short) row.get("rational") == 0 ? 1 : 0);
-            aRow.getCell(14).setCellValue((String) row.get("disItem"));
+            aRow.getCell(13).setCellValue((String) row.get("apothecaryName"));
+            aRow.getCell(14).setCellValue((String) row.get("confirmName"));
+            aRow.getCell(15).setCellValue(row.get("rational") == null || (Short) row.get("rational") == 0 ? 1 : 0);
+            aRow.getCell(16).setCellValue((String) row.get("disItem"));
             /* } else {
                 aRow.getCell(11).setCellValue((Short) row.get("rational"));
                 aRow.getCell(12).setCellValue((String) row.get("disItem"));
@@ -658,13 +660,13 @@ public class RemarkController {
 
         NumberFormat numberFormat = NumberFormat.getNumberInstance();
         totalRow.getCell(0).setCellValue("统计");
-        totalRow.getCell(4).setCellValue("A=" + statBatch.get("totalDrugNum"));
-        totalRow.getCell(5).setCellValue("C=" + statBatch.get("antiNum"));
-        totalRow.getCell(6).setCellValue("E=" + statBatch.get("injectionNum"));
-        totalRow.getCell(7).setCellValue("G=" + statBatch.get("baseDrugNum"));
-        totalRow.getCell(8).setCellValue("I=" + statBatch.get("totalDrugNum"));
-        totalRow.getCell(9).setCellValue("K=" + statBatch.get("totalMoney"));
-        totalRow.getCell(13).setCellValue("O=" + statBatch.get("rationalNum"));
+        totalRow.getCell(6).setCellValue("A=" + statBatch.get("totalDrugNum"));
+        totalRow.getCell(7).setCellValue("C=" + statBatch.get("antiNum"));
+        totalRow.getCell(8).setCellValue("E=" + statBatch.get("injectionNum"));
+        totalRow.getCell(9).setCellValue("G=" + statBatch.get("baseDrugNum"));
+        totalRow.getCell(10).setCellValue("I=" + statBatch.get("totalDrugNum"));
+        totalRow.getCell(11).setCellValue("K=" + statBatch.get("totalMoney"));
+        totalRow.getCell(15).setCellValue("O=" + statBatch.get("rationalNum"));
 
         // NumberFormat percentDisplay = DataFormat.getPercentDisplay();
 
@@ -674,17 +676,17 @@ public class RemarkController {
       logger.debug("statBatch.get(\"rxNum\")=" + statBatch.get("rxNum"));
       logger.debug("aveRow.getCell(4)=" + aveRow.getCell(4));*/
         aveRow.getCell(0).setCellValue("平均");
-        aveRow.getCell(4).setCellValue("B=" + numberFormat.format((Integer) statBatch.get("totalDrugNum") * 1.0 / (Integer) statBatch.get("rxNum")));
-        aveRow.getCell(9).setCellValue("L=" + numberFormat.format(((BigDecimal) statBatch.get("totalMoney")).doubleValue() / (Integer) statBatch.get("rxNum")));
+        aveRow.getCell(6).setCellValue("B=" + numberFormat.format((Integer) statBatch.get("totalDrugNum") * 1.0 / (Integer) statBatch.get("rxNum")));
+        aveRow.getCell(11).setCellValue("L=" + numberFormat.format(((BigDecimal) statBatch.get("totalMoney")).doubleValue() / (Integer) statBatch.get("rxNum")));
         percentRow.getCell(0).setCellValue("%");
-        percentRow.getCell(5).setCellValue("D=" + numberFormat.format((Integer) statBatch.get("antiNum") * 100.0 / list.size()));
-        percentRow.getCell(6).setCellValue("F=" + numberFormat.format((Integer) statBatch.get("injectionNum") * 100.0 / list.size()));
-        percentRow.getCell(7).setCellValue("H=" + numberFormat.format((Integer) statBatch.get("baseDrugNum") * 100.0 / (Integer) statBatch.get("totalDrugNum")));
-        percentRow.getCell(8).setCellValue("J=" + numberFormat.format((Integer) statBatch.get("totalDrugNum") * 100.0 / (Integer) statBatch.get("totalDrugNum")));
+        percentRow.getCell(7).setCellValue("D=" + numberFormat.format((Integer) statBatch.get("antiNum") * 100.0 / list.size()));
+        percentRow.getCell(8).setCellValue("F=" + numberFormat.format((Integer) statBatch.get("injectionNum") * 100.0 / list.size()));
+        percentRow.getCell(9).setCellValue("H=" + numberFormat.format((Integer) statBatch.get("baseDrugNum") * 100.0 / (Integer) statBatch.get("totalDrugNum")));
+        percentRow.getCell(10).setCellValue("J=" + numberFormat.format((Integer) statBatch.get("totalDrugNum") * 100.0 / (Integer) statBatch.get("totalDrugNum")));
         //numberFormat.setMaximumFractionDigits(0);
         //todo 出现空指针错误， update Clinic set rational=1 where rational is null
         //已完成二院的修改
-        aveRow.getCell(13).setCellValue("P=" + numberFormat.format((Integer) statBatch.get("rationalNum") * 100.0 / (Integer) statBatch.get("rxNum")));
+        aveRow.getCell(15).setCellValue("P=" + numberFormat.format((Integer) statBatch.get("rationalNum") * 100.0 / (Integer) statBatch.get("rxNum")));
 
         /*tempFilename = "dp" + (int) (Math.random() * 1000000) + ".xls";
         FileOutputStream file = new FileOutputStream(DeployRunning.getDir() + downloadDir + File.separator + tempFilename);
