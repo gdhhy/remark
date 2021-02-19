@@ -11,7 +11,7 @@
     </bean>
     <bean id="reviewDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-        <property name="url" value="jdbc:sqlserver://192.168.0.223:1433;databaseName=review"/>
+        <property name="url" value="jdbc:sqlserver://192.168.0.205:1433;databaseName=review"/>
         <property name="username" value="sa"/>
         <property name="password" value="Tao60700"/>
         <property name="maxIdle" value="100"/>

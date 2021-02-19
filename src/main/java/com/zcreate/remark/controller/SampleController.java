@@ -121,6 +121,7 @@ public class SampleController {
         result.put("draw", draw);
         if (type == 1) {
             param.put("clinicDateFrom", DateUtils.parseSqlDate(date[0]));
+            param.put("notZeroMoney", true);
             param.put("RxDetailTable", "RxDetail_" + date[0].substring(0, 4));
             param.put("clinicDateTo", toCal.getTime());
             result.put("count", clinicDao.getClinicCount(param));

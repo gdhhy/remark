@@ -73,8 +73,8 @@
                 <when test="@com.zcreate.util.Ognl@isNotEmpty(ALLDISITEM)">AND (C.drugNum>5 OR MONEY>300)</when>
                 <when test="@com.zcreate.util.Ognl@isEmpty(atLeastDrugNum)">AND C.drugNum>0</when>
             </choose>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(oldFolks)">AND C.dAge > 60</if>
-            <if test="@com.zcreate.util.Ognl@isNotEmpty(children)">AND C.dAge &lt;= 14</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(oldFolks)">AND C.age > 60</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(children)">AND C.age &lt;= 14</if>
             <if test="incompatibilityID>0">AND C.clinicID IN ( SELECT objectID FROM RxIncompatibility WHERE incompatibilityID=#{incompatibilityID} AND TYPE=1)</if>
             <choose>
                 <when test="@com.zcreate.util.Ognl@isNotEmpty(healthNo)">
@@ -108,6 +108,7 @@
             <if test="goodsID>0">AND D.goodsID=#{goodsID:INTEGER}</if>
             <if test="goodsID2>0">AND D2.goodsID=#{goodsID2:INTEGER}</if>
             <if test="@com.zcreate.util.Ognl@isNotEmpty(mzNo)">AND mzNo=#{mzNo:VARCHAR}</if>
+            <if test="@com.zcreate.util.Ognl@isNotEmpty(notZeroMoney)">AND C.MONEY>0</if>
         </where>
     </sql>
     <select id="selectClinicList" parameterType="java.util.Map" resultMap="ClinicResult">

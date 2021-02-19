@@ -77,11 +77,14 @@ public class ClinicDAOImpl extends SqlSessionDaoSupport implements ClinicDAO, Se
     @SuppressWarnings("unchecked")
     public List<Integer> getRandomClinicID(Map param) {
         param.put("atLeastDrugNum", 0);
+        param.put("notZeroMoney", true);
         return getSqlSession().selectList("Clinic.selectRandomClinicID", param);
     }
 
     @SuppressWarnings("unchecked")
     public List<Integer> selectClinicIDForLinear(Map param) {
+        param.put("atLeastDrugNum", 0);
+        param.put("notZeroMoney", true);
         return getSqlSession().selectList("Clinic.selectClinicIDForLinear", param);
     }
 

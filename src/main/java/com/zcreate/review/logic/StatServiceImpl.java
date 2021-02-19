@@ -6,12 +6,14 @@ import com.zcreate.remark.dao.SunningMapper;
 import com.zcreate.remark.util.ParamUtils;
 import com.zcreate.review.dao.StatDAO;
 import com.zcreate.review.dao.StatDAOImpl;
+import com.zcreate.util.DateUtils;
 import com.zcreate.util.StatMath;
 import org.apache.log4j.Logger;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -45,6 +47,9 @@ public class StatServiceImpl implements StatService {
 
     public HashMap<String, Object> summary(String fromDate, String toDate) {
         HashMap<String, Object> param = produceMap(fromDate, toDate);
+        Calendar cal = DateUtils.parseCalendarDayFormat(fromDate);
+        if (cal.get(Calendar.MONTH) < 6)
+            param.put("DrugRecordsTable2", "DrugRecords_" + (cal.get(Calendar.YEAR) - 1));
 
         HashMap<String, Object> sunning = sunningMapper.getSunning(param);
         HashMap<String, Object> inOutPatient = sunningMapper.getSunningInPatient(param);

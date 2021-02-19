@@ -75,11 +75,11 @@ BEGIN
     and A.IsActive = 1;
   --and A.id not in (select refID from Medicine);
   --包装单位、最小使用单位、DDD计算单位
-  /*update A
+  update A
   set minOfpack=B.DrugRatio
   FROM #Medicine A
          LEFT JOIN YBHis.LJHis.dbo.BsUnitRatio B ON A.goodsID = B.itemID and A.packUnit = B.UnitId1 and A.minUnit = B.unitID2;
-*/
+
   update A
   set packUnit=B.Name
   FROM #Medicine A

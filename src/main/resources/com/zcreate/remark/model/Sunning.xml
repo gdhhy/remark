@@ -90,7 +90,11 @@
                count(distinct case when pDate >= #{fromDate:DATE} AND pDate &lt; #{toDate:DATE} and adviceID > 0 and  mental=16 then D.hospID else null end) ppiHospitalPatient
 
         from (select adviceID, hospID, goodsID, patID,amount, clinicType, dispensingDate pDate, quantity, usage, cast(hospID as VARCHAR(10)) + cast(goodsID as VARCHAR(10)) patientDrug,dispensingNo
-              from ${DrugRecordsTable}) D
+              from ${DrugRecordsTable}
+        <if test="@com.zcreate.util.Ognl@isNotEmpty(DrugRecordsTable2)">
+        union select adviceID, hospID, goodsID, patID,amount, clinicType, dispensingDate pDate, quantity, usage, cast(hospID as VARCHAR(10)) + cast(goodsID as VARCHAR(10)) patientDrug,dispensingNo
+            from ${DrugRecordsTable2}</if>
+          ) D
                  left join Medicine M on D.goodsID = M.goodsID
                  left join InPatient P on D.hospID = P.hospID
     </select>

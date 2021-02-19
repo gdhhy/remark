@@ -25,7 +25,7 @@
 <script type="text/javascript">
     jQuery(function ($) {
         var sampleBatchID = $.getUrlParam("sampleBatchID");
-      //  var remarkType = $.getUrlParam("remarkType");
+        //  var remarkType = $.getUrlParam("remarkType");
         $("#batchName").text(decodeURI($.getUrlParam("batchName")));
         var url = "/sample/listDetails.jspa?sampleBatchID=" + sampleBatchID + '&type=1';
         //var editor = new $.fn.dataTable.Editor({});
@@ -38,12 +38,12 @@
                 // paging: false,
                 "columns": [
                     {"data": "detailID"},
-                    {"data": "mzNo", "sClass": "center"},
-                    {"data": "clinicTime", "sClass": "center"},
-                    {"data": "patientName", "sClass": "center"},
-                    {"data": "age", "sClass": "center",defaultContent:''},//4
-                    {"data": "diagnosis", "sClass": "center",defaultContent:''},
-                    {"data": "clinicType", "sClass": "center"},
+                    {"data": "mzNo", "sClass": "center", defaultContent: ''},
+                    {"data": "clinicTime", "sClass": "center", defaultContent: ''},
+                    {"data": "patientName", "sClass": "center", defaultContent: ''},
+                    {"data": "age", "sClass": "center", defaultContent: ''},//4
+                    {"data": "diagnosis", "sClass": "center", defaultContent: ''},
+                    {"data": "clinicType", "sClass": "center", defaultContent: ''},
                     {"data": "drugNum", "sClass": "center"},
                     {"data": "antiNum", "sClass": "center"},
                     {"data": "injectionNum", "sClass": "center"},//9
@@ -131,6 +131,16 @@
              });*/
         });
 
+        /* var meter1;
+         if (meter1 === undefined)
+             meter1 = setTimeout(count1(), 3000);*/
+       /* function count1() {
+            console.log("asdfas");
+            myTable.ajax.reload();
+            setTimeout(count1(), 3000);
+        }
+
+        setTimeout(count1(), 3000);*/
 
         function renderBoolean(data, type, row, meta) {
             return data >= 1 ? "有" : "无";
