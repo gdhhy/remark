@@ -275,13 +275,13 @@
         case when M.ddd>0 then A.hospitalQuantity2*M.contents / M.ddd else 0 end DDDs FROM (
         SELECT T.goodsID,
         sum(case when adviceID=0 then T.quantity else 0 end) clinicQuantity ,
-        sum(case when adviceID>0 and T.usage!='出院带药' then T.quantity else 0 end) hospitalQuantity,
-        sum(case when T.usage='出院带药' then T.quantity else 0 end) bringQuantity,
+        sum(case when adviceID>0 and T.usage not like '%出院带药%' then T.quantity else 0 end) hospitalQuantity,
+        sum(case when T.usage like '%出院带药%' then T.quantity else 0 end) bringQuantity,
         sum(T.quantity) total,
         sum(T.amount) amount,
         count(distinct case when adviceID=0 then T.hospID else null end) clinicPatient,
         count(distinct case when adviceID>0 then T.hospID else null end) hospitalPatient ,
-        SUM(CASE when adviceID>0 and T.usage!='出院带药' and T.usage!='其它' then T.quantity else 0 end)hospitalQuantity2
+        SUM(CASE when adviceID>0 and T.usage not like '%出院带药%' and T.usage!='其它' then T.quantity else 0 end)hospitalQuantity2
         FROM ${DrugRecordsTable} T join Medicine M on M.goodsID=T.goodsID
         WHERE M.antiClass>=1
         <if test="year>0">AND datepart(year,T.dispensingDate) =#{year:INTEGER}</if>
@@ -302,7 +302,7 @@
                      sum(case when D.dispensingDate between #{fromDate:DATE} and #{toDate:DATE} and M.antiClass > 0 then quantity else 0 end) antiQty,
                      count(distinct case when P.outDate between #{fromDate:DATE} and #{toDate:DATE} then D.hospID else null end) outPatient,
                      count(distinct case when P.outDate between #{fromDate:DATE} and #{toDate:DATE} and M.antiClass > 0 then D.hospID else null end) outAntiPatient,
-                     sum(case when outDate between #{fromDate:DATE} and #{toDate:DATE} and ddd > 0 and stay = 0 and usage != '出院带药' then contents * quantity / ddd else 0 end) DDDs,
+                     sum(case when outDate between #{fromDate:DATE} and #{toDate:DATE} and ddd > 0 and stay = 0 and  D.isCalcDDD=1 then contents * quantity / ddd else 0 end) DDDs,
                      count(distinct case when D.dispensingDate between #{fromDate:DATE} and #{toDate:DATE} and D.adviceID = 0 then D.hospID else null end) clinicPatient,
                      count(distinct case when dispensingDate between #{fromDate:DATE} and #{toDate:DATE} and adviceID = 0 and antiClass > 0 then D.hospID else null end) clinicAntiPatient
               from ${DrugRecordsTable} D
@@ -326,10 +326,10 @@
                      sum(case when D.dispensingDate between #{fromDate:DATE} and #{toDate:DATE} and M.antiClass > 0 then quantity else 0 end) antiQty,
                      count(distinct case when P.outDate between #{fromDate:DATE} and #{toDate:DATE} then D.hospID else null end) outPatient,
                      count(distinct case when P.outDate between #{fromDate:DATE} and #{toDate:DATE} and M.antiClass > 0 then D.hospID else null end) outAntiPatient,
-                     sum(case when P.outDate between #{fromDate:DATE} and #{toDate:DATE} and M.ddd > 0 and P.stay = 0 and usage != '出院带药' then contents * quantity / ddd else 0 end) DDDs,
+                     sum(case when P.outDate between #{fromDate:DATE} and #{toDate:DATE} and M.ddd > 0 and P.stay = 0 and D.isCalcDDD=1 then contents * quantity / ddd else 0 end) DDDs,
                      count(distinct case when D.dispensingDate between #{fromDate:DATE} and #{toDate:DATE} and adviceID = 0 then D.hospID else null end) clinicPatient,
                      count(distinct case when D.dispensingDate between #{fromDate:DATE} and #{toDate:DATE} and adviceID = 0 and antiClass > 0 then D.hospID else null end) clinicAntiPatient
-              from DrugRecords_2020 D
+              from ${DrugRecordsTable} D
                        left join Medicine M on M.goodsID = D.goodsID
                        left join InPatient P on P.hospID = D.hospID
               group by doctorID) A
