@@ -117,7 +117,7 @@
     <!--按药品使用分析 力锦-->
     <!--todo 翁源Medicine.goodsID 有null值，需要查找原因，否则统计误差大-->
     <select id="byMedicine" parameterType="java.util.Map" resultType="java.util.HashMap">
-        SELECT M.goodsID,M.no,M.chnName,M.spec,M.producer,M.dealer,A.amount,A.quantity,M.dose,M.minUnit,
+        SELECT M.ypID,M.goodsID,M.no,M.chnName,M.spec,M.producer,M.dealer,A.amount,A.quantity,M.dose,M.minUnit,
         case M.base when 1 then '基药' when 2 then '国基' when 3 then '省基' else '' end base,
         M.mental,M.minOfpack,
         <if test="top3==true">A.topDepartment,A.topDoctor,</if>A.patient FROM Medicine M,
