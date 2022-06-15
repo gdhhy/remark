@@ -108,6 +108,7 @@
     </style>
     <script type="text/javascript">
         jQuery(function ($) {
+            var baseChn = ["基", "基", "省基"];
             /*   document.addEventListener("mousewheel", fn, {passive: true});
                document.addEventListener("touchstart", fn, {passive: true});*/
             var inPatientID = '${inPatient.inPatientID}';
@@ -222,6 +223,10 @@
 
                             if (row["adviceType"] === 1)
                                 advice = advice + ' ' + row["spec"];
+                            if (row["base"] >= 1 && row["base"] <= 3)
+                                advice += '[{0}]'.format(baseChn[row["base"] - 1]);
+                            if (row["insureLimit"] >= 1)
+                                advice += '<span class=\'purple\'>[限]</span>';
                             return advice;
                         }
                     },
@@ -289,6 +294,10 @@
 
                             if (row["adviceType"] === 1)
                                 advice = advice + ' ' + row["spec"];
+                            if (row["base"] >= 1 && row["base"] <= 3)
+                                advice += '[{0}]'.format(baseChn[row["base"] - 1]);
+                            if (row["insureLimit"] >= 1)
+                                advice += '<span class=\'purple\'>[限]</span>';
                             return advice;
                         }
                     },

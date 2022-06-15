@@ -45,6 +45,8 @@ public class AdviceItem implements Serializable {
 
     private Boolean incompatibility;
     private String taboo;
+    private Integer base;
+    private Integer insureLimit;
 
     public Integer getAdviceItemID() {
         return adviceItemID;
@@ -293,5 +295,21 @@ public class AdviceItem implements Serializable {
 
     public void setUsage(String usage) {
         this.usage = usage;
+    }
+
+    public Integer getBase() {
+        return base;
+    }
+
+    public void setBase(Integer base) {
+        this.base = base;
+    }
+
+    public Integer getInsureLimit() {
+        return insureLimit;
+    }
+
+    public void setInsureLimit(Integer insureLimit) {
+        this.insureLimit = insureLimit;
     }
 }

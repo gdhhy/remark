@@ -75,6 +75,7 @@ BEGIN
     and A.IsActive = 1;
   --and A.id not in (select refID from Medicine);
   --包装单位、最小使用单位、DDD计算单位
+  --todo 先备份Medicine，防止minOfpack被刷没了
   update A
   set minOfpack=B.DrugRatio
   FROM #Medicine A
@@ -130,7 +131,7 @@ BEGIN
       --A.antiClass = B.antiClass,
       -- A.producer = B.producer,
       --A.injection = B.injection,
-      A.base = B.base,
+      --A.base = B.base,
       A.packUnit = B.packUnit,
       A.minUnit = B.minUnit,
       A.clinicUnit = B.clinicUnit,
@@ -145,35 +146,9 @@ BEGIN
     A.UpdateTime = GetDate()*/
   FROM Medicine A,
        #Medicine B
-  WHERE A.goodsID = B.goodsID
-  /*AND ((A.no != B.no)   OR (A.pinyin != B.pinyin) OR (A.chnName != B.chnName) OR (A.engName != B.engName) OR (A.dose != B.dose) OR (A.spec != B.spec) OR
-       (A.price != B.price) OR (A.western != B.western) OR (A.contents != B.contents) OR (A.mental != B.mental) OR (A.antiClass != B.antiClass) OR (A.producer != B.producer) OR
-       (A.injection != B.injection) OR (A.base != B.base) OR (A.packUnit != B.packUnit) OR (A.minUnit != B.minUnit) OR (A.minOfpack != B.minOfpack) OR (A.json != B.json) OR
-       (A.dealer != B.dealer) OR (A.insurance != B.insurance) OR (A.lastPurchaseTime != B.lastPurchaseTime))*/;
+  WHERE A.goodsID = B.goodsID ;
   SELECT @updateRowCount = @@rowcount;
-  /*update A
-  set A.dealer=B.dealer,
-      A.producer=B.producer,
-      A.matchDrugID=B.matchDrugID,
-      A.matchDrugNo=B.matchDrugNo,
-      A.matchInstrID=B.matchInstrID,
-      A.matchInstrNo=B.matchInstrNo,
-      A.injection = B.injection,
-      A.contents = B.contents,
-      A.healthNo=B.healthNo,
-      A.ddd=B.ddd,
-      A.base=B.base,
-      A.antiClass=B.antiClass,
-      A.route=B.route
-  from Medicine A, reviewDb.review.dbo.Medicine B
-  where A.no=B.no*/
-  -- SELECT 'update:'+convert(varchar(2),@updateRowCount);
-  --按剂型更新给药途径
-  /*  update M
-    set route =D.value
-    from Medicine M,
-         Dict D
-    where M.dose = D.name and D.parentID = 2 and M.route is null;*/
+
 
   -- 删除
   UPDATE Medicine SET IsDelete = 1, UpdateTime = GetDate() WHERE goodsID NOT IN (SELECT goodsID FROM #Medicine);

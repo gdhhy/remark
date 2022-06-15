@@ -107,7 +107,7 @@
                                                                                        value="${stat.clinicBaseCount*1.0/stat.clinicCount}"/></c:if></td>
                 <td align="right"><c:if test="${stat.outHospitalPatient>0}"><fmt:formatNumber type="PERCENT" maxFractionDigits="2"
                                                                                               value="${stat.outBasePatient*1.0/stat.outHospitalPatient}"/></c:if></td>
-                <td align="left">门诊基药处方占比(不含急诊大输液处方数${stat.clinicCount})<br/>住院患者基本药物使用率</td>
+                <td align="left">门诊基药处方占比(不含急诊处方数${stat.clinicCount})<br/>住院患者基本药物使用率</td>
             </tr>
             <tr>
                 <td bgColor="#75c8cc" align="center">注射剂使用率</td>
@@ -321,7 +321,8 @@
                 <td bgColor="#75c8cc" align="center" rowspan="5">急诊指标</td>
                 <td align="center" colspan="3">急诊抗菌药物处方比例<%--<br>
                     <span style="font-size:70%">急诊抗菌药病人数／急诊用药病人数</span>--%></td>
-                <td align="center"><c:if test="${stat.emergPatient>0}"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.emergAntiPatient*1.0/stat.emergPatient}"/></c:if></td>
+                <td align="center"><c:if test="${stat.emergPatient>0}"><fmt:formatNumber type="PERCENT" maxFractionDigits="2" value="${stat.emergAntiPatient*1.0/stat.emergPatient}"/></c:if>
+                    &nbsp;&nbsp;&nbsp;(${stat.emergPatient})</td>
             </tr>
             <tr>
                 <td align="center" colspan="3">急诊用抗菌药品种数</td>

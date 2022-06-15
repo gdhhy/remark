@@ -46,6 +46,7 @@
         <result column="isStat" jdbcType="INTEGER" property="isStat"/>
         <result column="healthName" jdbcType="VARCHAR" property="healthName"/>
         <result column="json" jdbcType="VARCHAR" property="json"/>
+        <result column="insureLimit" jdbcType="INTEGER" property="insureLimit"/>
     </resultMap>
     <sql id="queryWhere">
         <where>
@@ -77,21 +78,21 @@
     <select id="selectMedicine" parameterType="int" resultMap="RecordResult">
         SELECT medicineID, no, ypID, goodsID, pinyin, healthNo, chnName, engName, dose, spec, price, contents, producer, insurance, packUnit, minUnit, measureUnit, clinicUnit, minOfpack,
                matchDrugID, matchInstrID, memo, western, route, injectRoute, antiClass, ddd, updateUser, updateTime, usageCounter, dealer, lastPurchaseTime, mental,
-               maxDay, menstruum, isDelete, isStat, json
+               maxDay, menstruum, isDelete, isStat, json,insureLimit
         FROM Medicine
         WHERE medicineID = #{medicineID:INTEGER}
     </select>
     <select id="selectMedicineByNo" parameterType="string" resultMap="RecordResult">
         SELECT medicineID, no, ypID, goodsID, pinyin, healthNo, chnName, engName, dose, spec, price, contents, producer, insurance, packUnit, minUnit, measureUnit, clinicUnit, minOfpack,
                matchDrugID, matchInstrID, memo, western, route, injectRoute, antiClass, ddd, updateUser, updateTime, usageCounter, dealer, lastPurchaseTime, mental,
-               maxDay, menstruum, isDelete, isStat, json
+               maxDay, menstruum, isDelete, isStat, json,insureLimit
         FROM Medicine
         WHERE no = #{no:VARCHAR}
     </select>
     <select id="selectMedicineByGoodsID" parameterType="int" resultMap="RecordResult">
         SELECT medicineID, no, ypID, goodsID, pinyin, healthNo, chnName, engName, dose, spec, price, contents, producer, insurance, packUnit, minUnit, measureUnit, clinicUnit, minOfpack,
                matchDrugID, matchInstrID, memo, western, route, injectRoute, antiClass, ddd, updateUser, updateTime, usageCounter, dealer, lastPurchaseTime, mental,
-               maxDay, menstruum, isDelete, isStat, json
+               maxDay, menstruum, isDelete, isStat, json,insureLimit
         FROM Medicine
         WHERE goodsID = #{goodsID:INTEGER}
     </select>
@@ -99,7 +100,7 @@
         SELECT M.*,D.chnName generalName,I.chnName instructionName,H.chnName healthName FROM
         ( SELECT TOP ${limit} medicineID,no, ypID, goodsID,pinyin, healthNo,rtrim(chnName) chnName,engName,dose,spec,price,contents,producer,insurance,packUnit,minUnit,
         measureUnit,clinicUnit,minOfpack,matchDrugID,matchInstrID,memo,western,route,injectRoute,antiClass,ddd,updateUser,updateTime,usageCounter,base,dealer,lastPurchaseTime,
-        mental,maxDay,menstruum,isDelete,isStat,json
+        mental,maxDay,menstruum,isDelete,isStat,json,insureLimit
         FROM
         (SELECT * FROM Medicine
         <include refid="queryWhere"/>
@@ -119,7 +120,7 @@
         SELECT M.*,D.chnName generalName,I.chnName instructionName,H.chnName healthName FROM
         ( SELECT TOP ${limit} medicineID,no,ypID ,goodsID,pinyin, healthNo,rtrim(chnName) chnName,engName,dose,spec,price,contents,producer,insurance,packUnit,minUnit,
         measureUnit,clinicUnit,minOfpack,matchDrugID,matchInstrID,memo,western,route,injectRoute,antiClass,ddd,updateUser,updateTime,usageCounter,base,dealer,lastPurchaseTime,
-        mental,maxDay,menstruum,isDelete,isStat,json
+        mental,maxDay,menstruum,isDelete,isStat,json,insureLimit
         FROM
         (SELECT * FROM Medicine
         <include refid="queryWhere"/>

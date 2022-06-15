@@ -324,6 +324,8 @@
                                                             </c:otherwise>
                                                         </c:choose>
                                                         &nbsp;&nbsp;&nbsp; <i>${detail.spec}</i>
+                                                        <c:if test="${detail.baseChn !=''}"> - [${detail.baseChn}] </c:if>
+                                                        <c:if test="${detail.insureLimit >0}"> - <span style="color: purple">[限]</span> </c:if>
                                                     </td>
                                                     <c:if test="${detail.incompatibility}">
                                                         <td onmouseout="hiddenPic();" onmousemove="showPic('${detail.taboo}');">

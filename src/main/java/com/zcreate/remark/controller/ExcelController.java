@@ -75,7 +75,7 @@ public class ExcelController {
             row.put("patientRatio", DataFormat.getInstance().getPercentDisplayFormat().format(row.get("patientRatio")));
         }
 
-        String[] prop = {"no", "chnName", "spec", "dose", "base", "minUnit", "minOfpack", "producer", "dealer", "quantity", "amount", "patient", "amountRatio", "patientRatio", "topDepartment", "topDoctor"};
+        String[] prop = {"ypID", "no", "chnName", "spec", "dose", "base", "minUnit", "minOfpack", "producer", "dealer", "quantity", "amount", "patient", "amountRatio", "patientRatio", "topDepartment", "topDoctor"};
 
         HSSFWorkbook wb = new HSSFWorkbook(new FileInputStream(DeployRunning.getDir() + templateDir + File.separator + "medicine.xls"));
 

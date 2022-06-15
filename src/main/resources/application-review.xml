@@ -9,6 +9,14 @@
         <property name="deployLocation" value="wy_test"/>
         <property name="hospitalName" value="翁源县人民医院"/>
     </bean>
+    <!--<bean id="reviewDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+        <property name="url" value="jdbc:sqlserver://192.168.0.100:1433;databaseName=review"/>
+        <property name="username" value="sa"/>
+        <property name="password" value="Tao@3102"/>
+        <property name="maxIdle" value="100"/>
+        <property name="initialSize" value="10"/>
+    </bean>-->
     <bean id="reviewDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
         <property name="url" value="jdbc:sqlserver://192.168.0.205:1433;databaseName=review"/>
@@ -29,7 +37,7 @@
     </bean>
     <bean id="hisDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
-        <property name="url" value="jdbc:sqlserver://192.168.0.223:1433;databaseName=LjHis"/>
+        <property name="url" value="jdbc:sqlserver://192.168.0.205:1433;databaseName=LjHis"/>
         <property name="username" value="sa"/>
         <property name="password" value="Tao60700"/>
         <!--<property name="url" value="jdbc:sqlserver://168.168.168.83:1433;databaseName=LJHIS"/>

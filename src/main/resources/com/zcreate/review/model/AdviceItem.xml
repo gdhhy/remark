@@ -33,6 +33,8 @@
         <result column="contents" jdbcType="DOUBLE" property="contents"/>
         <result column="dose" jdbcType="INTEGER" property="dose"/>
         <result column="producer" jdbcType="INTEGER" property="producer"/>
+        <result column="base" jdbcType="INTEGER" property="base"/>
+        <result column="insureLimit" jdbcType="INTEGER" property="insureLimit"/>
     </resultMap>
     <!--<resultMap id="AdviceItemReviewResult" type="com.zcreate.review.model.AdviceItemReview">
         <result column="adviceItemReviewID" jdbcType="INTEGER" property="adviceItemReviewID"/>
@@ -61,7 +63,7 @@
         SELECT M.antiClass, R.adviceItemID, R.hospID, R.longAdvice, R.adviceDate, replace(R.advice, '%', '﹪') advice, R.spec, R.adviceType, M.goodsID, R.doctorName, R.nurseName,
                R.endDate, R.endDoctorName, R.endNurseName, R.quantity, R.unit, R.problemCode, R.problemDesc, R.frequency, R.usage, R.orderID, R.groupID, R.total,
                M.matchInstrID                                                                                 instructionID, replace(M.chnName, '%', '﹪') medicineName,
-               M.contents, M.medicineID, M.dose, M.producer
+               M.contents, M.medicineID, M.dose, M.producer, M.base,M.insureLimit
         FROM ${AdviceItemTable} R
                  LEFT JOIN Medicine M ON R.goodsID = M.goodsID
         WHERE R.hospID = #{hospID:INTEGER} AND R.longAdvice = 1
@@ -71,7 +73,7 @@
         SELECT M.antiClass, R.adviceItemID, R.hospID, R.longAdvice, R.adviceDate, replace(R.advice, '%', '﹪') advice, R.spec, R.adviceType, M.goodsID, R.doctorName, R.nurseName,
                R.endDate, R.endDoctorName, R.endNurseName, R.quantity, R.unit, R.problemCode, R.problemDesc, R.frequency, R.usage, R.orderID, R.groupID, R.total,
                M.matchInstrID                                                                                 instructionID, replace(M.chnName, '%', '﹪') medicineName,
-               M.contents, M.medicineID, M.dose, M.producer
+               M.contents, M.medicineID, M.dose, M.producer, M.base,M.insureLimit
         FROM ${AdviceItemTable} R
                  LEFT JOIN Medicine M ON R.goodsID = M.goodsID
         WHERE R.hospID = #{hospID:INTEGER} AND R.longAdvice = 2
@@ -81,7 +83,7 @@
         SELECT M.antiClass, R.adviceItemID, R.hospID, R.longAdvice, R.adviceDate, replace(R.advice, '%', '﹪') advice, R.spec, R.adviceType, M.goodsID, R.doctorName, R.nurseName,
                R.endDate, R.endDoctorName, R.endNurseName, R.quantity, R.unit, R.problemCode, R.problemDesc, R.frequency, R.usage, R.orderID, R.groupID, R.total,
                M.matchInstrID                                                                                 instructionID, replace(M.chnName, '%', '﹪') medicineName,
-               M.contents, M.medicineID, M.dose, M.producer
+               M.contents, M.medicineID, M.dose, M.producer,M.insureLimit
         FROM ${AdviceItemTable} R
                  JOIN Medicine M ON R.goodsID = M.goodsID
         WHERE R.hospID = #{hospID:INTEGER}

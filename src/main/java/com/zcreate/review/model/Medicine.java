@@ -82,6 +82,7 @@ public class Medicine implements Serializable {
     private String healthName;
     private Integer isDelete;
     private Integer isStat;//抗菌药是否统计该值
+    private Integer insureLimit;
 
     public Integer getMedicineID() {
         return medicineID;
@@ -426,5 +427,13 @@ public class Medicine implements Serializable {
 
     public void setJson(String json) {
         this.json = json;
+    }
+
+    public Integer getInsureLimit() {
+        return insureLimit;
+    }
+
+    public void setInsureLimit(Integer insureLimit) {
+        this.insureLimit = insureLimit;
     }
 }

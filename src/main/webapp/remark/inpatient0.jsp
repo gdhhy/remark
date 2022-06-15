@@ -120,6 +120,7 @@
 
     <script type="text/javascript">
         jQuery(function ($) {
+            var baseChn = ["基", "基", "省基"];
             var inPatientID = '${inPatient.inPatientID}';
             if (inPatientID === '') {
                 showDialog("加载失败", "请检查数据或联系系统开发！");
@@ -245,6 +246,10 @@
 
                             if (row["adviceType"] === 1)
                                 advice = advice + ' ' + row["spec"];
+                            if (row["base"] >= 1 && row["base"] <= 3)
+                                advice += '[{0}]'.format(baseChn[row["base"] - 1]);
+                            if (row["insureLimit"] >= 1)
+                                advice += '<span class=\'purple\'>[限]</span>';
                             return advice;
                         }
                     },
@@ -312,6 +317,10 @@
 
                             if (row["adviceType"] === 1)
                                 advice = advice + ' ' + row["spec"];
+                            if (row["base"] >= 1 && row["base"] <= 3)
+                                advice += '[{0}]'.format(baseChn[row["base"] - 1]);
+                            if (row["insureLimit"] >= 1)
+                                advice += '<span class=\'purple\'>[限]</span>';
                             return advice;
                         }
                     },

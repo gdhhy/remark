@@ -23,6 +23,8 @@ public class RxDetail implements Serializable {
     //每次量
     private Float eachQuantity;//对应每次量
     private String eachUnit;//对应每次量单位
+    private String baseChn;//2022增加
+    private String insureLimit;//2022增加
 
 
     //医嘱类型
@@ -306,5 +308,20 @@ public class RxDetail implements Serializable {
 
     public void setMemo(String memo) {
         this.memo = memo;
+    }
+    public String getBaseChn() {
+        return baseChn;
+    }
+
+    public void setBaseChn(String baseChn) {
+        this.baseChn = baseChn;
+    }
+
+    public String getInsureLimit() {
+        return insureLimit;
+    }
+
+    public void setInsureLimit(String insureLimit) {
+        this.insureLimit = insureLimit;
     }
 }
